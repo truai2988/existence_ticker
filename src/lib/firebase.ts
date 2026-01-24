@@ -1,0 +1,44 @@
+import { initializeApp, FirebaseApp } from 'firebase/app';
+import { getFirestore, Firestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { getAuth, Auth, connectAuthEmulator } from 'firebase/auth';
+import { getFunctions, Functions, connectFunctionsEmulator } from 'firebase/functions';
+
+// Only initialize if env vars are present to mock safe behavior
+const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
+
+let app: FirebaseApp | undefined;
+let db: Firestore | undefined;
+let auth: Auth | undefined;
+let functions: Functions | undefined;
+
+if (apiKey) {
+  const firebaseConfig = {
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID
+  };
+
+  app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  auth = getAuth(app);
+  functions = getFunctions(app);
+
+  // Connect to Emulators if running locally
+  /* 
+  if (location.hostname === "localhost") {
+      console.log("Connecting to Firebase Emulators...");
+      connectFirestoreEmulator(db, 'localhost', 8080);
+      connectAuthEmulator(auth, 'http://localhost:9099');
+      connectFunctionsEmulator(functions, 'localhost', 5001);
+  }
+  */
+
+
+} else {
+  console.warn('Firebase config missing. Running in offline/demo mode.');
+}
+
+export { db, auth, functions };
