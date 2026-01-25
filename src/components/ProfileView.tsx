@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
     X, User, ChevronRight, ChevronDown, QrCode, 
     LogOut, Trash2, KeyRound, ShieldAlert, Sun,
-    Wallet, Heart, Star
+    Wallet, Heart, Star, Handshake, Megaphone
 } from 'lucide-react';
 import QRCode from "react-qr-code";
 import { useProfile } from '../hooks/useProfile';
@@ -134,28 +134,33 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }
         value, 
         onClick, 
         isDestructive = false,
-        hasArrow = true 
+        hasArrow = true,
+        iconColor = "text-slate-500",
+        iconBg = "bg-slate-100"
     }: {
         icon: React.ElementType;
         label: string;
         value?: string;
-        onClick: () => void;
+        onClick?: () => void;
         isDestructive?: boolean;
         hasArrow?: boolean;
+        iconColor?: string;
+        iconBg?: string;
     }) => (
         <button 
             onClick={onClick}
-            className={`w-full flex items-center justify-between p-4 bg-white border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors ${isDestructive ? 'text-red-500' : 'text-slate-700'}`}
+            disabled={!onClick}
+            className={`w-full flex items-center justify-between p-4 bg-white border-b border-slate-100 last:border-0 ${onClick ? 'hover:bg-slate-50 cursor-pointer' : 'cursor-default'} transition-colors ${isDestructive ? 'text-red-500' : 'text-slate-700'}`}
         >
             <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-full ${isDestructive ? 'bg-red-50' : 'bg-slate-100'}`}>
-                    <Icon size={16} className={isDestructive ? 'text-red-500' : 'text-slate-500'} />
+                <div className={`p-2 rounded-full ${iconBg}`}>
+                    <Icon size={16} className={iconColor} />
                 </div>
                 <span className="text-sm font-medium">{label}</span>
             </div>
             <div className="flex items-center gap-2">
-                {value && <span className="text-xs text-slate-400">{value}</span>}
-                {hasArrow && <ChevronRight size={16} className="text-slate-300" />}
+                {value && <span className="text-sm font-bold text-slate-700">{value}</span>}
+                {hasArrow && onClick && <ChevronRight size={16} className="text-slate-300" />}
             </div>
         </button>
     );
@@ -192,38 +197,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }
                         </h3>
                     )}
                     
-                    <div className="flex gap-2 mt-1">
-                        <span className="text-[10px] font-medium text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
-                            手伝い: {helpfulCount}回
-                        </span>
-                        <span className="text-[10px] font-medium text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
-                            依頼: {requestCount}回
-                        </span>
+                    <div className="text-[10px] text-slate-400 font-mono">
+                        ID: {profile?.id?.slice(0, 8)}...
                     </div>
                 </div>
 
-                {/* 2. Stats Grid */}
-                <div className="grid grid-cols-2 gap-4 px-4 mb-6">
-                    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center">
-                        <span className="text-[10px] text-slate-400 font-bold mb-1">手伝いのお礼</span>
-                        <div className="text-xl font-bold text-slate-800 flex items-center gap-1">
-                            <Star size={16} className="text-blue-400" />
-                            {xp.toLocaleString()}
-                        </div>
-                    </div>
-                    <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center">
-                        <span className="text-[10px] text-slate-400 font-bold mb-1">寄付・贈与</span>
-                        <div className="text-xl font-bold text-slate-800 flex items-center gap-1">
-                            <Heart size={16} className="text-pink-400" />
-                            {warmth.toLocaleString()}
-                        </div>
-                    </div>
-                </div>
-
-                {/* 3. Settings List Group */}
+                {/* 2. Settings & Stats Groups */}
                 <div className="px-4 space-y-6">
                     
-                    {/* Section: Wallet & ID */}
+                    {/* Section: Wallet (Stock) */}
                     <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm">
                         <div className="p-4 border-b border-slate-100 flex justify-between items-center">
                             <div className="flex items-center gap-3">
@@ -276,6 +258,45 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }
                                     </motion.div>
                                 )}
                             </AnimatePresence>
+                        </div>
+                    </div>
+
+                    {/* Section: Activity History (Flow) - NEW */}
+                    <div>
+                        <div className="text-xs font-bold text-slate-400 ml-2 mb-2">アクティビティ・実績</div>
+                        <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+                            <ListItem 
+                                icon={Handshake} 
+                                label="手伝った回数" 
+                                value={`${helpfulCount}回`}
+                                hasArrow={false}
+                                iconColor="text-blue-500"
+                                iconBg="bg-blue-50"
+                            />
+                             <ListItem 
+                                icon={Megaphone} 
+                                label="依頼した回数" 
+                                value={`${requestCount}回`}
+                                hasArrow={false}
+                                iconColor="text-slate-500"
+                                iconBg="bg-slate-100"
+                            />
+                             <ListItem 
+                                icon={Star} 
+                                label="獲得した総額" 
+                                value={`${xp.toLocaleString()} ${UNIT_LABEL}`}
+                                hasArrow={false}
+                                iconColor="text-amber-500"
+                                iconBg="bg-amber-50"
+                            />
+                             <ListItem 
+                                icon={Heart} 
+                                label="贈られた総額" 
+                                value={`${warmth.toLocaleString()} ${UNIT_LABEL}`}
+                                hasArrow={false}
+                                iconColor="text-pink-500"
+                                iconBg="bg-pink-50"
+                            />
                         </div>
                     </div>
 
