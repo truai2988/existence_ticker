@@ -49,7 +49,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }
     const warmth = profile?.warmth || 0;
     const currentName = profile?.name || '名もなき旅人';
     const helpfulCount = profile?.completed_contracts || 0;
-    const requestCount = profile?.created_contracts || 0;
+    const requestCount = profile?.completed_requests || 0;
 
     const rank = getTrustRank(helpfulCount);
 
@@ -282,9 +282,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }
                                 iconColor="text-blue-500"
                                 iconBg="bg-blue-50"
                             />
-                             <ListItem 
+                            <ListItem 
                                 icon={Megaphone} 
-                                label="依頼した回数" 
+                                label="依頼実績 (完了済)" 
                                 value={`${requestCount}回`}
                                 hasArrow={false}
                                 iconColor="text-slate-500"
