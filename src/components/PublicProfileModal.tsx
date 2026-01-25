@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { X, User, Handshake, Megaphone } from 'lucide-react';
 import { useOtherProfile } from '../hooks/useOtherProfile';
+import { getTrustRank } from '../utils/trustRank';
 
 interface PublicProfileModalProps {
     userId: string;
@@ -28,14 +29,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
     const helpCount = profile.completed_contracts || 0;
     const reqCount = profile.created_contracts || 0;
     
-    // Determine Rank/Badge (Kept for name emphasis, but points removed)
-    const getRank = (score: number) => {
-        if (score >= 1000) return { label: 'Legend', color: 'text-amber-500', bg: 'bg-amber-100' };
-        if (score >= 100) return { label: 'Veteran', color: 'text-purple-500', bg: 'bg-purple-100' };
-        if (score >= 10) return { label: 'Regular', color: 'text-blue-500', bg: 'bg-blue-100' };
-        return { label: 'Newcomer', color: 'text-slate-500', bg: 'bg-slate-100' };
-    };
-    const rank = getRank(helpCount); 
+    const rank = getTrustRank(helpCount); 
 
     return (
         <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in">

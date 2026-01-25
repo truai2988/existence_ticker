@@ -12,6 +12,7 @@ export interface UserProfile {
   last_updated?: unknown; 
   completed_contracts?: number; // How many times they helped
   created_contracts?: number;   // How many times they requested
+  completed_requests?: number;  // How many times their requests were fulfilled & paid
 }
 
 export interface Point {
@@ -25,7 +26,8 @@ export interface Wish {
   id: string;
   requester_id: string; 
   requester_name?: string; 
-  requester_trust_score?: number; // Snapshot of their reliability (completed contracts) at creation
+  requester_trust_score?: number; // Snapshot of their reliability (completed contracts as helper) at creation
+  requester_completed_requests?: number; // Snapshot of their reliability (completed requests as requester) at creation
   content: string;
   applicants?: { id: string; name: string; trust_score?: number }[]; // Handshake candidates
   gratitude_preset: GratitudeTier;

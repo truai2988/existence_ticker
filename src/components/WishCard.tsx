@@ -4,6 +4,7 @@ import { Wish } from '../types';
 import { calculateLifePoints } from '../utils/decay';
 import { useWishActions } from '../hooks/useWishActions';
 import { useUserView } from '../contexts/UserViewContext';
+import { getTrustRank } from '../utils/trustRank';
 
 interface WishCardProps {
   wish: Wish;
@@ -69,13 +70,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
       return 'Unknown';
   };
 
-  const getTrustBadge = (score?: number) => {
-      const s = score || 0;
-      if (s >= 10) return { icon: '🏆', label: 'Veteran', color: 'text-amber-500' };
-      if (s >= 3) return { icon: '★', label: 'Regular', color: 'text-blue-500' };
-      return { icon: '🔰', label: 'New', color: 'text-green-500' };
-  };
-  const trust = getTrustBadge(wish.requester_trust_score);
+  const trust = getTrustRank(wish.requester_trust_score);
 
   return (
     <div className={`relative group bg-white border shadow-sm hover:shadow-lg rounded-2xl p-6 transition-all duration-300 md:hover:scale-[1.01] ${applicants.length > 0 && isMyWish && wish.status === 'open' ? 'border-yellow-400 shadow-yellow-100 ring-1 ring-yellow-400/50' : 'border-slate-100'}`}>
@@ -94,13 +89,22 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
                 >
                 {wish.requester_name || wish.requester_id.slice(0, 8)} 
                 </button>
-                <button 
-                    onClick={(e) => { e.stopPropagation(); openUserProfile(wish.requester_id); }}
-                    title={`Helped ${wish.requester_trust_score || 0} times`} 
-                    className={`text-xs cursor-pointer hover:scale-110 transition-transform ${trust.color}`}
-                >
-                    {trust.icon}
-                </button>
+                <div className="flex items-center gap-2 text-xs">
+                     <button 
+                        onClick={(e) => { e.stopPropagation(); openUserProfile(wish.requester_id); }}
+                        title={`Helped ${wish.requester_trust_score || 0} times`} 
+                        className={`cursor-pointer hover:scale-110 transition-transform ${trust.color} flex items-center gap-0.5`}
+                    >
+                        {trust.icon}<span className="font-mono">({wish.requester_trust_score || 0})</span>
+                    </button>
+                    <span className="text-slate-300">|</span>
+                    <span 
+                        title="過去に完了/支払いを行った回数"
+                        className="text-slate-500 font-bold flex items-center gap-1"
+                    >
+                        📢 依頼実績: {wish.requester_completed_requests || 0}
+                    </span>
+                </div>
             </div>
             <span className="flex items-center gap-1 text-[10px] text-slate-400">
               <Clock className="w-3 h-3" />
@@ -194,7 +198,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
                                                             onClick={() => openUserProfile(app.id)}
                                                             className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-lg shadow-sm hover:scale-110 active:scale-95 transition-transform cursor-pointer"
                                                        >
-                                                           {getTrustBadge(app.trust_score).icon}
+                                                           {getTrustRank(app.trust_score).icon}
                                                        </button>
                                                        <div>
                                                            <button 
@@ -204,7 +208,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
                                                                {app.name}
                                                            </button>
                                                            <div className="text-[10px] text-slate-400 flex items-center gap-1">
-                                                               <span className={getTrustBadge(app.trust_score).color}>{getTrustBadge(app.trust_score).label}</span>
+                                                               <span className={getTrustRank(app.trust_score).color}>{getTrustRank(app.trust_score).label}</span>
                                                                <span>• {app.trust_score || 0} helps</span>
                                                            </div>
                                                        </div>
@@ -230,10 +234,6 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
                    <button 
                        onClick={() => {
                            if(confirm("本当にお礼をしてよろしいですか？Lumenが送られます。")) {
-                               // Assuming fulfillWish can be called directly or needs special handling
-                               // `onAccept` prop was removed, we use `useWishActions` internally but fulfillWish requires HelperID
-                               // But wait, fulfillWish takes (wishId, fulfillerId).
-                               // We should have fulfillerId in wish object? Yes, helper_id.
                                if(wish.helper_id) {
                                    const run = async () => {
                                        setIsLoading(true);

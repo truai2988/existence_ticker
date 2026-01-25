@@ -48,6 +48,7 @@ export const useWishActions = () => {
 
         const lastUpdated = data.last_updated;
         const myTrustScore = data.completed_contracts || 0; // Current help count
+        const myRequestHistory = data.completed_requests || 0; // Current paid/fulfilled count
 
         // 2. Strict Check (Phase 1: No Void/Negative)
         // Calculate dynamic balance first
@@ -87,7 +88,7 @@ export const useWishActions = () => {
         // Update user: Balance changes AND last_updated resets (Decay Anchor reset)
         transaction.update(userRef, { 
             balance: newBalance,
-            created_contracts: increment(1), // Track Requests
+            created_contracts: increment(1), // Track Requests (Created)
             last_updated: serverTimestamp() 
         });
 
@@ -100,7 +101,8 @@ export const useWishActions = () => {
             status: 'open',
             cost: bounty, // Initial Value
 
-            requester_trust_score: myTrustScore, // Stamp Trust
+            requester_trust_score: myTrustScore, // Stamp Trust (Helped Count)
+            requester_completed_requests: myRequestHistory, // Stamp Reliability (Paid/Completed Requests)
             created_at: serverTimestamp() // Firestore Timestamp
         });
       });
@@ -279,7 +281,12 @@ export const useWishActions = () => {
             if (iBalance < 0) {
                  transaction.update(issuerRef, { 
                      balance: 0,
+                     completed_requests: increment(1), // Increment 'Properly Paid' count
                      last_updated: serverTimestamp() // Anchor Reset at Salvation
+                 });
+            } else {
+                 transaction.update(issuerRef, {
+                     completed_requests: increment(1) // Increment 'Properly Paid' count even if not negative
                  });
             }
         }
