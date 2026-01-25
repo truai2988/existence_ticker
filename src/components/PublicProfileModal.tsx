@@ -56,7 +56,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                 </div>
 
                 {/* Avatar & Name */}
-                <div className="px-6 -mt-10 pb-8 text-center">
+                <div className="px-6 -mt-10 pb-8 text-center relative z-10">
                     <div className="w-20 h-20 mx-auto bg-white rounded-full p-1 shadow-sm mb-3">
                         <div className="w-full h-full bg-slate-50 rounded-full flex items-center justify-center border border-slate-100">
                              <User size={36} className="text-slate-300" />
