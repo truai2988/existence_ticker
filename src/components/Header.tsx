@@ -25,7 +25,7 @@ export const Header: React.FC<HeaderProps> = ({ balance }) => {
     return (
         <header className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md pt-safe z-40 px-6 py-4 flex flex-col items-center justify-center border-b border-slate-100/50 shadow-sm">
              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">
-                 残高
+                 手持ち
              </span>
              <div className="flex items-baseline gap-1">
                  <span className="text-3xl font-mono font-bold text-slate-900 tracking-tighter tabular-nums">
