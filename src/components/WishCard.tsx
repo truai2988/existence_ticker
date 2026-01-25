@@ -3,6 +3,7 @@ import { Handshake, Loader2, Clock, User, CheckCircle } from 'lucide-react';
 import { Wish } from '../types';
 import { calculateLifePoints } from '../utils/decay';
 import { useWishActions } from '../hooks/useWishActions';
+import { useUserView } from '../contexts/UserViewContext';
 
 interface WishCardProps {
   wish: Wish;
@@ -11,6 +12,7 @@ interface WishCardProps {
 
 export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
   const { applyForWish, approveWish, fulfillWish, reportCompletion } = useWishActions();
+  const { openUserProfile } = useUserView();
   const [isLoading, setIsLoading] = useState(false);
   // Alias hook for closure usage if needed, or just use destructuring
   const useWishActionsHook = { fulfillWish, reportCompletion };
@@ -86,9 +88,12 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-                <span className="block text-sm font-bold text-slate-800 tracking-wide">
+                <button 
+                  onClick={(e) => { e.stopPropagation(); openUserProfile(wish.requester_id); }}
+                  className="block text-sm font-bold text-slate-800 tracking-wide hover:underline text-left"
+                >
                 {wish.requester_name || wish.requester_id.slice(0, 8)} 
-                </span>
+                </button>
                 <span title={`Helped ${wish.requester_trust_score || 0} times`} className={`text-xs cursor-help ${trust.color}`}>
                     {trust.icon}
                 </span>
@@ -185,7 +190,12 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
                                                            {getTrustBadge(app.trust_score).icon}
                                                        </div>
                                                        <div>
-                                                           <div className="text-xs font-bold text-slate-700">{app.name}</div>
+                                                           <button 
+                                                               onClick={() => openUserProfile(app.id)}
+                                                               className="text-xs font-bold text-slate-700 hover:underline text-left"
+                                                           >
+                                                               {app.name}
+                                                           </button>
                                                            <div className="text-[10px] text-slate-400 flex items-center gap-1">
                                                                <span className={getTrustBadge(app.trust_score).color}>{getTrustBadge(app.trust_score).label}</span>
                                                                <span>• {app.trust_score || 0} helps</span>
