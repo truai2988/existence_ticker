@@ -1,5 +1,4 @@
 import React from 'react';
-import React from 'react';
 import { motion } from 'framer-motion';
 import { X, User, Star, Heart } from 'lucide-react';
 import { useOtherProfile } from '../hooks/useOtherProfile';
