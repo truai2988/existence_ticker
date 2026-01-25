@@ -50,6 +50,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }
     const helpfulCount = profile?.completed_contracts || 0;
     const requestCount = profile?.created_contracts || 0;
 
+    // Determine Rank/Badge
+    const getRank = (score: number) => {
+        if (score >= 1000) return { label: 'Legend', color: 'text-amber-500', bg: 'bg-amber-100' };
+        if (score >= 100) return { label: 'Veteran', color: 'text-purple-500', bg: 'bg-purple-100' };
+        if (score >= 10) return { label: 'Regular', color: 'text-blue-500', bg: 'bg-blue-100' };
+        return { label: 'Newcomer', color: 'text-slate-500', bg: 'bg-slate-100' };
+    };
+    const rank = getRank(helpfulCount);
+
     // Visual Decay Logic
     const [displayBalance, setDisplayBalance] = useState(() => 
         profile ? calculateLifePoints(profile.balance, profile.last_updated) : 0
@@ -197,8 +206,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }
                         </h3>
                     )}
                     
-                    <div className="text-[10px] text-slate-400 font-mono">
-                        ID: {profile?.id?.slice(0, 8)}...
+                    <div className="flex items-center gap-2 mt-2">
+                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${rank.bg} ${rank.color}`}>
+                            {rank.label}
+                        </span>
+                        <div className="text-[10px] text-slate-400 font-mono">
+                            ID: {profile?.id?.slice(0, 8)}...
+                        </div>
                     </div>
                 </div>
 
