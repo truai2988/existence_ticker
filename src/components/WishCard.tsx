@@ -94,9 +94,13 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
                 >
                 {wish.requester_name || wish.requester_id.slice(0, 8)} 
                 </button>
-                <span title={`Helped ${wish.requester_trust_score || 0} times`} className={`text-xs cursor-help ${trust.color}`}>
+                <button 
+                    onClick={(e) => { e.stopPropagation(); openUserProfile(wish.requester_id); }}
+                    title={`Helped ${wish.requester_trust_score || 0} times`} 
+                    className={`text-xs cursor-pointer hover:scale-110 transition-transform ${trust.color}`}
+                >
                     {trust.icon}
-                </span>
+                </button>
             </div>
             <span className="flex items-center gap-1 text-[10px] text-slate-400">
               <Clock className="w-3 h-3" />
@@ -186,9 +190,12 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
                                            {applicants.map(app => (
                                                <div key={app.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl hover:bg-white hover:shadow-md transition-all border border-transparent hover:border-slate-100">
                                                    <div className="flex items-center gap-3">
-                                                       <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-lg shadow-sm">
+                                                       <button 
+                                                            onClick={() => openUserProfile(app.id)}
+                                                            className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-lg shadow-sm hover:scale-110 active:scale-95 transition-transform cursor-pointer"
+                                                       >
                                                            {getTrustBadge(app.trust_score).icon}
-                                                       </div>
+                                                       </button>
                                                        <div>
                                                            <button 
                                                                onClick={() => openUserProfile(app.id)}
