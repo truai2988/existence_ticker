@@ -102,19 +102,15 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
                 {wish.requester_name || wish.requester_id.slice(0, 8)}
               </button>
               <div className="flex items-center gap-2 text-xs shrink-0">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openUserProfile(wish.requester_id);
-                  }}
+                <div
                   title={`Helped ${wish.requester_trust_score || 0} times`}
-                  className={`cursor-pointer hover:scale-110 transition-transform ${trust.color} flex items-center gap-0.5`}
+                  className={`flex items-center gap-0.5 ${trust.color}`}
                 >
                   {trust.icon}
                   <span className="font-mono">
                     ({wish.requester_trust_score || 0})
                   </span>
-                </button>
+                </div>
                 <span className="text-slate-300">|</span>
                 <span
                   title="過去に完了/支払いを行った回数"
