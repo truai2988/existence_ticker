@@ -17,6 +17,8 @@ export interface DashboardStats {
     };
     metabolism: {
         volume24h: number;
+        giftVolume: number;
+        wishVolume: number;
         rate: number; // percentage
         status: MetabolismStatus;
     };
@@ -57,6 +59,8 @@ export const useStats = () => {
             
             // 2. Metabolism (Scalable)
             let volume = 0;
+            let giftVolume = 0;
+            let wishVolume = 0;
             let rebornCount = 0;
 
             if (db) {
@@ -68,6 +72,8 @@ export const useStats = () => {
                     if (dailyStatsSnap.exists()) {
                         const data = dailyStatsSnap.data();
                         volume = data.volume || 0;
+                        giftVolume = data.gift_volume || 0;
+                        wishVolume = data.wish_volume || 0;
                         rebornCount = data.reborn_count || 0;
                     }
                 } catch (e) {
@@ -155,6 +161,8 @@ export const useStats = () => {
                         },
                         metabolism: {
                             volume24h: volume,
+                            giftVolume,
+                            wishVolume,
                             rate,
                             status
                         },

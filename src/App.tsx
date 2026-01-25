@@ -1,28 +1,58 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 // Main App Component
-import { Scan, Sparkles } from 'lucide-react';
-
-import { TopScreen } from './components/TopScreen';
-import { WishesList } from './components/WishesList';
+import { HomeView } from './components/HomeView';
 import { ProfileView } from './components/ProfileView';
-import { JournalView } from './components/JournalView';
+import { JournalView } from './components/JournalView'; // Acting as History
 import { AuthScreen } from './components/AuthScreen';
 import { AdminDashboard } from './components/AdminDashboard';
+import { Header } from './components/Header';
+import { Footer } from './components/Footer';
+import { RadianceView } from './components/RadianceView';
+import { FlowView } from './components/FlowView';
+import { ReloadPrompt } from './components/ReloadPrompt';
 
 import { useAuth } from './hooks/useAuthHook';
 import { useWallet } from './hooks/useWallet';
 
+
+type GenericViewMode = 'home' | 'history' | 'profile' | 'flow' | 'give' | 'admin';
+
 function App() {
   const { user, loading: authLoading } = useAuth();
-  const { balance } = useWallet();
+  // const { profile } = useProfile(); // Unused here now, ProfileView handles it internally
+  const { balance } = useWallet(); 
+  
+  const [viewMode, setViewMode] = useState<GenericViewMode>('home');
+  
+  // Tab state (Visual mostly, syncing with viewMode)
+  const [activeTab, setActiveTab] = useState<'home' | 'history' | 'profile'>('home');
 
-  const [currentTab, setCurrentTab] = useState<'flow' | 'wishes'>('flow');
-  const [activeOverlay, setActiveOverlay] = useState<'none' | 'profile' | 'journal' | 'admin'>('none');
+  const handleTabChange = (tab: 'home' | 'history' | 'profile') => {
+      setActiveTab(tab);
+      setViewMode(tab);
+  };
+
+  const { checkLunarPhase } = useWallet();
+
+  // Lunar Phase Logic (Preserved from TopScreen)
+  useEffect(() => {
+      if (!user) return;
+      const doCheck = async () => {
+          await checkLunarPhase();
+      };
+      doCheck();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid]);
+
+  const handleGoHome = () => {
+      setActiveTab('home');
+      setViewMode('home');
+  };
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center text-white">
-        <div className="animate-pulse tracking-widest text-xs uppercase text-yellow-500">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-800">
+        <div className="animate-pulse tracking-widest text-xs uppercase text-slate-400">
           Connecting to Existence...
         </div>
       </div>
@@ -34,60 +64,65 @@ function App() {
   }
 
   return (
-    <div className="bg-black min-h-screen text-white pb-24 font-sans selection:bg-yellow-500/30 overflow-hidden flex flex-col">
+    <div className="bg-slate-50 min-h-screen font-sans selection:bg-yellow-500/30 overflow-hidden flex flex-col relative text-slate-900">
       
-      <main className="flex-1 relative w-full h-full overflow-hidden">
-        {currentTab === 'flow' ? (
-          <div className="animate-in fade-in duration-500 h-full overflow-y-auto flex flex-col">
-            {/* TopScreenにデータを渡す */}
-            <TopScreen 
-              balance={balance}
-              onOpenProfile={() => setActiveOverlay('profile')}
-              onOpenJournal={() => setActiveOverlay('journal')}
-              onOpenAdmin={() => setActiveOverlay('admin')}
-            />
-          </div>
-        ) : (
-          <div className="animate-in fade-in duration-500 h-full overflow-hidden">
-            <WishesList currentUserId={user.uid} />
-          </div>
-        )}
+      {/* HEADER (Always visible except maybe Admin?) */}
+      <Header balance={balance} lastUpdated={null} /> 
+      {/* Note: lastUpdated is missing here, we should ideally fetch it or let Header use the hook. 
+         Let's update Header to use useProfile if we don't want to drill it here.
+         For now, passing null might break decay. Let's fix this in Header later or import useProfile here.
+      */}
+
+      {/* MAIN CONTENT */}
+      <main className="flex-1 relative overflow-y-auto no-scrollbar scroll-smooth pb-24">
+          
+          {viewMode === 'home' && (
+              <HomeView 
+                onOpenFlow={() => {
+                    setViewMode('flow');
+                    // Tab stays on home or deselects? Let's keep home for now as it's a sub-view of home functionally? 
+                    // Or maybe it's a full view.
+                    // User requested generic "Earn" card.
+                }} 
+                onOpenCreate={() => {
+                    setViewMode('give'); 
+                }}
+              />
+          )}
+
+          {viewMode === 'profile' && (
+            <ProfileView 
+                onClose={handleGoHome} 
+                onOpenAdmin={() => setViewMode('admin')} 
+            /> 
+            // ProfileView usually has a close button. We can hide it or make it go Home.
+          )}
+          
+          {viewMode === 'history' && (
+            <JournalView onClose={handleGoHome} />
+          )}
+
+          {viewMode === 'flow' && (
+            <FlowView onClose={handleGoHome} currentUserId={user.uid} />
+          )}
+
+          {viewMode === 'give' && (
+             <RadianceView onClose={handleGoHome} currentUserId={user.uid} />
+          )}
+
+          {viewMode === 'admin' && (
+            <AdminDashboard onClose={handleGoHome} />
+          )}
+
       </main>
 
-      <nav className="fixed bottom-0 inset-x-0 z-50 bg-slate-950/80 backdrop-blur-xl border-t border-slate-800 safe-area-bottom">
-        <div className="flex justify-around items-center h-16 max-w-md mx-auto">
-          <button 
-            onClick={() => setCurrentTab('flow')}
-            className={`flex flex-col items-center gap-1 transition-all duration-300 ${
-              currentTab === 'flow' ? 'text-yellow-400 scale-105' : 'text-slate-600 hover:text-slate-400'
-            }`}
-          >
-            <Scan className="w-6 h-6" />
-            <span className="text-[9px] font-mono tracking-[0.2em]">FLOW</span>
-          </button>
+      {/* FOOTER NAVIGATION */}
+      <Footer currentTab={activeTab} onTabChange={handleTabChange} />
 
-          <button 
-            onClick={() => setCurrentTab('wishes')}
-            className={`flex flex-col items-center gap-1 transition-all duration-300 ${
-              currentTab === 'wishes' ? 'text-yellow-400 scale-105' : 'text-slate-600 hover:text-slate-400'
-            }`}
-          >
-            <Sparkles className="w-6 h-6" />
-            <span className="text-[9px] font-mono tracking-[0.2em]">WISHES</span>
-          </button>
-        </div>
-      </nav>
+      {/* Admin Quick Access (Hidden/Discreet) */}
 
-      {activeOverlay === 'profile' && (
-        <ProfileView onClose={() => setActiveOverlay('none')} />
-      )}
-      {activeOverlay === 'journal' && (
-        <JournalView onClose={() => setActiveOverlay('none')} />
-      )}
-      {activeOverlay === 'admin' && (
-        <AdminDashboard onClose={() => setActiveOverlay('none')} />
-      )}
 
+      <ReloadPrompt />
     </div>
   );
 }

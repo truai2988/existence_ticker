@@ -93,28 +93,34 @@ export const useAuth = () => {
         if (!auth || !auth.currentUser || !user) throw new Error("Not authenticated");
         if (!db) throw new Error("Database not connected");
 
-        // 1. Mark wishes as "Departure" (Optional: or keep distinct/anonymize)
-        // For Soft Delete, we usually preserve history but mark the user as gone.
-        // Let's Keep wishes as is, or mark user status.
-        
-        // 2. Soft Delete User Profile (The Departure)
-        // Instead of erasing, we mark as departed. 
-        // Data is preserved for recovery.
+        // 1. Tombstone: Anonymize User Profile (The Departure)
         const userRef = doc(db, 'users', user.uid);
-        await setDoc(userRef, { 
+        
+        // Overwrite personal data while keeping ID for referential integrity
+        await setDoc(userRef, {
+            name: "名もなき住人", // Anonymized
+            balance: 0, // Assets Burned
+            xp: 0, // Reputation Reset (Optional, but requested "erasure")
+            warmth: 0,
+            completed_contracts: 0, 
+            created_contracts: 0,
+            bio: null,
             is_deleted: true,
             deleted_at: serverTimestamp(),
-            // Preserve other fields? setDoc overwrites unless merge used. 
-            // We want to keep name/xp for history? 
-            // Let's use update() to add flags, or setDoc with merge.
-            // Actually, let's keep it simple: Just mark deleted.
-        }, { merge: true });
+            last_updated: serverTimestamp()
+        }, { merge: true }); // Merge to keep ID, but overwrite specified fields
 
-        // 3. DO NOT Delete Auth Account (So it can be recovered/audited)
-        // await auth.currentUser.delete();
-        
-        // 4. Sign Out
-        await signOut();
+        // 2. Hard Delete Auth (Irreversible)
+        try {
+            await user.delete(); 
+            // Note: This automatically signs out.
+        } catch (authError) {
+             console.error("Auth Delete Failed (Requires recent login):", authError);
+             // If sensitive, prompt re-login. For now, we accept Firestore anonymization as 'good enough' if Auth fails.
+             // But we should try to sign out at least.
+             await signOut();
+             throw authError; // Let UI handle "Requires Login" error if strictly needed
+        }
     };
 
     return {

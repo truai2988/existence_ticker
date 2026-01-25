@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { CreateWishInput } from '../types';
 import { useAuth } from './useAuthHook';
 import { db } from '../lib/firebase';
-import { collection, doc, runTransaction, serverTimestamp, Timestamp, increment } from 'firebase/firestore';
+import { collection, doc, runTransaction, serverTimestamp, Timestamp, increment, updateDoc } from 'firebase/firestore';
 
 import { SURVIVAL_CONSTANTS } from '../constants';
 
@@ -45,7 +45,9 @@ export const useWishActions = () => {
         
         const data = userDoc.data();
         const currentBalance = data.balance || 0;
+
         const lastUpdated = data.last_updated;
+        const myTrustScore = data.completed_contracts || 0; // Current help count
 
         // 2. Strict Check (Phase 1: No Void/Negative)
         // Calculate dynamic balance first
@@ -84,6 +86,7 @@ export const useWishActions = () => {
         // Update user: Balance changes AND last_updated resets (Decay Anchor reset)
         transaction.update(userRef, { 
             balance: newBalance,
+            created_contracts: increment(1), // Track Requests
             last_updated: serverTimestamp() 
         });
 
@@ -95,6 +98,8 @@ export const useWishActions = () => {
             gratitude_preset: input.tier,
             status: 'open',
             cost: bounty, // Initial Value
+
+            requester_trust_score: myTrustScore, // Stamp Trust
             created_at: serverTimestamp() // Firestore Timestamp
         });
       });
@@ -110,6 +115,82 @@ export const useWishActions = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const applyForWish = async (wishId: string): Promise<boolean> => {
+    if (!db || !user) return false;
+    setIsSubmitting(true);
+    
+    try {
+        const wishRef = doc(db, 'wishes', wishId);
+        const userRef = doc(db, 'users', user.uid);
+        
+        await runTransaction(db, async (transaction) => {
+            const wishDoc = await transaction.get(wishRef);
+            if (!wishDoc.exists()) throw "Wish not found";
+            
+            const userData = (await transaction.get(userRef)).data();
+            const applicantInfo = {
+                id: user.uid,
+                name: userData?.name || 'Anonymous',
+                trust_score: userData?.completed_contracts || 0
+            };
+
+            // Add to applicants array (Union)
+            // Note: Firestore arrayUnion is simpler but transaction is safer for reading state first
+             const currentApplicants = wishDoc.data().applicants || [];
+             if (currentApplicants.some((a: { id: string }) => a.id === user.uid)) {
+                 throw "Already applied";
+             }
+
+             transaction.update(wishRef, {
+                 applicants: [...currentApplicants, applicantInfo]
+             });
+        });
+        return true;
+    } catch (e) {
+        console.error(e);
+        alert("応募に失敗しました");
+        return false;
+    } finally {
+        setIsSubmitting(false);
+    }
+  };
+
+  const approveWish = async (wishId: string, applicantId: string): Promise<boolean> => {
+      if (!db || !user) return false;
+      setIsSubmitting(true);
+      try {
+          const wishRef = doc(db, 'wishes', wishId);
+          await updateDoc(wishRef, {
+              status: 'in_progress',
+              helper_id: applicantId,
+              accepted_at: serverTimestamp()
+          });
+          return true;
+      } catch (e) {
+          console.error(e);
+          return false;
+      } finally {
+          setIsSubmitting(false);
+      }
+  };
+
+  const reportCompletion = async (wishId: string): Promise<boolean> => {
+      if (!db || !user) return false;
+      setIsSubmitting(true);
+      try {
+          const wishRef = doc(db, 'wishes', wishId);
+          await updateDoc(wishRef, {
+              status: 'review_pending'
+          });
+          return true;
+      } catch (e) {
+          console.error(e);
+          return false;
+      } finally {
+          setIsSubmitting(false);
+      }
   };
 
   const fulfillWish = async (wishId: string, fulfillerId: string): Promise<boolean> => {
@@ -183,7 +264,8 @@ export const useWishActions = () => {
 
             transaction.update(fulfillerRef, { 
                 balance: cappedBalance,
-                last_updated: serverTimestamp() // Getting paid resets their decay anchor too? Usually yes.
+                completed_contracts: increment(1), // Track helps
+                last_updated: serverTimestamp() 
             });
 
         }
@@ -262,6 +344,9 @@ export const useWishActions = () => {
   return {
     castWish,
     fulfillWish,
+    applyForWish,
+    approveWish,
+    reportCompletion,
     acceptWish, // Expose for UI compatibility
     isSubmitting
   };

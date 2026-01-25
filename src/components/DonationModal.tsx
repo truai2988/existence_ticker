@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Star, Sun } from 'lucide-react';
+import { Gift, Heart, Sparkles, User, X } from 'lucide-react';
+import { UNIT_LABEL } from '../constants';
 
 interface DonationModalProps {
   targetUserName: string;
@@ -12,55 +13,108 @@ type PaymentPreset = {
     id: 'light' | 'medium' | 'heavy';
     amount: number;
     label: string;
+    subLabel: string;
     icon: React.ReactNode;
     color: string;
+    bg: string;
 };
 
 const PRESETS: PaymentPreset[] = [
-    { id: 'light', amount: 100, label: '淡い光', icon: <Sparkles size={16} />, color: 'shadow-blue-500/50 hover:shadow-blue-500/80' },
-    { id: 'medium', amount: 500, label: '確かな輝き', icon: <Star size={16} />, color: 'shadow-gold-500/50 hover:shadow-gold-500/80' },
-    { id: 'heavy', amount: 1000, label: '太陽の恵み', icon: <Sun size={16} />, color: 'shadow-orange-500/50 hover:shadow-orange-500/80' },
+    { 
+        id: 'light', 
+        amount: 100, 
+        label: '軽いお礼', 
+        subLabel: 'ささやかな感謝',
+        icon: <Gift size={18} />, 
+        color: 'text-amber-500',
+        bg: 'bg-amber-100'
+    },
+    { 
+        id: 'medium', 
+        amount: 500, 
+        label: 'しっかりしたお礼', 
+        subLabel: '心からの敬意',
+        icon: <Heart size={18} />, 
+        color: 'text-pink-500',
+        bg: 'bg-pink-100'
+    },
+    { 
+        id: 'heavy', 
+        amount: 1000, 
+        label: '特別な感謝', 
+        subLabel: '深い愛と祝福',
+        icon: <Sparkles size={18} />, 
+        color: 'text-purple-500',
+        bg: 'bg-purple-100'
+    },
 ];
 
 export const DonationModal: React.FC<DonationModalProps> = ({ targetUserName, onSelectAmount, onCancel }) => {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-fade-in">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+        {/* Backdrop */}
+        <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" onClick={onCancel}></div>
+        
         <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: -20, opacity: 0 }}
-        className="w-full max-w-sm relative bg-slate-950 border border-slate-800 rounded-2xl p-6 shadow-2xl flex flex-col gap-6"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 20, opacity: 0 }}
+            className="w-full max-w-sm relative z-10 bg-white rounded-2xl p-6 shadow-2xl flex flex-col gap-6"
         >
-            <div className="text-center w-full">
-                <h3 className="text-lg font-serif text-white mb-2">感謝を贈る</h3>
-                <p className="text-xs text-gray-500 mb-6 font-mono">To: {targetUserName}</p>
+            <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+                <div className="flex items-center gap-2">
+                    <div className="p-2 bg-slate-50 rounded-full text-slate-400">
+                        <Gift size={20} />
+                    </div>
+                    <span className="font-bold text-slate-800">Lmを贈る</span>
+                </div>
+                <button onClick={onCancel} className="p-2 text-slate-400 hover:bg-slate-50 rounded-full transition-colors">
+                    <X size={20} />
+                </button>
+            </div>
 
-                <div className="grid grid-cols-1 gap-4 mb-6">
+            <div className="w-full">
+                {/* Recipient Info */}
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl mb-6 border border-slate-100">
+                    <div className="p-2 bg-white rounded-full shadow-sm">
+                        <User size={16} className="text-slate-500" />
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">宛先</span>
+                        <span className="text-sm font-bold text-slate-700">{targetUserName}</span>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3 mb-4">
                 {PRESETS.map(preset => (
                     <button
                         key={preset.id}
                         onClick={() => onSelectAmount(preset.amount)}
-                        className="relative flex items-center justify-between p-4 rounded-xl border border-white/10 hover:border-gold-400/50 bg-white/5 hover:bg-white/10 transition-all group"
+                        className="relative flex items-center justify-between p-4 rounded-xl border border-slate-200 hover:border-blue-400 hover:shadow-md hover:bg-white bg-white transition-all group active:scale-[0.99]"
                     >
                         <div className="flex items-center gap-4">
-                            <div className={`p-3 rounded-full bg-black border border-white/10 shadow-[0_0_10px_rgba(255,255,255,0.1)] ${preset.color} group-hover:scale-110 transition-transform duration-500`}>
+                            <div className={`p-3 rounded-full flex items-center justify-center ${preset.bg} ${preset.color}`}>
                                 {preset.icon}
                             </div>
-                            <div className="text-left">
-                                <span className="block text-sm font-medium text-gray-200">{preset.label}</span>
-                                <span className="text-[10px] text-gray-500">
-                                    {preset.id === 'light' ? 'ささやかな感謝' : preset.id === 'medium' ? '心からの敬意' : '深い愛と祝福'}
+                            <div className="text-left flex flex-col">
+                                <span className="text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
+                                    {preset.label}
+                                </span>
+                                <span className="text-[10px] text-slate-500">
+                                    {preset.subLabel}
                                 </span>
                             </div>
                         </div>
-                        <span className="font-mono text-gold-400">{preset.amount} Pt</span>
+                        <span className="font-mono font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+                            {preset.amount} <span className="text-[10px] font-sans text-slate-400">{UNIT_LABEL}</span>
+                        </span>
                     </button>
                 ))}
                 </div>
                 
-                <button onClick={onCancel} className="text-gray-500 text-sm hover:text-white w-full py-2">
-                キャンセル
-                </button>
+                <p className="text-center text-[10px] text-slate-400">
+                    選択すると即座に送金されます
+                </p>
             </div>
         </motion.div>
     </div>

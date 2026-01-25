@@ -3,18 +3,17 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
-  @apply bg-black text-white;
+  @apply bg-slate-50 text-slate-900;
   font-family: "Inter", system-ui, sans-serif;
 }
 
 #root {
   @apply w-full min-h-[100dvh] flex flex-col;
 }
-
 
 .mask-gradient {
   mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
@@ -29,4 +28,3 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-

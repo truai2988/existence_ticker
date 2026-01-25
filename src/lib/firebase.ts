@@ -1,7 +1,7 @@
 import { initializeApp, FirebaseApp } from 'firebase/app';
-import { getFirestore, Firestore, connectFirestoreEmulator } from 'firebase/firestore';
-import { getAuth, Auth, connectAuthEmulator } from 'firebase/auth';
-import { getFunctions, Functions, connectFunctionsEmulator } from 'firebase/functions';
+import { getFirestore, Firestore } from 'firebase/firestore';
+import { getAuth, Auth } from 'firebase/auth';
+import { getFunctions, Functions } from 'firebase/functions';
 
 // Only initialize if env vars are present to mock safe behavior
 const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;

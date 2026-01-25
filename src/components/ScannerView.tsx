@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { X, Sparkles } from 'lucide-react';
+import { X, QrCode } from 'lucide-react';
 import { Scanner } from '@yudiel/react-qr-scanner';
 
 interface ScannerViewProps {
@@ -22,16 +22,17 @@ export const ScannerView: React.FC<ScannerViewProps> = ({ onClose, onScan }) => 
       }
   };
 
-  // Mock triggers for testing without actual QR codes
+  // Mock triggers (Environment based or always subtle)
+  const isDev = true; // Simulating dev check for now or always showing gently
+
   const handleDebugScan = (type: 'helper' | 'friend') => {
       onScan(type);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-900">
         {/* Fullscreen Cam Overlay */}
-        <div className="absolute inset-0 z-0 opacity-50">
-             {/* Actual Scanner */}
+        <div className="absolute inset-0 z-0">
              <Scanner 
                 onScan={(detected) => handleScanLogic(detected as IScanResult[])}
                 components={{ finder: false }}
@@ -39,54 +40,68 @@ export const ScannerView: React.FC<ScannerViewProps> = ({ onClose, onScan }) => 
              />
         </div>
 
-        {/* Custom UI Overlay */}
-        <div className="relative z-10 w-full h-full flex flex-col justify-between p-6">
+        {/* Light Overlay (Everyday Theme) */}
+        <div className="absolute inset-0 z-10 bg-slate-50/70 backdrop-blur-[2px]"></div>
+
+        {/* Custom UI Content */}
+        <div className="relative z-20 w-full h-full flex flex-col justify-between p-6 pt-safe pb-safe">
             
             {/* Header */}
-            <div className="flex justify-between items-start pt-8">
-                <div>
-                    <h3 className="text-white font-bold text-lg drop-shadow-md">魂を探しています</h3>
-                    <p className="text-xs text-gray-300 drop-shadow-md animate-pulse">Scanning for Existence...</p>
+            <div className="flex justify-between items-center pt-4">
+                <div className="flex items-center gap-2">
+                    <div className="p-2 bg-white rounded-full shadow-sm">
+                        <QrCode size={20} className="text-slate-700" />
+                    </div>
+                    <div>
+                        <h3 className="text-slate-900 font-bold text-lg leading-tight">相手を読み取る</h3>
+                        <p className="text-xs text-slate-500 font-medium tracking-wide">SCANNER</p>
+                    </div>
                 </div>
-                <button onClick={onClose} className="p-2 rounded-full bg-black/40 text-white border border-white/20 backdrop-blur-md">
-                    <X size={24} />
+                <button 
+                    onClick={onClose} 
+                    className="p-3 rounded-full bg-white shadow-sm text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-all border border-slate-100"
+                >
+                    <X size={20} />
                 </button>
             </div>
 
-            {/* Viewfinder Center */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 border-2 border-gold-400 rounded-xl shadow-[0_0_100px_rgba(251,192,45,0.2)]">
-                <div className="absolute inset-0 border-2 border-white/20 scale-110 rounded-xl animate-pulse"></div>
-                
-                {/* Scanning Line */}
-                <motion.div 
-                    className="absolute top-0 left-0 right-0 h-0.5 bg-gold-400 shadow-[0_0_10px_#fbbf24]"
-                    animate={{ top: ['0%', '100%', '0%'] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                />
+            {/* Viewfinder Center - Clean & Institutional */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-6 w-full max-w-xs">
+                <div className="relative w-64 h-64">
+                    {/* Corners Frame */}
+                    <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-slate-800 rounded-tl-xl"></div>
+                    <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-slate-800 rounded-tr-xl"></div>
+                    <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-slate-800 rounded-bl-xl"></div>
+                    <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-slate-800 rounded-br-xl"></div>
+                    
+                    {/* Subtle Scan Line (Slow & Professional) */}
+                    <motion.div 
+                        className="absolute left-4 right-4 h-[1px] bg-blue-500/50 shadow-sm"
+                        animate={{ top: ['10%', '90%', '10%'] }}
+                        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    />
+                </div>
+                <p className="text-slate-600 font-bold text-sm bg-white/80 px-4 py-2 rounded-full shadow-sm border border-white/50 backdrop-blur-md">
+                    相手のQRコードを枠内に合わせてください
+                </p>
             </div>
 
-            {/* Debug Controls for development */}
-            <div className="pb-10 flex flex-col items-center gap-4">
-                <div className="bg-black/60 backdrop-blur-md p-4 rounded-xl border border-white/10 flex gap-4">
+            {/* Debug Controls (Subtle) */}
+            <div className={`pb-8 flex flex-col items-center gap-2 transition-opacity duration-300 ${isDev ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                 <div className="flex gap-2">
                      <button 
                         onClick={() => handleDebugScan('helper')}
-                        className="flex flex-col items-center gap-1 p-2 hover:bg-white/10 rounded-lg transition-colors"
+                        className="px-3 py-1.5 rounded-md bg-slate-200/50 hover:bg-slate-300/50 text-[10px] font-mono text-slate-500 transition-colors border border-transparent hover:border-slate-300"
                      >
-                        <Sparkles size={20} className="text-gold-400" />
-                        <span className="text-[10px] text-gray-300">Mock: 約束あり</span>
+                        [テスト] 契約相手として検知
                      </button>
-                     <div className="w-px h-10 bg-white/20"></div>
                      <button 
                          onClick={() => handleDebugScan('friend')}
-                         className="flex flex-col items-center gap-1 p-2 hover:bg-white/10 rounded-lg transition-colors"
+                         className="px-3 py-1.5 rounded-md bg-slate-200/50 hover:bg-slate-300/50 text-[10px] font-mono text-slate-500 transition-colors border border-transparent hover:border-slate-300"
                      >
-                        <span className="text-xl">👻</span>
-                        <span className="text-[10px] text-gray-300">Mock: 初対面</span>
+                        [テスト] 新しい相手として検知
                      </button>
-                </div>
-                <p className="text-[10px] text-gray-500 text-center max-w-xs">
-                    ※ 開発用: 上記ボタンでスキャン結果をシミュレートできます
-                </p>
+                 </div>
             </div>
         </div>
     </div>

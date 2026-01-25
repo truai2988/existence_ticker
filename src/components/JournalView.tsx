@@ -108,24 +108,24 @@ export const JournalView: React.FC<JournalViewProps> = ({ onClose }) => {
   }, [wishes, user]);
 
   return (
-    <div className="fixed inset-0 h-[100dvh] z-50 flex flex-col items-center bg-black/95 backdrop-blur-md overflow-hidden animate-fade-in">
-        <div className="w-full max-w-sm flex-grow flex flex-col p-6 relative overflow-y-auto no-scrollbar">
+    <div className="fixed inset-0 h-[100dvh] z-[60] flex flex-col items-center bg-slate-50/95 backdrop-blur-md overflow-hidden animate-fade-in pt-safe">
+        <div className="w-full max-w-sm flex-grow flex flex-col p-6 relative overflow-y-auto no-scrollbar pb-24">
              {/* Header */}
-            <div className="flex justify-between items-end mb-8 border-b border-white/5 pb-4 shrink-0">
+            <div className="flex justify-between items-end mb-8 border-b border-slate-200 pb-4 shrink-0">
 
                 <div>
-                    <h2 className="text-2xl font-serif text-white/90">光の軌跡</h2>
-                    <p className="text-xs text-gray-500 font-mono tracking-widest uppercase">Journal of Light</p>
+                    <h2 className="text-2xl font-serif text-slate-900">履歴</h2>
+                    <p className="text-xs text-slate-500 font-mono tracking-widest uppercase">History</p>
                 </div>
-                <button onClick={onClose} className="p-2 rounded-full hover:bg-white/10 transition-colors">
-                    <X className="text-gray-400" size={24} />
+                <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 transition-colors">
+                    <X className="text-slate-400" size={24} />
                 </button>
             </div>
 
             {/* Content: Constellation List */}
             <div className="flex-grow overflow-y-auto no-scrollbar relative pl-4">
                 {/* The "Timeline" Line */}
-                <div className="absolute left-[27px] top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-gold-400/20 to-transparent"></div>
+                <div className="absolute left-[27px] top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-slate-300/50 to-transparent"></div>
 
                 <div className="space-y-8 py-4">
                     {journalEntries.length === 0 ? (
@@ -141,30 +141,29 @@ export const JournalView: React.FC<JournalViewProps> = ({ onClose }) => {
                             transition={{ delay: index * 0.1 }}
                             className="flex items-center gap-4 relative group"
                         >
-                            {/* Node/Star on the timeline */}
                             <div className={`
                                 w-3 h-3 rounded-full border transform -translate-x-[1.5px] z-10 box-content
-                                ${entry.type === 'sent' ? 'bg-black border-gold-400 shadow-[0_0_10px_#fbbf24]' : ''}
-                                ${entry.type === 'received' ? 'bg-gold-100 border-white shadow-[0_0_15px_white]' : ''}
-                                ${entry.type === 'decayed' ? 'bg-gray-900 border-gray-700 w-2 h-2 ml-0.5' : ''}
+                                ${entry.type === 'sent' ? 'bg-white border-amber-400 shadow-[0_0_10px_#fbbf24]' : ''}
+                                ${entry.type === 'received' ? 'bg-amber-100 border-white shadow-sm' : ''}
+                                ${entry.type === 'decayed' ? 'bg-slate-200 border-slate-300 w-2 h-2 ml-0.5' : ''}
                             `}></div>
 
                             {/* Line connector for visual flair */}
-                            <div className="w-4 h-[1px] bg-white/5 group-hover:bg-white/10 transition-colors"></div>
+                            <div className="w-4 h-[1px] bg-slate-200 group-hover:bg-slate-300 transition-colors"></div>
 
                             {/* Card Content */}
                             <div className="flex-1 flex justify-between items-center">
                                 <div>
                                     <div className="flex items-center gap-2 mb-0.5">
                                         <EntryIcon type={entry.type} />
-                                        <span className={`text-sm font-medium ${entry.type === 'decayed' ? 'text-gray-500' : 'text-gray-200'}`}>
+                                        <span className={`text-sm font-medium ${entry.type === 'decayed' ? 'text-slate-400' : 'text-slate-700'}`}>
                                             {GetEntryTitle(entry)}
                                         </span>
                                     </div>
-                                    <p className="text-[10px] text-gray-600 font-mono">{entry.timestamp}</p>
+                                    <p className="text-[10px] text-slate-500 font-mono">{entry.timestamp}</p>
                                 </div>
                                 
-                                <span className={`text-sm font-light font-mono ${entry.type === 'sent' ? 'text-gold-500' : entry.type === 'received' ? 'text-white' : 'text-gray-700'}`}>
+                                <span className={`text-sm font-light font-mono ${entry.type === 'sent' ? 'text-amber-600' : entry.type === 'received' ? 'text-blue-600' : 'text-slate-400'}`}>
                                     {entry.type === 'sent' ? '-' : entry.type === 'decayed' ? '-' : '+'}{entry.amount}
                                 </span>
                             </div>
@@ -181,9 +180,9 @@ export const JournalView: React.FC<JournalViewProps> = ({ onClose }) => {
 // Helpers
 const EntryIcon = ({ type }: { type: JournalEntry['type'] }) => {
     switch (type) {
-        case 'sent': return <ArrowUpRight size={12} className="text-gold-500" />;
-        case 'received': return <ArrowDownLeft size={12} className="text-white" />;
-        case 'decayed': return <Sparkles size={10} className="text-gray-700 opacity-50" />;
+        case 'sent': return <ArrowUpRight size={12} className="text-amber-500" />;
+        case 'received': return <ArrowDownLeft size={12} className="text-blue-500" />;
+        case 'decayed': return <Sparkles size={10} className="text-slate-400 opacity-50" />;
     }
 };
 

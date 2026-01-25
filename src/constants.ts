@@ -26,3 +26,10 @@ export const SURVIVAL_CONSTANTS = {
     DAILY_RATION: 240, // Legacy support if logic references it
     DECAY_PER_SEC: LUNAR_CONSTANTS.DECAY_PER_SEC
 };
+
+// --- Security / Roles ---
+// Replace with your actual User ID from the Profile screen (or console)
+export const ADMIN_UIDS = [
+    "YOUR_ADMIN_UID_HERE", 
+    "PLACEHOLDER_UID" 
+];

@@ -7,6 +7,8 @@ export default {
         glow: "glow 2s ease-in-out infinite alternate",
         expand: "expand 1s ease-out forwards",
         "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "spin-slow": "spin 12s linear infinite",
+        "fade-in": "fadeIn 0.5s ease-out forwards",
       },
       keyframes: {
         glow: {
@@ -21,6 +23,10 @@ export default {
         expand: {
           "0%": { transform: "scale(1)", opacity: "0.8" },
           "100%": { transform: "scale(4)", opacity: "0" },
+        },
+        fadeIn: {
+            "0%": { opacity: "0" },
+            "100%": { opacity: "1" },
         },
       },
       colors: {

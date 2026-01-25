@@ -8,7 +8,10 @@ export interface UserProfile {
   balance: number;
   xp: number;
   warmth: number;
-  last_updated?: unknown; // Timestamp or Date for Universal Decay
+  role?: 'user' | 'admin';
+  last_updated?: unknown; 
+  completed_contracts?: number; // How many times they helped
+  created_contracts?: number;   // How many times they requested
 }
 
 export interface Point {
@@ -22,9 +25,11 @@ export interface Wish {
   id: string;
   requester_id: string; 
   requester_name?: string; 
+  requester_trust_score?: number; // Snapshot of their reliability (completed contracts) at creation
   content: string;
+  applicants?: { id: string; name: string; trust_score?: number }[]; // Handshake candidates
   gratitude_preset: GratitudeTier;
-  status: 'open' | 'in_progress' | 'fulfilled' | 'completed';
+  status: 'open' | 'in_progress' | 'review_pending' | 'fulfilled' | 'completed';
   created_at: string;
   tags?: string[];
   helper_id?: string; // ID of the user who accepted the wish

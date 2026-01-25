@@ -84,6 +84,8 @@ export const useProfile = () => {
             balance: 2400, // Starts with Full Vessel
             xp: 0,
             warmth: 0,
+            completed_contracts: 0,
+            created_contracts: 0,
           };
           setDoc(
             userRef,
@@ -121,6 +123,8 @@ export const useProfile = () => {
     name: profile?.name || "Anonymous",
     xp: profile?.xp || 0,
     warmth: profile?.warmth || 0,
+    completed_contracts: profile?.completed_contracts || 0,
+    created_contracts: profile?.created_contracts || 0,
     updateProfile,
     isLoading,
   };
