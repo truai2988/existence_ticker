@@ -205,8 +205,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }
                             <span>{rank.icon}</span>
                             {rank.label}
                         </span>
-                        <div className="text-[10px] text-slate-400 font-mono">
-                            ID: {profile?.id?.slice(0, 8)}...
+                        <div className="text-[10px] text-slate-400 font-mono flex items-center gap-2">
+                             <span>ID: {profile?.id?.slice(0, 8)}...</span>
+                             <span className="text-slate-300">|</span>
+                             <span className="font-bold text-slate-500">📢 依頼実績: {requestCount}</span>
                         </div>
                     </div>
                 </div>
