@@ -27,7 +27,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
 
     // Stats
     const helpCount = profile.completed_contracts || 0;
-    const reqCount = profile.created_contracts || 0;
+    const reqCount = profile.completed_requests || 0;
     
     const rank = getTrustRank(helpCount); 
 
@@ -90,8 +90,8 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                                     <Megaphone size={20} />
                                 </div>
                                 <div className="text-left">
-                                    <div className="text-xs font-bold text-slate-500">依頼した回数</div>
-                                    <div className="text-[10px] text-slate-400">Request Count</div>
+                                    <div className="text-xs font-bold text-slate-500">依頼実績 (完了済)</div>
+                                    <div className="text-[10px] text-slate-400">Paid Requests</div>
                                 </div>
                             </div>
                             <span className="text-xl font-bold text-slate-700 font-mono tracking-tighter">
