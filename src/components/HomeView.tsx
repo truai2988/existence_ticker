@@ -62,8 +62,8 @@ export const HomeView: React.FC<HomeViewProps> = ({ onOpenFlow, onOpenCreate }) 
                          <div className="p-3 bg-amber-50 w-fit rounded-2xl mb-4 group-hover:bg-amber-100 transition-colors">
                             <Sparkles size={32} className="text-amber-500" />
                         </div>
-                        <h2 className="text-3xl font-bold text-slate-800 mb-1 group-hover:text-amber-600 transition-colors">頼む・贈る</h2>
-                        <p className="text-sm text-slate-500 font-medium">願いを放つ・寄付</p>
+                        <h2 className="text-3xl font-bold text-slate-800 mb-1 group-hover:text-amber-600 transition-colors">使う・贈る</h2>
+                        <p className="text-sm text-slate-500 font-medium">依頼・寄付する</p>
                     </div>
 
                     <div className="absolute bottom-6 right-6 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">

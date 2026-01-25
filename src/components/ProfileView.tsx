@@ -164,7 +164,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }
         <div className="fixed inset-0 z-[60] bg-slate-50 flex flex-col pt-safe animate-fade-in">
             {/* Header / Nav */}
             <div className="flex items-center justify-between p-4 bg-white border-b border-slate-200 sticky top-0 z-10 shrink-0">
-                <h2 className="text-lg font-bold text-slate-800">マイページ</h2>
+                <h2 className="text-lg font-bold text-slate-800">登録情報</h2>
                 <button onClick={onClose} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors">
                     <X size={20} className="text-slate-600" />
                 </button>
@@ -231,7 +231,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }
                                     <Wallet size={16} className="text-amber-500" />
                                 </div>
                                 <div>
-                                    <div className="text-sm font-bold text-slate-700">残高詳細</div>
+                                    <div className="text-sm font-bold text-slate-700">手持ち詳細</div>
                                     <div className="text-[10px] text-slate-400">
                                         減価レート: -{(SURVIVAL_CONSTANTS.DECAY_PER_SEC * 3600).toFixed(0)} {UNIT_LABEL}/h
                                     </div>

@@ -72,13 +72,14 @@ export const useWishActions = () => {
              else if (t instanceof Date) millis = t.getTime();
              
              const elapsed = (Date.now() - millis) / 1000;
-             return Math.max(0, currentBalance - Math.floor(elapsed));
+             const decay = elapsed * SURVIVAL_CONSTANTS.DECAY_PER_SEC;
+             return Math.max(0, currentBalance - decay);
         };
 
         const decayedBalance = calculateDecayedValue(currentBalance, lastUpdated);
 
         if (decayedBalance < bounty) {
-            throw new Error("Not enough energy (Life)"); 
+            throw new Error(`手持ちが不足しています (必要: ${bounty}, 現在: ${Math.floor(decayedBalance)})`); 
         }
 
         const newBalance = decayedBalance - bounty;
@@ -110,7 +111,7 @@ export const useWishActions = () => {
     } catch (e) {
       console.error("Failed to cast wish:", e);
       const errorMessage = e instanceof Error ? e.message : String(e);
-      alert(`願いを放てませんでした: ${errorMessage}`);
+      alert(`${errorMessage}`);
       return false;
     } finally {
       setIsSubmitting(false);
@@ -213,7 +214,8 @@ export const useWishActions = () => {
           const now = Date.now();
           const created = ts.toMillis();
           const elapsed = (now - created) / 1000;
-          return Math.max(0, initial - Math.floor(elapsed));
+          const decay = elapsed * SURVIVAL_CONSTANTS.DECAY_PER_SEC;
+          return Math.max(0, initial - decay);
       };
 
       await runTransaction(db, async (transaction) => {

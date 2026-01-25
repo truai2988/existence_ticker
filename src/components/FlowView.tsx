@@ -30,7 +30,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId }) =>
         {/* Header */}
         <div className="p-4 border-b border-slate-200 shrink-0 bg-white shadow-sm z-10">
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold font-sans text-slate-900">みんなの依頼</h2>
+                <h2 className="text-xl font-bold font-sans text-slate-900">募集一覧</h2>
                 <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                     <X className="text-slate-500" />
                 </button>
