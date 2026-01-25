@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuthHook';
-import { Loader2, ArrowRight } from 'lucide-react';
+import { Loader2, ArrowRight, Heart } from 'lucide-react';
 
 export const AuthScreen = () => {
     const { signIn, signUp, resetPassword } = useAuth();
@@ -28,7 +28,6 @@ export const AuthScreen = () => {
         } catch (err) {
             console.error(err);
             if (err instanceof Error) {
-                // Simple error mapping
                 if (err.message.includes("auth/invalid-email")) setError("メールアドレスが無効です");
                 else if (err.message.includes("auth/user-not-found")) setError("ユーザーが見つかりません");
                 else if (err.message.includes("auth/wrong-password")) setError("パスワードが間違っています");
@@ -48,17 +47,11 @@ export const AuthScreen = () => {
         setError('');
         setSuccessMessage('');
         setIsLoading(true);
-        console.log("[AuthScreen] Attempting to reset password for:", email);
 
         try {
             await resetPassword(email);
-            console.log("[AuthScreen] Reset email sent successfully.");
             setSuccessMessage("パスワード再設定メールを送信しました。\nメールボックスをご確認ください。");
-            
-            // Optional: Auto-switch back to login after delay, but showing message is prioritized now
-            // setTimeout(() => { ... }, 5000);
         } catch (err) {
-            console.error("[AuthScreen] Reset failed:", err);
             const message = err instanceof Error ? err.message : String(err);
             const code = (err as { code?: string }).code;
 
@@ -71,43 +64,48 @@ export const AuthScreen = () => {
     };
 
     return (
-        <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-white animate-fade-in relative overflow-hidden">
-            {/* Background Ambience */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-slate-900 via-black to-black opacity-80" />
+        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-800 animate-fade-in relative overflow-hidden">
+            {/* Background Ambience (Subtle Light) */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-blue-50 opacity-80" />
+            <div className="absolute top-0 right-0 p-20 opacity-10 bg-orange-200 blur-[100px] rounded-full mix-blend-multiply"></div>
+            <div className="absolute bottom-0 left-0 p-20 opacity-10 bg-blue-200 blur-[100px] rounded-full mix-blend-multiply"></div>
             
-            <div className="w-full max-w-md bg-slate-900/40 p-8 rounded-3xl border border-slate-800 backdrop-blur-md relative z-10 shadow-2xl">
-                <div className="text-center mb-10">
-                    <h1 className="text-3xl font-serif text-gold-400 tracking-widest mb-2">EXISTENCE</h1>
-                    <p className="text-xs text-slate-500 uppercase tracking-[0.3em]">Anti-Gravity System</p>
+            <div className="w-full max-w-md bg-white p-8 rounded-3xl border border-slate-100 relative z-10 shadow-xl">
+                <div className="text-center mb-8">
+                    <div className="inline-flex justify-center items-center w-12 h-12 rounded-full bg-blue-50 mb-4 border border-blue-100">
+                        <Heart className="w-6 h-6 text-blue-500 fill-blue-500/10" />
+                    </div>
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-2">Existence Ticker</h1>
+                    <p className="text-sm text-slate-500 font-medium">日々の感謝を巡らせる、<br/>あたらしい互助の習慣。</p>
                 </div>
 
                 {isResetMode ? (
-                     <form onSubmit={handleResetPassword} className="space-y-6">
-                        <div className="text-center mb-4">
-                            <h3 className="text-white font-bold mb-1">パスワードの再設定</h3>
-                            <p className="text-xs text-slate-400">登録したメールアドレスを入力してください。</p>
+                     <form onSubmit={handleResetPassword} className="space-y-5">
+                        <div className="text-center mb-2">
+                            <h3 className="text-slate-800 font-bold text-sm">パスワードの再設定</h3>
+                            <p className="text-xs text-slate-500 mt-1">登録したメールアドレスを入力してください。</p>
                         </div>
                         
                         <div className="space-y-2">
-                            <label className="text-xs text-slate-400 ml-1">Email</label>
+                            <label className="text-xs font-bold text-slate-500 ml-1">メールアドレス</label>
                             <input 
                                 type="email" 
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="mail@example.com"
-                                className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder:text-slate-700 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/50 transition-all font-mono text-sm"
+                                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans text-sm"
                                 required
                             />
                         </div>
 
                         {error && (
-                            <p className="text-red-400 text-xs text-center bg-red-900/20 py-2 rounded border border-red-900/30">
+                            <p className="text-red-500 text-xs text-center bg-red-50 py-2 rounded border border-red-100 font-medium">
                                 {error}
                             </p>
                         )}
                         
                         {successMessage && (
-                            <div className="text-green-400 text-xs text-center bg-green-900/20 py-3 rounded border border-green-900/30 whitespace-pre-wrap leading-relaxed">
+                            <div className="text-green-600 text-xs text-center bg-green-50 py-3 rounded border border-green-100 whitespace-pre-wrap leading-relaxed font-medium">
                                 {successMessage}
                             </div>
                         )}
@@ -115,7 +113,7 @@ export const AuthScreen = () => {
                         <button 
                             type="submit" 
                             disabled={isLoading}
-                            className="w-full bg-white text-black font-bold py-4 rounded-full flex items-center justify-center gap-2 hover:bg-gold-100 transition-colors disabled:opacity-50 mt-4"
+                            className="w-full bg-slate-900 text-white font-bold py-3.5 rounded-full flex items-center justify-center gap-2 hover:bg-slate-800 shadow-md hover:shadow-lg transition-all disabled:opacity-50 mt-2"
                         >
                             {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : "送信する"}
                         </button>
@@ -126,53 +124,53 @@ export const AuthScreen = () => {
                                 setIsResetMode(false);
                                 setError('');
                             }}
-                            className="w-full text-xs text-slate-500 hover:text-white mt-4"
+                            className="w-full text-xs text-slate-500 hover:text-slate-800 mt-2 py-2"
                         >
                             キャンセルして戻る
                         </button>
                     </form>
                 ) : (
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-5">
                         {mode === 'register' && (
                             <div className="space-y-2">
-                                <label className="text-xs text-slate-400 ml-1">Name</label>
-                            <input 
-                                type="text" 
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                placeholder="あなたの名前"
-                                className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder:text-slate-700 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/50 transition-all font-serif"
-                                required
-                            />
-                        </div>
+                                <label className="text-xs font-bold text-slate-500 ml-1">お名前 (表示名)</label>
+                                <input 
+                                    type="text" 
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    placeholder="山田 太郎"
+                                    className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans"
+                                    required
+                                />
+                            </div>
                     )}
 
                     <div className="space-y-2">
-                        <label className="text-xs text-slate-400 ml-1">Email</label>
+                        <label className="text-xs font-bold text-slate-500 ml-1">メールアドレス</label>
                         <input 
                             type="email" 
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="mail@example.com"
-                            className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder:text-slate-700 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/50 transition-all font-mono text-sm"
+                            className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans text-sm"
                             required
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs text-slate-400 ml-1">Password</label>
+                        <label className="text-xs font-bold text-slate-500 ml-1">パスワード</label>
                         <input 
                             type="password" 
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="••••••"
-                            className="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder:text-slate-700 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/50 transition-all font-mono"
+                            className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans"
                             required
                         />
                     </div>
 
                     {error && (
-                        <p className="text-red-400 text-xs text-center bg-red-900/20 py-2 rounded border border-red-900/30">
+                        <p className="text-red-500 text-xs text-center bg-red-50 py-2 rounded border border-red-100 font-medium">
                             {error}
                         </p>
                     )}
@@ -180,14 +178,14 @@ export const AuthScreen = () => {
                     <button 
                         type="submit" 
                         disabled={isLoading}
-                        className="w-full bg-white text-black font-bold py-4 rounded-full flex items-center justify-center gap-2 hover:bg-gold-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                        className="w-full bg-slate-900 text-white font-bold py-3.5 rounded-full flex items-center justify-center gap-2 hover:bg-slate-800 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
                     >
                         {isLoading ? (
                             <Loader2 className="animate-spin w-5 h-5" />
                         ) : (
                             <>
-                                <span>{mode === 'login' ? 'LOGIN' : 'START EXISTENCE'}</span>
-                                <ArrowRight className="w-4 h-4" />
+                                <span>{mode === 'login' ? 'ログイン' : 'はじめる'}</span>
+                                <ArrowRight className="w-4 h-4 ml-1" />
                             </>
                         )}
                     </button>
@@ -195,15 +193,15 @@ export const AuthScreen = () => {
             )}
 
                 {!isResetMode && (
-                    <div className="mt-8 text-center space-y-4">
+                    <div className="mt-8 text-center space-y-4 pt-4 border-t border-slate-100">
                         <button 
                             onClick={() => {
                                 setMode(mode === 'login' ? 'register' : 'login');
                                 setError('');
                             }}
-                            className="text-xs text-slate-500 hover:text-white transition-colors underline underline-offset-4 block w-full"
+                            className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors block w-full py-2 hover:bg-blue-50 rounded-lg"
                         >
-                            {mode === 'login' ? 'アカウントを新規作成' : 'すでにアカウントをお持ちの方へ'}
+                            {mode === 'login' ? '新しくアカウントを作る' : 'ログイン画面へ戻る'}
                         </button>
 
                         {mode === 'login' && (
@@ -212,7 +210,7 @@ export const AuthScreen = () => {
                                     setIsResetMode(true);
                                     setError('');
                                 }}
-                                className="text-[10px] text-slate-600 hover:text-slate-400 transition-colors block w-full"
+                                className="text-xs text-slate-400 hover:text-slate-600 transition-colors block w-full"
                             >
                                 パスワードを忘れた場合
                             </button>
@@ -220,6 +218,10 @@ export const AuthScreen = () => {
                     </div>
                 )}
             </div>
+            
+            <p className="absolute bottom-6 text-[10px] text-slate-400 font-sans">
+                © 2026 Existence Ticker Project
+            </p>
         </div>
     );
 };
