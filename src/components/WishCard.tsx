@@ -76,20 +76,20 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
     <div className={`relative group bg-white border shadow-sm hover:shadow-lg rounded-2xl p-6 transition-all duration-300 md:hover:scale-[1.01] ${applicants.length > 0 && isMyWish && wish.status === 'open' ? 'border-yellow-400 shadow-yellow-100 ring-1 ring-yellow-400/50' : 'border-slate-100'}`}>
       
       {/* Header: User & Meta */}
-      <div className="relative flex justify-between items-start mb-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200">
+      <div className="relative flex justify-between items-start mb-4 gap-4">
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
             <User className="w-5 h-5 text-slate-400" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <button 
                   onClick={(e) => { e.stopPropagation(); openUserProfile(wish.requester_id); }}
-                  className="block text-sm font-bold text-slate-800 tracking-wide hover:underline text-left"
+                  className="block text-sm font-bold text-slate-800 tracking-wide hover:underline text-left truncate max-w-full"
                 >
                 {wish.requester_name || wish.requester_id.slice(0, 8)} 
                 </button>
-                <div className="flex items-center gap-2 text-xs">
+                <div className="flex items-center gap-2 text-xs shrink-0">
                      <button 
                         onClick={(e) => { e.stopPropagation(); openUserProfile(wish.requester_id); }}
                         title={`Helped ${wish.requester_trust_score || 0} times`} 
@@ -106,7 +106,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
                     </span>
                 </div>
             </div>
-            <span className="flex items-center gap-1 text-[10px] text-slate-400">
+            <span className="flex items-center gap-1 text-[10px] text-slate-400 mt-0.5">
               <Clock className="w-3 h-3" />
               <span>{formatDate(wish.created_at)}</span>
             </span>
@@ -114,7 +114,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
         </div>
         
         {/* Reward Badge (Cost) */}
-        <div className="text-right">
+        <div className="text-right shrink-0">
           <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">REWARD</div>
           <div className={`text-xl font-mono font-bold transition-colors duration-500 ${displayValue === 0 ? 'text-gray-400' : 'text-amber-500'}`}>
             {displayValue.toLocaleString()} <span className="text-sm font-normal text-amber-500/50">Lm</span>
