@@ -6,7 +6,7 @@ import { useAuth } from './useAuthHook';
 
 export const useWishes = () => {
     const { user } = useAuth();
-    const { wishes, isLoading, error } = useWishesContext();
+    const { wishes, isLoading, isFetchingMore, loadMore, hasMore, error } = useWishesContext();
 
     const createWish = async (input: CreateWishInput) => {
         if (!user || !db) return { success: false };
@@ -32,6 +32,9 @@ export const useWishes = () => {
         wishes,
         createWish,
         isLoading,
+        isFetchingMore,
+        loadMore,
+        hasMore,
         error
     };
 };

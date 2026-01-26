@@ -9,11 +9,24 @@ import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { RadianceView } from './components/RadianceView';
 import { FlowView } from './components/FlowView';
-import { ReloadPrompt } from './components/ReloadPrompt';
 
 import { useAuth } from './hooks/useAuthHook';
 import { useWallet } from './hooks/useWallet';
 
+
+import { useRegisterSW } from 'virtual:pwa-register/react';
+
+const PWALogic = () => {
+    useRegisterSW({
+        onRegistered(r) {
+            console.log('SW Registered: ' + r);
+        },
+        onRegisterError(error) {
+            console.log('SW registration error', error);
+        },
+    });
+    return null;
+};
 
 type GenericViewMode = 'home' | 'history' | 'profile' | 'flow' | 'give' | 'admin';
 
@@ -120,9 +133,7 @@ function App() {
       <Footer currentTab={activeTab} onTabChange={handleTabChange} />
 
       {/* Admin Quick Access (Hidden/Discreet) */}
-
-
-      <ReloadPrompt />
+      <PWALogic /> 
     </div>
   );
 }

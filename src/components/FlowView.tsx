@@ -12,7 +12,7 @@ interface FlowViewProps {
 type TabType = 'search' | 'inbound';
 
 export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId }) => {
-    const { wishes } = useWishes();
+    const { wishes, loadMore, hasMore, isFetchingMore } = useWishes();
     // const { acceptWish } = useWishActions(); // No longer needed
     const [activeTab, setActiveTab] = useState<TabType>('search');
 
@@ -67,6 +67,9 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId }) =>
                     currentUserId={currentUserId}
                     emptyMessage="現在、募集中の依頼はありません"
                     emptyIcon={<ClipboardList size={48} className="text-slate-300 mb-2" />}
+                    onLoadMore={loadMore}
+                    hasMore={hasMore}
+                    isFetchingMore={isFetchingMore}
                 />
             )}
 
@@ -76,6 +79,8 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId }) =>
                     currentUserId={currentUserId}
                     emptyMessage="現在、お引き受け中の依頼はありません"
                     emptyIcon={<CheckCircle size={48} className="text-slate-300 mb-2" />}
+                    // No pagination for "My Jobs" as it's a small subset usually, but we could add it if needed.
+                    // For now, only global search has infinite scroll.
                 />
             )}
         </div>

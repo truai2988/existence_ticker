@@ -2,6 +2,8 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { WishCard } from './WishCard';
 import { Wish } from '../types';
+import { useEffect, useRef } from 'react';
+import { Loader2 } from 'lucide-react';
 
 interface WishCardListProps {
     wishes: Wish[];
@@ -9,6 +11,9 @@ interface WishCardListProps {
     emptyMessage?: string;
     emptyIcon?: React.ReactNode;
     subtitle?: string; // Optional subtitle for the list
+    onLoadMore?: () => void;
+    hasMore?: boolean;
+    isFetchingMore?: boolean;
 }
 
 export const WishCardList: React.FC<WishCardListProps> = ({ 
@@ -16,8 +21,31 @@ export const WishCardList: React.FC<WishCardListProps> = ({
     currentUserId, 
     emptyMessage = "No wishes found.",
     emptyIcon,
-    subtitle
+    subtitle,
+    onLoadMore,
+    hasMore = false,
+    isFetchingMore = false
 }) => {
+    const sentinelRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!onLoadMore || !hasMore) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && !isFetchingMore) {
+                onLoadMore();
+            }
+        }, { threshold: 0.5 });
+
+        const currentSentinel = sentinelRef.current;
+        if (currentSentinel) {
+            observer.observe(currentSentinel);
+        }
+
+        return () => {
+            if (currentSentinel) observer.unobserve(currentSentinel);
+        };
+    }, [onLoadMore, hasMore, isFetchingMore]);
     if (wishes.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center py-20 px-6 border-2 border-dashed border-slate-200 rounded-3xl bg-white/50">
@@ -52,6 +80,19 @@ export const WishCardList: React.FC<WishCardListProps> = ({
                     />
                 </motion.div>
             ))}
+
+            {onLoadMore && hasMore && (
+                <div 
+                    ref={sentinelRef} 
+                    className="w-full py-4 flex justify-center items-center"
+                >
+                    {isFetchingMore ? (
+                        <Loader2 className="w-5 h-5 text-slate-400 animate-spin" />
+                    ) : (
+                        <span className="text-xs text-slate-300">Load More...</span>
+                    )}
+                </div>
+            )}
         </div>
     );
 };
