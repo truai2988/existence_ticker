@@ -605,10 +605,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                    <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
                        <span className="text-blue-600">ℹ</span> 基準値 (Standard Baseline)
                    </h4>
-                   <p className="text-slate-600 text-sm mb-4 leading-relaxed">
-                       本システムのデフォルト容量（物理定数）は <strong className="text-slate-900">2400 Lm</strong> に設定されています。<br/>
-                       これは1人が10日間（1サイクル）生存するために必要な最低限のエネルギー（240 Lm/day × 10 days）に基づいています。<br/>
-                       この値を基準（ニュートラル）として、緩和（&gt;2400）または引き締め（&lt;2400）を決定します。
+                   <p className="font-mono text-slate-600 text-sm mb-4 leading-relaxed">
+                       本システムのデフォルト容量（物理定数）は <strong className="text-slate-900">2400 Lm</strong> に設定されています。<br/><br/>
+                       これは「24時間 × 10日間 = 2400 Lm」という、<strong className="text-slate-900">一人の人間が誰にも助けられずに生存できる最大備蓄量</strong>を意味します。孤立した個体が保持できるエネルギーの物理的限界点です。<br/><br/>
+                       この器（Cap）を超えたエネルギーは「溢出（Overflow）」となり、虚空へ還ります。<br/>
+                       しかし、この「溢れ」こそが、実は「太陽（Basic Supply）」のエネルギー源として再利用される<strong className="text-slate-900">隠れたエコシステム・ループ</strong>を形成しています。<br/>
+                       個人の余剰は、巡り巡って世界全体の生命維持装置を稼働させる燃料となるのです。
                    </p>
 
                    <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2 border-t border-slate-200 pt-4">
