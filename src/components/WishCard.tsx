@@ -104,23 +104,23 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
               <div className="flex items-center gap-2 text-xs shrink-0">
                 <div
                   title={`Helped ${wish.requester_trust_score || 0} times`}
-                  className={`flex items-center gap-0.5 ${trust.color}`}
+                  className={`flex items-center gap-0.5 ${trust.color} cursor-default`}
                 >
                   {trust.icon}
                   <span className="font-mono">
                     ({wish.requester_trust_score || 0})
                   </span>
                 </div>
-                <span className="text-slate-300">|</span>
+                <span className="text-slate-300 cursor-default">|</span>
                 <span
                   title="過去に完了/支払いを行った回数"
-                  className="text-slate-500 font-bold flex items-center gap-1"
+                  className="text-slate-500 font-bold flex items-center gap-1 cursor-default"
                 >
                   📢 依頼実績: {wish.requester_completed_requests || 0}
                 </span>
               </div>
             </div>
-            <span className="flex items-center gap-1 text-[10px] text-slate-400 mt-0.5">
+            <span className="flex items-center gap-1 text-[10px] text-slate-400 mt-0.5 cursor-default">
               <Clock className="w-3 h-3" />
               <span>{formatDate(wish.created_at)}</span>
             </span>
@@ -136,7 +136,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
             className={`text-xl font-mono font-bold transition-colors duration-500 cursor-text select-text ${displayValue === 0 ? "text-gray-400" : "text-amber-500"}`}
           >
             {displayValue.toLocaleString()}{" "}
-            <span className="text-sm font-normal text-amber-500/50">Lm</span>
+            <span className="text-sm font-normal text-amber-500/50 cursor-text select-text">Lm</span>
           </div>
           {displayValue < initialCost && (
             <div className="text-[9px] text-red-400/60 font-mono text-right mt-0.5 cursor-text select-text">
