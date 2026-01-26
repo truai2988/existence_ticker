@@ -247,39 +247,86 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               />
             </div>
 
-            {/* Altruism Rate (New) */}
+            {/* Metabolic Composition (Tri-State) */}
             {(() => {
-              const m = metabolism;
-              const giftRate =
-                m.volume24h > 0 ? ((m.giftVolume || 0) / m.volume24h) * 100 : 0;
-              return (
-                <div className="mt-4 flex items-center gap-4 text-xs pt-4 border-t border-slate-800/50">
-                  <div className="flex-1">
-                    <div className="flex justify-between mb-1">
-                      <span className="text-slate-500">
-                        Altruism Rate (利他指数)
-                      </span>
-                      <span className="text-gold-400 font-mono">
-                        {giftRate.toFixed(1)}%
-                      </span>
+                const m = metabolism;
+                const total = m.totalSupply;
+                
+                // 1. Circulation (Flow)
+                const circulation = m.volume24h;
+                
+                // 2. Gravity (Decay Loss) - approximated naturally lost
+                const decay = m.decay24h;
+
+                // 3. Static (Retention) - Remaining pool
+                // const staticPool = Math.max(0, total - circulation);
+
+
+                // Ratios against (Total Supply + Decay) or just Total Supply?
+                // Visualizing: Of the "Potential Energy" existing today...
+                // Actually easier: 
+                // [ Flow (Green) ] [ Static (Grey) ] ... and show Decay as "Leakage" (Red) underneath or overlay?
+                
+                // Requested: Ratio of "How much circulated" vs "How much disappeared".
+                // Let's compare magnitudes relative to Total Existing Supply.
+                
+                const flowRatio = Math.min(100, (circulation / total) * 100);
+                const decayRatio = Math.min(100, (decay / total) * 100);
+                const staticRatio = Math.max(0, 100 - flowRatio); // Decay is "external" loss, not part of current supply pie usually, but let's show it as "Pressure".
+
+                return (
+                    <div className="mt-6 border-t border-slate-800/50 pt-4">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-xs text-slate-400 font-mono">Metabolic Composition</span>
+                            <span className="text-[10px] text-slate-600">対総資産比率</span>
+                        </div>
+                        
+                        {/* 1. Main Bar: Flow vs Static */}
+                        <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden flex relative">
+                            {/* Flow */}
+                            <div 
+                                className="h-full bg-gradient-to-r from-green-500 to-emerald-400 shadow-[0_0_10px_rgba(34,197,94,0.4)]"
+                                style={{ width: `${flowRatio}%` }}
+                            />
+                            {/* Static */}
+                            <div 
+                                className="h-full bg-slate-700"
+                                style={{ width: `${staticRatio}%` }}
+                            />
+                            
+                            {/* Decay Overlay (Ghost) */}
+                            {/* Decay represents "Mass lost". It's not in the bar of "Current Mass", but we can show it as a red consume bar from the right? Or just a separate indicator below. */}
+                        </div>
+
+                        <div className="flex justify-between text-[10px] mt-2 font-mono">
+                            <div className="text-green-400">
+                                <span>⚡ CIRCULATION</span>
+                                <span className="ml-2 opacity-70">{flowRatio.toFixed(1)}%</span>
+                            </div>
+                            <div className="text-slate-500">
+                                <span>❄️ STAGNATION</span>
+                                <span className="ml-2 opacity-70">{staticRatio.toFixed(1)}%</span>
+                            </div>
+                        </div>
+
+                        {/* Decay Indicator (Leakage) */}
+                        <div className="mt-3 flex items-center gap-2">
+                             <div className="flex-1 h-0.5 bg-slate-800 relative">
+                                 <div 
+                                    className="absolute top-1/2 -translate-y-1/2 left-0 h-1 bg-red-500/50 rounded-full blur-[1px]" 
+                                    style={{ width: `${decayRatio}%` }} 
+                                 />
+                             </div>
+                             <div className="text-[10px] text-red-400 font-mono whitespace-nowrap">
+                                 🔥 ENTROPY LOSS: -{decayRatio.toFixed(1)}% / 24h
+                             </div>
+                        </div>
+                        
+                         <p className="text-[10px] text-slate-500 mt-2 leading-tight">
+                            ※ エントロピー損失が循環率を上回ると、経済圏は縮小（死滅）に向かいます。
+                        </p>
                     </div>
-                    <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden flex">
-                      <div
-                        className="h-full bg-gold-500"
-                        style={{ width: `${giftRate}%` }}
-                      />
-                      <div
-                        className="h-full bg-slate-700"
-                        style={{ width: `${100 - giftRate}%` }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-[10px] text-slate-600 mt-1">
-                      <span>GIFT (Free)</span>
-                      <span>WISH (Contract)</span>
-                    </div>
-                  </div>
-                </div>
-              );
+                );
             })()}
           </div>
 

@@ -21,6 +21,8 @@ export interface DashboardStats {
         wishVolume: number;
         rate: number; // percentage
         status: MetabolismStatus;
+        totalSupply: number;
+        decay24h: number; // Estimated gravity loss
     };
     distribution: {
         full: number; // count
@@ -137,8 +139,26 @@ export const useStats = () => {
                         new: low
                     };
                     
-                    const estimatedTotalSupply = (totalPopulation || 1) * 2400; 
-                    const rate = estimatedTotalSupply > 0 ? Number(((volume / estimatedTotalSupply) * 100).toFixed(4)) : 0;
+                    // Calculate Total Supply & Decay
+                    let calculatedTotalSupply = 0;
+                    snapshot.forEach(doc => {
+                        const d = doc.data();
+                        const b = Number(d.balance) || 0;
+                        const l = d.last_updated || d.created_at;
+                        calculatedTotalSupply += calculateLifePoints(b, l);
+                    });
+                    
+                    // Approximate total supply for whole population if sample is small
+                    if (totalPopulation > sampleSize && sampleSize > 0) {
+                        calculatedTotalSupply = (calculatedTotalSupply / sampleSize) * totalPopulation;
+                    }
+
+                    // Decay = Population * Decay_Per_Sec * 86400
+                    // 10 Lm/hour = 240 Lm/day per person
+                    // This is "Potential Decay". Actual decay depends on if they have balance, but macro-level fits.
+                    const estimatedDecay24h = totalPopulation * 240; 
+                    
+                    const rate = calculatedTotalSupply > 0 ? Number(((volume / calculatedTotalSupply) * 100).toFixed(4)) : 0;
                     
                     let status: MetabolismStatus = 'Stable';
                     if (rate >= 10) status = 'Active';
@@ -164,7 +184,9 @@ export const useStats = () => {
                             giftVolume,
                             wishVolume,
                             rate,
-                            status
+                            status,
+                            totalSupply: calculatedTotalSupply,
+                            decay24h: estimatedDecay24h
                         },
                         distribution,
                         sunCapacity // Reads current state
