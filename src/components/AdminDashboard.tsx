@@ -491,8 +491,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   <span>Existence Ticker Protocol v2.0</span>
                 </div>
                 <h1 className="text-4xl font-serif font-bold text-slate-900 leading-tight">
-                  自律分散型互助経済圏構想書
-                  <span className="block text-lg font-sans font-normal text-slate-500 mt-2">Autonomous Mutual Aid Economy Protocol</span>
+                  自律分散型互助生態系構想書
+                  <span className="block text-lg font-sans font-normal text-slate-500 mt-2">Autonomous Mutual Aid Ecosystem Protocol</span>
                 </h1>
               </div>
               <button
@@ -522,12 +522,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
                 <h3 className="text-xl font-bold mb-4">"Stock" から "Flow" へ</h3>
                 <p className="mb-6">
-                  現代経済の病理は「滞留」にあります。貨幣が交換の媒体としての機能を失い、富の保存手段（Stock）として金庫に死蔵される時、社会の血流は止まります。<br/>
-                  我々はこの問題を解決するために、貨幣を<strong className="text-slate-900 font-bold bg-yellow-100 px-1">「保存する価値」から「感謝を伝えるエネルギー」へと再定義</strong>しました。
+                  現代社会の閉塞感は「感謝の滞留」にあります。エネルギー（貨幣）が循環の媒体としての機能を失い、個人の所有物（Stock）としてダムのように堰き止められた時、生態系は枯れ果てます。<br/>
+                  我々はこの問題を解決するために、通貨を<strong className="text-slate-900 font-bold bg-yellow-100 px-1">「保存する資産」から「感謝を伝えるエネルギー」へと再定義</strong>しました。
                 </p>
                 <p>
-                  この世界では、貯め込むことはリスク（減価）であり、循環させることこそが生存戦略となります。<br/>
-                  ユーザーは「豊かになるため」ではなく、「誰かを助け、誰かに助けられるため」にこの通貨を使用します。
+                  この世界では、溜め込むことは腐敗（減価）を意味し、他者へ循環させることこそが生存戦略となります。<br/>
+                  住人は「富を得るため」ではなく、「誰かを助け、誰かに助けられるため」にこのエネルギーを使用します。
                 </p>
               </section>
 
@@ -545,9 +545,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                       <span className="text-red-400">▼</span> エントロピー (Entropy)
                     </h3>
                     <p className="text-base text-slate-600">
-                      自然界の法則と同様に、全ての資産は時間とともに崩壊（Decay）します。
+                      自然界の法則と同様に、全てのエネルギーは時間とともに散逸（Decay）します。
                       現在、<span className="font-mono bg-slate-200 text-slate-800 px-1 text-sm">毎時 10 Lm</span> の減価圧力がシステム全体にかかっています。
-                      これにより、富の固定化（格差の固定）を物理的に阻止し、常に新たな価値交換を促します。
+                      これにより、既得権益の固定化（格差の固定）を物理的に阻止し、常に新たな代謝を促します。
                     </p>
                   </div>
 
@@ -556,9 +556,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                       <span className="text-yellow-500">▲</span> 太陽 (The Sun)
                     </h3>
                     <p className="text-base text-slate-600">
-                      減価によって失われた総量は、システム全体への「定期給付（Basic Income）」として平等に還元されます。
-                      これは富の再分配ではなく、世界を回し続けるための<span className="font-mono bg-slate-200 text-slate-800 px-1 text-sm">エネルギー供給</span>です。
-                      太陽が降り注ぐ限り、誰も完全に枯渇することはありません。
+                      減価によって失われた総量は、システム全体への「生命維持エネルギー（Basic Supply）」として還元されます。
+                      これは行政による「給付」でも、富める者からの「再分配」でもありません。<br/>
+                      あなたがここに<strong className="text-slate-900">「存在している」という事実そのものを担保にして</strong>、天から無条件に降り注ぐ<span className="font-mono bg-slate-200 text-slate-800 px-1 text-sm">光のギフト</span>です。
+                      太陽が昇る限り、あなたの生存は世界によって肯定され続けます。
                     </p>
                   </div>
                 </div>
@@ -573,18 +574,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
                 <h3 className="text-xl font-bold mb-4">支配ではなく、調律</h3>
                 <p className="mb-6">
-                  管理者の役割は、ユーザーの個別の取引を監視・検閲することではありません。<br/>
-                  世界の「温度（代謝率）」と「湿度（資産分布）」を観測し、<strong className="text-slate-900 font-bold">「基礎給付額（Base Supply）」というたった一つの物理定数を調整すること</strong>だけが許された権限です。
+                  管理者の役割は、住人の個別のやり取りを監視することではありません。<br/>
+                  世界の「温度（代謝率）」と「湿度（エネルギー分布）」を観測し、<strong className="text-slate-900 font-bold">「基礎給付額（Basic Supply）」というたった一つの物理定数を調整すること</strong>だけが許された権限です。
                 </p>
                 
                 <div className="bg-slate-900 text-white p-8 rounded-sm shadow-xl mt-8">
                    <h4 className="font-sans text-xs uppercase tracking-widest text-slate-400 mb-4 border-b border-slate-700 pb-2">Admin Protocol</h4>
                    <p className="font-mono text-sm leading-relaxed text-slate-300">
-                     &gt; We do not manage the market. <span className="text-slate-500 text-xs">(我々は市場を管理しない)</span><br/>
-                     &gt; We design the environment. <span className="text-slate-500 text-xs">(我々は環境を設計する)</span><br/>
+                     &gt; We do not manage the economy. <span className="text-slate-500 text-xs">(我々は経済を管理しない)</span><br/>
+                     &gt; We design the ecosystem. <span className="text-slate-500 text-xs">(我々は生態系を設計する)</span><br/>
                      &gt; <br/>
-                     &gt; The goal is to maximize the "Circulation Rate" (Metabolism), not the "Total Asset Value" (GDP).<br/>
-                     <span className="text-slate-500 text-xs pl-4 block mb-1"> (目的は「流動性」の最大化であり、「総資産」の最大化ではない)</span>
+                     &gt; The goal is to maximize the "Circulation Rate" (Metabolism), not the "Total Asset Value" (Stock).<br/>
+                     <span className="text-slate-500 text-xs pl-4 block mb-1"> (目的は「循環」の最大化であり、「総資産」の最大化ではない)</span>
                      &gt; A healthy world is not one where everyone is rich, but one where help is always available.<br/>
                      <span className="text-slate-500 text-xs pl-4 block"> (健全な世界とは、全員が富裕な場所ではなく、救済が常に遍在する場所である)</span>
                    </p>
@@ -616,11 +617,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                    <p className="text-slate-600 text-sm mb-0 leading-relaxed">
                        「基礎給付額（Basic Supply）」の変更は、即座に全ユーザーに適用されるわけではありません。<br/>
                        各ユーザーは個別に決定された「リセット日（10日周期）」を持っており、新しい設定値は<strong className="text-slate-900">個々の次回リセット時</strong>に初めて適用されます。<br/>
-                       したがって、政策変更の効果が市場全体に行き渡るまでには、最大で10日間のタイムラグ（Latency）が発生します。
+                       したがって、調律（Tuning）の効果が生態系全体に行き渡るまでには、最大で10日間のタイムラグ（Latency）が発生します。
                    </p>
                 </div>
 
-                <h3 className="text-xl font-bold mb-6 font-sans">4.2 監視指標 (Key Performance Indicators)</h3>
+                <h3 className="text-xl font-bold mb-6 font-sans">4.2 生体バイタル (Vital Signs)</h3>
                 
                 <div className="space-y-6">
                     {/* KPI 1 */}
@@ -639,7 +640,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                              </div>
                         </div>
                         <p className="text-slate-600 text-sm">
-                            GDP（総資産）の多寡は重要ではありません。「血液の流速」こそが生命の証です。<br/>
+                            総滞留量（GDP）の多寡は重要ではありません。「血液の流速」こそが生命の証です。<br/>
                             5%を下回る状態は「心停止」と同義であり、緊急の介入（Divine Intervention）を要します。
                         </p>
                     </div>
@@ -651,12 +652,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                         </h4>
                          <ul className="list-disc list-inside space-y-2 text-slate-600 text-sm">
                              <li>
-                                 <strong className="text-slate-800">Rich Metrics (&gt;1500 Lm):</strong> 
-                                 この層が30%を超えると「飽和（Saturation）」です。貨幣価値が希釈され、誰も働かなくなります。
+                                 <strong className="text-slate-800">Saturated (&gt;1500 Lm):</strong> 
+                                 この層が30%を超えると「飽和（Saturation）」です。エネルギー価値が希釈され、誰も働かなくなります。
                              </li>
                              <li>
-                                 <strong className="text-slate-800">Needy Metrics (&lt;500 Lm):</strong>
-                                 この層が50%を超えると「飢餓（Starvation）」です。生存不安により、他者への貢献（取引）が停止します。
+                                 <strong className="text-slate-800">Thirsty (&lt;500 Lm):</strong>
+                                 この層が50%を超えると「飢餓（Starvation）」です。生存不安により、他者への貢献（循環）が停止します。
                              </li>
                          </ul>
                     </div>
