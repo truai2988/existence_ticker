@@ -580,11 +580,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <div className="bg-slate-900 text-white p-8 rounded-sm shadow-xl mt-8">
                    <h4 className="font-sans text-xs uppercase tracking-widest text-slate-400 mb-4 border-b border-slate-700 pb-2">Admin Protocol</h4>
                    <p className="font-mono text-sm leading-relaxed text-slate-300">
-                     &gt; We do not manage the market.<br/>
-                     &gt; We design the environment.<br/>
+                     &gt; We do not manage the market. <span className="text-slate-500 text-xs">(我々は市場を管理しない)</span><br/>
+                     &gt; We design the environment. <span className="text-slate-500 text-xs">(我々は環境を設計する)</span><br/>
                      &gt; <br/>
                      &gt; The goal is to maximize the "Circulation Rate" (Metabolism), not the "Total Asset Value" (GDP).<br/>
-                     &gt; A healthy world is not one where everyone is rich, but one where help is always available.
+                     <span className="text-slate-500 text-xs pl-4 block mb-1"> (目的は「流動性」の最大化であり、「総資産」の最大化ではない)</span>
+                     &gt; A healthy world is not one where everyone is rich, but one where help is always available.<br/>
+                     <span className="text-slate-500 text-xs pl-4 block"> (健全な世界とは、全員が富裕な場所ではなく、救済が常に遍在する場所である)</span>
                    </p>
                 </div>
               </section>
