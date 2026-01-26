@@ -82,7 +82,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
 
   return (
     <div
-      className={`relative group bg-white border shadow-sm hover:shadow-lg rounded-2xl p-6 transition-all duration-300 md:hover:scale-[1.01] ${applicants.length > 0 && isMyWish && wish.status === "open" ? "border-yellow-400 shadow-yellow-100 ring-1 ring-yellow-400/50" : "border-slate-100"}`}
+      className={`relative group bg-white border shadow-sm hover:shadow-lg rounded-2xl p-6 transition-all duration-300 md:hover:scale-[1.01] cursor-default ${applicants.length > 0 && isMyWish && wish.status === "open" ? "border-yellow-400 shadow-yellow-100 ring-1 ring-yellow-400/50" : "border-slate-100"}`}
     >
       {/* Header: User & Meta */}
       <div className="relative flex justify-between items-start mb-4 gap-4">
@@ -129,17 +129,17 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
 
         {/* Reward Badge (Cost) */}
         <div className="text-right shrink-0">
-          <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">
+          <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5 cursor-text select-text">
             REWARD
           </div>
           <div
-            className={`text-xl font-mono font-bold transition-colors duration-500 ${displayValue === 0 ? "text-gray-400" : "text-amber-500"}`}
+            className={`text-xl font-mono font-bold transition-colors duration-500 cursor-text select-text ${displayValue === 0 ? "text-gray-400" : "text-amber-500"}`}
           >
             {displayValue.toLocaleString()}{" "}
             <span className="text-sm font-normal text-amber-500/50">Lm</span>
           </div>
           {displayValue < initialCost && (
-            <div className="text-[9px] text-red-400/60 font-mono text-right mt-0.5">
+            <div className="text-[9px] text-red-400/60 font-mono text-right mt-0.5 cursor-text select-text">
               Decaying from {initialCost}
             </div>
           )}
@@ -148,7 +148,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
 
       {/* Body: Content */}
       <div className="relative mb-6">
-        <p className="text-slate-600 text-base leading-relaxed font-medium">
+        <p className="text-slate-600 text-base leading-relaxed font-medium cursor-text select-text">
           {wish.content}
         </p>
       </div>
