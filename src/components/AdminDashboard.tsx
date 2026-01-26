@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { X, Activity, Moon, Sun, AlertTriangle, Book } from "lucide-react";
 import { useStats, MetabolismStatus } from "../hooks/useStats";
+import { useDiagnostics } from "../hooks/useDiagnostics";
+import { DiagnosticModal } from "./DiagnosticModal";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -10,12 +12,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const { stats, error, updateCapacity } = useStats();
   const [sliderValue, setSliderValue] = useState(2400);
   const [showManual, setShowManual] = useState(false);
+  const [showDiagnosisModal, setShowDiagnosisModal] = useState(false);
+  
+  const supplySectionRef = React.useRef<HTMLDivElement>(null);
+
+  const scrollToSupply = () => {
+      supplySectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
 
 
   // Sync slider with stats when loaded
   React.useEffect(() => {
     if (stats) setSliderValue(stats.sunCapacity);
   }, [stats]);
+
+  const diagnostics = useDiagnostics(stats);
 
   // Lock body scroll when dashboard is open
   React.useEffect(() => {
@@ -90,49 +101,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         )}
 
         {/* Diagnosis Banner */}
-        {(() => {
-          const activeDiagnoses = [];
-
-          if (metabolism.rate < 5) {
-            activeDiagnoses.push({
-              text: "【警告】経済循環率が低下しています（停滞）",
-              bg: "bg-red-900/30 border-red-500",
-            });
-          }
-          if (distRatio.full >= 0.3) {
-            activeDiagnoses.push({
-              text: "【警告】市場が飽和しています（インフレ懸念）",
-              bg: "bg-yellow-900/30 border-yellow-500",
-            });
-          }
-          if (distRatio.new >= 0.5) {
-            activeDiagnoses.push({
-              text: "【警告】資金が枯渇しています（デフレ懸念）",
-              bg: "bg-blue-900/30 border-blue-500",
-            });
-          }
-
-          if (activeDiagnoses.length === 0) {
-            return (
-              <div className="p-4 mb-4 rounded-lg border bg-green-900/30 border-green-500 text-white flex-none">
-                【正常】システムは安定稼働中です
-              </div>
-            );
-          }
-
-          return (
-            <div className="flex flex-col gap-2 mb-4 flex-none">
-              {activeDiagnoses.map((d, i) => (
-                <div
-                  key={i}
-                  className={`p-4 rounded-lg border ${d.bg} text-white flex justify-between items-center`}
-                >
-                  <span>{d.text}</span>
-                </div>
-              ))}
-            </div>
-          );
-        })()}
+        <div 
+            onClick={() => setShowDiagnosisModal(true)}
+            className={`p-4 mb-4 rounded-lg border ${diagnostics.bg} ${diagnostics.text} flex justify-between items-center transition-all duration-500 cursor-pointer hover:bg-opacity-40 group`}
+        >
+             <span className="font-bold tracking-wide group-hover:underline underline-offset-4 decoration-current/50 decoration-1 flex items-center gap-2">
+                 {diagnostics.shortDescription}
+                 <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity font-normal no-underline ml-2 bg-black/20 px-2 py-0.5 rounded">
+                    Click for Analysis
+                 </span>
+             </span>
+        </div>
 
         {/* Content Stack */}
         <div className="flex flex-col gap-6">
@@ -424,7 +403,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           </div>
 
           {/* SECTION D: SUN CONTROL */}
-          <div className="p-6 rounded-2xl border border-yellow-900/30 bg-yellow-900/5 md:col-span-2 lg:col-span-1 relative overflow-hidden">
+          <div ref={supplySectionRef} className="p-6 rounded-2xl border border-yellow-900/30 bg-yellow-900/5 md:col-span-2 lg:col-span-1 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-10 text-yellow-500">
               <Sun size={80} />
             </div>
@@ -648,6 +627,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           </div>
         </div>
       )}
+
+      <DiagnosticModal 
+        isOpen={showDiagnosisModal}
+        onClose={() => setShowDiagnosisModal(false)}
+        diagnosis={diagnostics}
+        stats={stats}
+        onScrollToSupply={scrollToSupply}
+      />
     </div>
   );
 };

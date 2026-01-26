@@ -24,6 +24,7 @@ export interface DashboardStats {
         totalSupply: number;
         decay24h: number; // Estimated gravity loss
         overflowLoss?: number; // Loss due to cap
+        avgBalance?: number; // Average Lm per user
     };
     distribution: {
         full: number; // count
@@ -161,6 +162,8 @@ export const useStats = () => {
                     // This is "Potential Decay". Actual decay depends on if they have balance, but macro-level fits.
                     const estimatedDecay24h = totalPopulation * 240; 
                     
+                    const avgBalance = totalPopulation > 0 ? calculatedTotalSupply / totalPopulation : 0;
+
                     const rate = calculatedTotalSupply > 0 ? Number(((volume / calculatedTotalSupply) * 100).toFixed(4)) : 0;
                     
                     let status: MetabolismStatus = 'Stable';
@@ -190,7 +193,8 @@ export const useStats = () => {
                             status,
                             totalSupply: calculatedTotalSupply,
                             decay24h: estimatedDecay24h,
-                            overflowLoss: overflowVolume
+                            overflowLoss: overflowVolume,
+                            avgBalance
                         },
                         distribution,
                         sunCapacity // Reads current state
