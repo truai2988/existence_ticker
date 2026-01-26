@@ -15,11 +15,6 @@ body {
   @apply w-full min-h-[100dvh] flex flex-col;
 }
 
-.mask-gradient {
-  mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
-}
-
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

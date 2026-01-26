@@ -1,35 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Wish, CreateWishInput } from '../types';
+import { CreateWishInput } from '../types';
 import { db } from '../lib/firebase';
-import { collection, addDoc, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, addDoc } from 'firebase/firestore';
+import { useWishesContext } from '../contexts/WishesContext';
 import { useAuth } from './useAuthHook';
 
 export const useWishes = () => {
     const { user } = useAuth();
-    const [wishes, setWishes] = useState<Wish[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    useEffect(() => {
-        if (!db) {
-            setIsLoading(false);
-            return;
-        }
-
-        const q = query(collection(db, 'wishes'), orderBy('created_at', 'desc'));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const wishesData = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            })) as Wish[];
-            setWishes(wishesData);
-            setIsLoading(false);
-        }, (error) => {
-            console.error("Wishes sync error:", error);
-            setIsLoading(false);
-        });
-
-        return () => unsubscribe();
-    }, []);
+    const { wishes, isLoading, error } = useWishesContext();
 
     const createWish = async (input: CreateWishInput) => {
         if (!user || !db) return { success: false };
@@ -40,8 +17,7 @@ export const useWishes = () => {
                 content: input.content,
                 gratitude_preset: input.tier,
                 status: 'open',
-                created_at: new Date().toISOString(), // Use string for client, serverTimestamp for backend if needed, but keeping simple for now
-                // timestamp: serverTimestamp() // If we want server time sorting
+                created_at: new Date().toISOString(),
             };
             
             const docRef = await addDoc(collection(db, 'wishes'), newWishData);
@@ -56,6 +32,6 @@ export const useWishes = () => {
         wishes,
         createWish,
         isLoading,
-        error: null
+        error
     };
 };

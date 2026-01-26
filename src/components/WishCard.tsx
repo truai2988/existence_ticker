@@ -16,8 +16,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
     useWishActions();
   const { openUserProfile } = useUserView();
   const [isLoading, setIsLoading] = useState(false);
-  // Alias hook for closure usage if needed, or just use destructuring
-  const useWishActionsHook = { fulfillWish, reportCompletion };
+
   const [showApplicants, setShowApplicants] = useState(false);
 
   // Anti-Gravity: Universal Decay Logic
@@ -82,10 +81,10 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
 
   return (
     <div
-      className={`relative group bg-white border shadow-sm hover:shadow-lg rounded-2xl p-6 transition-all duration-300 md:hover:scale-[1.01] cursor-default ${applicants.length > 0 && isMyWish && wish.status === "open" ? "border-yellow-400 shadow-yellow-100 ring-1 ring-yellow-400/50" : "border-slate-100"}`}
+      className={`relative bg-white border shadow-sm rounded-2xl p-6 ${applicants.length > 0 && isMyWish && wish.status === "open" ? "border-yellow-400 shadow-yellow-100 ring-1 ring-yellow-400/50" : "border-slate-100"}`}
     >
       {/* Header: User & Meta */}
-      <div className="relative z-10 flex justify-between items-start mb-4 gap-4">
+      <div className="relative flex justify-between items-start mb-4 gap-4">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
             <User className="w-5 h-5 text-slate-400" />
@@ -104,23 +103,23 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
               <div className="flex items-center gap-2 text-xs shrink-0">
                 <div
                   title={`Helped ${wish.requester_trust_score || 0} times`}
-                  className={`flex items-center gap-0.5 ${trust.color} cursor-default`}
+                  className={`flex items-center gap-0.5 ${trust.color}`}
                 >
                   {trust.icon}
                   <span className="font-mono">
                     ({wish.requester_trust_score || 0})
                   </span>
                 </div>
-                <span className="text-slate-300 cursor-default">|</span>
+                <span className="text-slate-300">|</span>
                 <span
                   title="過去に完了/支払いを行った回数"
-                  className="text-slate-500 font-bold flex items-center gap-1 cursor-default"
+                  className="text-slate-500 font-bold flex items-center gap-1"
                 >
                   📢 依頼実績: {wish.requester_completed_requests || 0}
                 </span>
               </div>
             </div>
-            <span className="flex items-center gap-1 text-[10px] text-slate-400 mt-0.5 cursor-default">
+            <span className="flex items-center gap-1 text-[10px] text-slate-400 mt-0.5">
               <Clock className="w-3 h-3" />
               <span>{formatDate(wish.created_at)}</span>
             </span>
@@ -129,17 +128,17 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
 
         {/* Reward Badge (Cost) */}
         <div className="text-right shrink-0">
-          <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5 cursor-text select-text">
+          <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">
             REWARD
           </div>
           <div
-            className={`text-xl font-mono font-bold transition-colors duration-500 cursor-text select-text ${displayValue === 0 ? "text-gray-400" : "text-amber-500"}`}
+            className={`text-xl font-mono font-bold ${displayValue === 0 ? "text-gray-400" : "text-amber-500"}`}
           >
             {displayValue.toLocaleString()}{" "}
-            <span className="text-sm font-normal text-amber-500/50 cursor-text select-text">Lm</span>
+            <span className="text-sm font-normal text-amber-500/50">Lm</span>
           </div>
           {displayValue < initialCost && (
-            <div className="text-[9px] text-red-400/60 font-mono text-right mt-0.5 cursor-text select-text">
+            <div className="text-[9px] text-red-400/60 font-mono text-right mt-0.5">
               Decaying from {initialCost}
             </div>
           )}
@@ -147,14 +146,14 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
       </div>
 
       {/* Body: Content */}
-      <div className="relative z-10 mb-6">
-        <p className="text-slate-600 text-base leading-relaxed font-medium cursor-text select-text">
+      <div className="relative mb-6">
+        <p className="text-slate-600 text-base leading-relaxed font-medium">
           {wish.content}
         </p>
       </div>
 
       {/* Footer: Action Area */}
-      <div className="relative z-20 pt-4 border-t border-slate-100 min-h-[50px] flex items-center justify-between">
+      <div className="relative pt-4 border-t border-slate-100 min-h-[50px] flex items-center justify-between">
         {/* Status Badge (Left) */}
         <div className="">
           {wish.status === "in_progress" && (
@@ -275,7 +274,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
                       if (wish.helper_id) {
                         const run = async () => {
                           setIsLoading(true);
-                          const success = await useWishActionsHook.fulfillWish(
+                          const success = await fulfillWish(
                             wish.id,
                             wish.helper_id!,
                           );
@@ -336,7 +335,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
                     onClick={async () => {
                       if (confirm("依頼主に完了を報告しますか？")) {
                         setIsLoading(true);
-                        await useWishActionsHook.reportCompletion(wish.id);
+                        await reportCompletion(wish.id);
                         setIsLoading(false);
                       }
                     }}
