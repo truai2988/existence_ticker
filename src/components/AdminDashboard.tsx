@@ -262,17 +262,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 // const staticPool = Math.max(0, total - circulation);
 
 
-                // Ratios against (Total Supply + Decay) or just Total Supply?
-                // Visualizing: Of the "Potential Energy" existing today...
-                // Actually easier: 
-                // [ Flow (Green) ] [ Static (Grey) ] ... and show Decay as "Leakage" (Red) underneath or overlay?
-                
-                // Requested: Ratio of "How much circulated" vs "How much disappeared".
-                // Let's compare magnitudes relative to Total Existing Supply.
+                // Ratios against (Total Supply + Decay + Overflow)
+                // Decay & Overflow are "Gone", but we want to show ratio of "Loss" vs "Circulation".
+                // Let's base everything on Total Current Supply for readability, but show Loss as separate metric.
                 
                 const flowRatio = Math.min(100, (circulation / total) * 100);
                 const decayRatio = Math.min(100, (decay / total) * 100);
-                const staticRatio = Math.max(0, 100 - flowRatio); // Decay is "external" loss, not part of current supply pie usually, but let's show it as "Pressure".
+                const overflowLoss = m.overflowLoss || 0;
+                const overflowRatio = Math.min(100, (overflowLoss / total) * 100);
+                
+                const totalEntropyLoss = decay + overflowLoss;
+                const entropyRatio = decayRatio + overflowRatio;
+
+                const staticRatio = Math.max(0, 100 - flowRatio);
 
                 return (
                     <div className="mt-6 border-t border-slate-800/50 pt-4">
@@ -293,9 +295,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                 className="h-full bg-slate-700"
                                 style={{ width: `${staticRatio}%` }}
                             />
-                            
-                            {/* Decay Overlay (Ghost) */}
-                            {/* Decay represents "Mass lost". It's not in the bar of "Current Mass", but we can show it as a red consume bar from the right? Or just a separate indicator below. */}
                         </div>
 
                         <div className="flex justify-between text-[10px] mt-2 font-mono">
@@ -309,21 +308,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                             </div>
                         </div>
 
-                        {/* Decay Indicator (Leakage) */}
-                        <div className="mt-3 flex items-center gap-2">
-                             <div className="flex-1 h-0.5 bg-slate-800 relative">
-                                 <div 
-                                    className="absolute top-1/2 -translate-y-1/2 left-0 h-1 bg-red-500/50 rounded-full blur-[1px]" 
-                                    style={{ width: `${decayRatio}%` }} 
-                                 />
+                        {/* Entropy Loss Indicator (Decay + Overflow) */}
+                        <div className="mt-4 flex flex-col gap-1">
+                             <div className="flex justify-between text-[10px] items-center">
+                                 <span className="text-red-400 font-mono">🔥 ENTROPY LOSS (24h)</span>
+                                 <span className="text-red-300 font-mono">-{totalEntropyLoss.toLocaleString()} Lm <span className="opacity-50">({entropyRatio.toFixed(1)}%)</span></span>
                              </div>
-                             <div className="text-[10px] text-red-400 font-mono whitespace-nowrap">
-                                 🔥 ENTROPY LOSS: -{decayRatio.toFixed(1)}% / 24h
+                             <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden flex">
+                                 {/* Decay (Natural) */}
+                                 <div className="h-full bg-red-900/50" style={{ width: `${(decay / (totalEntropyLoss || 1)) * 100}%` }} />
+                                 {/* Overflow (Waste) */}
+                                 <div className="h-full bg-red-500" style={{ width: `${(overflowLoss / (totalEntropyLoss || 1)) * 100}%` }} />
+                             </div>
+                             <div className="flex justify-between text-[9px] text-slate-600 px-0.5">
+                                 <span>Gravity: {decay.toLocaleString()}</span>
+                                 <span>Overflow: {overflowLoss.toLocaleString()}</span>
                              </div>
                         </div>
                         
                          <p className="text-[10px] text-slate-500 mt-2 leading-tight">
-                            ※ エントロピー損失が循環率を上回ると、経済圏は縮小（死滅）に向かいます。
+                            ※ 赤色の損失（Overflow含む）が緑色の循環を上回る場合、経済圏は縮小（死滅）に向かいます。<br/>
+                            現在のバランス: {flowRatio > entropyRatio ? <span className="text-green-400 font-bold">EXPANDING (成長)</span> : <span className="text-red-400 font-bold">CONTRACTING (縮小)</span>}
                         </p>
                     </div>
                 );
@@ -582,35 +587,36 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
               <section>
                 <h3 className="text-lg text-white font-bold mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">
-                  <span className="text-red-400">🛠</span> 3. 状況別対応マニュアル (Troubleshooting)
+                  <span className="text-red-400">🛠</span> 3. 状況別対応マニュアル (Philosophy)
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div id="case-a" className="p-4 rounded-lg border border-yellow-500/20 bg-yellow-950/20">
-                    <h4 className="font-bold text-yellow-300 mb-2">ケースA：世界が「淀んで」いる（飽和・インフレ）</h4>
+                    <h4 className="font-bold text-yellow-300 mb-2">Case A: 静寂なる停滞 (Silent Stagnation)</h4>
                     <div className="space-y-2 text-xs text-yellow-100/70">
-                      <p><span className="text-slate-500 block">症状:</span> 循環率が低く、かつ「潤沢（Rich）」な人が多い。</p>
-                      <p><span className="text-slate-500 block">原因:</span> 基礎給付が多すぎて、誰も必死になっていません。「手伝わなくても生きていける」状態です。</p>
+                      <p><span className="text-slate-400">条件:</span> 循環率 &lt; 消滅率 かつ <span className="text-yellow-400">平均残高 &gt; 1200 Lm (飽和)</span></p>
+                      <p>人々は満たされていますが、繋がり（Wish/Gift）を忘れています。「平和だが、死に向かっている」状態です。</p>
                       <div className="mt-3 pt-3 border-t border-yellow-500/20">
-                        <span className="text-white font-bold block mb-1">処置：【引き締め (Cool Down)】</span>
+                        <span className="text-white font-bold block mb-1">処方箋：【祝祭 (Jubilee)】</span>
                         <ul className="list-disc list-inside">
-                          <li>設定値を <span className="font-mono text-yellow-400">2000 ~ 2200 Lm</span> に下げてください。</li>
-                          <li><span className="text-slate-400">効果:</span> 器が小さくなり、早く枯渇するようになります。「やばい、減ってきた」という焦燥感が、他者への貢献（手伝い）を促します。</li>
+                          <li>無理に給付を減らす必要はありません（反感を買います）。</li>
+                          <li>代わりに、<strong>「新たなWish（願い）」を喚起するイベント</strong>が必要です。</li>
+                          <li>人々が溜め込んだエネルギーを一気に放出させるような、祝祭的な介入が有効です。</li>
                         </ul>
                       </div>
                     </div>
                   </div>
 
                   <div id="case-b" className="p-4 rounded-lg border border-cyan-500/20 bg-cyan-950/20">
-                    <h4 className="font-bold text-cyan-300 mb-2">ケースB：世界が「凍えて」いる（枯渇・デフレ）</h4>
+                    <h4 className="font-bold text-cyan-300 mb-2">Case B: 渇きの連鎖 (Chain of Thirst)</h4>
                     <div className="space-y-2 text-xs text-cyan-100/70">
-                      <p><span className="text-slate-500 block">症状:</span> 循環率が低く、かつ「枯渇（Needy）」な人が多い。</p>
-                      <p><span className="text-slate-500 block">原因:</span> 基礎給付が少なすぎて、生きるだけで精一杯です。他者に依頼するコストさえ払えません。</p>
+                      <p><span className="text-slate-400">条件:</span> 循環率 &lt; 消滅率 かつ <span className="text-cyan-400">平均残高 &lt; 1200 Lm (飢餓)</span></p>
+                      <p>極めて危険な状態です。余裕がないため、誰も他者を助けることができず、信頼の連鎖が断ち切られています。</p>
                       <div className="mt-3 pt-3 border-t border-cyan-500/20">
-                        <span className="text-white font-bold block mb-1">処置：【緩和・救済 (Warm Up)】</span>
+                        <span className="text-white font-bold block mb-1">処方箋：【太陽の恵み (Sun's Grace)】</span>
                         <ul className="list-disc list-inside">
-                          <li>設定値を <span className="font-mono text-cyan-400">2600 ~ 3000 Lm</span> に上げてください。</li>
-                          <li><span className="text-slate-400">効果:</span> 全員に余裕が生まれます。生存競争を超えた、高額な感謝（1000 Lmクラス）や、文化的な活動が生まれやすくなります。</li>
+                           <li><strong>直ちに「太陽」の出力を上げてください。</strong> (Target: 3000Lm+)</li>
+                           <li>乾いた大地に水を満たし、人々が顔を上げて「他者」を見る余裕を取り戻させる必要があります。</li>
                         </ul>
                       </div>
                     </div>
@@ -618,28 +624,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
 
                   <div id="case-c" className="p-4 rounded-lg border border-red-500/20 bg-red-950/20 md:col-span-2">
-                    <h4 className="font-bold text-red-300 mb-2">ケースC：世界が「止まって」いる（循環不全・停滞）</h4>
+                    <h4 className="font-bold text-red-300 mb-2">Case C: 完全循環不全 (Total Failure)</h4>
                     <div className="space-y-4 text-xs text-red-100/70">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                           <p><span className="text-slate-500 block">症状:</span> 経済循環率 (Metabolism) が 5%未満 (RED)。資産分布に関わらず、とにかく取引が発生していない。</p>
-                          <p className="mt-2"><span className="text-slate-500 block">原因:</span> 「見合い状態」: 誰もが「誰かが動くのを待っている」状態。心理的障壁: 「手伝う」ことへの心理的ハードルが高い。</p>
+                          <p className="mt-2 text-red-300 font-bold">これはシステムの問題ではなく、文化の不足です。</p>
                         </div>
                         <div>
-                          <span className="text-white font-bold block mb-1">処置：【呼び水 (Pump Priming)】</span>
+                          <span className="text-white font-bold block mb-1">処置：【神的介入 (Divine Intervention)】</span>
                           <ul className="list-disc list-inside space-y-2">
-                            <li><span className="font-bold text-red-400">物理的ショック療法:</span> 一時的に設定値を <span className="font-mono text-red-400">2000 Lm 以下</span> に厳しく下げてください。「動かないと本当に損をする」という危機感を与えます。</li>
-                            <li><span className="font-bold text-yellow-500">神的介入（重要）:</span> システム設定だけでは解決しません。管理者自身がユーザーとして「依頼」を出してください。または、サクラ（協力者）に頼んで、最初の数件の「手伝い」を成立させてください。</li>
+                             <li>Admin自身が「最初の依頼」を出してください。</li>
+                             <li>Admin自身が「最初の救済」を行ってください。</li>
+                             <li>神が動かない世界で、人は動きません。</li>
                           </ul>
                         </div>
-                      </div>
-                      <div className="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded text-red-200">
-                        <strong className="block mb-1 text-red-300">💡 リードエンジニアの推奨:</strong>
-                        この「ケースC」は、アプリ公開直後（ローンチ時）に100%の確率で発生する現象です。
-                        誰もいないダンスフロアで、最初に踊り出す勇気を持つ人がいないのと同じです。
-                        <br/>
-                        したがって、<strong>「管理者自身が最初の『踊り手』になりなさい」</strong>。<br/>
-                        「ああ、こうやって使えばいいのか」という実例（背中）を見せることが、唯一の解決策です。
                       </div>
                     </div>
                   </div>

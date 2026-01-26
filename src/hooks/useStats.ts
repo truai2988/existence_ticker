@@ -23,6 +23,7 @@ export interface DashboardStats {
         status: MetabolismStatus;
         totalSupply: number;
         decay24h: number; // Estimated gravity loss
+        overflowLoss?: number; // Loss due to cap
     };
     distribution: {
         full: number; // count
@@ -63,6 +64,7 @@ export const useStats = () => {
             let volume = 0;
             let giftVolume = 0;
             let wishVolume = 0;
+            let overflowVolume = 0;
             let rebornCount = 0;
 
             if (db) {
@@ -77,6 +79,7 @@ export const useStats = () => {
                         giftVolume = data.gift_volume || 0;
                         wishVolume = data.wish_volume || 0;
                         rebornCount = data.reborn_count || 0;
+                        overflowVolume = data.overflow_volume || 0;
                     }
                 } catch (e) {
                      console.warn("Failed to fetch daily stats", e);
@@ -186,7 +189,8 @@ export const useStats = () => {
                             rate,
                             status,
                             totalSupply: calculatedTotalSupply,
-                            decay24h: estimatedDecay24h
+                            decay24h: estimatedDecay24h,
+                            overflowLoss: overflowVolume
                         },
                         distribution,
                         sunCapacity // Reads current state

@@ -234,9 +234,13 @@ export const useWallet = () => {
         // Record Daily Stats
         const today = new Date().toISOString().split("T")[0];
         const dailyStatsRef = doc(db!, "daily_stats", today);
+        
+        const overflowAmount = recipientCurrentReal + amount - newRecipientBalance;
+
         txn.set(dailyStatsRef, {
             volume: increment(amount),
             gift_volume: increment(amount),
+            overflow_volume: increment(overflowAmount > 0 ? overflowAmount : 0),
             updated_at: serverTimestamp()
         }, { merge: true });
       });
