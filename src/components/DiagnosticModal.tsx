@@ -41,10 +41,20 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
   
   // Dynamic "Sage's Voice" Content
   const getSageContent = () => {
+      // 0. Micro Scale Override
+      if (diagnosis.isMicro) {
+          return {
+              voice: "世界はまだ生まれたばかりです。僅かな魂たちが寄り添うこの揺籃期（ようらんき）において、あなたの指先ひとつが嵐にも恵みにもなります。大胆な実験こそが、創世記の特権です。",
+              actionTitle: "創世の実験 (Genesis Experiment)",
+              actionDesc: "パラメータを極端に振幅させ、個々の魂の反応を観察してください。小規模なコミュニティでは、バタフライエフェクトを肉眼で観測できます。",
+              targetValue: "Action: Tune & Watch"
+          };
+      }
+
       switch (diagnosis.currentPhase) {
           case 'STARVATION':
               return {
-                  voice: `世界は悲鳴を上げています。平均残高は ${avgBalance.toLocaleString()} Lm まで落ち込み、人々は明日を恐れて手を止めています。太陽の出力を上げ、人々に呼吸をさせてください。`,
+                  voice: `世界は渇きに喘いでいます。平均残高は ${avgBalance.toLocaleString()} Lm まで落ち込み、魂たちは明日への恐怖に震えています。今すぐ太陽の出力を上げ、この星に慈悲の雨を降らせてください。`,
                   actionTitle: "太陽の恵み (Sun's Grace)",
                   actionDesc: "基礎給付額（Base Supply）を大幅に引き上げ、枯渇した大地を潤す必要があります。",
                   targetValue: "Target: 3000 Lm+"
@@ -58,7 +68,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               };
           case 'STAGNATION':
               return {
-                  voice: "深刻な機能不全です。動脈硬化のように、流れが完全に止まっています。これは数値の問題ではなく、信頼（Trust）の欠如です。",
+                  voice: "深刻な機能不全です。動脈硬化のように、流れが完全に止まっています。これは数値の問題ではなく、信頼（Trust）の欠如です。神が動かなければ、人も動きません。",
                   actionTitle: "神的介入 (Divine Intervention)",
                   actionDesc: "システムの外から、あなた自身が「最初の依頼」あるいは「最初の贈与」を行い、心臓マッサージを施してください。",
                   targetValue: "Action: Manual Transact"
@@ -66,9 +76,9 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
           case 'HEALTHY':
           default:
               return {
-                  voice: "世界は穏やかな呼吸を繰り返しています。循環と蓄積のバランスは黄金比に近く、理想的な状態です。",
+                  voice: "世界は穏やかな呼吸を繰り返しています。循環と蓄積のバランスは黄金比に近く、理想的な状態です。この美しい均衡を見守ることこそ、最も難しい神の仕事です。",
                   actionTitle: "静観 (Observation)",
-                  actionDesc: "今は何もする必要はありません。この美しい均衡を見守ることが、神の仕事です。",
+                  actionDesc: "今は何もする必要はありません。不必要な介入は波紋を広げるだけです。",
                   targetValue: "Action: Maintain"
               };
       }
