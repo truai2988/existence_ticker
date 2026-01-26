@@ -85,7 +85,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
       className={`relative group bg-white border shadow-sm hover:shadow-lg rounded-2xl p-6 transition-all duration-300 md:hover:scale-[1.01] cursor-default ${applicants.length > 0 && isMyWish && wish.status === "open" ? "border-yellow-400 shadow-yellow-100 ring-1 ring-yellow-400/50" : "border-slate-100"}`}
     >
       {/* Header: User & Meta */}
-      <div className="relative flex justify-between items-start mb-4 gap-4">
+      <div className="relative z-10 flex justify-between items-start mb-4 gap-4">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
             <User className="w-5 h-5 text-slate-400" />
@@ -147,14 +147,14 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
       </div>
 
       {/* Body: Content */}
-      <div className="relative mb-6">
+      <div className="relative z-10 mb-6">
         <p className="text-slate-600 text-base leading-relaxed font-medium cursor-text select-text">
           {wish.content}
         </p>
       </div>
 
       {/* Footer: Action Area */}
-      <div className="relative pt-4 border-t border-slate-100 min-h-[50px] flex items-center justify-between">
+      <div className="relative z-20 pt-4 border-t border-slate-100 min-h-[50px] flex items-center justify-between">
         {/* Status Badge (Left) */}
         <div className="">
           {wish.status === "in_progress" && (
