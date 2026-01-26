@@ -589,6 +589,161 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
               </section>
 
+              {/* Chapter 4 */}
+              <section>
+                <div className="flex items-center gap-4 mb-6">
+                  <span className="text-6xl font-thin text-slate-200">04</span>
+                  <div className="h-px bg-slate-200 flex-grow"></div>
+                  <h2 className="text-2xl font-bold text-slate-900 font-sans">運用プロトコル (Operational Protocols)</h2>
+                </div>
+                
+                <h3 className="text-xl font-bold mb-6 font-sans">4.1 構造的制約 (Structural Constraints)</h3>
+                <div className="bg-slate-50 p-6 rounded border border-slate-100 mb-8">
+                   <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                       <span className="text-blue-600">ℹ</span> 基準値 (Standard Baseline)
+                   </h4>
+                   <p className="text-slate-600 text-sm mb-4 leading-relaxed">
+                       本システムのデフォルト容量（物理定数）は <strong className="text-slate-900">2400 Lm</strong> に設定されています。<br/>
+                       これは1人が10日間（1サイクル）生存するために必要な最低限のエネルギー（240 Lm/day × 10 days）に基づいています。<br/>
+                       この値を基準（ニュートラル）として、緩和（&gt;2400）または引き締め（&lt;2400）を決定します。
+                   </p>
+
+                   <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2 border-t border-slate-200 pt-4">
+                       <span className="text-yellow-600">⚠</span> 法の不遡及 (Law of Non-Retroactivity)
+                   </h4>
+                   <p className="text-slate-600 text-sm mb-0 leading-relaxed">
+                       「基礎給付額（Basic Supply）」の変更は、即座に全ユーザーに適用されるわけではありません。<br/>
+                       各ユーザーは個別に決定された「リセット日（10日周期）」を持っており、新しい設定値は<strong className="text-slate-900">個々の次回リセット時</strong>に初めて適用されます。<br/>
+                       したがって、政策変更の効果が市場全体に行き渡るまでには、最大で10日間のタイムラグ（Latency）が発生します。
+                   </p>
+                </div>
+
+                <h3 className="text-xl font-bold mb-6 font-sans">4.2 監視指標 (Key Performance Indicators)</h3>
+                
+                <div className="space-y-6">
+                    {/* KPI 1 */}
+                    <div>
+                        <h4 className="border-l-4 border-slate-900 pl-3 font-bold text-lg text-slate-800 mb-2">
+                            A. 経済代謝率 (Metabolic Rate)
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-2">
+                             <div className="bg-slate-50 p-3 rounded">
+                                 <div className="text-xs text-slate-400 uppercase tracking-wider mb-1">Calculation</div>
+                                 <div className="font-mono text-slate-700">Daily Volume ÷ Total Supply × 100 (%)</div>
+                             </div>
+                             <div className="bg-slate-50 p-3 rounded">
+                                 <div className="text-xs text-slate-400 uppercase tracking-wider mb-1">Target Zone</div>
+                                 <div className="font-mono text-green-600 font-bold">&gt; 10.0% (Ideal)</div>
+                             </div>
+                        </div>
+                        <p className="text-slate-600 text-sm">
+                            GDP（総資産）の多寡は重要ではありません。「血液の流速」こそが生命の証です。<br/>
+                            5%を下回る状態は「心停止」と同義であり、緊急の介入（Divine Intervention）を要します。
+                        </p>
+                    </div>
+
+                    {/* KPI 2 */}
+                    <div>
+                        <h4 className="border-l-4 border-slate-900 pl-3 font-bold text-lg text-slate-800 mb-2">
+                            B. 資産分布深度 (Distribution Depth)
+                        </h4>
+                         <ul className="list-disc list-inside space-y-2 text-slate-600 text-sm">
+                             <li>
+                                 <strong className="text-slate-800">Rich Metrics (&gt;1500 Lm):</strong> 
+                                 この層が30%を超えると「飽和（Saturation）」です。貨幣価値が希釈され、誰も働かなくなります。
+                             </li>
+                             <li>
+                                 <strong className="text-slate-800">Needy Metrics (&lt;500 Lm):</strong>
+                                 この層が50%を超えると「飢餓（Starvation）」です。生存不安により、他者への貢献（取引）が停止します。
+                             </li>
+                         </ul>
+                    </div>
+                </div>
+
+                <h3 className="text-xl font-bold mt-10 mb-6 font-sans">4.3 サイクルと季節性 (Cycle & Seasonality)</h3>
+                <div className="space-y-6">
+                    <div>
+                        <h4 className="border-l-4 border-slate-900 pl-3 font-bold text-lg text-slate-800 mb-2">
+                             C. 平均サイクル日数 (Average Phase)
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-center text-sm mb-2">
+                            <div className="bg-green-50 p-2 rounded border border-green-100">
+                                <span className="block font-bold text-green-700">Spring (Day 1-3)</span>
+                                <span className="text-xs text-slate-500">成長期</span>
+                            </div>
+                            <div className="bg-orange-50 p-2 rounded border border-orange-100">
+                                <span className="block font-bold text-orange-700">Autumn (Day 4-7)</span>
+                                <span className="text-xs text-slate-500">成熟期</span>
+                            </div>
+                            <div className="bg-slate-100 p-2 rounded border border-slate-200">
+                                <span className="block font-bold text-slate-700">Winter (Day 8-10)</span>
+                                <span className="text-xs text-slate-500">終末期</span>
+                            </div>
+                        </div>
+                        <p className="text-slate-600 text-sm">
+                            「Winter」における富の蓄積は危険です。死にゆく者が資産を抱え込んでも、それは数日後に消滅する運命にあるからです。Winterでの飽和は迅速な消費（Gift）を促す必要があります。
+                        </p>
+                    </div>
+
+                    <div>
+                         <h4 className="border-l-4 border-slate-900 pl-3 font-bold text-lg text-slate-800 mb-2">
+                             D. 日次代謝率 (Daily Turnover)
+                        </h4>
+                         <ul className="list-disc list-inside space-y-1 text-slate-600 text-sm">
+                             <li><strong className="text-slate-800">Ideal: 10%</strong> (10日間で1巡するため、毎日10%が入れ替わるのが平衡状態)</li>
+                             <li>この値が大きく偏ると、将来的に特定の日だけ「リセット祭り」が発生するボラティリティのリスクとなります。</li>
+                         </ul>
+                    </div>
+                </div>
+
+                <h3 className="text-xl font-bold mt-10 mb-6 font-sans">4.4 介入マトリクス (Intervention Matrix)</h3>
+                <div className="overflow-hidden border border-slate-200 rounded-lg">
+                    <table className="min-w-full text-sm text-left text-slate-600">
+                        <thead className="bg-slate-100 text-slate-900 font-sans uppercase text-xs">
+                            <tr>
+                                <th className="px-6 py-3">Phase (Condition)</th>
+                                <th className="px-6 py-3">Root Cause</th>
+                                <th className="px-6 py-3">Protocol Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            <tr className="bg-green-50/50">
+                                <td className="px-6 py-4 font-bold text-green-800">HEALTHY<br/><span className="text-xs font-normal text-green-600">Rate &gt; 10% + Balanced</span></td>
+                                <td className="px-6 py-4">理想的な循環状態</td>
+                                <td className="px-6 py-4">
+                                    <span className="block font-bold text-green-600">ACTION: Maintain</span>
+                                    介入不要。この均衡を見守ることが神の仕事です。
+                                </td>
+                            </tr>
+                            <tr className="bg-white">
+                                <td className="px-6 py-4 font-bold text-slate-900">STARVATION<br/><span className="text-xs font-normal text-slate-500">Low Rate + Low Balance</span></td>
+                                <td className="px-6 py-4">流動性枯渇による信頼崩壊</td>
+                                <td className="px-6 py-4">
+                                    <span className="block font-bold text-blue-600">ACTION: Sun's Grace</span>
+                                    基礎給付を大幅増額 (Target: 3000Lm)。<br/>恐怖を取り除くことが最優先。
+                                </td>
+                            </tr>
+                            <tr className="bg-white">
+                                <td className="px-6 py-4 font-bold text-slate-900">SATURATION<br/><span className="text-xs font-normal text-slate-500">Low Rate + High Balance</span></td>
+                                <td className="px-6 py-4">欲求(Wish)不足による停滞</td>
+                                <td className="px-6 py-4">
+                                    <span className="block font-bold text-purple-600">ACTION: Jubilee</span>
+                                    金融政策ではなく、消費喚起イベントを実施。<br/>「金を使う理由」を作る。
+                                </td>
+                            </tr>
+                            <tr className="bg-white">
+                                <td className="px-6 py-4 font-bold text-slate-900">STAGNATION<br/><span className="text-xs font-normal text-slate-500">Rate &lt; 5% (Critical)</span></td>
+                                <td className="px-6 py-4">文化の欠如 / 初期段階</td>
+                                <td className="px-6 py-4">
+                                    <span className="block font-bold text-red-600">ACTION: First Move</span>
+                                    Admin自身による直接取引。<br/>神が動いて手本を示す。
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+              </section>
+
               {/* Footer */}
               <div className="pt-20 text-center">
                  <div className="w-16 h-px bg-slate-300 mx-auto mb-6"></div>
