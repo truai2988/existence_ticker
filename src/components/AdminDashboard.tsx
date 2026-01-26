@@ -80,8 +80,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           <div className="flex gap-2">
             <button
               onClick={() => setShowManual(true)}
-              className="p-2 hover:bg-slate-800 rounded-full transition-colors text-yellow-500 hover:text-yellow-400"
-              title="God's Manual"
+              className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-white"
+              title="Protocol Whitepaper"
             >
               <Book size={24} />
             </button>
@@ -479,150 +479,125 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         </div>
       </div>
 
-      {/* === GOD'S MANUAL OVERLAY === */}
+      {/* === PROTOCOL WHITEPAPER OVERLAY === */}
       {showManual && (
-        <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-xl p-6 overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
-          <div className="max-w-2xl mx-auto pb-20">
-            <div className="flex justify-between items-center mb-8 border-b border-slate-800 pb-4 sticky top-0 bg-black/50 backdrop-blur-sm z-10 pt-2">
-              <div className="flex items-center gap-2 text-yellow-500">
-                <Book size={20} />
-                <h2 className="font-bold tracking-wider">互助経済圏 運用マニュアル (System Logic & Operations)</h2>
+        <div className="fixed inset-0 z-[200] bg-white/95 backdrop-blur-xl p-6 overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-300 text-slate-800">
+          <div className="max-w-3xl mx-auto pb-20 mt-10">
+            {/* Header */}
+            <div className="flex justify-between items-start mb-12 border-b-2 border-slate-900 pb-6">
+              <div>
+                <div className="flex items-center gap-2 text-slate-500 mb-2 uppercase tracking-[0.2em] text-[10px] font-sans">
+                  <Activity size={14} />
+                  <span>Existence Ticker Protocol v2.0</span>
+                </div>
+                <h1 className="text-4xl font-serif font-bold text-slate-900 leading-tight">
+                  自律分散型互助経済圏構想書
+                  <span className="block text-lg font-sans font-normal text-slate-500 mt-2">Autonomous Mutual Aid Economy Protocol</span>
+                </h1>
               </div>
               <button
                 onClick={() => setShowManual(false)}
-                className="p-2 hover:bg-slate-800 rounded-full text-slate-400 transition-colors"
+                className="p-3 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-900 transition-colors"
               >
-                <X size={20} />
+                <X size={24} />
               </button>
             </div>
 
-            <div className="space-y-10 text-slate-300 text-sm leading-relaxed">
-              <p className="italic text-slate-500 border-l-2 border-slate-700 pl-4">
-                このダッシュボードは、地域通貨の「流動性」と「滞留」を監視するコックピットです。<br/>
-                管理者の役割は、個別の取引に介入することではなく、<span className="text-yellow-200 font-bold">「基礎給付額 (Base Supply)」</span>という物理定数を調整し、コミュニティ全体の代謝をコントロールすることです。
-              </p>
+            <div className="space-y-16 font-serif leading-relaxed text-lg text-slate-700">
+              
+              {/* Introduction */}
+              <section className="prose prose-slate max-w-none">
+                <p className="text-xl italic text-slate-500 border-l-4 border-slate-200 pl-6 py-2">
+                  本ドキュメントは、本システムの投資家および設計協力者に向けたアーキテクチャ解説書です。<br/>
+                  我々は「富の保存」ではなく「感謝の循環」を価値の源泉とする、新たな経済物理学を実装しました。
+                </p>
+              </section>
 
+              {/* Chapter 1 */}
               <section>
-                <h3 className="text-lg text-white font-bold mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">
-                  <span className="text-blue-400">📊</span> 1. 診断指標の読み方 (Diagnostics)
-                </h3>
+                <div className="flex items-center gap-4 mb-6">
+                  <span className="text-6xl font-thin text-slate-200">01</span>
+                  <div className="h-px bg-slate-200 flex-grow"></div>
+                  <h2 className="text-2xl font-bold text-slate-900 font-sans">哲学 (Philosophy)</h2>
+                </div>
+                <h3 className="text-xl font-bold mb-4">"Stock" から "Flow" へ</h3>
+                <p className="mb-6">
+                  現代経済の病理は「滞留」にあります。貨幣が交換の媒体としての機能を失い、富の保存手段（Stock）として金庫に死蔵される時、社会の血流は止まります。<br/>
+                  我々はこの問題を解決するために、貨幣を<strong className="text-slate-900 font-bold bg-yellow-100 px-1">「保存する価値」から「感謝を伝えるエネルギー」へと再定義</strong>しました。
+                </p>
+                <p>
+                  この世界では、貯め込むことはリスク（減価）であり、循環させることこそが生存戦略となります。<br/>
+                  ユーザーは「豊かになるため」ではなく、「誰かを助け、誰かに助けられるため」にこの通貨を使用します。
+                </p>
+              </section>
 
-                <div className="space-y-6">
-                  {/* Metabolism */}
-                  <div>
-                    <h4 className="font-bold text-slate-200 mb-2">A. 経済循環率 (Metabolism / Circulation)</h4>
-                    <ul className="list-disc list-inside space-y-1 text-slate-400">
-                      <li><span className="text-slate-500 w-24 inline-block">定義:</span>「過去24時間の取引総額」÷「市場の総通貨量」。</li>
-                      <li>
-                        <span className="text-slate-500 w-24 inline-block">判断基準:</span>
-                        <ul className="pl-6 mt-1 space-y-1">
-                          <li><span className="text-red-400 font-bold">5%未満 (危険):</span> 血液が止まっています。通貨が使われず、ただ減価して消えている状態です。</li>
-                          <li><span className="text-green-400 font-bold">10%以上 (理想):</span> 活発に「手伝い」と「お礼」が交換されています。</li>
-                        </ul>
-                      </li>
-                      <li><span className="text-slate-500 w-24 inline-block">ロジック:</span> 循環率が低い＝「誰も困っていない（飽和）」か「誰も払う余裕がない（枯渇）」のどちらかです。下の「資産分布」を見て判断します。</li>
-                    </ul>
+              {/* Chapter 2 */}
+              <section>
+                <div className="flex items-center gap-4 mb-6">
+                  <span className="text-6xl font-thin text-slate-200">02</span>
+                  <div className="h-px bg-slate-200 flex-grow"></div>
+                  <h2 className="text-2xl font-bold text-slate-900 font-sans">機構 (Mechanism)</h2>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="bg-slate-50 p-6 rounded border border-slate-100">
+                    <h3 className="text-lg font-bold font-sans mb-3 text-slate-900 flex items-center gap-2">
+                      <span className="text-red-400">▼</span> エントロピー (Entropy)
+                    </h3>
+                    <p className="text-base text-slate-600">
+                      自然界の法則と同様に、全ての資産は時間とともに崩壊（Decay）します。
+                      現在、<span className="font-mono bg-slate-200 text-slate-800 px-1 text-sm">毎時 10 Lm</span> の減価圧力がシステム全体にかかっています。
+                      これにより、富の固定化（格差の固定）を物理的に阻止し、常に新たな価値交換を促します。
+                    </p>
                   </div>
 
-                  {/* Distribution */}
-                  <div>
-                    <h4 className="font-bold text-slate-200 mb-2">B. 資産分布 (Asset Distribution)</h4>
-                    <ul className="list-disc list-inside space-y-1 text-slate-400">
-                      <li>
-                        <span className="text-slate-500 w-24 inline-block">定義:</span>全ユーザーの所持Lmごとの人数分布。
-                        <ul className="pl-6 mt-1 space-y-1">
-                          <li><span className="text-yellow-400">潤沢 (Rich):</span> 1500 Lm以上。余裕があり、依頼を出せる層。</li>
-                          <li><span className="text-slate-400">安定 (Stable):</span> 500 ~ 1500 Lm。</li>
-                          <li><span className="text-cyan-400">枯渇 (Needy):</span> 500 Lm未満。手伝いをしないと生き残れない層。</li>
-                        </ul>
-                      </li>
-                      <li><span className="text-slate-500 w-24 inline-block">警告:</span> 「潤沢」が30%を超えると、通貨の価値が下がり、誰も働かなくなります（インフレ/飽和）。</li>
-                    </ul>
+                  <div className="bg-slate-50 p-6 rounded border border-slate-100">
+                    <h3 className="text-lg font-bold font-sans mb-3 text-slate-900 flex items-center gap-2">
+                      <span className="text-yellow-500">▲</span> 太陽 (The Sun)
+                    </h3>
+                    <p className="text-base text-slate-600">
+                      減価によって失われた総量は、システム全体への「定期給付（Basic Income）」として平等に還元されます。
+                      これは富の再分配ではなく、世界を回し続けるための<span className="font-mono bg-slate-200 text-slate-800 px-1 text-sm">エネルギー供給</span>です。
+                      太陽が降り注ぐ限り、誰も完全に枯渇することはありません。
+                    </p>
                   </div>
                 </div>
               </section>
 
+              {/* Chapter 3 */}
               <section>
-                <h3 className="text-lg text-white font-bold mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">
-                  <span className="text-yellow-400">🎚</span> 2. 調整レバー：基礎給付設定 (Supply Control)
-                </h3>
-
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-bold text-slate-200 mb-2">【基本物理法則のおさらい】</h4>
-                    <ol className="list-decimal list-inside space-y-1 text-slate-400">
-                      <li><span className="text-slate-200">減価:</span> 全ユーザーは生きているだけで <span className="font-mono text-yellow-500">毎時 10 Lm</span> を失います。</li>
-                      <li><span className="text-slate-200">リセット:</span> 各ユーザーは登録日から <span className="font-mono text-cyan-400">10日ごと</span> に、ここで設定した「基礎給付額」まで残高が回復（またはカット）されます。</li>
-                    </ol>
-                  </div>
-
-                  <div className="bg-yellow-900/10 border border-yellow-700/30 p-4 rounded text-yellow-200/80 text-xs">
-                    <strong className="text-yellow-400 block mb-1">⚠️ 重要：法の不遡及（ふそきゅう）</strong>
-                    このスライダーで設定を変更しても、<span className="underline decoration-yellow-500 decoration-wavy">今すぐ全員の残高が変わるわけではありません。</span><br/>
-                    ユーザー個々人が「次の10日目のリセット日」を迎えた瞬間から、新しい設定値が適用されます。（効果が全体に行き渡るまで、最大で10日間のラグがあります）
-                  </div>
+                <div className="flex items-center gap-4 mb-6">
+                  <span className="text-6xl font-thin text-slate-200">03</span>
+                  <div className="h-px bg-slate-200 flex-grow"></div>
+                  <h2 className="text-2xl font-bold text-slate-900 font-sans">運用 (Governance)</h2>
+                </div>
+                <h3 className="text-xl font-bold mb-4">支配ではなく、調律</h3>
+                <p className="mb-6">
+                  管理者の役割は、ユーザーの個別の取引を監視・検閲することではありません。<br/>
+                  世界の「温度（代謝率）」と「湿度（資産分布）」を観測し、<strong className="text-slate-900 font-bold">「基礎給付額（Base Supply）」というたった一つの物理定数を調整すること</strong>だけが許された権限です。
+                </p>
+                
+                <div className="bg-slate-900 text-white p-8 rounded-sm shadow-xl mt-8">
+                   <h4 className="font-sans text-xs uppercase tracking-widest text-slate-400 mb-4 border-b border-slate-700 pb-2">Admin Protocol</h4>
+                   <p className="font-mono text-sm leading-relaxed text-slate-300">
+                     &gt; We do not manage the market.<br/>
+                     &gt; We design the environment.<br/>
+                     &gt; <br/>
+                     &gt; The goal is to maximize the "Circulation Rate" (Metabolism), not the "Total Asset Value" (GDP).<br/>
+                     &gt; A healthy world is not one where everyone is rich, but one where help is always available.
+                   </p>
                 </div>
               </section>
 
-              <section>
-                <h3 className="text-lg text-white font-bold mb-4 border-b border-slate-800 pb-2 flex items-center gap-2">
-                  <span className="text-red-400">🛠</span> 3. 状況別対応マニュアル (Philosophy)
-                </h3>
+              {/* Footer */}
+              <div className="pt-20 text-center">
+                 <div className="w-16 h-px bg-slate-300 mx-auto mb-6"></div>
+                 <p className="text-slate-400 font-sans text-xs uppercase tracking-widest">
+                   Proprietary & Confidential<br/>
+                   Designed for The Mutual Aid Economic Zone
+                 </p>
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div id="case-a" className="p-4 rounded-lg border border-yellow-500/20 bg-yellow-950/20">
-                    <h4 className="font-bold text-yellow-300 mb-2">Case A: 静寂なる停滞 (Silent Stagnation)</h4>
-                    <div className="space-y-2 text-xs text-yellow-100/70">
-                      <p><span className="text-slate-400">条件:</span> 循環率 &lt; 消滅率 かつ <span className="text-yellow-400">平均残高 &gt; 1200 Lm (飽和)</span></p>
-                      <p>人々は満たされていますが、繋がり（Wish/Gift）を忘れています。「平和だが、死に向かっている」状態です。</p>
-                      <div className="mt-3 pt-3 border-t border-yellow-500/20">
-                        <span className="text-white font-bold block mb-1">処方箋：【祝祭 (Jubilee)】</span>
-                        <ul className="list-disc list-inside">
-                          <li>無理に給付を減らす必要はありません（反感を買います）。</li>
-                          <li>代わりに、<strong>「新たなWish（願い）」を喚起するイベント</strong>が必要です。</li>
-                          <li>人々が溜め込んだエネルギーを一気に放出させるような、祝祭的な介入が有効です。</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div id="case-b" className="p-4 rounded-lg border border-cyan-500/20 bg-cyan-950/20">
-                    <h4 className="font-bold text-cyan-300 mb-2">Case B: 渇きの連鎖 (Chain of Thirst)</h4>
-                    <div className="space-y-2 text-xs text-cyan-100/70">
-                      <p><span className="text-slate-400">条件:</span> 循環率 &lt; 消滅率 かつ <span className="text-cyan-400">平均残高 &lt; 1200 Lm (飢餓)</span></p>
-                      <p>極めて危険な状態です。余裕がないため、誰も他者を助けることができず、信頼の連鎖が断ち切られています。</p>
-                      <div className="mt-3 pt-3 border-t border-cyan-500/20">
-                        <span className="text-white font-bold block mb-1">処方箋：【太陽の恵み (Sun's Grace)】</span>
-                        <ul className="list-disc list-inside">
-                           <li><strong>直ちに「太陽」の出力を上げてください。</strong> (Target: 3000Lm+)</li>
-                           <li>乾いた大地に水を満たし、人々が顔を上げて「他者」を見る余裕を取り戻させる必要があります。</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-
-
-                  <div id="case-c" className="p-4 rounded-lg border border-red-500/20 bg-red-950/20 md:col-span-2">
-                    <h4 className="font-bold text-red-300 mb-2">Case C: 完全循環不全 (Total Failure)</h4>
-                    <div className="space-y-4 text-xs text-red-100/70">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                          <p><span className="text-slate-500 block">症状:</span> 経済循環率 (Metabolism) が 5%未満 (RED)。資産分布に関わらず、とにかく取引が発生していない。</p>
-                          <p className="mt-2 text-red-300 font-bold">これはシステムの問題ではなく、文化の不足です。</p>
-                        </div>
-                        <div>
-                          <span className="text-white font-bold block mb-1">処置：【神的介入 (Divine Intervention)】</span>
-                          <ul className="list-disc list-inside space-y-2">
-                             <li>Admin自身が「最初の依頼」を出してください。</li>
-                             <li>Admin自身が「最初の救済」を行ってください。</li>
-                             <li>神が動かない世界で、人は動きません。</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </section>
             </div>
           </div>
         </div>
