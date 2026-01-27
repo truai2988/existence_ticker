@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'; // Deploy Force Update 2026/01/27 (火) 18:40:03
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X, QrCode } from 'lucide-react';
