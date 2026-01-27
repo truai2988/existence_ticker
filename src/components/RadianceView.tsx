@@ -5,9 +5,9 @@ import { useWishes } from '../hooks/useWishes';
 import { WishCardList } from './WishCardList';
 
 import { CreateWishModal } from './CreateWishModal';
-import { DonationModal } from './DonationModal';
+// import { DonationModal } from './DonationModal'; // Removed unused import
 import { CompleteWishModal } from './CompleteWishModal';
-import { useScanProcessor } from '../hooks/useScanProcessor';
+// import { useScanProcessor } from '../hooks/useScanProcessor'; // Removed unused import
 import { PendingWish } from '../types';
 
 interface RadianceViewProps {
@@ -23,8 +23,10 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
     
     const [activeTab, setActiveTab] = useState<TabType>('active');
     const [modalState, setModalState] = useState<ModalState>('none');
-    const [recipient, setRecipient] = useState<{ id: string, name: string } | null>(null);
-    const [targetWish, setTargetWish] = useState<PendingWish | null>(null);
+    
+    // Unused state removed to fix build error
+    // const [recipient, setRecipient] = useState<{ id: string, name: string } | null>(null);
+    // const [targetWish, setTargetWish] = useState<PendingWish | null>(null);
     
     // Scan processor reserved for settlement logic if needed, but primary scan is now in GiftView
 
@@ -46,7 +48,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                     <CreateWishModal onClose={() => setModalState('none')} />
                 )}
 
-                {/* Settle Wish */}
+                {/* Settle Wish - Logic placeholder, currently unreachable so vars removed
                  {modalState === 'settle_wish' && recipient && targetWish && (
                     <CompleteWishModal
                         wishTitle={targetWish.title}
@@ -60,6 +62,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                         onCancel={() => setModalState('none')}
                     />
                 )}
+                */}
             </AnimatePresence>
         );
     };

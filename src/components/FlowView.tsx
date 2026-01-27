@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Search, CheckCircle, ClipboardList, Filter } from 'lucide-react';
+import { X, Search, CheckCircle, ClipboardList } from 'lucide-react';
 import { useWishes } from '../hooks/useWishes';
 
 import { WishCardList } from './WishCardList';
