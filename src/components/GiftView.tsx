@@ -7,15 +7,11 @@ import { useScanProcessor } from '../hooks/useScanProcessor';
 
 interface GiftViewProps {
     onClose: () => void;
-    currentUserId?: string; // Added to fix build error
 }
 
 type ModalState = 'none' | 'scan' | 'gift_amount';
 
-export const GiftView: React.FC<GiftViewProps> = ({ onClose, currentUserId }) => {
-    // Suppress unused warning
-    void currentUserId;
-
+export const GiftView: React.FC<GiftViewProps> = ({ onClose }) => {
     const [modalState, setModalState] = useState<ModalState>('none'); 
     const [recipient, setRecipient] = useState<{ id: string, name: string } | null>(null);
     const { processScan } = useScanProcessor();

@@ -1,4 +1,4 @@
-import React from 'react'; // Deploy Force Update 2026/01/27 (火) 18:40:03
+import React from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { X, QrCode } from 'lucide-react';
@@ -23,15 +23,6 @@ export const ScannerView: React.FC<ScannerViewProps> = ({ onClose, onScan }) => 
       }
   };
 
-  const isDev = true; 
-
-  const handleDebugScan = (type: 'helper' | 'friend') => {
-      onScan(type);
-  };
-
-  // Final Layout:
-  // 1. Portal + Solid Black BG (No transparency)
-  // 2. Camera strictly in Viewfinder
   return createPortal(
     <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black animate-fade-in">
         
@@ -62,11 +53,10 @@ export const ScannerView: React.FC<ScannerViewProps> = ({ onClose, onScan }) => 
                 
                 {/* 
                    THE VIEWFINDER BOX 
-                   Camera is contained HERE.
                 */}
                 <div className="relative w-64 h-64 rounded-3xl overflow-hidden bg-black shadow-2xl border-2 border-white/10">
                     
-                    {/* Camera Feed - Sited inside this relative box */}
+                    {/* Camera Feed */}
                     <div className="absolute inset-0 z-0">
                         <Scanner 
                             onScan={(detected) => handleScanLogic(detected as IScanResult[])}
@@ -79,7 +69,7 @@ export const ScannerView: React.FC<ScannerViewProps> = ({ onClose, onScan }) => 
                         />
                     </div>
 
-                    {/* Overlays (Corners & Scan Line) - On top of Camera */}
+                    {/* Overlays (Corners & Scan Line) */}
                     <div className="absolute inset-0 z-10 pointer-events-none">
                         {/* Corners Frame - White/Clear */}
                          <div className="absolute top-4 left-4 w-6 h-6 border-t-4 border-l-4 border-white rounded-tl-lg drop-shadow-md"></div>
@@ -101,24 +91,8 @@ export const ScannerView: React.FC<ScannerViewProps> = ({ onClose, onScan }) => 
                     相手のQRコードを枠内に合わせてください
                 </p>
             </div>
-
-            {/* Debug Controls */}
-            <div className={`pb-12 flex flex-col items-center gap-2 transition-opacity duration-300 ${isDev ? 'opacity-100' : 'opacity-0 pointer-events-auto'}`}>
-                 <div className="flex gap-2">
-                     <button 
-                        onClick={() => handleDebugScan('helper')}
-                        className="px-4 py-2 rounded-lg bg-white/90 hover:bg-white text-[10px] font-bold text-slate-700 transition-colors shadow-sm backdrop-blur-sm cursor-pointer pointer-events-auto"
-                     >
-                        [テスト] 契約相手
-                     </button>
-                     <button 
-                         onClick={() => handleDebugScan('friend')}
-                         className="px-4 py-2 rounded-lg bg-white/90 hover:bg-white text-[10px] font-bold text-slate-700 transition-colors shadow-sm backdrop-blur-sm cursor-pointer pointer-events-auto"
-                     >
-                        [テスト] 新規相手
-                     </button>
-                 </div>
-            </div>
+            
+            {/* Debug Buttons Removed */}
         </div>
     </div>,
     document.body
