@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Handshake, Loader2, Clock, User, CheckCircle } from "lucide-react";
+import { Handshake, Loader2, Clock, User, CheckCircle, Hourglass, Megaphone, X } from "lucide-react";
 import { Wish } from "../types";
 import { calculateLifePoints } from "../utils/decay";
 import { useWishActions } from "../hooks/useWishActions";
@@ -37,14 +37,14 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
   };
   const initialCost = wish.cost || getInitialCost(wish.gratitude_preset);
 
-  // Effect: Tick decay every second
+  // Effect: Tick decay every 100ms
   React.useEffect(() => {
     const updateValue = () => {
       const val = calculateLifePoints(initialCost, wish.created_at);
       setDisplayValue(val);
     };
     updateValue();
-    const timer = setInterval(updateValue, 1000);
+    const timer = setInterval(updateValue, 100);
     return () => clearInterval(timer);
   }, [wish.created_at, initialCost]);
 
@@ -83,8 +83,9 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
     <div
       className={`relative bg-white border shadow-sm rounded-2xl p-6 ${applicants.length > 0 && isMyWish && wish.status === "open" ? "border-yellow-400 shadow-yellow-100 ring-1 ring-yellow-400/50" : "border-slate-100"}`}
     >
-      {/* Header: User & Meta */}
+      {/* Header: User & Meta & Badge */}
       <div className="relative flex justify-between items-start mb-4 gap-4">
+        {/* User Info (Left) */}
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
             <User className="w-5 h-5 text-slate-400" />
@@ -115,7 +116,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
                   title="過去に完了/支払いを行った回数"
                   className="text-slate-500 font-bold flex items-center gap-1"
                 >
-                  📢 依頼実績: {wish.requester_completed_requests || 0}
+                  <Megaphone className="w-3 h-3" /> <span className="font-bold">依頼実績: {wish.requester_completed_requests || 0}</span>
                 </span>
               </div>
             </div>
@@ -126,23 +127,12 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
           </div>
         </div>
 
-        {/* Reward Badge (Cost) */}
-        <div className="text-right shrink-0">
-          <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">
-            REWARD
-          </div>
-          <div
-            className={`text-xl font-mono font-bold ${displayValue === 0 ? "text-gray-400" : "text-amber-500"}`}
-          >
-            {displayValue.toLocaleString()}{" "}
-            <span className="text-sm font-normal text-amber-500/50">Lm</span>
-          </div>
-          {displayValue < initialCost && (
-            <div className="text-[9px] text-red-400/60 font-mono text-right mt-0.5">
-              Decaying from {initialCost}
-            </div>
-          )}
-        </div>
+        {/* My Wish Badge (Right - Flex Item) */}
+        {isMyWish && (
+            <span className="shrink-0 bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-1 rounded-full border border-slate-200 whitespace-nowrap">
+                あなたのお願い
+            </span>
+        )}
       </div>
 
       {/* Body: Content */}
@@ -152,27 +142,45 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
         </p>
       </div>
 
+      {/* Value / Entropy Area (Antigravity) */}
+      <div className="relative mb-6 border-t border-slate-100 pt-4">
+        <div className="flex justify-between items-center bg-slate-50/50 p-3 rounded-xl border border-slate-100/50">
+          <div>
+            <div className="text-xs text-slate-500 font-bold flex items-center gap-1 mb-1">
+              <Hourglass className="w-3 h-3 text-amber-500" />
+              今もらえるお礼
+            </div>
+            <div className="text-[10px] text-red-400 font-semibold tracking-wide">
+              ※時間が経つと減ってしまいます
+            </div>
+          </div>
+          <div className="text-xl font-mono text-slate-800 font-bold tracking-tight">
+            {displayValue.toFixed(3)} <span className="text-sm font-normal text-slate-500 ml-0.5">Lm</span>
+          </div>
+        </div>
+      </div>
+
       {/* Footer: Action Area */}
-      <div className="relative pt-4 border-t border-slate-100 min-h-[50px] flex items-center justify-between">
+      <div className="relative pt-4 border-t border-slate-100 min-h-[50px] flex items-center justify-between gap-4 flex-wrap">
         {/* Status Badge (Left) */}
         <div className="">
           {wish.status === "in_progress" && (
-            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 whitespace-nowrap shrink-0">
               進行中 (In Progress)
             </span>
           )}
           {wish.status === "review_pending" && (
-            <span className="text-xs font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full border border-purple-100 animate-pulse">
+            <span className="text-xs font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full border border-purple-100 animate-pulse whitespace-nowrap shrink-0">
               確認待ち (Review Pending)
             </span>
           )}
           {wish.status === "fulfilled" && (
-            <span className="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100">
+            <span className="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100 whitespace-nowrap shrink-0">
               感謝済み (Fulfilled)
             </span>
           )}
           {wish.status === "open" && (
-            <span className="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200">
+            <span className="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
               募集中 (Open)
             </span>
           )}
@@ -209,8 +217,9 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
                             <button
                               onClick={() => setShowApplicants(false)}
                               className="text-slate-300 hover:text-slate-500"
+                              title="Close"
                             >
-                              <XIcon />
+                              <X className="w-3.5 h-3.5" />
                             </button>
                           </div>
                           <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
@@ -302,7 +311,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
               {wish.status === "open" && (
                 <div>
                   {hasApplied ? (
-                    <span className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-500 rounded-full text-xs font-bold border border-slate-200">
+                    <span className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-500 rounded-full text-xs font-bold border border-slate-200 whitespace-nowrap shrink-0">
                       <Clock size={14} />
                       返事を待っています (Applied)
                     </span>
@@ -349,7 +358,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
 
               {wish.status === "review_pending" &&
                 wish.helper_id === currentUserId && (
-                  <span className="flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-600 rounded-full text-xs font-bold border border-purple-100">
+                  <span className="flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-600 rounded-full text-xs font-bold border border-purple-100 whitespace-nowrap shrink-0">
                     <Clock size={14} />
                     承認待ち (Reported)
                   </span>
@@ -361,21 +370,3 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
     </div>
   );
 };
-
-// Simple Icon component for close button to verify import or just use SVG
-const XIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="14"
-    height="14"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="18" y1="6" x2="6" y2="18"></line>
-    <line x1="6" y1="6" x2="18" y2="18"></line>
-  </svg>
-);

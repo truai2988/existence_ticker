@@ -9,6 +9,7 @@ import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { RadianceView } from './components/RadianceView';
 import { FlowView } from './components/FlowView';
+import { GiftView } from './components/GiftView';
 
 import { useAuth } from './hooks/useAuthHook';
 import { useWallet } from './hooks/useWallet';
@@ -28,7 +29,7 @@ const PWALogic = () => {
     return null;
 };
 
-type GenericViewMode = 'home' | 'history' | 'profile' | 'flow' | 'give' | 'admin';
+type GenericViewMode = 'home' | 'history' | 'profile' | 'flow' | 'give' | 'gift' | 'admin';
 
 function App() {
   const { user, loading: authLoading } = useAuth();
@@ -91,15 +92,9 @@ function App() {
           
           {viewMode === 'home' && (
               <HomeView 
-                onOpenFlow={() => {
-                    setViewMode('flow');
-                    // Tab stays on home or deselects? Let's keep home for now as it's a sub-view of home functionally? 
-                    // Or maybe it's a full view.
-                    // User requested generic "Earn" card.
-                }} 
-                onOpenCreate={() => {
-                    setViewMode('give'); 
-                }}
+                onOpenFlow={() => setViewMode('flow')} 
+                onOpenRequest={() => setViewMode('give')}
+                onOpenGift={() => setViewMode('gift')}
               />
           )}
 
@@ -119,8 +114,14 @@ function App() {
             <FlowView onClose={handleGoHome} currentUserId={user.uid} />
           )}
 
+          {/* REQUEST (CONTRACT) VIEW */}
           {viewMode === 'give' && (
              <RadianceView onClose={handleGoHome} currentUserId={user.uid} />
+          )}
+
+          {/* GIFT (PURE) VIEW */}
+          {viewMode === 'gift' && (
+             <GiftView onClose={handleGoHome} currentUserId={user.uid} />
           )}
 
           {viewMode === 'admin' && (
