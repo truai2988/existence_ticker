@@ -5,10 +5,10 @@ import { useWishes } from '../hooks/useWishes';
 import { WishCardList } from './WishCardList';
 
 import { CreateWishModal } from './CreateWishModal';
-// import { DonationModal } from './DonationModal'; // Removed unused import
-import { CompleteWishModal } from './CompleteWishModal';
-// import { useScanProcessor } from '../hooks/useScanProcessor'; // Removed unused import
-import { PendingWish } from '../types';
+// import { DonationModal } from './DonationModal'; 
+// import { CompleteWishModal } from './CompleteWishModal'; // Removed unused
+// import { useScanProcessor } from '../hooks/useScanProcessor'; 
+// import { PendingWish } from '../types'; // Removed unused
 
 interface RadianceViewProps {
     onClose: () => void;
@@ -24,12 +24,6 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
     const [activeTab, setActiveTab] = useState<TabType>('active');
     const [modalState, setModalState] = useState<ModalState>('none');
     
-    // Unused state removed to fix build error
-    // const [recipient, setRecipient] = useState<{ id: string, name: string } | null>(null);
-    // const [targetWish, setTargetWish] = useState<PendingWish | null>(null);
-    
-    // Scan processor reserved for settlement logic if needed, but primary scan is now in GiftView
-
     // Filter Logic
     // 1. My Active Stars (My Open Requests)
     const myActiveWishes = wishes.filter(w => 
@@ -47,22 +41,6 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                 {modalState === 'create_wish' && (
                     <CreateWishModal onClose={() => setModalState('none')} />
                 )}
-
-                {/* Settle Wish - Logic placeholder, currently unreachable so vars removed
-                 {modalState === 'settle_wish' && recipient && targetWish && (
-                    <CompleteWishModal
-                        wishTitle={targetWish.title}
-                        helperName={recipient.name}
-                        preset={targetWish.preset}
-                        cost={targetWish.cost}
-                        onConfirm={() => {
-                            alert('感謝を伝えました: 報酬が支払われました');
-                            setModalState('none');
-                        }}
-                        onCancel={() => setModalState('none')}
-                    />
-                )}
-                */}
             </AnimatePresence>
         );
     };
