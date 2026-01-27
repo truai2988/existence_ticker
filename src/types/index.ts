@@ -58,3 +58,5 @@ export interface PendingWish {
   cost: number;
   preset: GratitudeTier;
 }
+
+export type AppViewMode = 'home' | 'history' | 'profile' | 'flow' | 'give' | 'gift' | 'admin';
