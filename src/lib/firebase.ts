@@ -2,6 +2,7 @@ import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFunctions, Functions } from 'firebase/functions';
+import { getStorage, FirebaseStorage } from 'firebase/storage';
 
 // Only initialize if env vars are present to mock safe behavior
 const apiKey = import.meta.env.VITE_FIREBASE_API_KEY;
@@ -10,6 +11,7 @@ let app: FirebaseApp | undefined;
 let db: Firestore | undefined;
 let auth: Auth | undefined;
 let functions: Functions | undefined;
+let storage: FirebaseStorage | undefined;
 
 if (apiKey) {
   const firebaseConfig = {
@@ -25,6 +27,7 @@ if (apiKey) {
   db = getFirestore(app);
   auth = getAuth(app);
   functions = getFunctions(app);
+  storage = getStorage(app);
 
   // Connect to Emulators if running locally
   /* 
@@ -33,6 +36,7 @@ if (apiKey) {
       connectFirestoreEmulator(db, 'localhost', 8080);
       connectAuthEmulator(auth, 'http://localhost:9099');
       connectFunctionsEmulator(functions, 'localhost', 5001);
+      connectStorageEmulator(storage, 'localhost', 9199);
   }
   */
 
@@ -41,4 +45,4 @@ if (apiKey) {
   console.warn('Firebase config missing. Running in offline/demo mode.');
 }
 
-export { db, auth, functions };
+export { db, auth, functions, storage };

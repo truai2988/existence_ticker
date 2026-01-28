@@ -1,20 +1,97 @@
 import React, { useState } from "react";
-import { Handshake, Loader2, Clock, User, CheckCircle, Hourglass, Megaphone, X } from "lucide-react";
+import { Handshake, Loader2, Clock, User, CheckCircle, Hourglass, Megaphone, X, ShieldCheck } from "lucide-react";
 import { Wish } from "../types";
 import { calculateLifePoints } from "../utils/decay";
 import { useWishActions } from "../hooks/useWishActions";
 import { useUserView } from "../contexts/UserViewContext";
 import { getTrustRank } from "../utils/trustRank";
+import { useOtherProfile } from "../hooks/useOtherProfile";
+import { useProfile } from "../hooks/useProfile";
+import { isProfileComplete } from "../utils/profileCompleteness";
+
+// Internal Component: Individual Applicant Row with Real-time Data
+const ApplicantItem: React.FC<{
+  applicant: { id: string; name: string; trust_score?: number };
+  onApprove: (id: string, name: string) => void;
+  onOpenProfile: (id: string) => void;
+  isActionLoading: boolean;
+}> = ({ applicant, onApprove, onOpenProfile, isActionLoading }) => {
+  const { profile } = useOtherProfile(applicant.id);
+  
+  // Use fresh data if available, otherwise snapshot
+  const displayName = profile?.name || applicant.name;
+  const avatarUrl = profile?.avatarUrl;
+  const trustScore = applicant.trust_score || 0; 
+  const rank = getTrustRank(profile, trustScore);
+
+  return (
+    <div className="flex flex-col gap-3 p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-all group">
+      <div className="flex items-center gap-3">
+        {/* Avatar with fallback */}
+        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0 overflow-hidden">
+            {avatarUrl ? (
+                <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+            ) : (
+                <span className="text-lg font-bold text-slate-400">
+                    {displayName?.charAt(0).toUpperCase() || <User className="w-5 h-5 text-slate-300" />}
+                </span>
+            )}
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <button
+            onClick={() => onOpenProfile(applicant.id)}
+            className="text-sm font-bold text-slate-800 hover:text-blue-600 hover:underline text-left truncate w-full block"
+          >
+            {displayName}
+          </button>
+          <div className="text-[10px] text-slate-400 flex items-center gap-2 mt-0.5">
+            {/* Trust/Helped Count Badge */}
+            <div 
+              title={`${trustScore} times helped`} 
+              className={`flex items-center gap-0.5 ${rank.color}`}
+            >
+                {rank.icon}
+                <span className="font-mono font-bold">({trustScore})</span>
+            </div>
+            
+            {/* Rank Label */}
+            <span className="text-slate-300">|</span>
+            <span className="text-slate-500 font-bold">
+                {rank.label}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <button
+        onClick={() => onApprove(applicant.id, displayName)}
+        disabled={isActionLoading}
+        className="w-full py-2.5 bg-slate-900 text-white text-xs rounded-xl font-bold hover:bg-slate-800 disabled:opacity-50 shadow-sm transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02] active:scale-[0.98]"
+      >
+        {isActionLoading ? (
+            <Loader2 className="w-3 h-3 animate-spin" />
+        ) : (
+            <CheckCircle className="w-3 h-3" />
+        )}
+        <span>この人にお願いする</span>
+      </button>
+    </div>
+  );
+};
 
 interface WishCardProps {
   wish: Wish;
   currentUserId: string;
+  onOpenProfile?: () => void;
 }
 
-export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
+export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenProfile }) => {
   const { applyForWish, approveWish, fulfillWish, reportCompletion } =
     useWishActions();
   const { openUserProfile } = useUserView();
+  const { profile: requesterProfile } = useOtherProfile(wish.requester_id);
+  const { profile: myProfile } = useProfile();
   const [isLoading, setIsLoading] = useState(false);
 
   const [showApplicants, setShowApplicants] = useState(false);
@@ -54,6 +131,13 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
 
   // Handlers
   const handleApply = async () => {
+    if (!isProfileComplete(myProfile)) {
+        if (confirm("プロフィールの器を完成させると、信頼されやすくなります（採用率が上がります）。\n\nプロフィールを編集しますか？")) {
+            if (onOpenProfile) onOpenProfile();
+            return;
+        }
+    }
+
     if (!confirm("この依頼に立候補しますか？")) return;
     setIsLoading(true);
     await applyForWish(wish.id);
@@ -77,7 +161,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
     return "Unknown";
   };
 
-  const trust = getTrustRank(wish.requester_trust_score);
+  const trust = getTrustRank(requesterProfile, wish.requester_trust_score);
 
   return (
     <div
@@ -87,8 +171,14 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
       <div className="relative flex justify-between items-start mb-4 gap-4">
         {/* User Info (Left) */}
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
-            <User className="w-5 h-5 text-slate-400" />
+          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0 overflow-hidden">
+            {requesterProfile?.avatarUrl ? (
+                <img src={requesterProfile.avatarUrl} alt={requesterProfile.name} className="w-full h-full object-cover" />
+            ) : (
+                <span className="text-lg font-bold text-slate-400">
+                    {requesterProfile?.name?.charAt(0).toUpperCase() || <User className="w-5 h-5 text-slate-300" />}
+                </span>
+            )}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -99,8 +189,11 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
                 }}
                 className="block text-sm font-bold text-slate-800 tracking-wide hover:underline text-left truncate max-w-full"
               >
-                {wish.requester_name || wish.requester_id.slice(0, 8)}
+                {requesterProfile?.name || wish.requester_name || wish.requester_id.slice(0, 8)}
               </button>
+              {trust.isVerified && (
+                <ShieldCheck size={14} className="text-blue-400 fill-blue-50 shrink-0" strokeWidth={2.5} />
+              )}
               <div className="flex items-center gap-2 text-xs shrink-0">
                 <div
                   title={`Helped ${wish.requester_trust_score || 0} times`}
@@ -120,6 +213,14 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
                 </span>
               </div>
             </div>
+            {/* Bio snippet - replaces headline */}
+            {requesterProfile?.bio && (
+              <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                {requesterProfile.bio.length > 60 
+                  ? `${requesterProfile.bio.slice(0, 60)}...` 
+                  : requesterProfile.bio}
+              </p>
+            )}
             <span className="flex items-center gap-1 text-[10px] text-slate-400 mt-0.5">
               <Clock className="w-3 h-3" />
               <span>{formatDate(wish.created_at)}</span>
@@ -209,62 +310,60 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId }) => {
                       </button>
 
                       {showApplicants && (
-                        <div className="absolute bottom-full right-0 mb-3 w-72 bg-white rounded-2xl shadow-xl border border-slate-100 p-3 z-20 animate-fade-in-up">
-                          <div className="flex justify-between items-center mb-2 px-1">
-                            <h4 className="text-xs font-bold text-slate-500">
-                              申し出た隣人たち
-                            </h4>
-                            <button
+                        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                           {/* Backdrop */}
+                           <div 
+                              className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-opacity"
                               onClick={() => setShowApplicants(false)}
-                              className="text-slate-300 hover:text-slate-500"
-                              title="Close"
-                            >
-                              <X className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                          <div className="space-y-2 max-h-60 overflow-y-auto custom-scrollbar">
-                            {applicants.map((app) => (
-                              <div
-                                key={app.id}
-                                className="flex justify-between items-center p-3 bg-slate-50 rounded-xl hover:bg-white hover:shadow-md transition-all border border-transparent hover:border-slate-100"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center text-lg shadow-sm">
-                                    {getTrustRank(app.trust_score).icon}
-                                  </div>
-                                  <div>
-                                    <button
-                                      onClick={() => openUserProfile(app.id)}
-                                      className="text-xs font-bold text-slate-700 hover:underline text-left"
-                                    >
-                                      {app.name}
-                                    </button>
-                                    <div className="text-[10px] text-slate-400 flex items-center gap-1">
-                                      <span
-                                        className={
-                                          getTrustRank(app.trust_score).color
-                                        }
-                                      >
-                                        {getTrustRank(app.trust_score).label}
-                                      </span>
-                                      <span>
-                                        • {app.trust_score || 0} helps
-                                      </span>
+                           />
+                           
+                           {/* Modal Content */}
+                           <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col max-h-[70vh] animate-in fade-in zoom-in-95 duration-200">
+                              {/* Modal Header */}
+                              <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                                <div className="flex items-center gap-2">
+                                    <div className="p-1.5 bg-yellow-100 rounded-full">
+                                        <Handshake className="w-4 h-4 text-yellow-600" />
                                     </div>
-                                  </div>
+                                    <h4 className="text-sm font-bold text-slate-700">
+                                    申し出た隣人たち <span className="text-slate-400 font-normal ml-1">({applicants.length})</span>
+                                    </h4>
                                 </div>
                                 <button
-                                  onClick={() =>
-                                    handleApprove(app.id, app.name)
-                                  }
-                                  disabled={isLoading}
-                                  className="px-3 py-1.5 bg-green-500 text-white text-[10px] rounded-lg font-bold hover:bg-green-600 disabled:opacity-50 shadow-sm hover:shadow-green-200"
+                                  onClick={() => setShowApplicants(false)}
+                                  className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                                  title="Close"
                                 >
-                                  {isLoading ? "..." : "お願いします"}
+                                  <X className="w-5 h-5" />
                                 </button>
                               </div>
-                            ))}
-                          </div>
+
+                              {/* Scrollable List */}
+                              <div className="overflow-y-auto p-4 space-y-3 custom-scrollbar">
+                                {applicants.length === 0 ? (
+                                    <div className="py-8 text-center text-slate-400 text-sm">
+                                        まだ申し出はありません
+                                    </div>
+                                ) : (
+                                    applicants.map((app) => (
+                                      <ApplicantItem 
+                                        key={app.id} 
+                                        applicant={app} 
+                                        onApprove={handleApprove} 
+                                        onOpenProfile={openUserProfile} 
+                                        isActionLoading={isLoading}
+                                      />
+                                    ))
+                                )}
+                              </div>
+                              
+                              {/* Footer Note */}
+                              <div className="p-3 bg-slate-50 border-t border-slate-100 text-center">
+                                  <p className="text-[10px] text-slate-400">
+                                      お願いする人を一人選んでください
+                                  </p>
+                              </div>
+                           </div>
                         </div>
                       )}
                     </div>

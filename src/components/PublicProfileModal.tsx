@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { X, User, Handshake, Megaphone } from 'lucide-react';
+import { X, Handshake, Megaphone, MapPin, Link as LinkIcon, Camera, ShieldCheck } from 'lucide-react';
 import { useOtherProfile } from '../hooks/useOtherProfile';
 import { getTrustRank } from '../utils/trustRank';
 
@@ -29,80 +29,158 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
     const helpCount = profile.completed_contracts || 0;
     const reqCount = profile.completed_requests || 0;
     
-    const rank = getTrustRank(helpCount); 
+    const rank = getTrustRank(profile); 
+
+    // Helper to check if any links exist
+    const hasLinks = profile.links && (profile.links.x || profile.links.instagram || profile.links.website);
+    
+    // Formatting Location
+    const locationText = profile.location 
+        ? `${profile.location.prefecture || ''} ${profile.location.city || ''}`.trim()
+        : '';
 
     return (
         <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in">
+            {/* Backdrop Click to Close */}
+            <div className="absolute inset-0" onClick={onClose} />
+
             <motion.div 
-                initial={{ scale: 0.9, opacity: 0 }}
+                initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-white w-full max-w-xs rounded-3xl overflow-hidden shadow-2xl relative"
+                exit={{ scale: 0.95, opacity: 0 }}
+                className="bg-white w-full max-w-sm rounded-3xl overflow-hidden shadow-2xl relative z-10 flex flex-col max-h-[90vh]"
             >
-                {/* Header Pattern */}
-                <div className="h-24 bg-gradient-to-br from-slate-100 to-slate-200 relative">
-                    <button 
-                         onClick={onClose}
-                         className="absolute top-4 right-4 p-2 bg-white/50 hover:bg-white rounded-full transition-colors backdrop-blur-sm"
-                    >
-                        <X size={18} className="text-slate-600" />
-                    </button>
-                </div>
+                {/* Close Button - Fixed relative to card */}
+                <button 
+                     onClick={onClose}
+                     className="absolute top-4 right-4 p-2 bg-white/60 hover:bg-white rounded-full transition-colors backdrop-blur-md z-50"
+                >
+                    <X size={20} className="text-slate-500" />
+                </button>
 
-                {/* Avatar & Name */}
-                <div className="px-6 -mt-10 pb-8 text-center relative z-10">
-                    <div className="w-20 h-20 mx-auto bg-white rounded-full p-1 shadow-sm mb-3">
-                        <div className="w-full h-full bg-slate-50 rounded-full flex items-center justify-center border border-slate-100">
-                             <User size={36} className="text-slate-300" />
+                {/* Single Scrollable Container for Header & Content */}
+                <div className="overflow-y-auto custom-scrollbar w-full">
+                    {/* Header Pattern */}
+                    <div className="h-24 bg-gradient-to-br from-slate-50 to-slate-100 w-full shrink-0" />
+
+                    {/* Main Content */}
+                    <div className="px-6 -mt-10 pb-8 text-center relative z-10">
+                        {/* Avatar */}
+                        <div className="w-24 h-24 mx-auto bg-white rounded-full p-1 shadow-sm mb-3">
+                            <div className="w-full h-full bg-slate-50 rounded-full flex items-center justify-center overflow-hidden border border-slate-100">
+                                {profile.avatarUrl ? (
+                                    <img src={profile.avatarUrl} alt={profile.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full bg-slate-100 flex items-center justify-center">
+                                        <span className="text-3xl font-bold text-slate-400">
+                                            {profile.name?.charAt(0).toUpperCase() || '?'}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                    
-                    <h2 className="text-xl font-bold text-slate-800 mb-1">{profile.name}</h2>
-                    <div className="flex justify-center gap-2 mb-6">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${rank.bg} ${rank.color}`}>
-                            {rank.label}
-                        </span>
-                        <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-mono">
-                            ID: {profile.id.slice(0,6)}
-                        </span>
-                    </div>
+                        
+                        {/* Name & Headline */}
+                        <div className="flex items-center justify-center gap-1.5 mb-1">
+                            <h2 className="text-xl font-bold text-slate-900 leading-snug">{profile.name}</h2>
+                            {rank.isVerified && (
+                                <ShieldCheck size={18} className="text-blue-500 fill-blue-50" strokeWidth={2.5} />
+                            )}
+                        </div>
+                        
+                        {/* Meta Row: Rank | ID | Location */}
+                        <div className="flex flex-wrap justify-center gap-2 mb-4 items-center">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${rank.bg} ${rank.color} flex items-center gap-1`}>
+                                {rank.icon}
+                                {rank.label}
+                            </span>
+                            <span className="text-[10px] text-slate-300 font-light">|</span>
+                            <span className="text-[10px] text-slate-400 font-mono">
+                                ID: {profile.id.slice(0,6)}
+                            </span>
+                            
+                            {locationText && (
+                                <>
+                                    <span className="text-[10px] text-slate-300 font-light">|</span>
+                                    <span className="text-[10px] text-slate-500 flex items-center gap-0.5">
+                                        <MapPin size={10} />
+                                        {locationText}
+                                    </span>
+                                </>
+                            )}
+                        </div>
 
-                    {/* Count Details (Consolidated & Emphasized) */}
-                    <div className="space-y-3">
-                        <div className="flex items-center justify-between p-4 bg-blue-50/50 border border-blue-100 rounded-xl">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                                    <Handshake size={20} />
-                                </div>
-                                <div className="text-left">
-                                    <div className="text-xs font-bold text-blue-400">手伝った回数</div>
-                                    <div className="text-[10px] text-slate-400">Helped Count</div>
+                        {/* Bio (Quiet Space) */}
+                        {profile.bio && (
+                            <div className="mb-6 mx-2">
+                                <p className="text-sm text-slate-600 leading-relaxed bg-slate-50/80 px-5 py-4 rounded-2xl border border-slate-100 text-left whitespace-pre-wrap">
+                                    {profile.bio}
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Links */}
+                        {hasLinks && (
+                             <div className="flex justify-center gap-4 mb-8">
+                                {profile.links?.x && (
+                                    <a 
+                                        href={profile.links.x.startsWith('http') ? profile.links.x : `https://x.com/${profile.links.x.replace('@','')}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className="p-3 bg-slate-900 text-white rounded-full hover:scale-110 transition-transform shadow-sm"
+                                    >
+                                        <span className="text-xs font-bold block w-4 h-4 text-center leading-4">𝕏</span>
+                                    </a>
+                                )}
+                                {profile.links?.instagram && (
+                                    <a 
+                                        href={profile.links.instagram.startsWith('http') ? profile.links.instagram : `https://instagram.com/${profile.links.instagram.replace('@','')}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className="p-3 bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white rounded-full hover:scale-110 transition-transform shadow-sm"
+                                    >
+                                        <Camera size={16} />
+                                    </a>
+                                )}
+                                {profile.links?.website && (
+                                    <a 
+                                        href={profile.links.website} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        className="p-3 bg-white border border-slate-200 text-slate-500 rounded-full hover:scale-110 hover:text-blue-500 hover:border-blue-200 transition-all shadow-sm"
+                                    >
+                                        <LinkIcon size={16} />
+                                    </a>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Stats - Subtle & Dignified */}
+                        <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                            <div className="flex flex-col items-center p-3 rounded-xl hover:bg-slate-50/50 transition-colors">
+                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">手伝った回数</div>
+                                <div className="flex items-baseline gap-1">
+                                    <Handshake size={14} className="text-blue-400" />
+                                    <span className="text-xl font-medium text-slate-700 tabular-nums">
+                                        {helpCount}
+                                    </span>
+                                    <span className="text-xs text-slate-400 font-normal">回</span>
                                 </div>
                             </div>
-                            <span className="text-2xl font-bold text-slate-800 font-mono tracking-tighter">
-                                {helpCount} <span className="text-sm font-sans font-medium text-slate-400">回</span>
-                            </span>
-                        </div>
-
-                        <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-xl">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500">
-                                    <Megaphone size={20} />
-                                </div>
-                                <div className="text-left">
-                                    <div className="text-xs font-bold text-slate-500">依頼実績 (完了済)</div>
-                                    <div className="text-[10px] text-slate-400">Paid Requests</div>
+                            
+                            <div className="flex flex-col items-center p-3 rounded-xl hover:bg-slate-50/50 transition-colors">
+                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">依頼実績</div>
+                                <div className="flex items-baseline gap-1">
+                                    <Megaphone size={14} className="text-slate-400" />
+                                    <span className="text-xl font-medium text-slate-700 tabular-nums">
+                                        {reqCount}
+                                    </span>
+                                    <span className="text-xs text-slate-400 font-normal">回</span>
                                 </div>
                             </div>
-                            <span className="text-xl font-bold text-slate-700 font-mono tracking-tighter">
-                                {reqCount} <span className="text-sm font-sans font-medium text-slate-400">回</span>
-                            </span>
                         </div>
                     </div>
                 </div>
-
-                {/* Footer Decor */}
-                <div className="h-2 w-full bg-slate-100"></div>
             </motion.div>
         </div>
     );

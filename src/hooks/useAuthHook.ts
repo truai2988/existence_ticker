@@ -9,7 +9,9 @@ import {
     linkWithCredential,
     EmailAuthProvider,
     updatePassword,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
+    updateEmail,
+    reauthenticateWithCredential
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
@@ -39,7 +41,7 @@ export const useAuth = () => {
         await signInWithEmailAndPassword(auth, email, pass);
     };
 
-    const signUp = async (email: string, pass: string, name: string) => {
+    const signUp = async (email: string, pass: string, name: string, location: { prefecture: string, city: string }) => {
         if (!auth) throw new Error("Auth not initialized");
         const cred = await createUserWithEmailAndPassword(auth, email, pass);
         if (cred.user) {
@@ -52,6 +54,7 @@ export const useAuth = () => {
                 await setDoc(doc(db, 'users', cred.user.uid), {
                     id: cred.user.uid,
                     name: name,
+                    location: location,
                     balance: 0,
                     xp: 0,
                     warmth: 0,
@@ -87,6 +90,21 @@ export const useAuth = () => {
         // Sends a password reset email to the given address.
         // NOTE: If the email is not found, Firebase does not throw an error for security reasons (enumeration protection).
         await sendPasswordResetEmail(auth, email);
+    };
+
+    const updateUserEmail = async (newEmail: string, currentPassword: string) => {
+        if (!auth || !auth.currentUser) throw new Error("Not authenticated");
+        if (!auth.currentUser.email) throw new Error("No email on current user");
+        
+        // Step 1: Re-authenticate the user (required for sensitive operations)
+        const credential = EmailAuthProvider.credential(
+            auth.currentUser.email,
+            currentPassword
+        );
+        await reauthenticateWithCredential(auth.currentUser, credential);
+        
+        // Step 2: Update the email
+        await updateEmail(auth.currentUser, newEmail);
     };
 
     const deleteAccount = async () => {
@@ -132,6 +150,7 @@ export const useAuth = () => {
         signOut,
         deleteAccount,
         updateUserPassword,
+        updateUserEmail,
         resetPassword
     };
 };

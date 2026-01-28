@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuthHook';
-import { Loader2, ArrowRight, Heart } from 'lucide-react';
+import { useLocationData } from '../hooks/useLocationData';
+import { Loader2, ArrowRight, Heart, ChevronDown } from 'lucide-react';
+import { PREFECTURES } from '../data/prefectures';
 
 export const AuthScreen = () => {
     const { signIn, signUp, resetPassword } = useAuth();
@@ -9,6 +11,8 @@ export const AuthScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
+    const [location, setLocation] = useState({ prefecture: '', city: '' });
+    const { cities, loading: loadingCities } = useLocationData(location.prefecture);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
@@ -23,7 +27,8 @@ export const AuthScreen = () => {
                 await signIn(email, password);
             } else {
                 if (!name.trim()) throw new Error("名前を入力してください");
-                await signUp(email, password, name);
+                if (!location.prefecture) throw new Error("都道府県を選択してください");
+                await signUp(email, password, name, location);
             }
         } catch (err) {
             console.error(err);
@@ -132,21 +137,76 @@ export const AuthScreen = () => {
                 ) : (
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {mode === 'register' && (
-                            <div className="space-y-2">
-                                <label className="text-xs font-bold text-slate-500 ml-1">お名前 (表示名)</label>
-                                <input 
-                                    type="text" 
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder="山田 太郎"
-                                    className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans"
-                                    required
-                                />
-                            </div>
+                            <>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-500 ml-1">
+                                        お名前 (表示名)
+                                        <span className="text-rose-500 text-[10px] ml-1 font-normal">(必須)</span>
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        placeholder="山田 太郎"
+                                        className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans"
+                                        required
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-slate-500 ml-1">
+                                            都道府県
+                                            <span className="text-rose-500 text-[10px] ml-1 font-normal">(必須)</span>
+                                        </label>
+                                        <div className="relative">
+                                            <select 
+                                                value={location.prefecture}
+                                                onChange={(e) => setLocation(prev => ({ ...prev, prefecture: e.target.value }))}
+                                                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans text-sm appearance-none"
+                                                required
+                                            >
+                                                <option value="">未選択</option>
+                                                {PREFECTURES.map(pref => (
+                                                    <option key={pref} value={pref}>{pref}</option>
+                                                ))}
+                                            </select>
+                                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-4 h-4" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-xs font-bold text-slate-500 ml-1">
+                                            市区町村
+                                            <span className="text-rose-500 text-[10px] ml-1 font-normal">(必須)</span>
+                                        </label>
+                                        <div className="relative">
+                                            <select 
+                                                value={location.city}
+                                                onChange={(e) => setLocation(prev => ({ ...prev, city: e.target.value }))}
+                                                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans text-sm appearance-none disabled:bg-slate-50 disabled:text-slate-400"
+                                                required
+                                                disabled={!location.prefecture || loadingCities}
+                                            >
+                                                <option value="">{loadingCities ? '読み込み中...' : '市区町村を選択'}</option>
+                                                {cities.map(city => (
+                                                    <option key={city} value={city}>{city}</option>
+                                                ))}
+                                            </select>
+                                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-4 h-4" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <p className="text-[10px] text-slate-400 mt-2 ml-1 leading-relaxed">
+                                    ※番地やマンション名の入力は<strong className="text-slate-500 font-bold">不要</strong>です。<br/>
+                                    あなたの生活圏の隣人とつながるための情報です。
+                                </p>
+                            </>
                     )}
 
                     <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 ml-1">メールアドレス</label>
+                        <label className="text-xs font-bold text-slate-500 ml-1">
+                            メールアドレス
+                            {mode === 'register' && <span className="text-rose-500 text-[10px] ml-1 font-normal">(必須)</span>}
+                        </label>
                         <input 
                             type="email" 
                             value={email}
@@ -158,7 +218,10 @@ export const AuthScreen = () => {
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 ml-1">パスワード</label>
+                        <label className="text-xs font-bold text-slate-500 ml-1">
+                            パスワード
+                            {mode === 'register' && <span className="text-rose-500 text-[10px] ml-1 font-normal">(必須)</span>}
+                        </label>
                         <input 
                             type="password" 
                             value={password}

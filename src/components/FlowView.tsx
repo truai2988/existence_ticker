@@ -7,11 +7,12 @@ import { WishCardList } from './WishCardList';
 interface FlowViewProps {
     onClose: () => void;
     currentUserId: string;
+    onOpenProfile?: () => void;
 }
 
 type TabType = 'search' | 'inbound';
 
-export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId }) => {
+export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOpenProfile }) => {
     const { wishes, loadMore, hasMore, isFetchingMore } = useWishes();
     const [activeTab, setActiveTab] = useState<TabType>('search');
     const [hideMyWishes, setHideMyWishes] = useState(false);
@@ -95,6 +96,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId }) =>
                     onLoadMore={loadMore}
                     hasMore={hasMore}
                     isFetchingMore={isFetchingMore}
+                    onOpenProfile={onOpenProfile}
                 />
             )}
 
@@ -104,6 +106,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId }) =>
                     currentUserId={currentUserId}
                     emptyMessage="現在、お引き受け中の依頼はありません"
                     emptyIcon={<CheckCircle size={48} className="text-slate-300 mb-2" />}
+                    onOpenProfile={onOpenProfile}
                 />
             )}
         </div>

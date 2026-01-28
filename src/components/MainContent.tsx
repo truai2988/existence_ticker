@@ -23,6 +23,7 @@ export const MainContent: React.FC<MainContentProps> = ({ viewMode, setViewMode,
                     onOpenFlow={() => setViewMode('flow')} 
                     onOpenRequest={() => setViewMode('give')}
                     onOpenGift={() => setViewMode('gift')}
+                    onOpenProfile={() => setViewMode('profile')}
                 />
             );
         case 'profile':
