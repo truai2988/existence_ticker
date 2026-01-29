@@ -3,6 +3,7 @@ import { X, Activity, Moon, Sun, AlertTriangle, Book } from "lucide-react";
 import { useStats, MetabolismStatus } from "../hooks/useStats";
 import { useDiagnostics } from "../hooks/useDiagnostics";
 import { DiagnosticModal } from "./DiagnosticModal";
+import { db } from "../lib/firebase";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -25,9 +26,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   React.useEffect(() => {
     const fetchConfig = async () => {
         try {
-            const { db } = await import("../lib/firebase");
-            const { doc, getDoc } = await import("firebase/firestore");
             if (!db) return;
+            const { doc, getDoc } = await import("firebase/firestore"); // Keep this dynamic if needed, or move to top level
             
             const settingsRef = doc(db, "system_settings", "global");
             const snap = await getDoc(settingsRef);
@@ -52,7 +52,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     };
   }, []);
 
-  if (!stats) return <div className="p-10 text-white">Loading God Mode...</div>;
+  if (!stats) {
+      return (
+          <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center">
+              <div className="text-center">
+                  <Activity className="w-10 h-10 text-yellow-500 animate-pulse mx-auto mb-4" />
+                  <div className="text-white font-mono tracking-widest text-xs">Loading Economy...</div>
+              </div>
+              <button 
+                  onClick={onClose}
+                  className="absolute top-6 right-6 text-slate-500 hover:text-white"
+              >
+                  <X size={24} />
+              </button>
+          </div>
+      );
+  }
 
   const { cycle, metabolism, distribution } = stats;
 
@@ -85,10 +100,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-200 tracking-wider">
-                ADMIN DASHBOARD
+                管理コンソール (GOD MODE)
               </h1>
               <p className="text-[10px] text-slate-500 font-mono uppercase tracking-[0.2em]">
-                Ecosystem Monitor
+                互助生態系 監視モニター
               </p>
             </div>
           </div>
@@ -138,7 +153,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               <Moon size={100} />
             </div>
             <h2 className="text-xs font-mono uppercase tracking-widest opacity-70 mb-4">
-              Active Cycles
+              現在の暦 (Cycle Status)
             </h2>
 
             <div className="flex flex-col gap-4">
@@ -206,13 +221,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           {/* SECTION B: METABOLISM */}
           <div className="p-6 rounded-2xl border border-slate-800 bg-slate-900/20 relative">
             <h2 className="text-xs font-mono text-slate-500 uppercase tracking-widest mb-4">
-              Metabolism
+              代謝・循環 (Metabolism)
             </h2>
 
             <div className="flex justify-between items-end mb-6">
               <div>
                 <div className="text-sm text-slate-400 mb-1">
-                  24h Vol
+                  24時間流通量
                   <span className="text-[10px] text-slate-600 ml-2">
                     24時間の総循環量
                   </span>
@@ -467,8 +482,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   )
                 ) {
                   try {
-                    // Dynamic import
-                    const { db } = await import("../lib/firebase");
+                    // Use top-level db import
                     const { doc, setDoc, serverTimestamp } =
                       await import("firebase/firestore");
 
@@ -486,21 +500,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                     );
 
                     alert(
-                      `Success: Time Law updated to ${cycleDays} Days.\nThe world rhythm will shift.`,
+                      `法改正完了: サイクルを ${cycleDays} 日に変更しました。\n世界のリズムが変わります。`,
                     );
                     // No need to update local stats derived state immediately, handled by next reload or logic
                   } catch (e: unknown) {
                     console.error(e);
-                    alert(`Failed to Publish Law: ${e}`);
+                    alert(`法令の発布に失敗しました: ${e}`);
                   }
                 }
               }}
               className="w-full py-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 hover:border-yellow-500/50 text-yellow-500 font-bold uppercase tracking-widest text-xs transition-colors"
             >
-              PUBLISH NEW LAW (Update Cycle)
+              法を公布・改定する (Publish Law)
             </button>
             <p className="text-center text-[10px] text-slate-500 mt-2">
-              Fixed Rebirth Amount: <span className="text-slate-300">2,400 Lm</span> (Immutable)
+              生命贈与額 (Fixed): <span className="text-slate-300">2,400 Lm</span> (不変の理)
             </p>
           </div>
         </div>
@@ -545,12 +559,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <div className="flex items-center gap-4 mb-6">
                   <span className="text-6xl font-thin text-slate-200">01</span>
                   <div className="h-px bg-slate-200 flex-grow"></div>
-                  <h2 className="text-2xl font-bold text-slate-900 font-sans">哲学 (Philosophy)</h2>
+                  <h2 className="text-2xl font-bold text-slate-900 font-sans">理念 (Philosophy)</h2>
                 </div>
                 <h3 className="text-xl font-bold mb-4">"Stock" から "Flow" へ</h3>
                 <p className="mb-6">
                   現代社会の閉塞感は「感謝の滞留」にあります。エネルギー（貨幣）が循環の媒体としての機能を失い、個人の所有物（Stock）としてダムのように堰き止められた時、生態系は枯れ果てます。<br/>
-                  我々はこの問題を解決するために、通貨を<strong className="text-slate-900 font-bold bg-yellow-100 px-1">「保存する資産」から「感謝を伝えるエネルギー」へと再定義</strong>しました。
+                  我々はこの問題を解決するために、通貨を<strong className="text-slate-900 font-bold bg-yellow-100 px-1">「保存する資産（Stock）」から「感謝を伝えるエネルギー（Flow）」へと再定義</strong>しました。
                 </p>
                 <p>
                   この世界では、溜め込むことは腐敗（減価）を意味し、他者へ循環させることこそが生存戦略となります。<br/>
@@ -563,7 +577,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <div className="flex items-center gap-4 mb-6">
                   <span className="text-6xl font-thin text-slate-200">02</span>
                   <div className="h-px bg-slate-200 flex-grow"></div>
-                  <h2 className="text-2xl font-bold text-slate-900 font-sans">機構 (Mechanism)</h2>
+                  <h2 className="text-2xl font-bold text-slate-900 font-sans">構造 (Mechanism)</h2>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -583,7 +597,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                       <span className="text-yellow-500">▲</span> 太陽 (The Sun)
                     </h3>
                     <p className="text-base text-slate-600">
-                      減価によって失われた総量は、システム全体への「生命維持エネルギー（Basic Supply）」として還元されます。
+                      減価によって失われた総量は、システム全体への「生命贈与（Basic Supply）」として還元されます。
                       これは行政による「給付」でも、富める者からの「再分配」でもありません。<br/>
                       あなたがここに<strong className="text-slate-900">「存在している」という事実そのものを担保にして</strong>、天から無条件に降り注ぐ<span className="font-mono bg-slate-200 text-slate-800 px-1 text-sm">光のギフト</span>です。
                       太陽が昇る限り、あなたの生存は世界によって肯定され続けます。
@@ -597,16 +611,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <div className="flex items-center gap-4 mb-6">
                   <span className="text-6xl font-thin text-slate-200">03</span>
                   <div className="h-px bg-slate-200 flex-grow"></div>
-                  <h2 className="text-2xl font-bold text-slate-900 font-sans">運用 (Governance)</h2>
+                  <h2 className="text-2xl font-bold text-slate-900 font-sans">統治 (Governance)</h2>
                 </div>
                 <h3 className="text-xl font-bold mb-4">支配ではなく、調律</h3>
                 <p className="mb-6">
                   管理者の役割は、住人の個別のやり取りを監視することではありません。<br/>
-                  世界の「温度（代謝率）」と「湿度（エネルギー分布）」を観測し、<strong className="text-slate-900 font-bold">「基礎給付額（Basic Supply）」というたった一つの物理定数を調整すること</strong>だけが許された権限です。
+                  世界の「温度（代謝率）」と「湿度（エネルギー分布）」を観測し、<strong className="text-slate-900 font-bold">「再生サイクル期間（Regeneration Cycle Duration）」というたった一つの物理定数（時間軸）を調整すること</strong>だけが許された権限です。
                 </p>
                 
                 <div className="bg-slate-900 text-white p-8 rounded-sm shadow-xl mt-8">
-                   <h4 className="font-sans text-xs uppercase tracking-widest text-slate-400 mb-4 border-b border-slate-700 pb-2">Admin Protocol</h4>
+                   <h4 className="font-sans text-xs uppercase tracking-widest text-slate-400 mb-4 border-b border-slate-700 pb-2">管理者の誓い (Admin Protocol)</h4>
                    <p className="font-mono text-sm leading-relaxed text-slate-300">
                      &gt; We do not manage the economy. <span className="text-slate-500 text-xs">(我々は経済を管理しない)</span><br/>
                      &gt; We design the ecosystem. <span className="text-slate-500 text-xs">(我々は生態系を設計する)</span><br/>
@@ -624,7 +638,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <div className="flex items-center gap-4 mb-6">
                   <span className="text-6xl font-thin text-slate-200">04</span>
                   <div className="h-px bg-slate-200 flex-grow"></div>
-                  <h2 className="text-2xl font-bold text-slate-900 font-sans">運用プロトコル (Operational Protocols)</h2>
+                  <h2 className="text-2xl font-bold text-slate-900 font-sans">運用規約 (Operational Protocols)</h2>
                 </div>
                 
                 <h3 className="text-xl font-bold mb-6 font-sans">4.1 構造的制約 (Structural Constraints)</h3>
@@ -644,9 +658,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                        <span className="text-yellow-600">⚠</span> 法の不遡及 (Law of Non-Retroactivity)
                    </h4>
                    <p className="text-slate-600 text-sm mb-0 leading-relaxed">
-                       「基礎給付額（Basic Supply）」の変更は、即座に全ユーザーに適用されるわけではありません。<br/>
-                       各ユーザーは個別に決定された「リセット日（10日周期）」を持っており、新しい設定値は<strong className="text-slate-900">個々の次回リセット時</strong>に初めて適用されます。<br/>
-                       したがって、調律（Tuning）の効果が生態系全体に行き渡るまでには、最大で10日間のタイムラグ（Latency）が発生します。
+                       「再生サイクルの期間」の変更は、即座に全ユーザーに適用されるわけではありません。<br/>
+                       各ユーザーは個別に決定された「リセット日」を持っており、新しい時間設定は<strong className="text-slate-900">個々の次回リセット計算時</strong>に初めて適用されます。<br/>
+                       したがって、調律（Tuning）の効果が生態系全体に行き渡るまでには、現行サイクルの解消待ち（Latency）が発生します。
                    </p>
                 </div>
 
@@ -696,24 +710,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <div className="space-y-6">
                     <div>
                         <h4 className="border-l-4 border-slate-900 pl-3 font-bold text-lg text-slate-800 mb-2">
-                             C. 平均サイクル日数 (Average Phase)
+                             C. 世界の季節 (Global Seasons)
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-center text-sm mb-2">
                             <div className="bg-green-50 p-2 rounded border border-green-100">
-                                <span className="block font-bold text-green-700">Spring (Day 1-3)</span>
-                                <span className="text-xs text-slate-500">成長期</span>
+                                <span className="block font-bold text-green-700">春 (5-9 Days)</span>
+                                <span className="text-xs text-slate-500">豊穣・加速</span>
                             </div>
-                            <div className="bg-orange-50 p-2 rounded border border-orange-100">
-                                <span className="block font-bold text-orange-700">Autumn (Day 4-7)</span>
-                                <span className="text-xs text-slate-500">成熟期</span>
+                            <div className="bg-yellow-50 p-2 rounded border border-yellow-100">
+                                <span className="block font-bold text-yellow-700">分点 (10 Days)</span>
+                                <span className="text-xs text-slate-500">調和・標準</span>
                             </div>
                             <div className="bg-slate-100 p-2 rounded border border-slate-200">
-                                <span className="block font-bold text-slate-700">Winter (Day 8-10)</span>
-                                <span className="text-xs text-slate-500">終末期</span>
+                                <span className="block font-bold text-slate-700">冬 (11-20 Days)</span>
+                                <span className="text-xs text-slate-500">試練・選別</span>
                             </div>
                         </div>
                         <p className="text-slate-600 text-sm">
-                            「Winter」における富の蓄積は危険です。死にゆく者が資産を抱え込んでも、それは数日後に消滅する運命にあるからです。Winterでの飽和は迅速な消費（Gift）を促す必要があります。
+                            調律者は「1サイクルの長さ」を伸縮させることで季節を操ります。<br/>
+                            <strong>春（豊穣期）</strong>では頻繁に給付が行われ、世界は潤いますが、インフレ（飽和）のリスクがあります。<br/>
+                            <strong>冬（厳冬期）</strong>では次の給付までの期間が長く、備蓄が枯渇しやすくなります。これにより生存本能が刺激され、停滞した富の強制循環（贈与）が促されます。
                         </p>
                     </div>
 
@@ -728,14 +744,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                     </div>
                 </div>
 
-                <h3 className="text-xl font-bold mt-10 mb-6 font-sans">4.4 介入マトリクス (Intervention Matrix)</h3>
+                <h3 className="text-xl font-bold mt-10 mb-6 font-sans">4.4 介入の書 (Intervention Matrix)</h3>
                 <div className="overflow-hidden border border-slate-200 rounded-lg">
                     <table className="min-w-full text-sm text-left text-slate-600">
                         <thead className="bg-slate-100 text-slate-900 font-sans uppercase text-xs">
                             <tr>
-                                <th className="px-6 py-3">Phase (Condition)</th>
-                                <th className="px-6 py-3">Root Cause</th>
-                                <th className="px-6 py-3">Protocol Actions</th>
+                                <th className="px-6 py-3">状況 (Phase)</th>
+                                <th className="px-6 py-3">根本原因 (Root Cause)</th>
+                                <th className="px-6 py-3">処方箋 (Actions)</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -743,7 +759,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                 <td className="px-6 py-4 font-bold text-green-800">HEALTHY<br/><span className="text-xs font-normal text-green-600">Rate &gt; 10% + Balanced</span></td>
                                 <td className="px-6 py-4">理想的な循環状態</td>
                                 <td className="px-6 py-4">
-                                    <span className="block font-bold text-green-600">ACTION: Maintain</span>
+                                    <span className="block font-bold text-green-600">ACTION: 維持 (Maintain)</span>
                                     介入不要。この均衡を見守ることが神の仕事です。
                                 </td>
                             </tr>
@@ -751,23 +767,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                 <td className="px-6 py-4 font-bold text-slate-900">STARVATION<br/><span className="text-xs font-normal text-slate-500">Low Rate + Low Balance</span></td>
                                 <td className="px-6 py-4">流動性枯渇による信頼崩壊</td>
                                 <td className="px-6 py-4">
-                                    <span className="block font-bold text-blue-600">ACTION: Sun's Grace</span>
-                                    基礎給付を大幅増額 (Target: 3000Lm)。<br/>恐怖を取り除くことが最優先。
+                                    <span className="block font-bold text-blue-600">ACTION: 春化 (Spring Shift)</span>
+                                    サイクルを短縮 (例えば5日へ) し、給付頻度を倍増させる。<br/>恐怖を取り除くことが最優先。
                                 </td>
                             </tr>
                             <tr className="bg-white">
                                 <td className="px-6 py-4 font-bold text-slate-900">SATURATION<br/><span className="text-xs font-normal text-slate-500">Low Rate + High Balance</span></td>
                                 <td className="px-6 py-4">欲求(Wish)不足による停滞</td>
                                 <td className="px-6 py-4">
-                                    <span className="block font-bold text-purple-600">ACTION: Jubilee</span>
-                                    金融政策ではなく、消費喚起イベントを実施。<br/>「金を使う理由」を作る。
+                                    <span className="block font-bold text-purple-600">ACTION: 冬化 (Winter Shift)</span>
+                                    サイクルを延長 (例えば20日へ)。<br/>「使わなければ尽きる」環境を作る。
                                 </td>
                             </tr>
                             <tr className="bg-white">
                                 <td className="px-6 py-4 font-bold text-slate-900">STAGNATION<br/><span className="text-xs font-normal text-slate-500">Rate &lt; 5% (Critical)</span></td>
                                 <td className="px-6 py-4">文化の欠如 / 初期段階</td>
                                 <td className="px-6 py-4">
-                                    <span className="block font-bold text-red-600">ACTION: First Move</span>
+                                    <span className="block font-bold text-red-600">ACTION: 神の一手 (First Move)</span>
                                     Admin自身による直接取引。<br/>神が動いて手本を示す。
                                 </td>
                             </tr>

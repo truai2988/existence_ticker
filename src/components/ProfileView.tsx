@@ -9,7 +9,7 @@ import {
 import QRCode from "react-qr-code";
 import { useProfile } from '../hooks/useProfile';
 import { calculateLifePoints } from '../utils/decay';
-import { UNIT_LABEL, SURVIVAL_CONSTANTS } from '../constants';
+import { UNIT_LABEL, SURVIVAL_CONSTANTS, ADMIN_UIDS } from '../constants';
 import { useAuth } from '../hooks/useAuthHook';
 import { getTrustRank } from '../utils/trustRank';
 import { ProfileEditScreen } from './ProfileEditScreen';
@@ -19,6 +19,45 @@ interface ProfileViewProps {
     onOpenAdmin?: () => void;
     userId?: string; 
 }
+
+interface ListItemProps {
+    icon: React.ElementType;
+    label: string;
+    value?: string;
+    onClick?: () => void;
+    isDestructive?: boolean;
+    hasArrow?: boolean;
+    iconColor?: string;
+    iconBg?: string;
+}
+
+const ListItem: React.FC<ListItemProps> = ({ 
+    icon: Icon, 
+    label, 
+    value, 
+    onClick, 
+    isDestructive = false,
+    hasArrow = true,
+    iconColor = "text-slate-500",
+    iconBg = "bg-slate-100"
+}) => (
+    <button 
+        onClick={onClick}
+        disabled={!onClick}
+        className={`w-full flex items-center justify-between p-4 bg-white border-b border-slate-100 last:border-0 ${onClick ? 'hover:bg-slate-50 cursor-pointer' : 'cursor-default'} transition-colors ${isDestructive ? 'text-red-500' : 'text-slate-700'}`}
+    >
+        <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-full ${iconBg}`}>
+                <Icon size={16} className={iconColor} />
+            </div>
+            <span className="text-sm font-medium">{label}</span>
+        </div>
+        <div className="flex items-center gap-2">
+            {value && <span className="text-sm font-bold text-slate-700">{value}</span>}
+            {hasArrow && onClick && <ChevronRight size={16} className="text-slate-300" />}
+        </div>
+    </button>
+);
 
 export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }) => {
     const { profile } = useProfile();
@@ -61,12 +100,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }
 
     React.useEffect(() => {
         if (!profile) return;
-        const updateValue = () => {
-             setDisplayBalance(calculateLifePoints(profile.balance, profile.last_updated));
-        };
-        updateValue();
-        const timer = setInterval(updateValue, 1000);
-        return () => clearInterval(timer);
+        // Calculate once on mount/update. No real-time ticker.
+        setDisplayBalance(calculateLifePoints(profile.balance, profile.last_updated));
     }, [profile]);
 
     // Auth Handlers
@@ -119,43 +154,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }
         }
     };
 
-    // Render Helpers
-    const ListItem = ({ 
-        icon: Icon, 
-        label, 
-        value, 
-        onClick, 
-        isDestructive = false,
-        hasArrow = true,
-        iconColor = "text-slate-500",
-        iconBg = "bg-slate-100"
-    }: {
-        icon: React.ElementType;
-        label: string;
-        value?: string;
-        onClick?: () => void;
-        isDestructive?: boolean;
-        hasArrow?: boolean;
-        iconColor?: string;
-        iconBg?: string;
-    }) => (
-        <button 
-            onClick={onClick}
-            disabled={!onClick}
-            className={`w-full flex items-center justify-between p-4 bg-white border-b border-slate-100 last:border-0 ${onClick ? 'hover:bg-slate-50 cursor-pointer' : 'cursor-default'} transition-colors ${isDestructive ? 'text-red-500' : 'text-slate-700'}`}
-        >
-            <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-full ${iconBg}`}>
-                    <Icon size={16} className={iconColor} />
-                </div>
-                <span className="text-sm font-medium">{label}</span>
-            </div>
-            <div className="flex items-center gap-2">
-                {value && <span className="text-sm font-bold text-slate-700">{value}</span>}
-                {hasArrow && onClick && <ChevronRight size={16} className="text-slate-300" />}
-            </div>
-        </button>
-    );
     
     // Sub-screen Handling
     if (isEditingProfile) {
@@ -375,7 +373,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }
                             />
                         )}
 
-                        {profile?.role === 'admin' && onOpenAdmin && (
+                        {/* Admin Menu: Only visible to Admins or Listed UIDs */}
+                        {((profile?.role === 'admin') || (profile?.id && ADMIN_UIDS.includes(profile.id))) && onOpenAdmin && (
                             <ListItem 
                                 icon={ShieldAlert} 
                                 label="管理者メニュー" 

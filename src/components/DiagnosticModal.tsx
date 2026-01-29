@@ -54,22 +54,22 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
       switch (diagnosis.currentPhase) {
           case 'STARVATION':
               return {
-                  voice: `世界は渇きに喘いでいます。平均残高は ${avgBalance.toLocaleString()} Lm まで落ち込み、魂たちは明日への恐怖に震えています。今すぐ太陽の出力を上げ、この星に慈悲の雨を降らせてください。`,
-                  actionTitle: "太陽の恵み (Sun's Grace)",
-                  actionDesc: "基礎給付額（Base Supply）を大幅に引き上げ、枯渇した大地を潤す必要があります。",
-                  targetValue: "Target: 3000 Lm+"
+                  voice: `世界は渇きに喘いでいます。平均残高は ${avgBalance.toLocaleString()} Lm まで落ち込み、魂たちは明日への恐怖に震えています。今すぐ世界の回転を早め、乾いた大地に慈悲の雨を降らせてください。`,
+                  actionTitle: "春化 (Spring Shift)",
+                  actionDesc: "サイクル期間を短縮（5～7日）し、給付の頻度を高めてください。恐怖を取り除くことが最優先です。",
+                  targetValue: "Target: 5 Days (Fast)"
               };
           case 'SATURATION':
               return {
-                  voice: `世界は贅沢な微睡みに沈んでいます。${richPercentage}% の魂が満たされ、欲求（Wish）が枯れています。Lmの重みを思い出させるか、あるいは彼らに新たな夢を見せる必要があります。`,
-                  actionTitle: "祝祭 (Jubilee) または 引き締め (Cool Down)",
-                  actionDesc: "給付を減らして危機感を与えるか、逆に一時的に制限を解除して消費を促すイベントを開催してください。",
-                  targetValue: "Target: 2000 Lm (Cool Down)"
+                  voice: `世界は贅沢な微睡みに沈んでいます。${richPercentage}% の魂が満たされ、欲求（Wish）が枯れています。Lmの重みを思い出させるために、少し長い冬が必要です。`,
+                  actionTitle: "冬化 (Winter Shift)",
+                  actionDesc: "サイクル期間を延長（15～20日）し、次の給付までの期間を延ばしてください。枯渇への健全な危機感が、富の放出（循環）を促します。",
+                  targetValue: "Target: 20 Days (Slow)"
               };
           case 'STAGNATION':
               return {
                   voice: "深刻な機能不全です。動脈硬化のように、流れが完全に止まっています。これは数値の問題ではなく、信頼（Trust）の欠如です。神が動かなければ、人も動きません。",
-                  actionTitle: "神的介入 (Divine Intervention)",
+                  actionTitle: "神の一手 (First Move)",
                   actionDesc: "システムの外から、あなた自身が「最初の依頼」あるいは「最初の贈与」を行い、心臓マッサージを施してください。",
                   targetValue: "Action: Manual Transact"
               };
@@ -105,7 +105,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
           <div>
             <div className="flex items-center gap-2 text-slate-400 mb-2 uppercase tracking-[0.2em] text-[10px] font-sans">
               <Activity size={14} />
-              <span>Sage's Diagnostics</span>
+              <span>管理者の診断 (Sage's Check)</span>
             </div>
             <h2 className="text-3xl font-serif text-slate-900 leading-tight">
                {diagnosis.shortDescription.split('】')[1] || diagnosis.shortDescription}
@@ -133,19 +133,19 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
             {/* Key Metrics Grid */}
             <div className="grid grid-cols-3 gap-4 border-t border-b border-slate-100 py-6">
                 <div className="text-center">
-                    <div className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">Circulation</div>
+                    <div className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">循環率 (Flow)</div>
                     <div className={`font-mono text-xl ${metabolism.rate >= 10 ? 'text-green-600' : 'text-slate-700'}`}>
                         {metabolism.rate}%
                     </div>
                 </div>
                 <div className="text-center border-l border-slate-100">
-                    <div className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">Avg Balance</div>
+                    <div className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">平均残高 (Avg)</div>
                     <div className="font-mono text-xl text-slate-700">
                         {avgBalance.toLocaleString()}
                     </div>
                 </div>
                 <div className="text-center border-l border-slate-100">
-                     <div className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">Entropy</div>
+                     <div className="text-[10px] text-slate-400 uppercase tracking-widest mb-1">崩壊係数 (Entropy)</div>
                      <div className="font-mono text-xl text-red-400">
                         -{metabolism.decay24h.toLocaleString()}
                      </div>
@@ -156,7 +156,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
             <div className="bg-slate-50 p-6 rounded-sm border border-slate-100">
                 <h3 className="text-xs font-bold text-slate-800 uppercase tracking-widest mb-3 flex items-center gap-2">
                     <Zap size={14} className="text-slate-400"/>
-                    Prescription (処方箋)
+                    処方箋 (Prescription)
                 </h3>
                 <div className="flex justify-between items-start gap-4">
                     <div>
@@ -188,8 +188,8 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
 
             {/* Footer */}
             <div className="flex justify-between items-center text-[10px] text-slate-400 uppercase tracking-widest">
-                <span>Existence Ticker v2.0</span>
-                <span>White Vessel Protocol</span>
+                <span>存在通貨 (Existence Ticker)</span>
+                <span>白い器の規約 (White Vessel Protocol)</span>
             </div>
         </div>
       </div>
