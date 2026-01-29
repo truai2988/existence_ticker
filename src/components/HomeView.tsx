@@ -2,6 +2,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Inbox, Megaphone, Heart, ArrowRight, ArrowDown, User } from "lucide-react";
 import { useProfile } from "../hooks/useProfile";
+import { useWallet } from "../hooks/useWallet";
 import { isProfileComplete } from "../utils/profileCompleteness";
 
 interface HomeViewProps {
@@ -18,7 +19,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onOpenProfile,
 }) => {
   const { profile } = useProfile();
+  const { availableLm } = useWallet();
   const isComplete = isProfileComplete(profile);
+  const hasNoSpace = availableLm <= 0;
 
   const handleProtectedAction = (action: () => void) => {
     if (!isComplete) {
@@ -114,27 +117,42 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
           {/* BOTTOM: GIFT (PURE) */}
           <button
-            onClick={onOpenGift}
-            className="group relative flex-1 bg-pink-50/30 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:bg-pink-50/80 transition-all duration-300 border border-pink-100 flex flex-col justify-between text-left overflow-hidden active:scale-[0.98]"
+            onClick={() => !hasNoSpace && onOpenGift()}
+            disabled={hasNoSpace}
+            className={`group relative flex-1 rounded-3xl p-6 shadow-sm transition-all duration-300 flex flex-col justify-between text-left overflow-hidden ${
+              hasNoSpace 
+                ? 'bg-slate-50/50 border-slate-200 cursor-not-allowed opacity-60' 
+                : 'bg-pink-50/30 hover:shadow-xl hover:bg-pink-50/80 border-pink-100 active:scale-[0.98]'
+            } border`}
           >
             <div className="relative z-10 pt-2">
-              <div className="p-2.5 bg-pink-50 w-fit rounded-xl mb-3 group-hover:bg-pink-100 transition-colors">
-                <Heart size={24} className="text-pink-500" />
+              <div className={`p-2.5 w-fit rounded-xl mb-3 transition-colors ${
+                hasNoSpace ? 'bg-slate-100' : 'bg-pink-50 group-hover:bg-pink-100'
+              }`}>
+                <Heart size={24} className={hasNoSpace ? 'text-slate-400' : 'text-pink-500'} />
               </div>
-              <h2 className="text-xl font-bold text-slate-800 mb-0.5 group-hover:text-pink-600 transition-colors">
+              <h2 className={`text-xl font-bold mb-0.5 transition-colors ${
+                hasNoSpace ? 'text-slate-400' : 'text-slate-800 group-hover:text-pink-600'
+              }`}>
                 贈る
               </h2>
               <p className="text-[10px] text-slate-500 font-medium leading-tight">
-                依頼を通さず
-                <br />
-                感謝を届ける
+                {hasNoSpace ? 'ゆとり不足' : (
+                  <>
+                    依頼を通さず
+                    <br />
+                    感謝を届ける
+                  </>
+                )}
               </p>
             </div>
-            <div className="opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">
-              <div className="bg-slate-900 text-white p-2 rounded-full w-fit">
-                <ArrowRight size={16} />
+            {!hasNoSpace && (
+              <div className="opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">
+                <div className="bg-slate-900 text-white p-2 rounded-full w-fit">
+                  <ArrowRight size={16} />
+                </div>
               </div>
-            </div>
+            )}
           </button>
         </div>
       </div>

@@ -12,7 +12,8 @@ export const UNIT_LABEL = "Lm";
 // --- Lunar Cycle Model Constants ---
 export const LUNAR_CONSTANTS = {
   FULL_MOON_BALANCE: 2400, // Max Capacity (The Vessel)
-  CYCLE_DAYS: 10,          // Reset Period (The Cycle)
+  REBIRTH_AMOUNT: 2400,    // Fixed Rebirth Amount (The Grant)
+  CYCLE_DAYS: 10,          // Default Reset Period (The Cycle)
   
   // Rate: 10 Lm per 1 Hour
   // 10 / 3600 = 0.002777...

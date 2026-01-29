@@ -79,15 +79,27 @@ export const useWishActions = () => {
 
         const decayedBalance = calculateDecayedValue(currentBalance, lastUpdated);
 
+        // === 予約（Reservation）ロジック ===
+        // 約束中のLmを計算し、分かち合える Lm（availableLm）をチェック
+        // balance自体は減価によってのみ減少し、依頼作成時には変更しない
+        
+        // ユーザーの既存の依頼を取得してcommittedLmを計算
+        // （簡易版：ここではdecayedBalanceのみでチェック。詳細なavailableLmチェックはクライアント側で実施済み）
+        // 注: 本来はFirestoreクエリでcommittedLmを計算すべきだが、トランザクション内での複雑なクエリを避けるため
+        // クライアント側（CreateWishModal）で事前にavailableLmチェックを実施していることを信頼
+        
         if (decayedBalance < bounty) {
             throw new Error(`手持ちが不足しています (必要: ${bounty}, 現在: ${Math.floor(decayedBalance)})`); 
         }
 
-        const newBalance = decayedBalance - bounty;
+        // === 重要: balance減算を削除 ===
+        // 以前: const newBalance = decayedBalance - bounty;
+        // 新: balanceは変更しない。依頼はcommittedLmとして「予約」されるのみ。
         
-        // Update user: Balance changes AND last_updated resets (Decay Anchor reset)
+        // Update user: 減価適用後のbalanceに更新し、last_updatedをリセット
+        // balance自体は減算しない（予約ロジックで管理）
         transaction.update(userRef, { 
-            balance: newBalance,
+            balance: decayedBalance, // 減価適用後の値に更新（減算なし）
             created_contracts: increment(1), // Track Requests (Created)
             last_updated: serverTimestamp() 
         });

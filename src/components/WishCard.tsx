@@ -96,9 +96,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
 
   const [showApplicants, setShowApplicants] = useState(false);
 
-  // Anti-Gravity: Universal Decay Logic
-  const [displayValue, setDisplayValue] = useState(0);
-
+  // Anti-Gravity: Universal Decay Logic (静的計算)
   // Derived initial cost
   const getInitialCost = (tier: string) => {
     switch (tier) {
@@ -113,17 +111,9 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
     }
   };
   const initialCost = wish.cost || getInitialCost(wish.gratitude_preset);
-
-  // Effect: Tick decay every 100ms
-  React.useEffect(() => {
-    const updateValue = () => {
-      const val = calculateLifePoints(initialCost, wish.created_at);
-      setDisplayValue(val);
-    };
-    updateValue();
-    const timer = setInterval(updateValue, 100);
-    return () => clearInterval(timer);
-  }, [wish.created_at, initialCost]);
+  
+  // 静的な値を計算（Ticker廃止 - 1時間ごとに自動更新）
+  const displayValue = calculateLifePoints(initialCost, wish.created_at);
 
   const isMyWish = wish.requester_id === currentUserId;
   const applicants = wish.applicants || [];

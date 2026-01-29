@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Gift, Heart, Sparkles, User, X } from 'lucide-react';
+import { Gift, Heart, Sparkles, User, X, AlertCircle } from 'lucide-react';
+import { useWallet } from '../hooks/useWallet';
 import { UNIT_LABEL } from '../constants';
 
 interface DonationModalProps {
@@ -50,6 +51,8 @@ const PRESETS: PaymentPreset[] = [
 ];
 
 export const DonationModal: React.FC<DonationModalProps> = ({ targetUserName, onSelectAmount, onCancel }) => {
+  const { availableLm } = useWallet();
+  
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
         {/* Backdrop */}
@@ -75,7 +78,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ targetUserName, on
 
             <div className="w-full">
                 {/* Recipient Info */}
-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl mb-6 border border-slate-100">
+                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl mb-4 border border-slate-100">
                     <div className="p-2 bg-white rounded-full shadow-sm">
                         <User size={16} className="text-slate-500" />
                     </div>
@@ -85,32 +88,66 @@ export const DonationModal: React.FC<DonationModalProps> = ({ targetUserName, on
                     </div>
                 </div>
 
+                {/* Available Info */}
+                <p className="text-xs text-slate-500 mb-2 text-center">
+                    現在分かち合えるのは <span className="font-mono font-bold text-orange-600">{Math.floor(availableLm).toLocaleString()} {UNIT_LABEL}</span> までです
+                </p>
+
+                {/* Warning if any amount exceeds available */}
+                {PRESETS.some(p => p.amount > availableLm) && (
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-xs text-orange-800 leading-relaxed flex items-start gap-2 mb-3">
+                        <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                        <span>器のゆとりを超えた約束はできません</span>
+                    </div>
+                )}
+
                 <div className="grid grid-cols-1 gap-3 mb-4">
-                {PRESETS.map(preset => (
-                    <button
-                        key={preset.id}
-                        onClick={() => onSelectAmount(preset.amount)}
-                        className="relative flex items-center justify-between p-4 rounded-xl border border-slate-200 hover:border-blue-400 hover:shadow-md hover:bg-white bg-white transition-all group active:scale-[0.99]"
-                    >
-                        <div className="flex items-center gap-4">
-                            <div className={`p-3 rounded-full flex items-center justify-center ${preset.bg} ${preset.color}`}>
-                                {preset.icon}
+                {PRESETS.map(preset => {
+                    const exceedsAvailable = preset.amount > availableLm;
+                    
+                    return (
+                        <button
+                            key={preset.id}
+                            onClick={() => !exceedsAvailable && onSelectAmount(preset.amount)}
+                            disabled={exceedsAvailable}
+                            className={`relative flex items-center justify-between p-4 rounded-xl border transition-all group active:scale-[0.99] ${
+                                exceedsAvailable 
+                                    ? 'border-slate-100 bg-slate-50 opacity-50 cursor-not-allowed' 
+                                    : 'border-slate-200 hover:border-blue-400 hover:shadow-md hover:bg-white bg-white'
+                            }`}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className={`p-3 rounded-full flex items-center justify-center ${preset.bg} ${preset.color}`}>
+                                    {preset.icon}
+                                </div>
+                                <div className="text-left flex flex-col">
+                                    <span className={`text-sm font-bold transition-colors ${
+                                        exceedsAvailable ? 'text-slate-400' : 'text-slate-800 group-hover:text-blue-600'
+                                    }`}>
+                                        {preset.label}
+                                    </span>
+                                    <span className="text-[10px] text-slate-500">
+                                        {preset.subLabel}
+                                    </span>
+                                </div>
                             </div>
-                            <div className="text-left flex flex-col">
-                                <span className="text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
-                                    {preset.label}
-                                </span>
-                                <span className="text-[10px] text-slate-500">
-                                    {preset.subLabel}
-                                </span>
-                            </div>
-                        </div>
-                        <span className="font-mono font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
-                            {preset.amount} <span className="text-[10px] font-sans text-slate-400">{UNIT_LABEL}</span>
-                        </span>
-                    </button>
-                ))}
+                            <span className={`font-mono font-bold transition-colors ${
+                                exceedsAvailable ? 'text-slate-300' : 'text-slate-900 group-hover:text-blue-600'
+                            }`}>
+                                {preset.amount} <span className="text-[10px] font-sans text-slate-400">{UNIT_LABEL}</span>
+                            </span>
+                        </button>
+                    );
+                })}
                 </div>
+
+                {/* Warning if any amount exceeds available */}
+                {PRESETS.some(p => p.amount > availableLm) && (
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-xs text-orange-800 leading-relaxed flex items-start gap-2 mb-3">
+                        <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                        <span>すでに約束している分があるため、一部の金額は選択できません</span>
+                    </div>
+                )}
                 
                 <p className="text-center text-[10px] text-slate-400">
                     選択すると即座に送金されます

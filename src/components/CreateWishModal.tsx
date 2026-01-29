@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { X, Loader2, Send } from 'lucide-react';
 import { useWishActions } from '../hooks/useWishActions';
 import { useProfile } from '../hooks/useProfile';
+import { useWallet } from '../hooks/useWallet';
 import { GratitudeTier } from '../types';
 import { WISH_COST, UNIT_LABEL } from '../constants';
 
@@ -40,13 +41,18 @@ interface CreateWishModalProps {
 
 export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => {
     const { name } = useProfile();
+    const { availableLm } = useWallet();
     const { castWish, isSubmitting } = useWishActions();
     
     const [newWishContent, setNewWishContent] = useState('');
     const [selectedTier, setSelectedTier] = useState<GratitudeTier>('light');
 
+    const selectedTierCost = TIERS.find(t => t.id === selectedTier)?.cost || 0;
+    const exceedsAvailable = selectedTierCost > availableLm;
+
     const handlePostWish = async () => {
         if (!newWishContent.trim()) return;
+        if (exceedsAvailable) return; // Double-check
 
         const result = await castWish({
             content: newWishContent,
@@ -111,6 +117,18 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                        </span>
                    </div>
                     
+                   {/* Available Info */}
+                   <p className="text-xs text-slate-500 mb-2">
+                       現在分かち合えるのは <span className="font-mono font-bold text-orange-600">{Math.floor(availableLm).toLocaleString()} {UNIT_LABEL}</span> までです
+                   </p>
+
+                   {/* Warning if exceeds */}
+                   {exceedsAvailable && (
+                       <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-xs text-orange-800 leading-relaxed">
+                           器のゆとりを超えた約束はできません
+                       </div>
+                   )}
+                    
                    <div className="grid grid-cols-1 gap-3">
                        {TIERS.map((tier) => (
                            <button
@@ -153,7 +171,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
             <div className="absolute bottom-0 left-0 right-0 p-6 bg-white border-t border-slate-100 z-20">
                 <button 
                     onClick={handlePostWish}
-                    disabled={!newWishContent.trim() || isSubmitting}
+                    disabled={!newWishContent.trim() || isSubmitting || exceedsAvailable}
                     className="w-full py-4 rounded-full bg-slate-900 text-white font-bold text-base shadow-lg hover:bg-slate-800 hover:shadow-xl active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                     {isSubmitting ? (

@@ -25,7 +25,6 @@ const PWALogic = () => {
 
 function App() {
   const { user, loading: authLoading } = useAuth();
-  const { balance } = useWallet(); 
   
   const [viewMode, setViewMode] = useState<AppViewMode>('home');
   
@@ -54,6 +53,10 @@ function App() {
       setViewMode('home');
   };
 
+  const handleOpenWishHub = () => {
+      setViewMode('give'); // RadianceView = 自分のお願い画面
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-800">
@@ -72,7 +75,7 @@ function App() {
     <div className="bg-slate-50 min-h-screen font-sans selection:bg-yellow-500/30 overflow-hidden flex flex-col relative text-slate-900">
       
       {/* HEADER (Always visible except maybe Admin?) */}
-      <Header balance={balance} lastUpdated={null} /> 
+      <Header onOpenWishHub={handleOpenWishHub} /> 
 
       {/* MAIN CONTENT */}
       <main className="flex-1 relative overflow-y-auto no-scrollbar scroll-smooth pb-24 flex flex-col">

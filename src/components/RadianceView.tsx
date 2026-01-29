@@ -31,7 +31,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
     );
     // 2. Outbound Contracts (My In-Progress Requests)
     const myOutboundWishes = wishes.filter(w => 
-        w.requester_id === currentUserId && w.status !== 'open'
+        w.requester_id === currentUserId && w.status === 'in_progress'
     );
 
     const renderModals = () => {
@@ -90,7 +90,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                                 activeTab === 'outbound' ? 'bg-white text-amber-700 shadow-sm ring-1 ring-amber-100' : 'text-slate-400 hover:text-amber-600 hover:bg-white/50'
                             }`}
                         >
-                            <span>手伝ってもらい中</span>
+                            <span>進行中</span>
                             <span className="text-[10px] font-mono opacity-80 bg-amber-100/50 px-2 py-0.5 rounded-full text-amber-800">{myOutboundWishes.length}</span>
                         </button>
                     </div>

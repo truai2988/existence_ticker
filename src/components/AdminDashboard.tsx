@@ -9,8 +9,8 @@ interface AdminDashboardProps {
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
-  const { stats, error, updateCapacity } = useStats();
-  const [sliderValue, setSliderValue] = useState(2400);
+  const { stats, error } = useStats(); // updateCapacity removed
+  const [cycleDays, setCycleDays] = useState(10);
   const [showManual, setShowManual] = useState(false);
   const [showDiagnosisModal, setShowDiagnosisModal] = useState(false);
   
@@ -21,10 +21,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   };
 
 
-  // Sync slider with stats when loaded
+  // Load Cycle Config from Firestore directly
   React.useEffect(() => {
-    if (stats) setSliderValue(stats.sunCapacity);
-  }, [stats]);
+    const fetchConfig = async () => {
+        try {
+            const { db } = await import("../lib/firebase");
+            const { doc, getDoc } = await import("firebase/firestore");
+            if (!db) return;
+            
+            const settingsRef = doc(db, "system_settings", "global");
+            const snap = await getDoc(settingsRef);
+            if (snap.exists() && snap.data().cycleDays) {
+                setCycleDays(snap.data().cycleDays);
+            }
+        } catch (e) {
+            console.error("Failed to fetch cycle config", e);
+        }
+    };
+    fetchConfig();
+  }, []);
 
   const diagnostics = useDiagnostics(stats);
 
@@ -402,41 +417,53 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               )}
           </div>
 
-          {/* SECTION D: SUN CONTROL */}
+          {/* SECTION D: TIME CONTROL (Previously Sun Control) */}
           <div ref={supplySectionRef} className="p-6 rounded-2xl border border-yellow-900/30 bg-yellow-900/5 md:col-span-2 lg:col-span-1 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-10 text-yellow-500">
               <Sun size={80} />
             </div>
             <h2 className="text-xs font-mono text-yellow-600 uppercase tracking-widest mb-4">
-              供給設定 (SUPPLY CONTROL)
+              時空調整 (TIME CONTROL)
             </h2>
 
             <div className="mb-8 text-center">
               <div className="text-xs text-yellow-600/70 mb-2">
-                次回給付額 (Next Supply)
-                <div className="text-[10px]">次回のサイクル供給量</div>
+                再生サイクル期間 (Cycle Duration)
+                <div className="text-[10px]">次回リセットまでの日数</div>
               </div>
               <div className="text-5xl font-bold text-yellow-500 font-mono tracking-tighter">
-                {sliderValue.toLocaleString()}{" "}
-                <span className="text-lg">Lm</span>
+                {cycleDays}{" "}
+                <span className="text-lg">Days</span>
+              </div>
+              <div className="mt-2 text-sm font-bold">
+                 {cycleDays < 10 && <span className="text-green-500">Spring (豊穣 - 循環加速)</span>}
+                 {cycleDays === 10 && <span className="text-yellow-500">Equinox (調和 - 標準)</span>}
+                 {cycleDays > 10 && <span className="text-slate-400">Winter (試練 - 選別)</span>}
               </div>
             </div>
 
-            <input
-              type="range"
-              min="1000"
-              max="4000"
-              step="100"
-              value={sliderValue}
-              onChange={(e) => setSliderValue(Number(e.target.value))}
-              className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-yellow-500 mb-6"
-            />
+            <div className="relative mb-6">
+                <input
+                  type="range"
+                  min="5"
+                  max="20"
+                  step="1"
+                  value={cycleDays}
+                  onChange={(e) => setCycleDays(Number(e.target.value))}
+                  className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-yellow-500"
+                />
+                <div className="flex justify-between text-[10px] text-slate-500 font-mono mt-2">
+                    <span>5 Days (Fast)</span>
+                    <span>10 Days (Std)</span>
+                    <span>20 Days (Slow)</span>
+                </div>
+            </div>
 
             <button
               onClick={async () => {
                 if (
                   window.confirm(
-                    `PUBLISH NEW LAW: Solar Capacity = ${sliderValue.toLocaleString()} Lm.\n\nThis will take effect for each soul upon their next rebirth.\nAre you sure?`,
+                    `PUBLISH NEW LAW: Cycle Duration = ${cycleDays} Days.\n\nChanges will apply to users upon their NEXT rebirth calculation.\n\nShorter cycle = More frequent 2400 Lm grants.\nLonger cycle = Scarcity.\n\nAre you sure?`,
                   )
                 ) {
                   try {
@@ -447,21 +474,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
                     if (!db) throw new Error("Database not initialized");
 
-                    // Just update the Law (Configuration)
+                    // Update Global Config (cycleDays)
                     const settingsRef = doc(db, "system_settings", "global");
                     await setDoc(
                       settingsRef,
                       {
-                        capacity: sliderValue,
+                        cycleDays: cycleDays,
                         updated_at: serverTimestamp(),
                       },
                       { merge: true },
                     );
 
                     alert(
-                      `Success: Solar Capacity updated to ${sliderValue} Lm.\nThe world will gradually adjust to this new constant.`,
+                      `Success: Time Law updated to ${cycleDays} Days.\nThe world rhythm will shift.`,
                     );
-                    updateCapacity(sliderValue);
+                    // No need to update local stats derived state immediately, handled by next reload or logic
                   } catch (e: unknown) {
                     console.error(e);
                     alert(`Failed to Publish Law: ${e}`);
@@ -470,10 +497,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               }}
               className="w-full py-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 hover:border-yellow-500/50 text-yellow-500 font-bold uppercase tracking-widest text-xs transition-colors"
             >
-              PUBLISH NEW LAW (Update Config)
+              PUBLISH NEW LAW (Update Cycle)
             </button>
             <p className="text-center text-[10px] text-slate-500 mt-2">
-              New capacity will apply to souls upon their next rebirth.
+              Fixed Rebirth Amount: <span className="text-slate-300">2,400 Lm</span> (Immutable)
             </p>
           </div>
         </div>
