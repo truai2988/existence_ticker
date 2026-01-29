@@ -34,11 +34,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-center p-6 pt-32 max-w-md mx-auto w-full h-full relative">
+    <div className="flex-1 flex flex-col justify-center items-center w-full min-h-full p-4 pt-6 pb-12 relative">
       
       {/* Onboarding Banner */}
       {!isComplete && (
-        <div className="absolute top-4 inset-x-6 z-20 bg-white border border-slate-100 shadow-xl shadow-slate-200/50 rounded-2xl p-4 flex items-center justify-between animate-fade-in-down">
+        <div className="absolute top-4 left-4 right-4 md:max-w-xl md:mx-auto z-20 bg-white border border-slate-100 shadow-xl shadow-slate-200/50 rounded-2xl p-4 flex items-center justify-between animate-fade-in-down">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-slate-50 rounded-full text-slate-400 border border-slate-100">
               <User size={18} />
@@ -58,104 +58,97 @@ export const HomeView: React.FC<HomeViewProps> = ({
       )}
 
       {/* === CENTER VISUALIZATION: ENERGY FLOW === */}
-      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 -z-10 flex flex-col items-center justify-center opacity-10 pointer-events-none">
+      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 -z-10 flex flex-col items-center justify-center opacity-5 pointer-events-none">
         <motion.div
           animate={{ y: [0, 20, 0], opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
           className="flex flex-col items-center gap-4"
         >
-          <ArrowDown size={120} className="text-slate-900" />
+          <ArrowDown size={160} className="text-slate-900" />
         </motion.div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 w-full h-[55vh] min-h-[400px] max-h-[600px]">
-        {/* === LEFT COLUMN: HELP (INFLOW) === */}
+      {/* === MAIN ACTION GRID === */}
+      <div className="w-full max-w-lg grid grid-cols-2 gap-4 auto-rows-fr px-4">
+        
+        {/* 1. HELP (INFLOW) */}
         <button
           onClick={() => handleProtectedAction(onOpenFlow)}
-          className="group relative h-full bg-blue-50/30 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:bg-blue-50/80 transition-all duration-300 border border-blue-100 flex flex-col justify-between text-left overflow-hidden active:scale-[0.98]"
+          className="col-span-2 group relative bg-white/60 backdrop-blur-sm rounded-3xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:bg-white transition-all duration-300 border border-slate-100 flex flex-col items-center text-center gap-4 overflow-hidden active:scale-[0.98]"
         >
-          <div className="relative z-10 pt-4">
-            <div className="p-3 bg-blue-50 w-fit rounded-2xl mb-4 group-hover:bg-blue-100 transition-colors">
-              <Inbox size={28} className="text-blue-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-slate-800 mb-1 group-hover:text-blue-700 transition-colors">
+          <div className="shrink-0 p-4 bg-blue-50/80 rounded-2xl group-hover:bg-blue-100/80 group-hover:scale-110 transition-all duration-300">
+            <Inbox size={28} className="text-blue-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-bold text-slate-800 mb-1 group-hover:text-blue-700 transition-colors">
               手伝う
             </h2>
-            <p className="text-xs text-slate-500 font-medium">誰かの役に立つ</p>
+            <p className="text-xs text-slate-500 font-medium leading-relaxed">
+              誰かの願いを叶える
+            </p>
           </div>
-          <div className="opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">
-            <div className="bg-slate-900 text-white p-2 rounded-full w-fit">
-              <ArrowRight size={16} />
-            </div>
+          
+          <div className="hidden absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+             <ArrowRight size={20} className="text-blue-400" />
           </div>
         </button>
 
-        {/* === RIGHT COLUMN: OUTFLOW (REQUEST & GIFT) === */}
-        <div className="flex flex-col gap-4 h-full">
-          {/* TOP: REQUEST (CONTRACT) */}
-          <button
-            onClick={() => handleProtectedAction(onOpenRequest)}
-            className="group relative flex-1 bg-amber-50/30 rounded-3xl p-6 shadow-sm hover:shadow-xl hover:bg-amber-50/80 transition-all duration-300 border border-amber-100 flex flex-col justify-between text-left overflow-hidden active:scale-[0.98]"
-          >
-            <div className="relative z-10 pt-2">
-              <div className="p-2.5 bg-amber-50 w-fit rounded-xl mb-3 group-hover:bg-amber-100 transition-colors">
-                <Megaphone size={24} className="text-amber-500" />
-              </div>
-              <h2 className="text-xl font-bold text-slate-800 mb-0.5 group-hover:text-amber-600 transition-colors">
-                頼む
-              </h2>
-              <p className="text-[10px] text-slate-500 font-medium">
-                願いを託す
-              </p>
-            </div>
-            <div className="opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">
-              <div className="bg-slate-900 text-white p-2 rounded-full w-fit">
-                <ArrowRight size={16} />
-              </div>
-            </div>
-          </button>
+        {/* 2. REQUEST (OUTFLOW) */}
+        <button
+          onClick={() => handleProtectedAction(onOpenRequest)}
+          className="col-span-1 group relative bg-white/60 backdrop-blur-sm rounded-3xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:bg-white transition-all duration-300 border border-slate-100 flex flex-col items-center text-center gap-4 overflow-hidden active:scale-[0.98]"
+        >
+          <div className="shrink-0 p-4 bg-amber-50/80 rounded-2xl group-hover:bg-amber-100/80 group-hover:scale-110 transition-all duration-300">
+            <Megaphone size={28} className="text-amber-500" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg font-bold text-slate-800 mb-1 group-hover:text-amber-600 transition-colors">
+              頼む
+            </h2>
+            <p className="text-xs text-slate-500 font-medium leading-relaxed">
+              願いを託す
+            </p>
+          </div>
 
-          {/* BOTTOM: GIFT (PURE) */}
-          <button
-            onClick={() => !hasNoSpace && onOpenGift()}
-            disabled={hasNoSpace}
-            className={`group relative flex-1 rounded-3xl p-6 shadow-sm transition-all duration-300 flex flex-col justify-between text-left overflow-hidden ${
-              hasNoSpace 
-                ? 'bg-slate-50/50 border-slate-200 cursor-not-allowed opacity-60' 
-                : 'bg-pink-50/30 hover:shadow-xl hover:bg-pink-50/80 border-pink-100 active:scale-[0.98]'
-            } border`}
-          >
-            <div className="relative z-10 pt-2">
-              <div className={`p-2.5 w-fit rounded-xl mb-3 transition-colors ${
-                hasNoSpace ? 'bg-slate-100' : 'bg-pink-50 group-hover:bg-pink-100'
-              }`}>
-                <Heart size={24} className={hasNoSpace ? 'text-slate-400' : 'text-pink-500'} />
-              </div>
-              <h2 className={`text-xl font-bold mb-0.5 transition-colors ${
-                hasNoSpace ? 'text-slate-400' : 'text-slate-800 group-hover:text-pink-600'
-              }`}>
-                贈る
-              </h2>
-              <p className="text-[10px] text-slate-500 font-medium leading-tight">
-                {hasNoSpace ? 'ゆとり不足' : (
-                  <>
-                    依頼を通さず
-                    <br />
-                    感謝を届ける
-                  </>
-                )}
-              </p>
-            </div>
-            {!hasNoSpace && (
-              <div className="opacity-0 group-hover:opacity-100 transition-all transform translate-y-4 group-hover:translate-y-0">
-                <div className="bg-slate-900 text-white p-2 rounded-full w-fit">
-                  <ArrowRight size={16} />
-                </div>
-              </div>
-            )}
-          </button>
-        </div>
+          <div className="hidden absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+             <ArrowRight size={20} className="text-amber-400" />
+          </div>
+        </button>
+
+        {/* 3. GIFT (PURE) */}
+        <button
+          onClick={() => !hasNoSpace && onOpenGift()}
+          disabled={hasNoSpace}
+          className={`col-span-1 group relative rounded-3xl p-6 shadow-sm transition-all duration-300 border flex flex-col items-center text-center gap-4 overflow-hidden active:scale-[0.98] ${
+             hasNoSpace 
+               ? 'bg-slate-50/50 border-slate-200 cursor-not-allowed opacity-60' 
+               : 'bg-white/60 backdrop-blur-sm border-slate-100 hover:shadow-xl hover:-translate-y-1 hover:bg-white'
+          }`}
+        >
+          <div className={`shrink-0 p-4 rounded-2xl transition-all duration-300 group-hover:scale-110 ${
+             hasNoSpace ? 'bg-slate-100' : 'bg-pink-50/80 group-hover:bg-pink-100/80'
+          }`}>
+            <Heart size={28} className={hasNoSpace ? 'text-slate-400' : 'text-pink-500'} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h2 className={`text-lg font-bold mb-1 transition-colors ${
+                 hasNoSpace ? 'text-slate-400' : 'text-slate-800 group-hover:text-pink-600'
+            }`}>
+              贈る
+            </h2>
+             <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                {hasNoSpace ? 'ゆとり不足' : '感謝を届ける'}
+            </p>
+          </div>
+
+          {!hasNoSpace && (
+             <div className="hidden absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+                <ArrowRight size={20} className="text-pink-400" />
+             </div>
+          )}
+        </button>
       </div>
+
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Search, CheckCircle, ClipboardList } from 'lucide-react';
+import { X, CheckCircle, ClipboardList } from 'lucide-react';
 import { useWishes } from '../hooks/useWishes';
 
 import { WishCardList } from './WishCardList';
@@ -31,45 +31,18 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
     return (
     <div className="fixed inset-0 z-[60] bg-slate-50 flex flex-col animate-fade-in">
         {/* Header */}
-        <div className="p-4 border-b border-slate-200 shrink-0 bg-white shadow-sm z-10">
+        {/* Compact Header */}
+        <div className="pt-4 px-4 bg-white/80 backdrop-blur-md border-b border-slate-200 shrink-0 z-10">
             <div className="flex justify-between items-center mb-4">
                 <div>
-                     <h2 className="text-xl font-bold font-sans text-slate-900">みんなの願い (募集一覧)</h2>
-                     <p className="text-xs text-slate-500 font-mono tracking-widest uppercase">The Marketplace</p>
+                     <h2 className="text-lg font-bold font-sans text-slate-900">みんなの願い (募集一覧)</h2>
+                     <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">The Marketplace</p>
                 </div>
-                <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                    <X className="text-slate-500" />
-                </button>
-            </div>
-
-            {/* Tabs & Filters */}
-            <div className="space-y-3">
-                <div className="flex bg-slate-100 p-1 rounded-lg">
-                    <button
-                        onClick={() => setActiveTab('search')}
-                        className={`flex-1 py-2.5 text-xs font-bold rounded-md transition-all flex items-center justify-center gap-2 ${
-                            activeTab === 'search' ? 'bg-white text-blue-600 shadow-sm ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700'
-                        }`}
-                    >
-                        <Search size={14} />
-                        手伝いを探す
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('inbound')}
-                        className={`flex-1 py-2.5 text-xs font-bold rounded-md transition-all flex items-center justify-center gap-2 ${
-                            activeTab === 'inbound' ? 'bg-white text-green-600 shadow-sm ring-1 ring-black/5' : 'text-slate-500 hover:text-slate-700'
-                        }`}
-                    >
-                        <CheckCircle size={14} />
-                        引き受け中
-                    </button>
-                </div>
-                
-                {/* Filter Toggle (Only for Search Tab) */}
-                {activeTab === 'search' && (
-                    <div className="flex items-center justify-end px-1">
-                        <label className="flex items-center gap-2 text-xs font-medium text-slate-500 cursor-pointer select-none">
-                            <span>自分の募集を表示しない</span>
+                <div className="flex items-center gap-4">
+                    {/* Toggle Switch (Only for Search Tab) */}
+                    {activeTab === 'search' && (
+                        <label className="flex items-center gap-2 cursor-pointer select-none group">
+                            <span className="text-[10px] font-bold text-slate-400 group-hover:text-slate-600 transition-colors">自募集を隠す</span>
                             <div className="relative inline-flex items-center cursor-pointer">
                                 <input 
                                     type="checkbox" 
@@ -77,11 +50,40 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
                                     checked={hideMyWishes}
                                     onChange={(e) => setHideMyWishes(e.target.checked)}
                                 />
-                                <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-500"></div>
+                                <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-blue-500"></div>
                             </div>
                         </label>
-                    </div>
-                )}
+                    )}
+                    
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                        <X size={20} className="text-slate-400" />
+                    </button>
+                </div>
+            </div>
+
+            {/* Simple Tabs */}
+            <div className="flex gap-8">
+                <button
+                    onClick={() => setActiveTab('search')}
+                    className={`pb-3 text-xs font-bold transition-all relative ${
+                        activeTab === 'search' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'
+                    }`}
+                >
+                    手伝いを探す
+                    {activeTab === 'search' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500 rounded-t-full" />}
+                </button>
+                <button
+                    onClick={() => setActiveTab('inbound')}
+                    className={`pb-3 text-xs font-bold transition-all relative ${
+                        activeTab === 'inbound' ? 'text-green-600' : 'text-slate-400 hover:text-slate-600'
+                    }`}
+                >
+                    引き受け中
+                    <span className="ml-2 bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full text-[10px] tabular-nums">
+                        {myJobs.length}
+                    </span>
+                    {activeTab === 'inbound' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-green-500 rounded-t-full" />}
+                </button>
             </div>
         </div>
 

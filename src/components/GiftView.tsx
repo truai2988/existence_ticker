@@ -24,27 +24,30 @@ export const GiftView: React.FC<GiftViewProps> = ({ onClose }) => {
     };
 
     return (
-        <div className="flex-1 flex flex-col pt-24 pb-safe min-h-full bg-slate-50 animate-fade-in">
-            <div className="px-6 py-4 shrink-0 flex justify-between items-center">
-                <div>
-                     <h2 className="text-xl font-bold font-sans text-slate-900 flex items-center gap-2">
-                        <Heart className="text-pink-500 fill-pink-50" />
-                        直接贈る
-                     </h2>
-                     <p className="text-xs text-slate-500 font-mono tracking-widest uppercase">Pure Gift</p>
+        <div className="fixed inset-0 z-[60] bg-slate-50 flex flex-col animate-fade-in">
+            {/* Header */}
+            <div className="pt-4 px-4 bg-white/80 backdrop-blur-md border-b border-slate-200 shrink-0 z-10">
+                <div className="flex justify-between items-center mb-4">
+                    <div>
+                         <h2 className="text-lg font-bold font-sans text-slate-900 flex items-center gap-2">
+                            <Heart className="text-pink-500 fill-pink-50 w-5 h-5" />
+                            直接贈る
+                         </h2>
+                         <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">Pure Gift</p>
+                    </div>
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                        <X size={20} className="text-slate-400" />
+                    </button>
                 </div>
-                <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                    <X className="text-slate-500" />
-                </button>
             </div>
 
-            <div className="flex-1 flex flex-col items-center justify-center p-6 gap-8">
-                <div className="text-center space-y-2 max-w-xs">
-                    <h3 className="text-lg font-bold text-slate-700">感謝を届ける</h3>
+            <div className="flex-1 flex flex-col items-center pt-20 p-6 gap-8 overflow-y-auto">
+                <div className="text-center space-y-4 max-w-xs bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                    <h3 className="text-lg font-bold text-slate-800">感謝を届ける</h3>
                     <p className="text-sm text-slate-500 leading-relaxed">
                         依頼を通さず、あなたのLmを<br/>
                         そのまま相手に贈ります。<br/>
-                        見返りを求めない、純粋なエネルギーの散逸です。
+                        <span className="text-xs mt-2 block text-slate-400">見返りを求めない、純粋なエネルギーの散逸です。</span>
                     </p>
                 </div>
 

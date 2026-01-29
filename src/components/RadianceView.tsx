@@ -47,54 +47,53 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
 
     return (
         <div className="fixed inset-0 z-[60] bg-slate-50/95 backdrop-blur-md animate-fade-in flex flex-col pt-safe">
-            {/* Header */}
-            <div className="p-4 shrink-0 bg-white/50 border-b border-slate-100">
+            {/* Compact Header */}
+            <div className="pt-4 px-4 bg-white/80 backdrop-blur-md border-b border-slate-200 shrink-0">
                 <div className="flex justify-between items-center mb-4">
                     <div>
-                         <h2 className="text-xl font-bold font-sans text-slate-900">自分のお願い</h2>
-                         <p className="text-xs text-slate-500 font-mono tracking-widest uppercase">My Wishes Hub</p>
+                         <h2 className="text-lg font-bold font-sans text-slate-900">自分のお願い</h2>
+                         <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">My Wishes Hub</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                        <X className="text-slate-500" />
-                    </button>
-                </div>
-
-                {/* UNIFIED CONTAINER: The "Wish Box" */}
-                <div className="bg-amber-50/50 rounded-3xl border border-amber-100/50 p-1 shadow-sm overflow-hidden relative">
-                    
-                    {/* 1. Main Action Button (Top) */}
-                    <div className="p-4 pb-2">
+                    <div className="flex gap-3">
                         <button 
                             onClick={() => setModalState('create_wish')}
-                            className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-400 flex items-center justify-center gap-3 text-white shadow-lg shadow-orange-200 hover:shadow-orange-300 transition-all active:scale-[0.98]"
+                            className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-full text-xs font-bold hover:bg-amber-600 transition-all shadow-sm active:scale-95"
                         >
-                            <Megaphone className="text-white" size={24} />
-                            <span className="text-lg font-bold tracking-wide">新しいお願いを伝える</span>
+                            <Megaphone size={14} className="fill-white/20" />
+                            <span>新規作成</span>
+                        </button>
+                        <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                            <X size={20} className="text-slate-400" />
                         </button>
                     </div>
+                </div>
 
-                    {/* 2. Status Tabs (Bottom - Connected) */}
-                    <div className="flex gap-1 p-1 bg-white/40 rounded-b-2xl mx-1 mb-1">
-                        <button
-                            onClick={() => setActiveTab('active')}
-                            className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all flex flex-col items-center gap-1 ${
-                                activeTab === 'active' ? 'bg-white text-amber-700 shadow-sm ring-1 ring-amber-100' : 'text-slate-400 hover:text-amber-600 hover:bg-white/50'
-                            }`}
-                        >
-                            <span>募集中のお願い</span>
-                            <span className="text-[10px] font-mono opacity-80 bg-amber-100/50 px-2 py-0.5 rounded-full text-amber-800">{myActiveWishes.length}</span>
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('outbound')}
-                            className={`flex-1 py-3 text-xs font-bold rounded-xl transition-all flex flex-col items-center gap-1 ${
-                                activeTab === 'outbound' ? 'bg-white text-amber-700 shadow-sm ring-1 ring-amber-100' : 'text-slate-400 hover:text-amber-600 hover:bg-white/50'
-                            }`}
-                        >
-                            <span>進行中</span>
-                            <span className="text-[10px] font-mono opacity-80 bg-amber-100/50 px-2 py-0.5 rounded-full text-amber-800">{myOutboundWishes.length}</span>
-                        </button>
-                    </div>
-
+                {/* Simple Tabs */}
+                <div className="flex gap-8">
+                    <button
+                        onClick={() => setActiveTab('active')}
+                        className={`pb-3 text-xs font-bold transition-all relative ${
+                            activeTab === 'active' ? 'text-amber-600' : 'text-slate-400 hover:text-slate-600'
+                        }`}
+                    >
+                        募集中
+                        <span className="ml-2 bg-amber-100/50 text-amber-700 px-1.5 py-0.5 rounded-full text-[10px] tabular-nums">
+                            {myActiveWishes.length}
+                        </span>
+                        {activeTab === 'active' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500 rounded-t-full" />}
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('outbound')}
+                        className={`pb-3 text-xs font-bold transition-all relative ${
+                            activeTab === 'outbound' ? 'text-amber-600' : 'text-slate-400 hover:text-slate-600'
+                        }`}
+                    >
+                        進行中
+                        <span className="ml-2 bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full text-[10px] tabular-nums">
+                            {myOutboundWishes.length}
+                        </span>
+                        {activeTab === 'outbound' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500 rounded-t-full" />}
+                    </button>
                 </div>
             </div>
 
