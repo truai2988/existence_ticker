@@ -339,15 +339,16 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
             </span>
           )}
           {wish.status === 'open' && (
-            <span className="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
-              募集中 (Open)
-            </span>
-          )}
-          {wish.status === 'open' && displayValue === 0 && (
-              <span className="flex items-center gap-1 text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full border border-red-100 whitespace-nowrap shrink-0 mt-2 md:mt-0 md:ml-2">
+             displayValue === 0 ? (
+              <span className="flex items-center gap-1 text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full border border-red-100 whitespace-nowrap shrink-0">
                   <AlertTriangle size={12} />
                   自然死 (Expired)
               </span>
+             ) : (
+                <span className="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
+                  募集中 (Open)
+                </span>
+             )
           )}
         </div>
 
