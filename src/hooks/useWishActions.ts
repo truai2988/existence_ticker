@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { CreateWishInput } from '../types';
 import { useAuth } from './useAuthHook';
 import { db } from '../lib/firebase';
-import { collection, doc, runTransaction, serverTimestamp, Timestamp, increment, updateDoc } from 'firebase/firestore';
+import { collection, doc, runTransaction, serverTimestamp, Timestamp, increment, updateDoc, deleteField } from 'firebase/firestore';
 
 import { SURVIVAL_CONSTANTS } from '../constants';
 
@@ -213,17 +213,84 @@ export const useWishActions = () => {
       setIsSubmitting(true);
       try {
           const wishRef = doc(db, 'wishes', wishId);
-          // 削除（取り下げ）: ステータスを cancelled にするだけ
-          // useWallet の committedLm 計算は 'open' | 'in_progress' のみを集計するため
-          // ステータスを変えるだけで即座に availableLm が回復する
-          await updateDoc(wishRef, {
-              status: 'cancelled',
-              cancelled_at: serverTimestamp()
+          await runTransaction(db, async (transaction) => {
+              const wishDoc = await transaction.get(wishRef);
+              if (!wishDoc.exists()) throw "Wish does not exist";
+              const wishData = wishDoc.data();
+
+              if (wishData.status === 'in_progress') {
+                  // === 補償キャンセル (Compensation Logic) ===
+                  // 1. Calculate decayed value (Compensation Amount)
+                  const calculateValue = (initial: number, ts: Timestamp) => {
+                      const now = Date.now();
+                      const created = ts.toMillis();
+                      const elapsed = (now - created) / 1000;
+                      const decay = elapsed * SURVIVAL_CONSTANTS.DECAY_PER_SEC;
+                      return Math.max(0, initial - decay);
+                  };
+                  const currentCost = calculateValue(wishData.cost || 0, wishData.created_at);
+
+                  // 2. Transfer from Requester to Helper
+                  const requesterRef = doc(db!, 'users', user.uid);
+                  const helperRef = doc(db!, 'users', wishData.helper_id);
+
+                  // Requester Balance Update (Payment)
+                  const requesterDoc = await transaction.get(requesterRef);
+                  const requesterBalance = requesterDoc.data()?.balance || 0;
+                  // Note: decay is already applied functionally, but we simply subtract the specific amount here
+                  // The "reservation" (committedLm) is virtual, so we must subtract from real balance.
+                  transaction.update(requesterRef, {
+                      balance: requesterBalance - currentCost,
+                      last_updated: serverTimestamp()
+                  });
+
+                  // Helper Balance Update (Compensation Receive)
+                  // Use increment to be safe against concurrent updates? Or read-update.
+                  // Since we didn't read helper, use increment.
+                  transaction.update(helperRef, {
+                      balance: increment(currentCost),
+                      last_updated: serverTimestamp()
+                  });
+
+                  // 3. Update Wish Status
+                  transaction.update(wishRef, {
+                      status: 'cancelled',
+                      cancel_reason: 'compensatory_cancellation',
+                      cancelled_at: serverTimestamp()
+                  });
+
+              } else {
+                  // === 通常キャンセル (Open Status) ===
+                  transaction.update(wishRef, {
+                      status: 'cancelled',
+                      cancelled_at: serverTimestamp()
+                  });
+              }
           });
           return true;
       } catch (e) {
           console.error("Failed to cancel wish:", e);
-          alert("取り下げに失敗しました");
+          alert("キャンセル処理に失敗しました");
+          return false;
+      } finally {
+          setIsSubmitting(false);
+      }
+  };
+
+  const resignWish = async (wishId: string): Promise<boolean> => {
+      if (!db || !user) return false;
+      setIsSubmitting(true);
+      try {
+          const wishRef = doc(db, 'wishes', wishId);
+          // 辞退: Openに戻し、Helperを削除
+          await updateDoc(wishRef, {
+              status: 'open',
+              helper_id: deleteField(),
+              accepted_at: deleteField()
+          });
+          return true;
+      } catch (e) {
+          console.error("Failed to resign wish:", e);
           return false;
       } finally {
           setIsSubmitting(false);
@@ -413,6 +480,7 @@ export const useWishActions = () => {
     reportCompletion,
     acceptWish, // Expose for UI compatibility
     cancelWish,
+    resignWish,
     updateWish,
     isSubmitting
   };

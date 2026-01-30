@@ -87,7 +87,7 @@ interface WishCardProps {
 }
 
 export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenProfile }) => {
-  const { applyForWish, approveWish, fulfillWish, reportCompletion, cancelWish, updateWish } =
+  const { applyForWish, approveWish, fulfillWish, reportCompletion, cancelWish, updateWish, resignWish } =
     useWishActions();
   const { openUserProfile } = useUserView();
   const { profile: requesterProfile } = useOtherProfile(wish.requester_id);
@@ -152,7 +152,22 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
   };
 
   const handleCancel = async () => {
-      if (!confirm("依頼を取り下げますか？\n予約されていたLmは手元に戻ります。")) return;
+      // Helper (Resignation)
+      if (!isMyWish && wish.helper_id === currentUserId) {
+          if (!confirm("辞退しますか？\n依頼は再び「募集中」に戻ります。")) return;
+          setIsLoading(true);
+          await resignWish(wish.id);
+          setIsLoading(false);
+          return;
+      }
+
+      // Requester (Withdrawal / Compensation Cancel)
+      if (wish.status === 'open') {
+          if (!confirm("依頼を取り下げますか？\n予約されていたLmは手元に戻ります。")) return;
+      } else if (wish.status === 'in_progress') {
+          if (!confirm(`協力者に現在の価値（約${Math.floor(displayValue)} Lm）を支払ってキャンセルしますか？\n※この操作は取り消せません。`)) return;
+      }
+
       setIsLoading(true);
       await cancelWish(wish.id);
       setIsLoading(false);
@@ -258,6 +273,17 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                             <Trash2 size={14} />
                         </button>
                     </>
+                )}
+                {/* In Progress Cancel (Compensation) */}
+                {wish.status === 'in_progress' && (
+                     <button 
+                        onClick={handleCancel}
+                        disabled={isLoading}
+                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                        title="強制キャンセル (補償払い)"
+                    >
+                        <AlertTriangle size={14} />
+                    </button>
                 )}
                 <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-1 rounded-full border border-slate-200 whitespace-nowrap">
                     あなたのお願い
@@ -527,6 +553,18 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                     <span>完了を報告する</span>
                   </button>
                 )}
+
+              {/* Helper Resignation */}
+              {wish.status === "in_progress" &&
+                wish.helper_id === currentUserId && (
+                  <button
+                    onClick={handleCancel}
+                    disabled={isLoading}
+                    className="flex items-center gap-2 px-4 py-2.5 text-slate-400 hover:text-red-500 text-xs font-bold transition-all"
+                  >
+                    <span>辞退する</span>
+                  </button>
+              )}
 
               {wish.status === "review_pending" &&
                 wish.helper_id === currentUserId && (
