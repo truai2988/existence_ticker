@@ -3,24 +3,70 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // User Profiles
-    match /users/{userId} {
-      // Anyone can read profiles (to see balance/existence)
-      allow read: if true;
-      
-      // Only the user themselves can update their own profile
-      // OR an Admin (God) can update anyone's profile (for World Cycle)
-      // For MVP/Demo: We allow any authenticated user to update their own AND others (God Mode loophole for testing)
-      // TODO: In Production, strictly check request.auth.uid == ADMIN_UID for writing to others.
-      allow write: if request.auth != null; 
+    // --- Helper Functions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
     }
 
-    // Wishes (Contracts)
+    // --- Users Collection ---
+    match /users/{userId} {
+      allow read: if true;
+      
+      // Strict Ownership: Only the user can write to their own profile
+      // Physical Law: Balance cannot be negative (Vessel Integrity)
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isOwner(userId) 
+                    && request.resource.data.balance >= 0; 
+      
+      // History Subcollection (for logs)
+      match /history/{historyId} {
+        allow read: if isOwner(userId);
+        allow write: if isOwner(userId);
+      }
+    }
+
+    // --- Wishes Collection ---
     match /wishes/{wishId} {
       allow read: if true;
-      allow create: if request.auth != null;
-      // Fulfill logic updates wishes
-      allow update: if request.auth != null; 
+      
+      // Creation: Must be signed in, and requester_id must match auth
+      allow create: if isSignedIn() 
+                    && request.resource.data.requester_id == request.auth.uid;
+      
+      // Update logic is complex (Applicant, Helper, Owner), so for now we restrict to signed in users
+      // but strictly validate that key immutable fields (requester_id) don't change
+      allow update: if isSignedIn() 
+                    && request.resource.data.requester_id == resource.data.requester_id;
+                    
+      // Only Owner can delete
+      allow delete: if isSignedIn() && resource.data.requester_id == request.auth.uid;
+    }
+    
+    function isAdmin() {
+      // TODO: Replace 'REPLACE_WITH_YOUR_ADMIN_UID' with the actual Admin UID from Authentication
+      return request.auth.uid == 'REPLACE_WITH_YOUR_ADMIN_UID';
+    }
+
+    // --- System Settings (Global Config) ---
+    match /system_settings/{docId} {
+       allow read: if true;
+       // Strict Admin Check
+       allow write: if isAdmin(); 
+    }
+    
+    // --- Transactions & Stats ---
+    match /transactions/{txId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn(); // Users create records of their transfers
+    }
+    
+    match /daily_stats/{day} {
+      allow read: if true;
+      allow write: if isSignedIn(); // Users update stats efficiently via increments
     }
   }
 }

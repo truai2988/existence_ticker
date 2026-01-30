@@ -82,7 +82,7 @@ function App() {
     <div className="bg-slate-50 min-h-screen font-sans selection:bg-yellow-500/30 overflow-hidden flex flex-col relative text-slate-900">
       
       {/* HEADER (Always visible except maybe Admin?) */}
-      <Header onOpenWishHub={handleOpenWishHub} /> 
+      <Header onOpenWishHub={handleOpenWishHub} viewMode={viewMode} /> 
 
       {/* MAIN CONTENT */}
       <main className="flex-1 relative overflow-y-auto no-scrollbar scroll-smooth pb-24 flex flex-col">

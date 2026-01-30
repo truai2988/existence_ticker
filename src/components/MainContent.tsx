@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion, AnimatePresence } from "framer-motion";
 import { HomeView } from './HomeView';
 import { ProfileView } from './ProfileView';
 import { JournalView } from './JournalView';
@@ -6,8 +7,8 @@ import { AdminDashboard } from './AdminDashboard';
 import { RadianceView } from './RadianceView';
 import { FlowView } from './FlowView';
 import { GiftView } from './GiftView';
+import { SeasonalRevelation } from './SeasonalRevelation';
 import { AppViewMode } from '../types';
-import { useProfile } from '../hooks/useProfile';
 
 interface MainContentProps {
     viewMode: AppViewMode;
@@ -17,73 +18,80 @@ interface MainContentProps {
 }
 
 export const MainContent: React.FC<MainContentProps> = ({ viewMode, setViewMode, currentUserId, onGoHome }) => {
-    const { profile } = useProfile();
-    const showHeader = viewMode !== 'profile' && viewMode !== 'profile_edit';
+    
+    // Helper to wrap content in motion div for soft transitions
+    const withTransition = (component: React.ReactNode, key: string) => (
+        <motion.div
+            key={key}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeInOut" }}
+            className="w-full h-full"
+        >
+            {component}
+        </motion.div>
+    );
 
     const renderContent = () => {
         switch (viewMode) {
             case 'home':
-                return (
+                return withTransition(
                     <HomeView 
                         onOpenFlow={() => setViewMode('flow')} 
                         onOpenRequest={() => setViewMode('give')}
                         onOpenGift={() => setViewMode('gift')}
                         onOpenProfileEdit={() => setViewMode('profile_edit')}
-                    />
+                    />,
+                    'home'
                 );
             case 'profile':
-                return (
+                return withTransition(
                     <ProfileView 
                         onClose={onGoHome} 
                         onOpenAdmin={() => setViewMode('admin')} 
-                    />
+                    />,
+                    'profile'
                 );
             case 'profile_edit':
-                return (
+                return withTransition(
                     <ProfileView 
                         onClose={onGoHome} 
                         onOpenAdmin={() => setViewMode('admin')} 
                         initialEditMode={true}
-                    />
+                    />,
+                    'profile_edit'
                 );
             case 'history':
-                return <JournalView onClose={onGoHome} />;
+                return withTransition(<JournalView onClose={onGoHome} />, 'history');
             case 'flow':
-                return (
+                return withTransition(
                     <FlowView 
                         onClose={onGoHome} 
                         currentUserId={currentUserId} 
                         onOpenProfile={() => setViewMode('profile_edit')}
-                    />
+                    />,
+                    'flow'
                 );
             case 'give':
-                 return <RadianceView onClose={onGoHome} currentUserId={currentUserId} />;
+                 return withTransition(<RadianceView onClose={onGoHome} currentUserId={currentUserId} />, 'give');
             case 'gift':
-                 return <GiftView onClose={onGoHome} />;
+                 return withTransition(<GiftView onClose={onGoHome} />, 'gift');
             case 'admin':
-                 return <AdminDashboard onClose={onGoHome} />;
+                 return withTransition(<AdminDashboard onClose={onGoHome} />, 'admin');
             default:
                 return null;
         }
     };
 
     return (
-        <>
-            {showHeader && profile && (
-                <div className="fixed inset-0 z-50 pointer-events-none flex justify-center items-start">
-                    <div className="w-full max-w-md relative px-4">
-                        <div className="absolute top-20 left-4 pointer-events-auto">
-                            <p className="text-[10px] font-bold text-slate-400 tracking-wider uppercase leading-none mb-1">
-                                Logged in as
-                            </p>
-                            <p className="text-sm font-black text-slate-700 leading-none tracking-tight">
-                                {profile.name || "Anonymous"}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )}
-            {renderContent()}
-        </>
+        <div className="flex flex-col w-full min-h-full">
+            <SeasonalRevelation />
+            <div className="flex-1 w-full relative">
+                <AnimatePresence mode="wait">
+                    {renderContent()}
+                </AnimatePresence>
+            </div>
+        </div>
     );
 };

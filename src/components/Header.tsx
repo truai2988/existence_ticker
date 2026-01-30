@@ -1,83 +1,152 @@
 import React from 'react';
-import { ExternalLink } from 'lucide-react';
-import { UNIT_LABEL, LUNAR_CONSTANTS } from '../constants';
-
+import { ExternalLink, Sparkles, Wallet } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { UNIT_LABEL } from '../constants';
+import { WORLD_CONSTANTS } from '../logic/worldPhysics';
+import { UserSubBar } from './UserSubBar';
 import { useWallet } from '../hooks/useWallet';
+import { useProfile } from '../hooks/useProfile';
+import { AppViewMode } from '../types';
 
 interface HeaderProps {
     onOpenWishHub?: () => void;
+    viewMode?: AppViewMode;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenWishHub }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenWishHub, viewMode }) => {
     const { balance, availableLm, committedLm } = useWallet();
+    const { profile } = useProfile();
     
-    // useWallet から返される値は既に減価適用済み
     const displayValue = balance;
     const displayAvailable = availableLm;
     const displayCommitted = committedLm;
 
     const isFullyCommitted = displayAvailable <= 0;
     
-    // プログレスバーの割合計算（手持ち全体に対する比率）
-    const availablePercent = Math.min(100, (displayAvailable / LUNAR_CONSTANTS.FULL_MOON_BALANCE) * 100);
-    const committedPercent = Math.min(100, (displayCommitted / LUNAR_CONSTANTS.FULL_MOON_BALANCE) * 100);
+    // Percentages
+    const availablePercent = Math.min(100, (displayAvailable / WORLD_CONSTANTS.REBIRTH_AMOUNT) * 100);
+    const committedPercent = Math.min(100, (displayCommitted / WORLD_CONSTANTS.REBIRTH_AMOUNT) * 100);
+
+    const shouldShowUserName = viewMode !== 'profile' && viewMode !== 'profile_edit';
+
+    // Seasonal Logic
+    const cycleDays = profile?.scheduled_cycle_days || 10;
+    // Handle Timestamp or other formats safely
+    const cycleStartedAt = profile?.cycle_started_at?.toMillis 
+        ? profile.cycle_started_at.toMillis() 
+        : (profile?.created_at?.toMillis ? profile.created_at.toMillis() : Date.now());
+    
+    const nextReset = cycleStartedAt + (cycleDays * 24 * 60 * 60 * 1000);
+    const daysLeft = Math.max(0, Math.ceil((nextReset - Date.now()) / (1000 * 60 * 60 * 24)));
+
+    let seasonLabel = "通常 (秋)";
+    let seasonColor = "text-yellow-600";
+    if (cycleDays < 10) { seasonLabel = "春 (循環)"; seasonColor = "text-green-600"; }
+    if (cycleDays > 10) { seasonLabel = "冬 (停滞)"; seasonColor = "text-slate-500"; }
 
     return (
-        <header className="w-full bg-white/90 backdrop-blur-md pt-safe z-40 px-6 py-4 flex flex-col items-center justify-center border-b border-slate-100/50 shadow-sm">
-             <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1">
-                 分かち合える Lm
-             </span>
-             
-             {/* Main Display: Available Lm */}
-             <div className="flex items-baseline gap-1">
-                 <span className={`text-3xl font-mono font-bold tracking-tighter tabular-nums ${
-                     isFullyCommitted ? 'text-orange-500' : 'text-slate-900'
-                 }`}>
-                     {Math.floor(displayAvailable).toLocaleString()}
-                 </span>
-                 <span className={`text-sm font-bold ml-1 ${
-                     isFullyCommitted ? 'text-orange-400' : 'text-slate-500'
-                 }`}>
-                     {UNIT_LABEL}
-                 </span>
-                 {isFullyCommitted && (
-                     <span className="text-xs text-orange-500 ml-2">
-                         （すべて約束済み）
-                     </span>
-                 )}
-             </div>
-             
-             {/* Capacity Gauge - 2-layer visualization */}
-             <div className="w-full max-w-[140px] h-2 bg-slate-100 rounded-full mt-2 overflow-hidden relative">
-                 {/* Layer 1: Committed (薄い色 - 約束中) */}
-                 <div 
-                    className="absolute inset-0 h-full bg-gradient-to-r from-yellow-200 to-yellow-300 transition-all duration-700 ease-out"
-                    style={{ 
-                        width: `${Math.min(100, availablePercent + committedPercent)}%` 
-                    }} 
-                 />
-                 {/* Layer 2: Available (濃い色 - 使える分) */}
-                 <div 
-                    className="absolute inset-0 h-full bg-gradient-to-r from-yellow-400 to-yellow-500 transition-all duration-700 ease-out shadow-[0_0_8px_rgba(234,179,8,0.4)]"
-                    style={{ 
-                        width: `${availablePercent}%` 
-                    }} 
-                 />
-             </div>
+        <>
+            <header className="relative w-full pt-safe z-40">
+                {/* Background with higher blur for premium feel */}
+                <div className="absolute inset-0 bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-sm" />
 
-             {/* Sub Display + Link */}
-             <div className="text-[10px] text-slate-400 mt-2 font-mono flex items-center gap-2">
-                 <span>手持ち: <span className="font-bold text-slate-500">{Math.floor(displayValue).toLocaleString()} {UNIT_LABEL}</span></span>
-                 {isFullyCommitted && onOpenWishHub && (
-                     <button 
-                         onClick={onOpenWishHub}
-                         className="flex items-center gap-1 text-orange-500 hover:text-orange-600 hover:underline transition-colors"
-                     >
-                         <ExternalLink className="w-3 h-3" />
-                         <span>約束を見直す</span>
-                     </button>
-                 )}
-             </div>
-        </header>
+                <div className="relative w-full max-w-md mx-auto px-6 h-[90px] flex items-center justify-between">
+                    
+                    {/* Left: Available (Primary) */}
+                    <div className="flex flex-col justify-center">
+                        <div className="flex items-center gap-1.5 text-slate-500 mb-0.5">
+                            <Sparkles size={12} className={isFullyCommitted ? "text-slate-300" : "text-amber-400 fill-amber-400"} />
+                            <span className="text-[10px] font-bold tracking-widest uppercase opacity-80">
+                                使える LM
+                            </span>
+                        </div>
+                        <div className="flex items-baseline gap-1.5">
+                            <motion.span 
+                                key={Math.floor(displayAvailable)}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className={`text-4xl font-sans font-extrabold tracking-tighter tabular-nums ${
+                                    isFullyCommitted ? 'text-slate-300' : 'text-slate-800'
+                                }`}
+                            >
+                                {Math.floor(displayAvailable).toLocaleString()}
+                            </motion.span>
+                            <span className={`text-xs font-bold ${isFullyCommitted ? 'text-slate-300' : 'text-slate-400'}`}>
+                                {UNIT_LABEL}
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Season Indicator (Center-Right) */}
+                    <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center opacity-60 pointer-events-none">
+                        <span className={`text-[10px] font-mono font-bold uppercase tracking-widest ${seasonColor}`}>
+                            {seasonLabel}
+                        </span>
+                        <span className="text-[9px] text-slate-400">
+                            リセットまで {daysLeft} 日
+                        </span>
+                    </div>
+
+
+
+                    {/* Right: Total & Gauge (Secondary) */}
+                    <div className="flex flex-col items-end gap-1.5 min-w-[120px]">
+                        
+                        {/* Total Label */}
+                        <div className="flex items-center gap-1.5 text-slate-400">
+                            <Wallet size={10} strokeWidth={2.5} />
+                            <div className="text-[10px] font-bold tracking-wider tabular-nums">
+                                手持ち: <span className="text-slate-600 font-bold">{Math.floor(displayValue).toLocaleString()}</span>
+                            </div>
+                        </div>
+
+                        {/* Modern Rounded Gauge */}
+                        <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden relative shadow-inner">
+                            {/* Base track */}
+                            <div className="absolute inset-0 bg-slate-100" />
+                            
+                            {/* Layer 1: Committed (Total Used + Available) - Visualized as lighter/background color */}
+                            <motion.div 
+                                className="absolute inset-0 h-full bg-gradient-to-r from-amber-200 to-amber-300 rounded-full"
+                                initial={{ width: 0 }}
+                                animate={{ width: `${Math.min(100, availablePercent + committedPercent)}%` }}
+                                transition={{ duration: 1, ease: "easeOut" }}
+                            />
+
+                            {/* Layer 2: Available (Foreground) - Visualized as deeper/active color */}
+                            <motion.div 
+                                className="absolute inset-0 h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full shadow-[0_0_8px_rgba(251,191,36,0.4)]"
+                                initial={{ width: 0 }}
+                                animate={{ width: `${availablePercent}%` }}
+                                transition={{ duration: 1, ease: "easeOut", delay: 0.1 }}
+                            />
+                            
+                            {/* Active Shine Effect */}
+                            <div className="absolute inset-0 h-full w-full bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+                        </div>
+
+                        {/* Status / Link */}
+                        <div className="h-4 flex items-center justify-end">
+                            {isFullyCommitted && onOpenWishHub ? (
+                                <button 
+                                    onClick={onOpenWishHub}
+                                    className="flex items-center gap-1 text-[10px] font-bold text-orange-500 hover:text-orange-600 transition-colors bg-orange-50 px-2 py-0.5 rounded-full"
+                                >
+                                    <span>Lmを補充する</span>
+                                    <ExternalLink size={10} />
+                                </button>
+                            ) : (
+                                <span className="text-[9px] text-slate-300 font-mono">
+                                    {Math.round(availablePercent)}%
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            {/* User Name Sub Bar */}
+            {shouldShowUserName && <UserSubBar />}
+        </>
     );
 };

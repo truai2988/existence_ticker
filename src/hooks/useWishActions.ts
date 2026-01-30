@@ -1,17 +1,13 @@
 import { useState } from 'react';
-import { CreateWishInput } from '../types';
+import { CreateWishInput, UserProfile } from '../types';
 import { useAuth } from './useAuthHook';
 import { db } from '../lib/firebase';
-import { collection, doc, runTransaction, serverTimestamp, Timestamp, increment, updateDoc, deleteField } from 'firebase/firestore';
+import { collection, doc, runTransaction, serverTimestamp, Timestamp, increment, updateDoc, deleteField, query, where, getDocs } from 'firebase/firestore';
 
-import { SURVIVAL_CONSTANTS } from '../constants';
+import { calculateDecayedValue } from '../logic/worldPhysics';
 
 // タイムスタンプと初期値から現在価値を計算
-export const calculatePresentValue = (initialValue: number, createdAtMillis: number): number => {
-  const ageSeconds = (Date.now() - createdAtMillis) / 1000;
-  const decay = ageSeconds * SURVIVAL_CONSTANTS.DECAY_PER_SEC;
-  return Math.max(0, Math.floor(initialValue - decay));
-};
+
 
 
 export const useWishActions = () => {
@@ -45,57 +41,35 @@ export const useWishActions = () => {
         
         const data = userDoc.data();
         const currentBalance = data.balance || 0;
-
         const lastUpdated = data.last_updated;
-        const myTrustScore = data.completed_contracts || 0; // Current help count
-        const myRequestHistory = data.completed_requests || 0; // Current paid/fulfilled count
 
         // 2. Strict Check (Phase 1: No Void/Negative)
-        // Calculate dynamic balance first
-        const calculateDecayedValue = (initial: number, ts: unknown) => {
-             // Inline or import? Since we are inside a function, importing effectively is better, 
-             // but I can't add import easily with replace_file_content if I only target this block.
-             // I will duplicate logic or rely on a separate import step?
-             // Actually, I can add the import at the top in a separate call or just trust I can't do it here easily.
-             // Wait, I can use the existing `calculatePresentValue` helper available in the file? 
-             // No, that uses DECAY_RATE_PER_SEC. 
-             // Let's just inline the decay logic for safety inside the transaction wrapper as I did in useWallet.
-             // Logic: Max(0, initial - elapsedSeconds)
-             if (!ts) return initial;
-             
-             // Better: Firestore timestamp toMillis? 
-             // Let's use the helper logic:
-             let millis = Date.now();
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-             const t = ts as any; // Temporary cast to access properties safely without complex type guards here
-             if (t && typeof t.toMillis === 'function') millis = t.toMillis();
-             else if (t && typeof t.seconds === 'number') millis = t.seconds * 1000;
-             else if (t instanceof Date) millis = t.getTime();
-             
-             const elapsed = (Date.now() - millis) / 1000;
-             const decay = elapsed * SURVIVAL_CONSTANTS.DECAY_PER_SEC;
-             return Math.max(0, currentBalance - decay);
-        };
-
         const decayedBalance = calculateDecayedValue(currentBalance, lastUpdated);
 
-        // === 予約（Reservation）ロジック ===
-        // 約束中のLmを計算し、分かち合える Lm（availableLm）をチェック
-        // balance自体は減価によってのみ減少し、依頼作成時には変更しない
+        // === 厳密な予約チェック (Strict Constraint) ===
+        // トランザクション内で現在のアクティブな依頼を全て取得し、committedLmを計算する
+        // これにより、クライアント側の計算ミスや悪意あるリクエストによる「約束超過」を完全に防ぐ
+        const wishesRef = collection(db!, 'wishes');
+        const activeWishesQuery = query(
+            wishesRef,
+            where('requester_id', '==', user.uid),
+            where('status', 'in', ['open', 'in_progress'])
+        );
+        // Transactional Read (via getDocs)
+        const activeWishesSnapshot = await getDocs(activeWishesQuery);
         
-        // ユーザーの既存の依頼を取得してcommittedLmを計算
-        // （簡易版：ここではdecayedBalanceのみでチェック。詳細なavailableLmチェックはクライアント側で実施済み）
-        // 注: 本来はFirestoreクエリでcommittedLmを計算すべきだが、トランザクション内での複雑なクエリを避けるため
-        // クライアント側（CreateWishModal）で事前にavailableLmチェックを実施していることを信頼
+        let currentCommittedLm = 0;
+        activeWishesSnapshot.forEach(doc => {
+            const w = doc.data();
+            currentCommittedLm += calculateDecayedValue(w.cost || 0, w.created_at);
+        });
+
+        const availableLm = decayedBalance - currentCommittedLm;
         
-        if (decayedBalance < bounty) {
-            throw new Error(`手持ちが不足しています (必要: ${bounty}, 現在: ${Math.floor(decayedBalance)})`); 
+        if (availableLm < bounty) {
+            throw new Error(`手持ちが不足しています (Available: ${Math.floor(availableLm)}, Required: ${bounty}) - 約束中の光を考慮済み`); 
         }
 
-        // === 重要: balance減算を削除 ===
-        // 以前: const newBalance = decayedBalance - bounty;
-        // 新: balanceは変更しない。依頼はcommittedLmとして「予約」されるのみ。
-        
         // Update user: 減価適用後のbalanceに更新し、last_updatedをリセット
         // balance自体は減算しない（予約ロジックで管理）
         transaction.update(userRef, { 
@@ -113,8 +87,8 @@ export const useWishActions = () => {
             status: 'open',
             cost: bounty, // Initial Value
 
-            requester_trust_score: myTrustScore, // Stamp Trust (Helped Count)
-            requester_completed_requests: myRequestHistory, // Stamp Reliability (Paid/Completed Requests)
+            requester_trust_score: data.completed_contracts || 0, // Stamp Trust (Helped Count)
+            requester_completed_requests: data.completed_requests || 0, // Stamp Reliability (Paid/Completed Requests)
             created_at: serverTimestamp() // Firestore Timestamp
         });
       });
@@ -218,64 +192,73 @@ export const useWishActions = () => {
               if (!wishDoc.exists()) throw "Wish does not exist";
               const wishData = wishDoc.data();
 
-              if (wishData.status === 'in_progress') {
-                  // === 補償キャンセル (Compensation Logic) ===
-                  // 1. Calculate decayed value (Compensation Amount)
-                  const calculateValue = (initial: number, ts: Timestamp) => {
-                      const now = Date.now();
-                      const created = ts.toMillis();
-                      const elapsed = (now - created) / 1000;
-                      const decay = elapsed * SURVIVAL_CONSTANTS.DECAY_PER_SEC;
-                      return Math.max(0, initial - decay);
-                  };
-                  const currentCost = calculateValue(wishData.cost || 0, wishData.created_at);
+                if (wishData.status === 'in_progress') {
+					// === 補償キャンセル (Compensation Logic) ===
+					// 1. Calculate decayed value (Compensation Amount)
+					const currentValue = calculateDecayedValue(wishData.cost || 0, wishData.created_at);
 
-                  // 2. Transfer from Requester to Helper
-                  const requesterRef = doc(db!, 'users', user.uid);
-                  const helperRef = doc(db!, 'users', wishData.helper_id);
+					// 2. Transfer from Requester to Helper
+					const requesterRef = doc(db!, 'users', user.uid);
+					const helperRef = doc(db!, 'users', wishData.helper_id);
 
-                  // Requester Balance Update (Payment)
-                  const requesterDoc = await transaction.get(requesterRef);
-                  const requesterBalance = requesterDoc.data()?.balance || 0;
-                  // Note: decay is already applied functionally, but we simply subtract the specific amount here
-                  // The "reservation" (committedLm) is virtual, so we must subtract from real balance.
-                  transaction.update(requesterRef, {
-                      balance: requesterBalance - currentCost,
-                      last_updated: serverTimestamp()
-                  });
+					// Requester Balance Update (Payment)
+					const requesterDoc = await transaction.get(requesterRef);
+					const requesterBalance = requesterDoc.data()?.balance || 0;
+					
+					// Requester Penalty (Impurity / 穢れ)
+					transaction.update(requesterRef, {
+						balance: requesterBalance - currentValue,
+						consecutive_completions: 0, // Reset Streak
+						has_cancellation_history: true, // Mark of Impurity (Crack)
+						last_updated: serverTimestamp()
+					});
 
-                  // Helper Balance Update (Compensation Receive)
-                  // Use increment to be safe against concurrent updates? Or read-update.
-                  // Since we didn't read helper, use increment.
-                  transaction.update(helperRef, {
-                      balance: increment(currentCost),
-                      last_updated: serverTimestamp()
-                  });
+					// Helper Balance Update (Compensation Receive)
+					transaction.update(helperRef, {
+						balance: increment(currentValue),
+						last_updated: serverTimestamp()
+					});
+                    
+                    // Log for Helper
+					const helperLogRef = doc(collection(db!, 'users', wishData.helper_id, 'history'));
+					transaction.set(helperLogRef, {
+						type: 'compensation_received',
+						amount: currentValue,
+						related_wish_id: wishId,
+						reason: 'request_cancelled_by_owner',
+						timestamp: serverTimestamp()
+					});
 
-                  // 3. Update Wish Status
-                  transaction.update(wishRef, {
-                      status: 'cancelled',
-                      cancel_reason: 'compensatory_cancellation',
-                      cancelled_at: serverTimestamp()
-                  });
+					// 3. Update Wish Status
+					transaction.update(wishRef, {
+						status: 'cancelled',
+						cancel_reason: 'compensatory_cancellation',
+						cancelled_at: serverTimestamp()
+					});
 
-              } else {
-                  // === 通常キャンセル (Open Status) ===
-                  transaction.update(wishRef, {
-                      status: 'cancelled',
-                      cancelled_at: serverTimestamp()
-                  });
-              }
-          });
-          return true;
-      } catch (e) {
-          console.error("Failed to cancel wish:", e);
-          alert("キャンセル処理に失敗しました");
-          return false;
-      } finally {
-          setIsSubmitting(false);
-      }
-  };
+				} else {
+					// === 通常キャンセル (Open Status) ===
+                    const requesterRef = doc(db!, 'users', user.uid);
+					transaction.update(requesterRef, {
+						last_updated: serverTimestamp()
+					});
+					
+					transaction.update(wishRef, {
+						status: 'cancelled',
+						cancelled_at: serverTimestamp()
+					});
+				}
+			});
+
+			return true;
+		} catch (error) {
+			console.error("Cancel failed:", error);
+			alert("キャンセルに失敗しました");
+			return false;
+		} finally {
+			setIsSubmitting(false);
+		}
+	};
 
   const resignWish = async (wishId: string): Promise<boolean> => {
       if (!db || !user) return false;
@@ -322,26 +305,12 @@ export const useWishActions = () => {
     if (!db) return false;
     setIsSubmitting(true);
 
-    // db is guaranteed defined here due to check above, but TS might need help if it narrows oddly?
-    // Actually the error is at line ~110 inside runTransaction? No, the line was 110.
-    // The previous error was on `const issuerRef = doc(db, ...)` inside try block.
-    // Ensure db is captured or re-checked.
     const database = db; 
     
     const wishRef = doc(database, 'wishes', wishId);
     const fulfillerRef = doc(database, 'users', fulfillerId);
 
     try {
-      // Import decay logic inside or helper
-      // Note: We need the utility but using clean logic here
-      const calculateValue = (initial: number, ts: Timestamp) => {
-          const now = Date.now();
-          const created = ts.toMillis();
-          const elapsed = (now - created) / 1000;
-          const decay = elapsed * SURVIVAL_CONSTANTS.DECAY_PER_SEC;
-          return Math.max(0, initial - decay);
-      };
-
       await runTransaction(db, async (transaction) => {
         const wishDoc = await transaction.get(wishRef);
         if (!wishDoc.exists()) throw "Wish does not exist";
@@ -353,26 +322,23 @@ export const useWishActions = () => {
 
         // Issuer Ref
         const issuerRef = doc(database, 'users', wishData.requester_id);
-        const issuerDoc = await transaction.get(issuerRef); // Need to check balance for salvation
+        const issuerDoc = await transaction.get(issuerRef);
 
         // === Anti-Gravity Logic ===
 
         // 1. Calculate Decayed Value (Universal Decay)
         const createdAt = wishData.created_at as Timestamp;
-        const actualValue = calculateValue(wishData.cost || 0, createdAt);
+        const actualValue = calculateDecayedValue(wishData.cost || 0, createdAt);
 
         if (actualValue <= 0) {
-           // Value is dust. Still fulfillable? Yes, but reward is 0.
-           // User prompt doesn't forbid 0 value fulfillment, just says "Paid with decayed value"
+           // Value is dust.
         }
 
         // 2. Reward Fulfiller
         const fulfillerDoc = await transaction.get(fulfillerRef);
         if (fulfillerDoc.exists()) {
-            // Fetch Dynamic Cap (Solar Control)
             let cap = 2400; 
             try {
-                // Read from same transaction context
                 const settingsRef = doc(database, 'system_settings', 'stats');
                 const settingsDoc = await transaction.get(settingsRef);
                  if (settingsDoc.exists()) {
@@ -385,7 +351,6 @@ export const useWishActions = () => {
 
             const fBalance = fulfillerDoc.data().balance || 0;
             const rawNewBalance = fBalance + actualValue;
-            // The Vessel Cap: Dynamic
             const cappedBalance = Math.min(rawNewBalance, cap);
 
             transaction.update(fulfillerRef, { 
@@ -396,21 +361,22 @@ export const useWishActions = () => {
 
         }
 
-        // 3. Salvation for Issuer (Physics C)
-        // 願いが叶った瞬間、Issuerはマイナスから解放される（0になる）
+        // 3. Salvation for Issuer (Physics C) & Purification (禊)
         if (issuerDoc.exists()) {
             const iBalance = issuerDoc.data().balance || 0;
-            if (iBalance < 0) {
-                 transaction.update(issuerRef, { 
-                     balance: 0,
-                     completed_requests: increment(1), // Increment 'Properly Paid' count
-                     last_updated: serverTimestamp() // Anchor Reset at Salvation
-                 });
-            } else {
-                 transaction.update(issuerRef, {
-                     completed_requests: increment(1) // Increment 'Properly Paid' count even if not negative
-                 });
-            }
+            const iData = issuerDoc.data() as UserProfile;
+             
+            // Purification Logic: Increment Streak
+            const newStreak = (iData.consecutive_completions || 0) + 1;
+            
+            const updateData = {
+                completed_requests: increment(1), // Properly Paid Count
+                consecutive_completions: newStreak, // Increment Streak
+                last_updated: serverTimestamp(),
+                ...(iBalance < 0 ? { balance: 0 } : {})
+            };
+
+            transaction.update(issuerRef, updateData);
         }
 
         // 4. Mark Wish Fulfilled
@@ -430,18 +396,21 @@ export const useWishActions = () => {
         transaction.set(txRef, {
             amount: actualValue,
             timestamp: serverTimestamp(),
-            type: txType,
+            created_at: serverTimestamp(), // Unify timestamp naming
+            type: 'WISH_FULFILLMENT', // More explicit than SPARK/BONFIRE for history
+            sub_type: txType, // Keep SPARK/BONFIRE as sub-type for visual flair if needed
             wish_id: wishId,
-            from_id: wishData.requester_id,
-            to_id: fulfillerId
+            wish_title: wishData.content,
+            sender_id: wishData.requester_id,
+            sender_name: wishData.requester_name || 'Anonymous',
+            recipient_id: fulfillerId,
+            recipient_name: (fulfillerDoc.data()?.name) || 'Anonymous' 
         });
 
-        // 6. Incremental Counter for Scalability (Daily Stats)
-        // ID: YYYY-MM-DD
+        // 6. Incremental Counter for Scalability
         const today = new Date().toISOString().split('T')[0];
         const dailyStatsRef = doc(database, 'daily_stats', today);
         
-        // Use set with merge to create if not exists, and atomic increment
         transaction.set(dailyStatsRef, {
             volume: increment(actualValue),
             updated_at: serverTimestamp()
@@ -460,14 +429,8 @@ export const useWishActions = () => {
     }
   };
   
-  // Wrapper for backward compatibility or if "accept" means "fulfill" in this new world
+  // Wrapper for backward compatibility
   const acceptWish = async (wishId: string) => {
-      // In the new logic, "accepting" immediately fulfills it for simplicity, 
-      // OR we can keep two steps. The user prompt implies "Fulfill" is the key action.
-      // But usually "Accept" -> "Work" -> "Fulfill".
-      // For now, let's map Accept button to Fulfill logic if that matches the prompt's intent.
-      // "誰かが願いを叶えた（Fulfill）時、以下のトランザクションを一瞬で行います"
-      // -> So let's assume the "Accept" button on the UI now triggers this instantaneous fulfillment for this demo.
       if (!user) return false;
       return fulfillWish(wishId, user.uid);
   };
@@ -478,7 +441,7 @@ export const useWishActions = () => {
     applyForWish,
     approveWish,
     reportCompletion,
-    acceptWish, // Expose for UI compatibility
+    acceptWish, 
     cancelWish,
     resignWish,
     updateWish,

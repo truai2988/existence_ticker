@@ -4,6 +4,7 @@ import { useStats, MetabolismStatus } from "../hooks/useStats";
 import { useDiagnostics } from "../hooks/useDiagnostics";
 import { DiagnosticModal } from "./DiagnosticModal";
 import { db } from "../lib/firebase";
+import { AnomalyScanner } from "./AnomalyScanner";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -179,7 +180,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                       Souls Reborn Today
                     </span>
                     <span className="text-[10px] text-slate-500">
-                      本日の魂の再生数
+                      本日の再生数 (Rebirths)
                     </span>
                   </div>
                 </div>
@@ -517,6 +518,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               生命贈与額 (Fixed): <span className="text-slate-300">2,400 Lm</span> (不変の理)
             </p>
           </div>
+
+          {/* SECTION E: ANOMALY SCANNER (New) */}
+          <div className="p-6 rounded-2xl border border-red-900/30 bg-red-900/5 md:col-span-2 relative">
+             <div className="absolute top-0 right-0 p-4 opacity-10 text-red-500">
+               <AlertTriangle size={80} />
+             </div>
+             <h2 className="text-xs font-mono text-red-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+               <Activity size={14} />
+               異常検知 (Anomaly Scanner)
+             </h2>
+             
+             <div className="flex flex-col gap-4">
+               <p className="text-sm text-slate-400">
+                 ユーザーの状態をスキャンし、物理法則（負の残高など）に違反している個体を検出します。
+               </p>
+               
+               <AnomalyScanner />
+             </div>
+          </div>
         </div>
       </div>
 
@@ -783,8 +803,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                 <td className="px-6 py-4 font-bold text-slate-900">STAGNATION<br/><span className="text-xs font-normal text-slate-500">Rate &lt; 5% (Critical)</span></td>
                                 <td className="px-6 py-4">文化の欠如 / 初期段階</td>
                                 <td className="px-6 py-4">
-                                    <span className="block font-bold text-red-600">ACTION: 神の一手 (First Move)</span>
-                                    Admin自身による直接取引。<br/>神が動いて手本を示す。
+                                    <span className="block font-bold text-red-600">ACTION: 緊急介入 (Emergency Intervention)</span>
+                                    Admin自身による直接取引。<br/>管理者が動いて手本を示す。
                                 </td>
                             </tr>
                         </tbody>

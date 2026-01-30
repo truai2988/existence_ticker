@@ -8,10 +8,10 @@ import {
 } from 'lucide-react';
 import QRCode from "react-qr-code";
 import { useProfile } from '../hooks/useProfile';
-import { calculateLifePoints } from '../utils/decay';
-import { UNIT_LABEL, SURVIVAL_CONSTANTS, ADMIN_UIDS } from '../constants';
+import { calculateDecayedValue } from '../logic/worldPhysics';
+import { UNIT_LABEL, ADMIN_UIDS, SURVIVAL_CONSTANTS } from '../constants';
 import { useAuth } from '../hooks/useAuthHook';
-import { getTrustRank } from '../utils/trustRank';
+import { getTrustRank } from '../logic/worldPhysics';
 import { ProfileEditScreen } from './ProfileEditScreen';
 
 interface ProfileViewProps {
@@ -96,13 +96,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin, 
 
     // Visual Decay Logic
     const [displayBalance, setDisplayBalance] = useState(() => 
-        profile ? calculateLifePoints(profile.balance, profile.last_updated) : 0
+        profile ? calculateDecayedValue(profile.balance, profile.last_updated) : 0
     );
 
     React.useEffect(() => {
         if (!profile) return;
         // Calculate once on mount/update. No real-time ticker.
-        setDisplayBalance(calculateLifePoints(profile.balance, profile.last_updated));
+        setDisplayBalance(calculateDecayedValue(profile.balance, profile.last_updated));
     }, [profile]);
 
     // Auth Handlers
@@ -163,35 +163,40 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin, 
     }
 
     return (
-        <div className="fixed inset-0 z-[60] bg-slate-50 flex flex-col pt-safe animate-fade-in w-full h-full">
+        <div className="fixed inset-0 z-[60] bg-slate-50 flex flex-col animate-fade-in w-full h-full">
             {/* Header / Nav */}
-            <div className="w-full bg-white border-b border-slate-200 sticky top-0 z-10 shrink-0">
-                <div className="max-w-md mx-auto flex items-center justify-between p-4">
-                    <h2 className="text-lg font-bold text-slate-800">プロフィール</h2>
-                    <div className="flex gap-2">
-                        {onOpenAdmin && (
+            <div className="w-full bg-white border-b border-slate-200 sticky top-0 z-10 shrink-0 pt-safe">
+                <div className="max-w-md mx-auto px-6 h-[90px] flex flex-col justify-start pt-3">
+                    <div className="flex justify-between items-center w-full">
+                        <div>
+                            <h2 className="text-2xl font-serif text-slate-900">プロフィール</h2>
+                            <p className="text-xs text-slate-500 font-mono tracking-widest uppercase">あなたの記録</p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            {onOpenAdmin && (
+                                <button
+                                    onClick={onOpenAdmin}
+                                    className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
+                                >
+                                    <Settings size={20} />
+                                </button>
+                            )}
                             <button
-                                onClick={onOpenAdmin}
+                                onClick={() => setIsEditingProfile(true)}
                                 className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
                             >
-                                <Settings size={20} />
+                                <Edit2 size={20} />
                             </button>
-                        )}
-                        <button
-                            onClick={() => setIsEditingProfile(true)}
-                            className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
-                        >
-                            <Edit2 size={20} />
-                        </button>
-                        <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400">
-                            <X size={20} />
-                        </button>
+                            <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400">
+                                <X size={20} />
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div className="flex-1 overflow-y-auto no-scrollbar w-full">
-                <div className="max-w-md mx-auto w-full pb-24">
+                <div className="max-w-md mx-auto w-full pt-4 pb-24">
                 {/* 1. Header Profile Info */}
                 <div className="flex flex-col items-center py-8 bg-white mb-4 border-b border-slate-200">
                     <div className="relative mb-3">
@@ -224,6 +229,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin, 
                             <span>{rank.icon}</span>
                             <span>{rank.label}</span>
                         </div>
+                        
+                        {/* Impurity Warning (The Crack) */}
+                        {profile?.has_cancellation_history && (profile.consecutive_completions || 0) < 3 && user?.uid === profile.id && (
+                             <div className="mt-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg max-w-[200px]">
+                                 <p className="text-[10px] text-slate-500 text-center leading-snug">
+                                     器にヒビが入っています。<br/>
+                                     あと <span className="font-bold text-slate-700">{3 - (profile.consecutive_completions || 0)}</span> 回、誠実に誓いを果たすことで修復されます。
+                                 </p>
+                             </div>
+                        )}
                         
                         {/* Meta Info */}
                         <div className="flex items-center gap-3 text-[10px] text-slate-400 font-mono mt-1">

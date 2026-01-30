@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Handshake, Loader2, Clock, User, CheckCircle, Hourglass, Megaphone, X, ShieldCheck, Pencil, Trash2, AlertTriangle } from "lucide-react";
 import { Wish } from "../types";
-import { calculateLifePoints } from "../utils/decay";
+import { calculateDecayedValue } from "../logic/worldPhysics";
 import { useWishActions } from "../hooks/useWishActions";
 import { useUserView } from "../contexts/UserViewContext";
-import { getTrustRank } from "../utils/trustRank";
+import { getTrustRank } from "../logic/worldPhysics";
 import { useOtherProfile } from "../hooks/useOtherProfile";
 import { useProfile } from "../hooks/useProfile";
 import { isProfileComplete } from "../utils/profileCompleteness";
@@ -98,6 +98,9 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(wish.content);
 
+  // Custom Confirmation State
+  const [confirmAction, setConfirmAction] = useState<'delete' | 'compensate' | 'resign' | null>(null);
+
   // Anti-Gravity: Universal Decay Logic (静的計算)
   // Derived initial cost
   const getInitialCost = (tier: string) => {
@@ -115,7 +118,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
   const initialCost = wish.cost || getInitialCost(wish.gratitude_preset);
   
   // 静的な値を計算（Ticker廃止 - 1時間ごとに自動更新）
-  const displayValue = calculateLifePoints(initialCost, wish.created_at);
+  const displayValue = calculateDecayedValue(initialCost, wish.created_at);
 
   const isMyWish = wish.requester_id === currentUserId;
   const applicants = wish.applicants || [];
@@ -151,36 +154,49 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
       setIsLoading(false);
   };
 
+  // Trigger Modal
   const handleCancel = async () => {
       // Helper (Resignation)
       if (!isMyWish && wish.helper_id === currentUserId) {
-          if (!confirm("辞退しますか？\n依頼は再び「募集中」に戻ります。")) return;
-          setIsLoading(true);
-          await resignWish(wish.id);
-          setIsLoading(false);
+          setConfirmAction('resign');
           return;
       }
 
       // Requester (Withdrawal / Compensation Cancel)
       if (wish.status === 'open') {
-          if (!confirm("依頼を取り下げますか？\n予約されていたLmは手元に戻ります。")) return;
+          setConfirmAction('delete');
       } else if (wish.status === 'in_progress') {
-          if (!confirm(`協力者に現在の価値（約${Math.floor(displayValue)} Lm）を支払ってキャンセルしますか？\n※この操作は取り消せません。`)) return;
+          setConfirmAction('compensate');
       }
+  };
 
+  // Execute Logic
+  const executeCancel = async () => {
       setIsLoading(true);
-      await cancelWish(wish.id);
-      setIsLoading(false);
+      try {
+          if (confirmAction === 'resign') {
+              await resignWish(wish.id);
+          } else {
+              // Both delete and compensate checks are handled inside cancelWish or just pass ID
+              // (cancelWish logic in hook handles status distinction)
+              await cancelWish(wish.id);
+          }
+      } catch (e) {
+          console.error(e);
+      } finally {
+          setIsLoading(false);
+          setConfirmAction(null);
+      }
   };
 
   const formatDate = (
     val: string | { toDate?: () => Date } | Date | undefined,
   ) => {
-    if (!val) return "Just now";
+    if (!val) return "今";
     if (typeof val === "string") return new Date(val).toLocaleDateString();
     if ("toDate" in val && typeof val.toDate === "function")
       return val.toDate().toLocaleDateString();
-    return "Unknown";
+    return "不明";
   };
 
   const trust = getTrustRank(requesterProfile, wish.requester_trust_score);
@@ -351,28 +367,28 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
         <div className="">
           {wish.status === "in_progress" && (
             <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 whitespace-nowrap shrink-0">
-              進行中 (In Progress)
+              進行中
             </span>
           )}
           {wish.status === "review_pending" && (
             <span className="text-xs font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full border border-purple-100 animate-pulse whitespace-nowrap shrink-0">
-              確認待ち (Review Pending)
+              確認待ち
             </span>
           )}
           {wish.status === "fulfilled" && (
             <span className="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100 whitespace-nowrap shrink-0">
-              感謝済み (Fulfilled)
+              感謝済み
             </span>
           )}
           {wish.status === 'open' && (
              displayValue === 0 ? (
               <span className="flex items-center gap-1 text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full border border-red-100 whitespace-nowrap shrink-0">
                   <AlertTriangle size={12} />
-                  自然死 (Expired)
+                  期限切れ
               </span>
              ) : (
                 <span className="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
-                  募集中 (Open)
+                  募集中
                 </span>
              )
           )}
@@ -388,7 +404,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                   {applicants.length === 0 ? (
                     <span className="text-xs text-slate-400 italic flex items-center gap-1">
                       <span className="animate-pulse">...</span>
-                      親切な隣人を待っています
+                      手伝ってくれる人を待っています
                     </span>
                   ) : (
                     <div className="relative">
@@ -397,7 +413,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                         className="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-white rounded-full text-xs font-bold shadow-md shadow-yellow-200 hover:bg-yellow-500 transition-all active:scale-95"
                       >
                         <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
-                        手伝いの申し出 ({applicants.length})
+                        {applicants.length}人が手を挙げています
                       </button>
 
                       {showApplicants && (
@@ -417,7 +433,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                                         <Handshake className="w-4 h-4 text-yellow-600" />
                                     </div>
                                     <h4 className="text-sm font-bold text-slate-700">
-                                    申し出た隣人たち <span className="text-slate-400 font-normal ml-1">({applicants.length})</span>
+                                    手伝ってくれる人々 <span className="text-slate-400 font-normal ml-1">({applicants.length})</span>
                                     </h4>
                                 </div>
                                 <button
@@ -478,7 +494,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                             wish.helper_id!,
                           );
                           if (success)
-                            alert("完了しました！感謝の循環が生まれました。");
+                            alert("お礼を送信しました！");
                           setIsLoading(false);
                         };
                         run();
@@ -489,7 +505,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                   className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold shadow-lg shadow-pink-200 hover:scale-105 active:scale-95 transition-all"
                 >
                   <Handshake className="w-4 h-4" />
-                  <span>ありがとう (お礼をする)</span>
+                  <span>お礼をする (完了)</span>
                 </button>
               )}
             </>
@@ -503,7 +519,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                   {hasApplied ? (
                     <span className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-500 rounded-full text-xs font-bold border border-slate-200 whitespace-nowrap shrink-0">
                       <Clock size={14} />
-                      返事を待っています (Applied)
+                      返事を待っています
                     </span>
                   ) : (
                     <button
@@ -529,7 +545,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                   {/* Expired Warning for Others */}
                   {displayValue === 0 && (
                       <p className="text-[10px] text-red-400 mt-2 text-center font-bold">
-                          ※ この依頼は減価により消滅しました
+                          ※ この依頼は期限切れです
                       </p>
                   )}
                 </div>
@@ -570,13 +586,60 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                 wish.helper_id === currentUserId && (
                   <span className="flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-600 rounded-full text-xs font-bold border border-purple-100 whitespace-nowrap shrink-0">
                     <Clock size={14} />
-                    承認待ち (Reported)
+                    承認待ち
                   </span>
                 )}
             </>
           )}
         </div>
       </div>
+
+      {/* Confirmation Overlay (Absolute) */}
+      {confirmAction && (
+          <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center p-6 animate-in fade-in duration-200">
+              <div className={`p-3 rounded-full mb-4 ${
+                  confirmAction === 'compensate' ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'
+              }`}>
+                  <AlertTriangle size={24} />
+              </div>
+              
+              <h4 className="text-base font-bold text-slate-800 mb-2 text-center">
+                  {confirmAction === 'compensate' ? '進行中の依頼を取り下げますか？' : 'このお願いを取り下げますか？'}
+              </h4>
+              
+              <p className="text-xs text-slate-600 text-center mb-6 leading-relaxed whitespace-pre-wrap">
+                  {confirmAction === 'compensate' 
+                      ? <>協力者はすでに時間を空けて待機しています。<br/>今キャンセルする場合、予約していたLmは<br/><strong className="text-red-500">『時間の補償』として全額相手に支払われます。</strong></>
+                      : '予約していたLmはあなたの器に戻ります。'
+                  }
+              </p>
+
+              <div className="flex flex-col gap-2 w-full">
+                  <button 
+                      onClick={executeCancel}
+                      disabled={isLoading}
+                      className={`w-full py-3 rounded-xl text-sm font-bold text-white shadow-md transition-all active:scale-[0.98] ${
+                          confirmAction === 'compensate' 
+                              ? 'bg-red-500 hover:bg-red-600 shadow-red-200' 
+                              : 'bg-slate-700 hover:bg-slate-800 shadow-slate-200'
+                      }`}
+                  >
+                      {isLoading ? (
+                          <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                      ) : (
+                          confirmAction === 'compensate' ? '補償してキャンセルする' : '取り下げる'
+                      )}
+                  </button>
+                  <button 
+                      onClick={() => setConfirmAction(null)}
+                      disabled={isLoading}
+                      className="w-full py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 transition-colors"
+                  >
+                      戻る
+                  </button>
+              </div>
+          </div>
+      )}
     </div>
   );
 };

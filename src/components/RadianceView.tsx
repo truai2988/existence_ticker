@@ -4,6 +4,8 @@ import { X, Megaphone } from 'lucide-react';
 import { useWishes } from '../hooks/useWishes';
 import { WishCardList } from './WishCardList';
 
+import { UserSubBar } from './UserSubBar';
+
 import { CreateWishModal } from './CreateWishModal';
 // import { DonationModal } from './DonationModal'; 
 // import { CompleteWishModal } from './CompleteWishModal'; // Removed unused
@@ -46,16 +48,16 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
     };
 
     return (
-        <div className="fixed inset-0 z-[60] bg-slate-50/95 backdrop-blur-md animate-fade-in flex flex-col pt-safe w-full h-full">
+        <div className="fixed inset-0 z-[60] bg-slate-50/95 backdrop-blur-md flex flex-col w-full h-full">
             {/* Header Container */}
-            <div className="w-full bg-white/80 backdrop-blur-md border-b border-slate-200 shrink-0">
-                <div className="max-w-md mx-auto pt-4 px-4">
-                    <div className="flex justify-between items-center mb-4">
+            <div className="w-full bg-white/80 backdrop-blur-md border-b border-slate-200 shrink-0 pt-safe">
+                <div className="max-w-md mx-auto px-6 h-[90px] flex flex-col justify-start pt-3">
+                    <div className="flex justify-between items-center w-full mb-2">
                         <div>
                              <h2 className="text-lg font-bold font-sans text-slate-900">自分のお願い</h2>
                              <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">My Wishes Hub</p>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex items-center gap-3">
                             <button 
                                 onClick={() => setModalState('create_wish')}
                                 className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-full text-xs font-bold hover:bg-amber-600 transition-all shadow-sm active:scale-95"
@@ -69,11 +71,13 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                         </div>
                     </div>
 
+                {/* Bottom Row: Tabs */}
+                <div className="flex items-end w-full">
                     {/* Simple Tabs */}
                     <div className="flex gap-8">
                         <button
                             onClick={() => setActiveTab('active')}
-                            className={`pb-3 text-xs font-bold transition-all relative ${
+                            className={`pb-1 text-xs font-bold transition-all relative ${
                                 activeTab === 'active' ? 'text-amber-600' : 'text-slate-400 hover:text-slate-600'
                             }`}
                         >
@@ -85,7 +89,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                         </button>
                         <button
                             onClick={() => setActiveTab('outbound')}
-                            className={`pb-3 text-xs font-bold transition-all relative ${
+                            className={`pb-1 text-xs font-bold transition-all relative ${
                                 activeTab === 'outbound' ? 'text-amber-600' : 'text-slate-400 hover:text-slate-600'
                             }`}
                         >
@@ -98,6 +102,8 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                     </div>
                 </div>
             </div>
+        </div>
+        <UserSubBar />
 
             {/* List Content */}
             <div className="flex-1 overflow-y-auto no-scrollbar bg-slate-50 w-full">
@@ -107,14 +113,12 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                             wishes={myActiveWishes} 
                             currentUserId={currentUserId} 
                             emptyMessage="現在、募集中のお願いはありません。"
-                            subtitle="OPEN REQUESTS"
                          />
                      ) : (
                          <WishCardList 
                             wishes={myOutboundWishes} 
                             currentUserId={currentUserId} 
                             emptyMessage="現在、誰かが手伝ってくれている案件はありません。"
-                            subtitle="IN PROGRESS"
                          />
                      )}
                 </div>

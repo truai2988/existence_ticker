@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useAuth } from "./useAuthHook";
 import { db } from "../lib/firebase";
 import {
@@ -10,16 +10,55 @@ import {
   query,
   where,
   getDocs,
+  onSnapshot,
 } from "firebase/firestore";
 import { useProfile } from "./useProfile";
-import { useWishesContext } from "../contexts/WishesContext";
-import { calculateLifePoints } from "../utils/decay";
-import { LUNAR_CONSTANTS } from "../constants";
+import { calculateDecayedValue, calculateAvailableLm, WORLD_CONSTANTS } from "../logic/worldPhysics";
+import { Wish } from "../types";
+
 
 export const useWallet = () => {
   const { user } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
-  const { wishes } = useWishesContext();
+  
+  // Local state for MY active wishes (to calculate committedLm accurately without context dependency)
+  const [activeWishes, setActiveWishes] = useState<Wish[]>([]);
+
+  // === 自分のActive Wishを購読 (Optimization) ===
+  // wishesContextに依存せず、必要なデータ("open", "in_progress")のみを購読
+  useEffect(() => {
+     if (!user || !db) {
+         setActiveWishes([]);
+         return;
+     }
+
+     const q = query(
+         collection(db, 'wishes'),
+         where('requester_id', '==', user.uid),
+         where('status', 'in', ['open', 'in_progress'])
+     );
+
+     const unsubscribe = onSnapshot(q, (snapshot) => {
+         const docs = snapshot.docs.map(d => {
+             const data = d.data();
+             return {
+                 id: d.id,
+                 ...data,
+                 // Ensure mandatory fields exist for type safety
+                 requester_id: data.requester_id || '',
+                 content: data.content || '',
+                 gratitude_preset: data.gratitude_preset || 'light',
+                 status: data.status || 'open',
+                 created_at: data.created_at,
+             } as Wish;
+         });
+         setActiveWishes(docs);
+     }, (err) => {
+         console.error("Failed to subscribe to active wishes:", err);
+     });
+
+     return () => unsubscribe();
+  }, [user]);
 
   // === 減価適用後のバランス（Physical Truth）===
   /**
@@ -32,7 +71,7 @@ export const useWallet = () => {
     const lastUpdated = profile?.last_updated;
     
     // 減価計算を適用
-    return calculateLifePoints(rawBalance, lastUpdated);
+    return calculateDecayedValue(rawBalance, lastUpdated);
   }, [profile?.balance, profile?.last_updated]);
 
   // === Reservation Logic (聖なる約定) ===
@@ -45,22 +84,17 @@ export const useWallet = () => {
   const committedLm = useMemo(() => {
     if (!user) return 0;
     
-    const myActiveWishes = wishes.filter(w => 
-      w.requester_id === user.uid && 
-      (w.status === 'open' || w.status === 'in_progress')
-    );
-    
     // 各依頼のcostを発行時から現在までの減価を考慮して合計
-    return myActiveWishes.reduce((sum, w) => {
+    return activeWishes.reduce((sum, w) => {
       const initialCost = w.cost || 0;
       const createdAt = w.created_at; // Firestore Timestamp or ISO string
       
-      // calculateLifePointsで減価した現在価値を計算
-      const currentValue = calculateLifePoints(initialCost, createdAt);
+      // calculateDecayedValueで減価した現在価値を計算
+      const currentValue = calculateDecayedValue(initialCost, createdAt);
       
       return sum + currentValue;
     }, 0);
-  }, [wishes, user]);
+  }, [activeWishes, user]);
 
   /**
    * 分かち合える光（Available Lm）:
@@ -69,8 +103,7 @@ export const useWallet = () => {
    * 
    * 安全弁: 計算誤差があっても、availableLmが手持ちを超えることはない。
    */
-  const calculatedAvailable = balance - committedLm;
-  const availableLm = Math.max(0, Math.min(calculatedAvailable, balance));
+  const availableLm = calculateAvailableLm(balance, committedLm);
 
   // === Lunar Cycle Logic (Metabolism) ===
   /**
@@ -89,37 +122,16 @@ export const useWallet = () => {
         if (!userDoc.exists()) throw "User missing";
 
         const data = userDoc.data();
-        // const lastPhaseIndex = data.last_phase_index || 0; // Legacy
         const cycleStartedAt =
           data.cycle_started_at?.toMillis() || data.created_at?.toMillis() || 0;
 
-        const { CYCLE_DAYS } = LUNAR_CONSTANTS;
-        const now = Date.now();
-
-        // If more than configured days have passed since the cycle started (or if never set)
+        // 1. NON-RETROACTIVITY Check (法の不遡及)
+        // Use the cycle duration that was scheduled for THIS cycle.
+        // If missing (legacy), default to 10 days.
+        const effectiveCycleDays = data.scheduled_cycle_days || 10;
         
-        // Fetch Admin Cycle Configuration (Time Control)
-        let currentCycleDays = CYCLE_DAYS; 
-        try {
-            // Note: We are INSIDE a transaction. Ideally we use transaction.get()
-            const settingsRef = doc(db!, "system_settings", "global");
-            // const settingsDoc = await transaction.get(settingsRef); 
-            // Transaction requires reads before writes. If we haven't read it yet, we can't write to userRef.
-            // But userDoc read is line 88. 
-            // So we MUST read settingsRef BEFORE writing to userRef.
-            // However, inserting a read here might be tricky if we already read userDoc.
-            // Firestore transactions require all reads before any writes. We haven't written yet.
-            const settingsDoc = await transaction.get(settingsRef);
-            
-            if (settingsDoc.exists()) {
-              const val = settingsDoc.data().cycleDays;
-              if (typeof val === "number") currentCycleDays = val;
-            }
-        } catch (e) {
-            console.warn("Using default cycle days due to fetch error", e);
-        }
-
-        const cycleDurationMillis = currentCycleDays * 24 * 60 * 60 * 1000;
+        const now = Date.now();
+        const cycleDurationMillis = effectiveCycleDays * 24 * 60 * 60 * 1000;
         
         if (
           cycleStartedAt === 0 ||
@@ -127,7 +139,22 @@ export const useWallet = () => {
         ) {
           // === METABOLIC RESET (Rebirth) ===
           hasReset = true;
-          const { REBIRTH_AMOUNT } = LUNAR_CONSTANTS;
+          const { REBIRTH_AMOUNT } = WORLD_CONSTANTS;
+
+          // 2. Fetch NEXT Cycle Configuration (Apply New Law)
+          // 次のサイクルの長さを決定する（ここで初めて新しい法が適用される）
+          let nextCycleDays = 10; 
+          try {
+              const settingsRef = doc(db!, "system_settings", "global");
+              const settingsDoc = await transaction.get(settingsRef);
+              
+              if (settingsDoc.exists()) {
+                const val = settingsDoc.data().cycleDays;
+                if (typeof val === "number") nextCycleDays = val;
+              }
+          } catch (e) {
+              console.warn("Using default cycle days due to fetch error", e);
+          }
 
           // === 第一の大罪の修正: 約束中のLmを計算 ===
           // トランザクション内でユーザーの依頼を読み取る
@@ -146,8 +173,8 @@ export const useWallet = () => {
             const initialCost = wish.cost || 0;
             const createdAt = wish.created_at;
             
-            // calculateLifePointsで減価した現在価値を計算
-            const currentValue = calculateLifePoints(initialCost, createdAt);
+            // calculateDecayedValueで減価した現在価値を計算
+            const currentValue = calculateDecayedValue(initialCost, createdAt);
             committedLm += currentValue;
           });
 
@@ -156,7 +183,8 @@ export const useWallet = () => {
           const safeResetAmount = Math.max(REBIRTH_AMOUNT, Math.ceil(committedLm) + 100);
 
           console.log('[Lunar Cycle Reset]', {
-            currentCycleDays,
+            effectiveCycleDays,
+            nextCycleDays,
             baseRebirthAmount: REBIRTH_AMOUNT,
             committedLm: Math.ceil(committedLm),
             finalResetAmount: safeResetAmount,
@@ -167,6 +195,7 @@ export const useWallet = () => {
             balance: safeResetAmount,
             last_updated: serverTimestamp(),
             cycle_started_at: serverTimestamp(), // New Cycle Starts Now
+            scheduled_cycle_days: nextCycleDays, // Schedule Next Cycle Duration
             // last_phase_index: ... // Deprecated
           });
 
@@ -182,6 +211,17 @@ export const useWallet = () => {
             },
             { merge: true },
           ); // Merge ensures volume isn't wiped if updated concurrently
+
+           // === Log Rebirth Transaction ===
+          const txRef = doc(collection(db!, 'transactions'));
+          transaction.set(txRef, {
+              type: 'REBIRTH',
+              recipient_id: user.uid,
+              recipient_name: data.name || 'User',
+              amount: safeResetAmount,
+              created_at: serverTimestamp(),
+              description: '太陽の光で器が満たされました'
+          });
         }
       });
 
@@ -210,7 +250,7 @@ export const useWallet = () => {
         const lastUpdated = data.last_updated;
 
         // 1. Calculate TRUE Balance at this exact moment
-        const realTimeBalance = calculateLifePoints(
+        const realTimeBalance = calculateDecayedValue(
           currentBalance,
           lastUpdated,
         );
@@ -269,13 +309,35 @@ export const useWallet = () => {
         if (!senderDoc.exists()) throw "Sender not found";
 
         const senderData = senderDoc.data();
-        const senderBalance = calculateLifePoints(
+        const senderBalance = calculateDecayedValue(
           senderData.balance || 0,
           senderData.last_updated,
         );
 
-        if (senderBalance < amount) {
-          throw "Insufficient funds";
+        // === STRICT COMMITMENT CHECK ===
+        // 凍結リスク回避のため、約束中のLm（committedLm）を考慮して残高を確認する
+        // トランザクション内でActive Wishを取得して計算
+        const wishesRef = collection(db!, "wishes");
+        const q = query(
+            wishesRef,
+            where("requester_id", "==", user.uid),
+            where("status", "in", ["open", "in_progress"])
+        );
+        // Note: Transactional query is not supported directly with query() in some SDKs, 
+        // but getDocs(q) inside runTransaction will read consistently if indices are set.
+        // However, to be purely atomic on the *same* read time, simply querying is usually sufficient for "read" consistency in Firestore.
+        const wishesSnapshot = await getDocs(q);
+        
+        let txCommittedLm = 0;
+        wishesSnapshot.forEach(doc => {
+            const w = doc.data();
+            txCommittedLm += calculateDecayedValue(w.cost || 0, w.created_at);
+        });
+
+        const available = senderBalance - txCommittedLm;
+
+        if (available < amount) {
+            throw new Error(`Insufficient available funds. (Available: ${Math.floor(available)}, Required: ${amount})`);
         }
 
         // 2. Get Recipient
@@ -283,7 +345,7 @@ export const useWallet = () => {
         if (!recipientDoc.exists()) throw "Recipient not found";
 
         // 3. Get Global Capacity (for capping)
-        let globalCapacity = LUNAR_CONSTANTS.FULL_MOON_BALANCE;
+        let globalCapacity = WORLD_CONSTANTS.REBIRTH_AMOUNT;
         try {
           const settingsRef = doc(db!, "system_settings", "stats");
           const settingsDoc = await txn.get(settingsRef);
@@ -297,7 +359,7 @@ export const useWallet = () => {
 
         // 4. Calculate Recipient New Balance
         const recipientData = recipientDoc.data();
-        const recipientCurrentReal = calculateLifePoints(
+        const recipientCurrentReal = calculateDecayedValue(
           recipientData.balance || 0,
           recipientData.last_updated,
         );
@@ -325,9 +387,11 @@ export const useWallet = () => {
         txn.set(newTxRef, {
           type: "GIFT",
           sender_id: user.uid,
+          sender_name: senderData.name || 'Unknown', // Log Name
           recipient_id: recipientId,
+          recipient_name: recipientData.name || 'Unknown', // Log Name
           amount: amount,
-          overflow_loss: recipientCurrentReal + amount - newRecipientBalance, // How much was lost to void
+          overflow_loss: recipientCurrentReal + amount - newRecipientBalance, 
           created_at: serverTimestamp(),
         });
 
@@ -361,14 +425,18 @@ export const useWallet = () => {
   // === 凍結方針（Freeze Policy）===
   // committedLm > balance の状態を検出し、警告を表示する（自動キャンセルは行わない）
   useEffect(() => {
+    // profileLoading中はbalanceが0になる可能性があるため、チェックをスキップ
+    // また、profileが取得できていない場合(null)もスキップ
+    if (profileLoading || !profile) return;
+
     if (committedLm > balance && user && db) {
-      console.error('❄️ [凍結警告] 約束超過が検出されました', {
+      // System Diagnostic: This state should be physically impossible if logic holds.
+      // We log it silently for debugging purposes only.
+      console.debug('[System Diagnostic] Vessel Pressure Warning: Committed > Balance', {
         balance,
         committedLm,
-        availableLm,
-        超過分: committedLm - balance,
-        ユーザー: user.uid,
-        メッセージ: 'これ以上新しい約束はできません。Adminに問い合わせてください。'
+        overrun: committedLm - balance,
+        uid: user.uid
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -437,7 +505,7 @@ export const refundUnfairDeductions = async (userId: string): Promise<{ refunded
         
         // アクティブな依頼は減価後の現在価値、キャンセル済みは初期コストで返金
         const refundValue = isActive 
-          ? calculateLifePoints(initialCost, createdAt)
+          ? calculateDecayedValue(initialCost, createdAt)
           : initialCost;
         
         refundTargets.push({

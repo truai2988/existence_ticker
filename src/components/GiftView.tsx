@@ -3,7 +3,9 @@ import { AnimatePresence } from 'framer-motion';
 import { X, Heart, ScanLine } from 'lucide-react';
 import { ScannerView } from './ScannerView';
 import { DonationModal } from './DonationModal';
+
 import { useScanProcessor } from '../hooks/useScanProcessor';
+import { UserSubBar } from './UserSubBar';
 
 interface GiftViewProps {
     onClose: () => void;
@@ -24,11 +26,11 @@ export const GiftView: React.FC<GiftViewProps> = ({ onClose }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[60] bg-slate-50 flex flex-col animate-fade-in w-full h-full">
+        <div className="fixed inset-0 z-[60] bg-slate-50 flex flex-col w-full h-full">
             {/* Header Container */}
-            <div className="w-full bg-white/80 backdrop-blur-md border-b border-slate-200 shrink-0 z-10">
-                <div className="max-w-md mx-auto pt-4 px-4">
-                    <div className="flex justify-between items-center mb-4">
+            <div className="w-full bg-white/80 backdrop-blur-md border-b border-slate-200 shrink-0 z-10 pt-safe">
+                <div className="max-w-md mx-auto px-6 h-[90px] flex flex-col justify-start pt-3">
+                    <div className="flex justify-between items-center w-full">
                         <div>
                              <h2 className="text-lg font-bold font-sans text-slate-900 flex items-center gap-2">
                                 <Heart className="text-pink-500 fill-pink-50 w-5 h-5" />
@@ -36,12 +38,15 @@ export const GiftView: React.FC<GiftViewProps> = ({ onClose }) => {
                              </h2>
                              <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">Pure Gift</p>
                         </div>
-                        <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                            <X size={20} className="text-slate-400" />
-                        </button>
+                        <div className="flex items-center gap-3">
+                             <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                                 <X size={20} className="text-slate-400" />
+                             </button>
+                        </div>
                     </div>
                 </div>
             </div>
+            <UserSubBar />
 
             {/* Content Container */}
             <div className="flex-1 w-full overflow-y-auto">

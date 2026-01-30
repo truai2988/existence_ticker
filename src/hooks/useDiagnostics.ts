@@ -1,4 +1,5 @@
 import { DashboardStats } from "./useStats";
+import { UserProfile } from "../types";
 
 export type WorldPhase = 'STARVATION' | 'SATURATION' | 'STAGNATION' | 'HEALTHY';
 export type Severity = 'critical' | 'warning' | 'info';
@@ -49,7 +50,7 @@ export const useDiagnostics = (stats: DashboardStats | null): DiagnosticsResult 
         return {
             currentPhase: 'STARVATION',
             severity: 'critical',
-            shortDescription: `${prefix}渇きの連鎖 (Chain of Thirst)`,
+            shortDescription: `${prefix}枯渇状態 (Starvation)`,
             longDescription: '循環が消滅を下回り、かつ社会全体が枯渇しています。',
             bg: 'bg-cyan-900/30 border-cyan-500',
             text: 'text-cyan-200',
@@ -62,7 +63,7 @@ export const useDiagnostics = (stats: DashboardStats | null): DiagnosticsResult 
         return {
             currentPhase: 'SATURATION',
             severity: 'warning',
-            shortDescription: `${prefix}静寂なる停滞 (Silent Stagnation)`,
+            shortDescription: `${prefix}停滞状態 (Saturation)`,
             longDescription: '循環が消滅を下回っていますが、資産は十分にあります。繋がりの欠如。',
             bg: 'bg-yellow-900/30 border-yellow-500',
             text: 'text-yellow-200',
@@ -75,7 +76,7 @@ export const useDiagnostics = (stats: DashboardStats | null): DiagnosticsResult 
          return {
             currentPhase: 'STAGNATION',
             severity: 'critical',
-            shortDescription: `${prefix}完全循環不全 (Total Failure)`,
+            shortDescription: `${prefix}循環不全 (Failure)`,
             longDescription: '経済活動が停止しています。',
             bg: 'bg-red-900/30 border-red-500',
             text: 'text-red-200',
@@ -92,4 +93,38 @@ export const useDiagnostics = (stats: DashboardStats | null): DiagnosticsResult 
         text: 'text-green-200',
         isMicro
     };
+};
+
+// === Anomaly Detection for Admin ===
+export interface UserAnomaly {
+    userId: string;
+    description: string;
+    severity: 'critical' | 'warning';
+    detectedAt: number;
+}
+
+export const checkUserAnomaly = (user: UserProfile): UserAnomaly | null => {
+    if (!user) return null;
+
+    // 1. Check for Negative Balance (Physical Impossibility)
+    if (user.balance < 0) {
+        return {
+            userId: user.id || 'unknown',
+            description: `Balance is negative (${user.balance}). Vessel Breach detected.`,
+            severity: 'critical',
+            detectedAt: Date.now()
+        };
+    }
+
+    // 2. Check for Negative Warmth or XP (Data Corruption)
+    if ((user.warmth || 0) < 0 || (user.xp || 0) < 0) {
+        return {
+            userId: user.id || 'unknown',
+            description: `Warmth/XP corrupted. Negative values found.`,
+            severity: 'warning',
+            detectedAt: Date.now()
+        };
+    }
+
+    return null;
 };

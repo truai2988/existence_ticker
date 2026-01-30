@@ -1,6 +1,13 @@
 
 export type GratitudeTier = 'light' | 'medium' | 'heavy';
 
+export interface FirestoreTimestamp {
+  seconds: number;
+  nanoseconds: number;
+  toDate: () => Date;
+  toMillis: () => number;
+}
+
 export interface UserProfile {
   id: string;
   name: string;
@@ -24,6 +31,15 @@ export interface UserProfile {
   completed_contracts?: number; // How many times they helped
   created_contracts?: number;   // How many times they requested
   completed_requests?: number;  // How many times their requests were fulfilled & paid
+  
+  // Trust Metrics (Impurity & Purification)
+  consecutive_completions?: number; // Streak of honest fulfillments
+  has_cancellation_history?: boolean; // Flag if they ever canceled in-progress
+  
+  // Seasonal Cycle
+  scheduled_cycle_days?: number; // The duration of the current cycle (Non-Retroactive)
+  cycle_started_at?: FirestoreTimestamp; // Firestore Timestamp
+  created_at?: FirestoreTimestamp; // Firestore Timestamp (Fallback)
 }
 
 export interface Point {
