@@ -108,26 +108,26 @@ export const JournalView: React.FC<JournalViewProps> = ({ onClose }) => {
   }, [wishes, user]);
 
   return (
-    <div className="fixed inset-0 h-[100dvh] z-[60] flex flex-col items-center bg-slate-50/95 backdrop-blur-md overflow-hidden animate-fade-in pt-safe">
-        <div className="w-full max-w-sm flex-grow flex flex-col p-6 relative overflow-y-auto no-scrollbar pb-24">
-             {/* Header */}
-            <div className="flex justify-between items-end mb-8 border-b border-slate-200 pb-4 shrink-0">
-
-                <div>
+    <div className="fixed inset-0 h-[100dvh] z-[60] flex flex-col items-center bg-slate-50/95 backdrop-blur-md overflow-hidden animate-fade-in pt-safe w-full">
+        {/* Full width header container */}
+        <div className="w-full shrink-0 border-b border-slate-200">
+             <div className="max-w-md mx-auto w-full flex justify-between items-end p-6 pb-4">
+                 <div>
                     <h2 className="text-2xl font-serif text-slate-900">履歴</h2>
                     <p className="text-xs text-slate-500 font-mono tracking-widest uppercase">History</p>
                 </div>
                 <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 transition-colors">
                     <X className="text-slate-400" size={24} />
                 </button>
-            </div>
+             </div>
+        </div>
 
-            {/* Content: Constellation List */}
-            <div className="flex-grow overflow-y-auto no-scrollbar relative pl-4">
-                {/* The "Timeline" Line */}
+        {/* Content Container */}
+        <div className="w-full flex-grow overflow-y-auto no-scrollbar relative flex flex-col items-center">
+             <div className="w-full max-w-md flex-grow p-6 pt-4 pb-24 relative">
+                {/* The "Timeline" Line needs to be relative to this inner container */}
                 <div className="absolute left-[27px] top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-slate-300/50 to-transparent"></div>
-
-                <div className="space-y-8 py-4">
+                <div className="space-y-8 py-4 pl-4">
                     {journalEntries.length === 0 ? (
                         <p className="text-gray-500 text-center text-sm py-10">
                             まだ軌跡（履歴）はありません。
@@ -171,7 +171,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onClose }) => {
                         ))
                     )}
                 </div>
-            </div>
+             </div>
         </div>
     </div>
   );

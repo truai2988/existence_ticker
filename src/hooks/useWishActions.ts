@@ -208,6 +208,49 @@ export const useWishActions = () => {
       }
   };
 
+  const cancelWish = async (wishId: string): Promise<boolean> => {
+      if (!db || !user) return false;
+      setIsSubmitting(true);
+      try {
+          const wishRef = doc(db, 'wishes', wishId);
+          // 削除（取り下げ）: ステータスを cancelled にするだけ
+          // useWallet の committedLm 計算は 'open' | 'in_progress' のみを集計するため
+          // ステータスを変えるだけで即座に availableLm が回復する
+          await updateDoc(wishRef, {
+              status: 'cancelled',
+              cancelled_at: serverTimestamp()
+          });
+          return true;
+      } catch (e) {
+          console.error("Failed to cancel wish:", e);
+          alert("取り下げに失敗しました");
+          return false;
+      } finally {
+          setIsSubmitting(false);
+      }
+  };
+
+  const updateWish = async (wishId: string, newContent: string): Promise<boolean> => {
+      if (!db || !user) return false;
+      if (!newContent.trim()) return false;
+      
+      setIsSubmitting(true);
+      try {
+          const wishRef = doc(db, 'wishes', wishId);
+          await updateDoc(wishRef, {
+              content: newContent,
+              updated_at: serverTimestamp()
+          });
+          return true;
+      } catch (e) {
+          console.error("Failed to update wish:", e);
+          alert("更新に失敗しました");
+          return false;
+      } finally {
+          setIsSubmitting(false);
+      }
+  };
+
   const fulfillWish = async (wishId: string, fulfillerId: string): Promise<boolean> => {
     if (!db) return false;
     setIsSubmitting(true);
@@ -369,6 +412,8 @@ export const useWishActions = () => {
     approveWish,
     reportCompletion,
     acceptWish, // Expose for UI compatibility
+    cancelWish,
+    updateWish,
     isSubmitting
   };
 };

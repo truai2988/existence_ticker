@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Handshake, Loader2, Clock, User, CheckCircle, Hourglass, Megaphone, X, ShieldCheck } from "lucide-react";
+import { Handshake, Loader2, Clock, User, CheckCircle, Hourglass, Megaphone, X, ShieldCheck, Pencil, Trash2, AlertTriangle } from "lucide-react";
 import { Wish } from "../types";
 import { calculateLifePoints } from "../utils/decay";
 import { useWishActions } from "../hooks/useWishActions";
@@ -87,7 +87,7 @@ interface WishCardProps {
 }
 
 export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenProfile }) => {
-  const { applyForWish, approveWish, fulfillWish, reportCompletion } =
+  const { applyForWish, approveWish, fulfillWish, reportCompletion, cancelWish, updateWish } =
     useWishActions();
   const { openUserProfile } = useUserView();
   const { profile: requesterProfile } = useOtherProfile(wish.requester_id);
@@ -95,6 +95,8 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
   const [isLoading, setIsLoading] = useState(false);
 
   const [showApplicants, setShowApplicants] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(wish.content);
 
   // Anti-Gravity: Universal Decay Logic (静的計算)
   // Derived initial cost
@@ -139,6 +141,21 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
     setIsLoading(true);
     await approveWish(wish.id, applicantId);
     setIsLoading(false);
+  };
+
+  const handleUpdate = async () => {
+      if (!editContent.trim()) return;
+      setIsLoading(true);
+      const success = await updateWish(wish.id, editContent);
+      if (success) setIsEditing(false);
+      setIsLoading(false);
+  };
+
+  const handleCancel = async () => {
+      if (!confirm("依頼を取り下げますか？\n予約されていたLmは手元に戻ります。")) return;
+      setIsLoading(true);
+      await cancelWish(wish.id);
+      setIsLoading(false);
   };
 
   const formatDate = (
@@ -218,19 +235,70 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
           </div>
         </div>
 
-        {/* My Wish Badge (Right - Flex Item) */}
+        {/* My Wish Badge & Actions (Right - Flex Item) */}
         {isMyWish && (
-            <span className="shrink-0 bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-1 rounded-full border border-slate-200 whitespace-nowrap">
-                あなたのお願い
-            </span>
+            <div className="flex items-center gap-2 shrink-0">
+                {/* Edit/Delete Actions for Open Wishes */}
+                {wish.status === 'open' && (
+                    <>
+                        <button 
+                            onClick={() => setIsEditing(!isEditing)}
+                            disabled={isLoading}
+                            className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                            title="編集 (内容のみ)"
+                        >
+                            <Pencil size={14} />
+                        </button>
+                        <button 
+                            onClick={handleCancel}
+                            disabled={isLoading}
+                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                            title="取り下げ (削除)"
+                        >
+                            <Trash2 size={14} />
+                        </button>
+                    </>
+                )}
+                <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-1 rounded-full border border-slate-200 whitespace-nowrap">
+                    あなたのお願い
+                </span>
+            </div>
         )}
       </div>
 
       {/* Body: Content */}
       <div className="relative mb-6">
-        <p className="text-slate-600 text-base leading-relaxed font-medium">
-          {wish.content}
-        </p>
+        {isEditing ? (
+            <div className="space-y-3">
+                <textarea
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none text-base resize-none min-h-[100px]"
+                />
+                <div className="flex gap-2 justify-end">
+                    <button 
+                        onClick={() => {
+                            setIsEditing(false);
+                            setEditContent(wish.content);
+                        }}
+                        className="px-3 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg"
+                    >
+                        キャンセル
+                    </button>
+                    <button 
+                        onClick={handleUpdate}
+                        disabled={isLoading || !editContent.trim()}
+                        className="px-3 py-1.5 text-xs font-bold text-white bg-blue-500 hover:bg-blue-600 rounded-lg shadow-sm disabled:opacity-50"
+                    >
+                        {isLoading ? <Loader2 className="w-3 h-3 animate-spin"/> : '更新する'}
+                    </button>
+                </div>
+            </div>
+        ) : (
+            <p className="text-slate-600 text-base leading-relaxed font-medium whitespace-pre-wrap">
+              {wish.content}
+            </p>
+        )}
       </div>
 
       {/* Value / Entropy Area (Antigravity) */}
@@ -270,10 +338,16 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
               感謝済み (Fulfilled)
             </span>
           )}
-          {wish.status === "open" && (
+          {wish.status === 'open' && (
             <span className="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
               募集中 (Open)
             </span>
+          )}
+          {wish.status === 'open' && displayValue === 0 && (
+              <span className="flex items-center gap-1 text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full border border-red-100 whitespace-nowrap shrink-0 mt-2 md:mt-0 md:ml-2">
+                  <AlertTriangle size={12} />
+                  自然死 (Expired)
+              </span>
           )}
         </div>
 
@@ -424,8 +498,16 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                       <span>立候補する</span>
                     </button>
                   )}
+                  
+                  {/* Expired Warning for Others */}
+                  {displayValue === 0 && (
+                      <p className="text-[10px] text-red-400 mt-2 text-center font-bold">
+                          ※ この依頼は減価により消滅しました
+                      </p>
+                  )}
                 </div>
               )}
+
 
               {wish.status === "in_progress" &&
                 wish.helper_id === currentUserId && (

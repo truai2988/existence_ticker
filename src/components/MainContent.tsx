@@ -23,7 +23,7 @@ export const MainContent: React.FC<MainContentProps> = ({ viewMode, setViewMode,
                     onOpenFlow={() => setViewMode('flow')} 
                     onOpenRequest={() => setViewMode('give')}
                     onOpenGift={() => setViewMode('gift')}
-                    onOpenProfile={() => setViewMode('profile')}
+                    onOpenProfileEdit={() => setViewMode('profile_edit')}
                 />
             );
         case 'profile':
@@ -31,6 +31,14 @@ export const MainContent: React.FC<MainContentProps> = ({ viewMode, setViewMode,
                 <ProfileView 
                     onClose={onGoHome} 
                     onOpenAdmin={() => setViewMode('admin')} 
+                />
+            );
+        case 'profile_edit':
+            return (
+                <ProfileView 
+                    onClose={onGoHome} 
+                    onOpenAdmin={() => setViewMode('admin')} 
+                    initialEditMode={true}
                 />
             );
         case 'history':

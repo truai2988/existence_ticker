@@ -46,74 +46,78 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
     };
 
     return (
-        <div className="fixed inset-0 z-[60] bg-slate-50/95 backdrop-blur-md animate-fade-in flex flex-col pt-safe">
-            {/* Compact Header */}
-            <div className="pt-4 px-4 bg-white/80 backdrop-blur-md border-b border-slate-200 shrink-0">
-                <div className="flex justify-between items-center mb-4">
-                    <div>
-                         <h2 className="text-lg font-bold font-sans text-slate-900">自分のお願い</h2>
-                         <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">My Wishes Hub</p>
+        <div className="fixed inset-0 z-[60] bg-slate-50/95 backdrop-blur-md animate-fade-in flex flex-col pt-safe w-full h-full">
+            {/* Header Container */}
+            <div className="w-full bg-white/80 backdrop-blur-md border-b border-slate-200 shrink-0">
+                <div className="max-w-md mx-auto pt-4 px-4">
+                    <div className="flex justify-between items-center mb-4">
+                        <div>
+                             <h2 className="text-lg font-bold font-sans text-slate-900">自分のお願い</h2>
+                             <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">My Wishes Hub</p>
+                        </div>
+                        <div className="flex gap-3">
+                            <button 
+                                onClick={() => setModalState('create_wish')}
+                                className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-full text-xs font-bold hover:bg-amber-600 transition-all shadow-sm active:scale-95"
+                            >
+                                <Megaphone size={14} className="fill-white/20" />
+                                <span>新規作成</span>
+                            </button>
+                            <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                                <X size={20} className="text-slate-400" />
+                            </button>
+                        </div>
                     </div>
-                    <div className="flex gap-3">
-                        <button 
-                            onClick={() => setModalState('create_wish')}
-                            className="flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-full text-xs font-bold hover:bg-amber-600 transition-all shadow-sm active:scale-95"
-                        >
-                            <Megaphone size={14} className="fill-white/20" />
-                            <span>新規作成</span>
-                        </button>
-                        <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                            <X size={20} className="text-slate-400" />
-                        </button>
-                    </div>
-                </div>
 
-                {/* Simple Tabs */}
-                <div className="flex gap-8">
-                    <button
-                        onClick={() => setActiveTab('active')}
-                        className={`pb-3 text-xs font-bold transition-all relative ${
-                            activeTab === 'active' ? 'text-amber-600' : 'text-slate-400 hover:text-slate-600'
-                        }`}
-                    >
-                        募集中
-                        <span className="ml-2 bg-amber-100/50 text-amber-700 px-1.5 py-0.5 rounded-full text-[10px] tabular-nums">
-                            {myActiveWishes.length}
-                        </span>
-                        {activeTab === 'active' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500 rounded-t-full" />}
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('outbound')}
-                        className={`pb-3 text-xs font-bold transition-all relative ${
-                            activeTab === 'outbound' ? 'text-amber-600' : 'text-slate-400 hover:text-slate-600'
-                        }`}
-                    >
-                        進行中
-                        <span className="ml-2 bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full text-[10px] tabular-nums">
-                            {myOutboundWishes.length}
-                        </span>
-                        {activeTab === 'outbound' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500 rounded-t-full" />}
-                    </button>
+                    {/* Simple Tabs */}
+                    <div className="flex gap-8">
+                        <button
+                            onClick={() => setActiveTab('active')}
+                            className={`pb-3 text-xs font-bold transition-all relative ${
+                                activeTab === 'active' ? 'text-amber-600' : 'text-slate-400 hover:text-slate-600'
+                            }`}
+                        >
+                            募集中
+                            <span className="ml-2 bg-amber-100/50 text-amber-700 px-1.5 py-0.5 rounded-full text-[10px] tabular-nums">
+                                {myActiveWishes.length}
+                            </span>
+                            {activeTab === 'active' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500 rounded-t-full" />}
+                        </button>
+                        <button
+                            onClick={() => setActiveTab('outbound')}
+                            className={`pb-3 text-xs font-bold transition-all relative ${
+                                activeTab === 'outbound' ? 'text-amber-600' : 'text-slate-400 hover:text-slate-600'
+                            }`}
+                        >
+                            進行中
+                            <span className="ml-2 bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full text-[10px] tabular-nums">
+                                {myOutboundWishes.length}
+                            </span>
+                            {activeTab === 'outbound' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500 rounded-t-full" />}
+                        </button>
+                    </div>
                 </div>
             </div>
 
             {/* List Content */}
-            <div className="flex-1 overflow-y-auto no-scrollbar p-4 pb-24 bg-slate-50">
-                 {activeTab === 'active' ? (
-                     <WishCardList 
-                        wishes={myActiveWishes} 
-                        currentUserId={currentUserId} 
-                        emptyMessage="現在、募集中のお願いはありません。"
-                        subtitle="OPEN REQUESTS"
-                     />
-                 ) : (
-                     <WishCardList 
-                        wishes={myOutboundWishes} 
-                        currentUserId={currentUserId} 
-                        emptyMessage="現在、誰かが手伝ってくれている案件はありません。"
-                        subtitle="IN PROGRESS"
-                     />
-                 )}
+            <div className="flex-1 overflow-y-auto no-scrollbar bg-slate-50 w-full">
+                <div className="max-w-md mx-auto p-4 pb-24 h-full">
+                     {activeTab === 'active' ? (
+                         <WishCardList 
+                            wishes={myActiveWishes} 
+                            currentUserId={currentUserId} 
+                            emptyMessage="現在、募集中のお願いはありません。"
+                            subtitle="OPEN REQUESTS"
+                         />
+                     ) : (
+                         <WishCardList 
+                            wishes={myOutboundWishes} 
+                            currentUserId={currentUserId} 
+                            emptyMessage="現在、誰かが手伝ってくれている案件はありません。"
+                            subtitle="IN PROGRESS"
+                         />
+                     )}
+                </div>
             </div>
 
             {renderModals()}

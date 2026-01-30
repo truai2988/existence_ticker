@@ -1,58 +1,73 @@
 import React from "react";
 import { motion } from "framer-motion";
-import { Inbox, Megaphone, Heart, ArrowRight, ArrowDown, User } from "lucide-react";
+import {
+  Inbox,
+  Megaphone,
+  Heart,
+  ArrowRight,
+  ArrowDown,
+  User,
+  X,
+} from "lucide-react";
 import { useProfile } from "../hooks/useProfile";
 import { useWallet } from "../hooks/useWallet";
-import { isProfileComplete } from "../utils/profileCompleteness";
+import { getTrustRank } from "../utils/trustRank";
 
 interface HomeViewProps {
   onOpenFlow: () => void; // "Help" (Inflow)
   onOpenRequest: () => void; // "Request" (Outflow - Contract)
   onOpenGift: () => void; // "Gift" (Outflow - Pure)
-  onOpenProfile: () => void;
+  onOpenProfileEdit: () => void;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({
   onOpenFlow,
   onOpenRequest,
   onOpenGift,
-  onOpenProfile,
+  onOpenProfileEdit,
 }) => {
   const { profile } = useProfile();
   const { availableLm } = useWallet();
-  const isComplete = isProfileComplete(profile);
   const hasNoSpace = availableLm <= 0;
+  const trustRank = getTrustRank(profile);
+  const [isDismissed, setIsDismissed] = React.useState(false);
 
-  const handleProtectedAction = (action: () => void) => {
-    if (!isComplete) {
-      if (confirm("プロフィールの器を完成させると、相手に信頼が伝わりやすくなります（あと1分で完了します）。\n\nプロフィールを編集しますか？")) {
-        onOpenProfile();
-        return;
-      }
-    }
-    action();
-  };
+
 
   return (
-    <div className="flex-1 flex flex-col justify-center items-center w-full min-h-full p-4 pt-6 pb-12 relative">
-      
+    <div className="flex-1 flex flex-col justify-center items-center w-full min-h-full p-4 pt-6 pb-12 relative max-w-md mx-auto">
       {/* Onboarding Banner */}
-      {!isComplete && (
-        <div className="absolute top-4 left-4 right-4 md:max-w-xl md:mx-auto z-20 bg-white border border-slate-100 shadow-xl shadow-slate-200/50 rounded-2xl p-4 flex items-center justify-between animate-fade-in-down">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-slate-50 rounded-full text-slate-400 border border-slate-100">
-              <User size={18} />
-            </div>
-            <div>
-              <h3 className="text-sm font-bold text-slate-800">あなたの器を完成させましょう</h3>
-              <p className="text-[10px] text-slate-500 font-medium">隣人に存在を知らせるために</p>
-            </div>
-          </div>
-          <button 
-            onClick={onOpenProfile}
-            className="text-xs font-bold bg-slate-900 text-white px-4 py-2 rounded-full hover:bg-slate-800 transition-all shadow-md hover:shadow-lg active:scale-95"
+
+      {!trustRank.isVerified && !isDismissed && (
+        <div className="w-full max-w-lg mx-auto z-20 bg-white border border-slate-100 shadow-xl shadow-slate-200/50 rounded-2xl p-4 flex flex-col gap-4 animate-fade-in-down mb-6 relative">
+             <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-slate-50 rounded-full text-slate-400 border border-slate-100 shrink-0">
+                      <User size={18} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-800">
+                        プロフィールを充実させて、信頼を高めましょう
+                      </h3>
+                      <p className="text-[10px] text-slate-500 font-medium">
+                        あなたの誠実さがより伝わりやすくなります
+                      </p>
+                    </div>
+                  </div>
+                   <button
+                    onClick={() => setIsDismissed(true)}
+                    className="p-1 hover:bg-slate-100 rounded-full transition-colors shrink-0"
+                    aria-label="閉じる"
+                  >
+                    <X size={16} className="text-slate-400" />
+                  </button>
+             </div>
+          
+          <button
+            onClick={onOpenProfileEdit}
+            className="w-full text-xs font-bold bg-slate-900 text-white px-4 py-3 rounded-xl hover:bg-slate-800 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2"
           >
-            磨く
+            プロフィールを編集
           </button>
         </div>
       )}
@@ -70,10 +85,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
       {/* === MAIN ACTION GRID === */}
       <div className="w-full max-w-lg grid grid-cols-2 gap-4 auto-rows-fr px-4">
-        
         {/* 1. HELP (INFLOW) */}
         <button
-          onClick={() => handleProtectedAction(onOpenFlow)}
+          onClick={onOpenFlow}
           className="col-span-2 group relative bg-white/60 backdrop-blur-sm rounded-3xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:bg-white transition-all duration-300 border border-slate-100 flex flex-col items-center text-center gap-4 overflow-hidden active:scale-[0.98]"
         >
           <div className="shrink-0 p-4 bg-blue-50/80 rounded-2xl group-hover:bg-blue-100/80 group-hover:scale-110 transition-all duration-300">
@@ -87,15 +101,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
               誰かの願いを叶える
             </p>
           </div>
-          
+
           <div className="hidden absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
-             <ArrowRight size={20} className="text-blue-400" />
+            <ArrowRight size={20} className="text-blue-400" />
           </div>
         </button>
 
         {/* 2. REQUEST (OUTFLOW) */}
         <button
-          onClick={() => handleProtectedAction(onOpenRequest)}
+          onClick={onOpenRequest}
           className="col-span-1 group relative bg-white/60 backdrop-blur-sm rounded-3xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:bg-white transition-all duration-300 border border-slate-100 flex flex-col items-center text-center gap-4 overflow-hidden active:scale-[0.98]"
         >
           <div className="shrink-0 p-4 bg-amber-50/80 rounded-2xl group-hover:bg-amber-100/80 group-hover:scale-110 transition-all duration-300">
@@ -111,7 +125,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
 
           <div className="hidden absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
-             <ArrowRight size={20} className="text-amber-400" />
+            <ArrowRight size={20} className="text-amber-400" />
           </div>
         </button>
 
@@ -120,35 +134,45 @@ export const HomeView: React.FC<HomeViewProps> = ({
           onClick={() => !hasNoSpace && onOpenGift()}
           disabled={hasNoSpace}
           className={`col-span-1 group relative rounded-3xl p-6 shadow-sm transition-all duration-300 border flex flex-col items-center text-center gap-4 overflow-hidden active:scale-[0.98] ${
-             hasNoSpace 
-               ? 'bg-slate-50/50 border-slate-200 cursor-not-allowed opacity-60' 
-               : 'bg-white/60 backdrop-blur-sm border-slate-100 hover:shadow-xl hover:-translate-y-1 hover:bg-white'
+            hasNoSpace
+              ? "bg-slate-50/50 border-slate-200 cursor-not-allowed opacity-60"
+              : "bg-white/60 backdrop-blur-sm border-slate-100 hover:shadow-xl hover:-translate-y-1 hover:bg-white"
           }`}
         >
-          <div className={`shrink-0 p-4 rounded-2xl transition-all duration-300 group-hover:scale-110 ${
-             hasNoSpace ? 'bg-slate-100' : 'bg-pink-50/80 group-hover:bg-pink-100/80'
-          }`}>
-            <Heart size={28} className={hasNoSpace ? 'text-slate-400' : 'text-pink-500'} />
+          <div
+            className={`shrink-0 p-4 rounded-2xl transition-all duration-300 group-hover:scale-110 ${
+              hasNoSpace
+                ? "bg-slate-100"
+                : "bg-pink-50/80 group-hover:bg-pink-100/80"
+            }`}
+          >
+            <Heart
+              size={28}
+              className={hasNoSpace ? "text-slate-400" : "text-pink-500"}
+            />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className={`text-lg font-bold mb-1 transition-colors ${
-                 hasNoSpace ? 'text-slate-400' : 'text-slate-800 group-hover:text-pink-600'
-            }`}>
+            <h2
+              className={`text-lg font-bold mb-1 transition-colors ${
+                hasNoSpace
+                  ? "text-slate-400"
+                  : "text-slate-800 group-hover:text-pink-600"
+              }`}
+            >
               贈る
             </h2>
-             <p className="text-xs text-slate-500 font-medium leading-relaxed">
-                {hasNoSpace ? 'ゆとり不足' : '感謝を届ける'}
+            <p className="text-xs text-slate-500 font-medium leading-relaxed">
+              {hasNoSpace ? "ゆとり不足" : "感謝を届ける"}
             </p>
           </div>
 
           {!hasNoSpace && (
-             <div className="hidden absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
-                <ArrowRight size={20} className="text-pink-400" />
-             </div>
+            <div className="hidden absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
+              <ArrowRight size={20} className="text-pink-400" />
+            </div>
           )}
         </button>
       </div>
-
     </div>
   );
 };

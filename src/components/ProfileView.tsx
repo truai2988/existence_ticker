@@ -4,7 +4,7 @@ import {
     X, ChevronRight, ChevronDown, QrCode, 
     LogOut, Trash2, KeyRound, ShieldAlert, Sun,
     Wallet, Heart, Star, Handshake, Megaphone,
-    MapPin, Link as LinkIcon, Camera, Edit2, ShieldCheck
+    MapPin, Link as LinkIcon, Camera, Edit2, ShieldCheck, Settings
 } from 'lucide-react';
 import QRCode from "react-qr-code";
 import { useProfile } from '../hooks/useProfile';
@@ -17,7 +17,8 @@ import { ProfileEditScreen } from './ProfileEditScreen';
 interface ProfileViewProps {
     onClose: () => void;
     onOpenAdmin?: () => void;
-    userId?: string; 
+    userId?: string;
+    initialEditMode?: boolean; 
 }
 
 interface ListItemProps {
@@ -59,12 +60,12 @@ const ListItem: React.FC<ListItemProps> = ({
     </button>
 );
 
-export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }) => {
+export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin, initialEditMode = false }) => {
     const { profile } = useProfile();
     const { user, signOut, linkEmail, deleteAccount, updateUserPassword } = useAuth();
     
     // UI States
-    const [isEditingProfile, setIsEditingProfile] = useState(false);
+    const [isEditingProfile, setIsEditingProfile] = useState(initialEditMode);
     const [isQrOpen, setIsQrOpen] = useState(false);
     
     // Auth Flow States (Link/Password/Delete)
@@ -155,27 +156,42 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }
     };
 
     
+
     // Sub-screen Handling
     if (isEditingProfile) {
         return <ProfileEditScreen onClose={() => setIsEditingProfile(false)} onBack={() => setIsEditingProfile(false)} />;
     }
 
     return (
-        <div className="fixed inset-0 z-[60] bg-slate-50 flex flex-col pt-safe animate-fade-in">
+        <div className="fixed inset-0 z-[60] bg-slate-50 flex flex-col pt-safe animate-fade-in w-full h-full">
             {/* Header / Nav */}
-            <div className="flex items-center justify-between p-4 bg-white border-b border-slate-200 sticky top-0 z-10 shrink-0">
-                <h2 className="text-lg font-bold text-slate-800">プロフィール</h2>
-                <div className="flex items-center gap-2">
-                    <button onClick={() => setIsEditingProfile(true)} className="p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors flex items-center gap-1">
-                        <Edit2 size={18} />
-                    </button>
-                    <button onClick={onClose} className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors">
-                        <X size={20} className="text-slate-600" />
-                    </button>
+            <div className="w-full bg-white border-b border-slate-200 sticky top-0 z-10 shrink-0">
+                <div className="max-w-md mx-auto flex items-center justify-between p-4">
+                    <h2 className="text-lg font-bold text-slate-800">プロフィール</h2>
+                    <div className="flex gap-2">
+                        {onOpenAdmin && (
+                            <button
+                                onClick={onOpenAdmin}
+                                className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
+                            >
+                                <Settings size={20} />
+                            </button>
+                        )}
+                        <button
+                            onClick={() => setIsEditingProfile(true)}
+                            className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
+                        >
+                            <Edit2 size={20} />
+                        </button>
+                        <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400">
+                            <X size={20} />
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto no-scrollbar pb-24">
+            <div className="flex-1 overflow-y-auto no-scrollbar w-full">
+                <div className="max-w-md mx-auto w-full pb-24">
                 {/* 1. Header Profile Info */}
                 <div className="flex flex-col items-center py-8 bg-white mb-4 border-b border-slate-200">
                     <div className="relative mb-3">
@@ -411,6 +427,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onClose, onOpenAdmin }
 
                 </div>
             </div>
+        </div>
 
             {/* Modals & Dialogs Overlay */}
             <AnimatePresence>
