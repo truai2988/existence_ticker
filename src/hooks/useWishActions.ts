@@ -429,6 +429,32 @@ export const useWishActions = () => {
     }
   };
   
+  const withdrawApplication = async (wishId: string): Promise<boolean> => {
+      if (!db || !user) return false;
+      setIsSubmitting(true);
+      try {
+          const wishRef = doc(db, 'wishes', wishId);
+          await runTransaction(db, async (transaction) => {
+              const wishDoc = await transaction.get(wishRef);
+              if (!wishDoc.exists()) throw "Wish not found";
+              
+              const currentApplicants = wishDoc.data().applicants || [];
+              const updatedApplicants = currentApplicants.filter((a: { id: string }) => a.id !== user.uid);
+              
+              transaction.update(wishRef, {
+                  applicants: updatedApplicants
+              });
+          });
+          return true;
+      } catch (e) {
+          console.error("Failed to withdraw application:", e);
+          alert("取り消しに失敗しました");
+          return false;
+      } finally {
+          setIsSubmitting(false);
+      }
+  };
+
   // Wrapper for backward compatibility
   const acceptWish = async (wishId: string) => {
       if (!user) return false;
@@ -445,6 +471,7 @@ export const useWishActions = () => {
     cancelWish,
     resignWish,
     updateWish,
+    withdrawApplication,
     isSubmitting
   };
 };

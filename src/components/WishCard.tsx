@@ -87,7 +87,7 @@ interface WishCardProps {
 }
 
 export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenProfile }) => {
-  const { applyForWish, approveWish, fulfillWish, cancelWish, updateWish, resignWish } =
+  const { applyForWish, approveWish, fulfillWish, cancelWish, updateWish, resignWish, withdrawApplication } =
     useWishActions();
   const { openUserProfile } = useUserView();
   const { profile: requesterProfile } = useOtherProfile(wish.requester_id);
@@ -517,10 +517,25 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
               {wish.status === "open" && (
                 <div>
                   {hasApplied ? (
-                    <span className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-500 rounded-full text-xs font-bold border border-slate-200 whitespace-nowrap shrink-0">
-                      <Clock size={14} />
-                      返事を待っています
-                    </span>
+                    <div className="flex items-center gap-2">
+                        <span className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-500 rounded-full text-xs font-bold border border-slate-200 whitespace-nowrap shrink-0">
+                          <Clock size={14} />
+                          返事を待っています
+                        </span>
+                        <button
+                            onClick={async () => {
+                                if (confirm("本当に立候補を取り消しますか？")) {
+                                    setIsLoading(true);
+                                    await withdrawApplication(wish.id);
+                                    setIsLoading(false);
+                                }
+                            }}
+                            disabled={isLoading}
+                            className="px-3 py-1.5 text-[10px] font-bold text-slate-400 border border-slate-200 rounded-full hover:bg-slate-50 hover:text-slate-600 hover:border-slate-300 transition-all"
+                        >
+                            取り消す
+                        </button>
+                    </div>
                   ) : (
                     <button
                       onClick={handleApply}
