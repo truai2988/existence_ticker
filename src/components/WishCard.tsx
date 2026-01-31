@@ -556,10 +556,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
               {(wish.status === "in_progress" || wish.status === "review_pending") &&
                 wish.helper_id === currentUserId && (
                   <div className="flex items-center gap-3">
-                     <span className="text-xs font-bold text-blue-600 flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                        進行中
-                     </span>
+
                       {/* Helper Resignation */}
                       <button
                         onClick={handleCancel}
