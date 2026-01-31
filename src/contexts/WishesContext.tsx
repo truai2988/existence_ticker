@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from 'react';
 import { Wish } from '../types';
 import { db } from '../lib/firebase';
 import { collection, query, orderBy, getDocs, limit, startAfter } from 'firebase/firestore';
@@ -20,7 +20,7 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const [wishes, setWishes] = useState<Wish[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
-    const [lastDoc, setLastDoc] = useState<unknown>(null);
+    const lastDocRef = useRef<unknown>(null);
     const [hasMore, setHasMore] = useState(true);
     const [isFetchingMore, setIsFetchingMore] = useState(false);
 
@@ -42,11 +42,11 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                 limit(LIMIT)
             );
 
-            if (!isInitial && lastDoc) {
+            if (!isInitial && lastDocRef.current) {
                 q = query(
                     collection(db, 'wishes'), 
                     orderBy('created_at', 'desc'), 
-                    startAfter(lastDoc),
+                    startAfter(lastDocRef.current),
                     limit(LIMIT)
                 );
             }
@@ -67,7 +67,7 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
             // Update Cursor
             const lastVisible = snapshot.docs[snapshot.docs.length - 1];
-            setLastDoc(lastVisible);
+            lastDocRef.current = lastVisible;
 
             // Check if more exist
             if (snapshot.docs.length < LIMIT) {
@@ -83,7 +83,7 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             setIsLoading(false);
             setIsFetchingMore(false);
         }
-    }, [lastDoc]); // Dependencies: lastDoc updates when page changes
+    }, []); // No dependencies - stable reference
 
     // Initial Load
     useEffect(() => {
@@ -97,7 +97,7 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     };
 
     const refresh = () => {
-        setLastDoc(null);
+        lastDocRef.current = null;
         setHasMore(true);
         fetchWishes(true);
     };
