@@ -72,12 +72,12 @@ export const useWallet = () => {
     
     // 減価計算を適用
     const val = calculateDecayedValue(rawBalance, lastUpdated);
-    console.log("[Wallet Debug]", { 
+    console.log("[Wallet Debug]", JSON.stringify({ 
         rawBalance, 
         lastUpdated, 
         decayed: val,
         cycleStart: profile?.cycle_started_at
-    });
+    }, null, 2));
     return val;
   }, [profile?.balance, profile?.last_updated, profile?.cycle_started_at]);
 
