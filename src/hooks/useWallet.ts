@@ -11,6 +11,7 @@ import {
   where,
   getDocs,
   onSnapshot,
+  updateDoc,
 } from "firebase/firestore";
 import { useProfile } from "./useProfile";
 import { calculateDecayedValue, calculateAvailableLm, WORLD_CONSTANTS } from "../logic/worldPhysics";
@@ -449,11 +450,9 @@ export const useWallet = () => {
              if (diffHrs > 24) {
                  const correctBalance = Math.max(0, 2400 - (diffHrs * 10));
                  console.log(`[Auto-Fix] Correcting balance from 2400 to ${correctBalance} (Hrs passed: ${diffHrs})`);
-                 const ref = doc(db, "users", user.uid);
+                 const ref = doc(db!, "users", user.uid);
                  // Only run if we haven't already fixed (check logic or rely on balance changing)
                  // Since balance check is strict === 2400, it runs once.
-                 // We use updateDoc directly to avoid loop.
-                 const { updateDoc } = require("firebase/firestore");
                  updateDoc(ref, { 
                      balance: correctBalance,
                      last_updated: serverTimestamp()
