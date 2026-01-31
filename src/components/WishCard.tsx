@@ -552,7 +552,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
               )}
 
 
-              {/* Helper Views: In Progress (Just Status) */}
+              {/* Helper Views: In Progress (Status Only - No Report Button) */}
               {(wish.status === "in_progress" || wish.status === "review_pending") &&
                 wish.helper_id === currentUserId && (
                   <div className="flex items-center gap-3">
