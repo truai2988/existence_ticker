@@ -109,10 +109,34 @@ export const useProfile = () => {
     if (!user || !db) return false;
     const userRef = doc(db, "users", user.uid);
     try {
-      await updateDoc(userRef, updates);
+      // Must calculate current decayed balance to prevent "healing" by reset last_updated
+      // However, we cannot easily calculate it here without `profile` state or reading/transaction.
+      // Since we have `profile` in scope, let's use it as best effort.
+      // But for robustness, we should use a Transaction or simply trust the client calculation if the risk is low.
+      // Given this is a PWA without cloud functions, client-side calculation is the norm.
+      
+      const { runTransaction } = await import("firebase/firestore");
+      const { calculateDecayedValue } = await import("../logic/worldPhysics");
+
+      await runTransaction(db, async (transaction) => {
+          const docSnap = await transaction.get(userRef);
+          if (!docSnap.exists()) throw "User not found";
+          
+          const currentData = docSnap.data();
+          const currentRealBalance = calculateDecayedValue(
+              currentData.balance || 0,
+              currentData.last_updated
+          );
+
+          transaction.update(userRef, {
+              ...updates,
+              balance: currentRealBalance, // Checkpoint the decay
+              last_updated: serverTimestamp()
+          });
+      });
       return true;
     } catch (e) {
-      console.error(e);
+      console.error("Profile update failed:", e);
       return false;
     }
   };

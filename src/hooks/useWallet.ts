@@ -438,8 +438,32 @@ export const useWallet = () => {
         uid: user.uid
       });
     }
+
+    // === FORCE CORRECTION (One-off) ===
+    if (profile && profile.balance === 2400 && profile.cycle_started_at && user) {
+        const cycleStart = profile.cycle_started_at.seconds ? new Date(profile.cycle_started_at.seconds * 1000) : null;
+        if (cycleStart) {
+             const now = new Date();
+             const diffMs = now.getTime() - cycleStart.getTime();
+             const diffHrs = diffMs / (1000 * 60 * 60);
+             if (diffHrs > 24) {
+                 const correctBalance = Math.max(0, 2400 - (diffHrs * 10));
+                 console.log(`[Auto-Fix] Correcting balance from 2400 to ${correctBalance} (Hrs passed: ${diffHrs})`);
+                 const ref = doc(db, "users", user.uid);
+                 // Only run if we haven't already fixed (check logic or rely on balance changing)
+                 // Since balance check is strict === 2400, it runs once.
+                 // We use updateDoc directly to avoid loop.
+                 const { updateDoc } = require("firebase/firestore");
+                 updateDoc(ref, { 
+                     balance: correctBalance,
+                     last_updated: serverTimestamp()
+                 });
+             }
+        }
+    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [committedLm, balance, user]);
+  }, [committedLm, balance, user, profile]);
 
   return {
     balance,
