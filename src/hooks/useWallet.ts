@@ -74,9 +74,9 @@ export const useWallet = () => {
     const val = calculateDecayedValue(rawBalance, lastUpdated);
     console.log("[Wallet Debug]", { 
         rawBalance, 
-        lastUpdated: lastUpdated?.toDate?.() || lastUpdated, 
+        lastUpdated, 
         decayed: val,
-        cycleStart: profile?.cycle_started_at?.toDate?.() || profile?.cycle_started_at
+        cycleStart: profile?.cycle_started_at
     });
     return val;
   }, [profile?.balance, profile?.last_updated, profile?.cycle_started_at]);
