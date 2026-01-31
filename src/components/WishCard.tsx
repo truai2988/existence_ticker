@@ -272,9 +272,6 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                         className="block text-sm font-bold text-slate-800 tracking-wide hover:underline text-left truncate max-w-full"
                       >
                         {requesterProfile?.name || wish.requester_name || wish.requester_id.slice(0, 8)}
-                        <span className="text-[10px] text-red-500 font-normal ml-1">
-                            {requesterProfile ? "(Live)" : "(Snap)"}
-                        </span>
                       </button>
                       {trust.isVerified && (
                         <ShieldCheck size={14} className="text-blue-400 fill-blue-50 shrink-0" strokeWidth={2.5} />

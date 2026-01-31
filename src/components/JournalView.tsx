@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuthHook';
 import { db } from '../lib/firebase';
 import { collection, query, where, orderBy, limit, onSnapshot, Timestamp } from 'firebase/firestore';
 import { UserSubBar } from './UserSubBar';
+import { useOtherProfile } from '../hooks/useOtherProfile';
 
 // Type Definition for our unified Transaction
 type TransactionLog = {
@@ -164,6 +165,11 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
     const date = parseDate(log.created_at);
     const dateStr = formatDate(date);
     
+    // Identify Partner ID for Live Name Fetching
+    const partnerId = isSender ? log.recipient_id : log.sender_id;
+    const { profile: partnerProfile } = useOtherProfile(partnerId || null);
+    const partnerName = partnerProfile?.name || (isSender ? log.recipient_name : log.sender_name) || '誰か';
+
     // Determining Content based on rules
     let icon, title, metaColor, amountPrefix, amountColor;
 
@@ -179,14 +185,14 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
         if (isSender) {
             // [ギフト送付]
             icon = <Heart size={14} className="text-pink-500 fill-pink-50" />;
-            title = `${log.recipient_name || '誰か'}さんに光を贈りました（ギフト）`;
+            title = `${partnerName}さんに光を贈りました（ギフト）`;
             metaColor = "bg-pink-50 border-pink-200";
             amountPrefix = ""; // No negative sign requested
             amountColor = "text-slate-400"; // Neutral for "Sharing"
         } else {
             // [ギフト受取]
             icon = <Sparkles size={14} className="text-cyan-500 fill-cyan-50" />;
-            title = `${log.sender_name || '誰か'}さんから光を預かりました（ギフト）`;
+            title = `${partnerName}さんから光を預かりました（ギフト）`;
             metaColor = "bg-cyan-50 border-cyan-200";
             amountPrefix = "+";
             amountColor = "text-cyan-600";
@@ -196,7 +202,7 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
         if (isSender) {
              // [依頼支払い] (I was the requester, I paid)
              icon = <CheckCircle2 size={14} className="text-amber-600" />;
-             title = `${log.recipient_name || '誰か'}さんに感謝を伝えました（依頼完了）`;
+             title = `${partnerName}さんに感謝を伝えました（依頼完了）`;
              metaColor = "bg-amber-50 border-amber-200";
              amountPrefix = ""; // No negative sign
              amountColor = "text-slate-400";
@@ -204,7 +210,7 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
         } else {
              // [報酬受取] (I was the helper, I got paid)
              icon = <CheckCircle2 size={14} className="text-blue-600" />;
-             title = `${log.sender_name || '誰か'}さんの願いを叶えました（報酬受取）`;
+             title = `${partnerName}さんの願いを叶えました（報酬受取）`;
              metaColor = "bg-blue-50 border-blue-200";
              amountPrefix = "+";
              amountColor = "text-blue-600";
