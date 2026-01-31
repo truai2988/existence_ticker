@@ -26,8 +26,12 @@ export interface UserProfile {
   balance: number;
   xp: number;
   warmth: number;
+  // Role for Governance
   role?: 'user' | 'admin';
-  last_updated?: unknown; 
+
+  // Computed / Virtual
+  is_deleted?: boolean;
+  last_updated?: unknown;
   completed_contracts?: number; // How many times they helped
   created_contracts?: number;   // How many times they requested
   completed_requests?: number;  // How many times their requests were fulfilled & paid

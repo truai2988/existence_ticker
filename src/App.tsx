@@ -4,8 +4,7 @@ import { AuthScreen } from './components/AuthScreen';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { MainContent } from './components/MainContent'; 
-import { AdminDashboard } from './components/AdminDashboard';
-import { Settings } from 'lucide-react'; 
+import { AdminDashboard } from './components/AdminDashboard'; 
 
 import { useAuth } from './hooks/useAuthHook';
 import { useProfile } from './hooks/useProfile';
@@ -30,7 +29,7 @@ const PWALogic = () => {
 function App() {
   const { user, loading: authLoading } = useAuth();
   const { profile } = useProfile();
-  const isAdmin = profile?.role === 'admin' || (user && ADMIN_UIDS.includes(user.uid));
+  // const isAdmin = profile?.role === 'admin' || (user && ADMIN_UIDS.includes(user.uid));
   
   const [viewMode, setViewMode] = useState<AppViewMode>('home');
   const [showAdmin, setShowAdmin] = useState(false);
@@ -100,15 +99,7 @@ function App() {
       {/* Admin Quick Access */}
       <PWALogic /> 
       
-      {isAdmin && (
-        <button
-          onClick={() => setShowAdmin(true)}
-          className="fixed bottom-24 left-4 z-50 p-3 bg-slate-900 text-yellow-500 rounded-full shadow-lg opacity-50 hover:opacity-100 transition-all border border-yellow-500/20"
-          title="Admin Dashboard"
-        >
-          <Settings size={20} />
-        </button>
-      )}
+
 
       {showAdmin && <AdminDashboard onClose={() => setShowAdmin(false)} />}
     </div>

@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { X, Activity, Moon, Sun, AlertTriangle, Book } from "lucide-react";
+import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, ShieldOff } from "lucide-react";
 import { useStats, MetabolismStatus } from "../hooks/useStats";
 import { useDiagnostics } from "../hooks/useDiagnostics";
 import { DiagnosticModal } from "./DiagnosticModal";
 import { db } from "../lib/firebase";
 import { AnomalyScanner } from "./AnomalyScanner";
+import { UserProfile } from "../types";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -24,11 +25,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
 
   // Load Cycle Config from Firestore directly
+  // User Management State
+  const [activeTab, setActiveTab] = useState<'overview' | 'users'>('overview');
+  const [userList, setUserList] = useState<UserProfile[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [adminCount, setAdminCount] = useState(0);
+
   React.useEffect(() => {
     const fetchConfig = async () => {
         try {
             if (!db) return;
-            const { doc, getDoc } = await import("firebase/firestore"); // Keep this dynamic if needed, or move to top level
+            const { doc, getDoc } = await import("firebase/firestore");
             
             const settingsRef = doc(db, "system_settings", "global");
             const snap = await getDoc(settingsRef);
@@ -41,6 +49,86 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     };
     fetchConfig();
   }, []);
+
+  // Fetch Users Logic
+  React.useEffect(() => {
+      if (activeTab === 'users') {
+          fetchUsers();
+      }
+  }, [activeTab]);
+
+  const fetchUsers = async () => {
+      setIsLoadingUsers(true);
+      try {
+          if (!db) return;
+          const { collection, getDocs, query, limit } = await import("firebase/firestore");
+          
+          const usersRef = collection(db, "users");
+          const q = query(usersRef, limit(50));
+
+          const snapshot = await getDocs(q);
+          const users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserProfile));
+          
+          // Client-side sort to be safe against missing fields
+          users.sort((a, b) => {
+             const getSeconds = (t: unknown) => {
+                 if (t && typeof t === 'object' && 'seconds' in t) {
+                     return (t as { seconds: number }).seconds;
+                 }
+                 return 0;
+             };
+             return getSeconds(b.last_updated) - getSeconds(a.last_updated);
+          });
+          
+          setUserList(users);
+          setAdminCount(users.filter(u => u.role === 'admin').length);
+      } catch (e) {
+          console.error("Failed to fetch users", e);
+      } finally {
+          setIsLoadingUsers(false);
+      }
+  };
+
+  const handleToggleAdmin = async (targetUser: UserProfile) => {
+      const isCurrentlyAdmin = targetUser.role === 'admin';
+      const actionLabel = isCurrentlyAdmin ? "管理者権限を削除" : "管理者権限を付与";
+      
+      // Safety Check: Prevent removing the last admin (heuristic based on loaded list, better safety is backend rule but UI warning helps)
+      // Note: This local check is imperfect if not all admins are loaded, but serves as basic friction.
+      if (isCurrentlyAdmin && adminCount <= 1) {
+          alert("禁止操作: あなたはこの世界で最後の管理者です。\n権限を放棄する前に、別の後継者を指名してください。");
+          return;
+      }
+
+      if (!window.confirm(`${targetUser.name || 'このユーザー'} に対する ${actionLabel} を行いますか？\n\n${isCurrentlyAdmin ? '警告: このユーザーはシステム設定を変更できなくなります。' : '注意: このユーザーはシステム設定を変更できるようになります。'}`)) {
+          return;
+      }
+
+      try {
+          if (!db) return;
+          const { doc, updateDoc } = await import("firebase/firestore");
+          const userRef = doc(db, "users", targetUser.id);
+          
+          await updateDoc(userRef, {
+              role: isCurrentlyAdmin ? 'user' : 'admin'
+          });
+
+          // Optimistic Update
+          setUserList(prev => prev.map(u => 
+              u.id === targetUser.id ? { ...u, role: isCurrentlyAdmin ? 'user' : 'admin' } : u
+          ));
+          setAdminCount(prev => isCurrentlyAdmin ? prev - 1 : prev + 1);
+
+      } catch (e: unknown) {
+          console.error("Failed to update role", e);
+          alert("権限の変更に失敗しました。\nあなた自身に十分な権限がない可能性があります。\n" + String(e));
+      }
+  };
+
+  const filteredUsers = userList.filter(u => 
+      u.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      u.id?.includes(searchQuery)
+  );
 
   const diagnostics = useDiagnostics(stats);
 
@@ -92,38 +180,41 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
   return (
     <div className={`fixed inset-0 z-[100] bg-black/95 backdrop-blur-md ${showManual ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+      {/* Header (Full Width Sticky) */}
+      <div className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-slate-800/50 w-full">
+          <div className="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div className="flex items-center gap-3">
+                <div className="p-2 bg-slate-800 rounded-lg">
+                <Activity className="w-5 h-5 text-slate-200" />
+                </div>
+                <div>
+                <h1 className="text-xl font-bold text-slate-200 tracking-wider">
+                    管理コンソール (GOD MODE)
+                </h1>
+                <p className="text-[10px] text-slate-500 font-mono uppercase tracking-[0.2em]">
+                    互助生態系 監視モニター
+                </p>
+                </div>
+            </div>
+            <div className="flex gap-2">
+                <button
+                onClick={() => setShowManual(true)}
+                className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-white"
+                title="Protocol Whitepaper"
+                >
+                <Book size={24} />
+                </button>
+                <button
+                onClick={onClose}
+                className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-white"
+                >
+                <X size={24} />
+                </button>
+            </div>
+          </div>
+      </div>
+
       <div className="min-h-full p-4 pb-40 max-w-3xl mx-auto relative">
-        {/* Header */}
-        <div className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl -mx-4 px-4 py-4 mb-6 border-b border-slate-800/50 flex justify-between items-center transition-all">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-slate-800 rounded-lg">
-              <Activity className="w-5 h-5 text-slate-200" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-200 tracking-wider">
-                管理コンソール (GOD MODE)
-              </h1>
-              <p className="text-[10px] text-slate-500 font-mono uppercase tracking-[0.2em]">
-                互助生態系 監視モニター
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowManual(true)}
-              className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-white"
-              title="Protocol Whitepaper"
-            >
-              <Book size={24} />
-            </button>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-white"
-            >
-              <X size={24} />
-            </button>
-          </div>
-        </div>
 
         {error && (
           <div className="mb-4 p-3 border border-red-500/30 bg-red-900/10 rounded text-red-400 text-sm">
@@ -144,8 +235,126 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
              </span>
         </div>
 
+        {/* Tab Navigation */}
+        <div className="flex gap-4 mb-6 border-b border-slate-800">
+            <button
+                onClick={() => setActiveTab('overview')}
+                className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 ${activeTab === 'overview' ? 'text-yellow-500 border-b-2 border-yellow-500' : 'text-slate-500 hover:text-slate-300'}`}
+            >
+                <Activity size={16} />
+                Overview
+            </button>
+            <button
+                onClick={() => setActiveTab('users')}
+                className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 ${activeTab === 'users' ? 'text-yellow-500 border-b-2 border-yellow-500' : 'text-slate-500 hover:text-slate-300'}`}
+            >
+                <Users size={16} />
+                User Management
+            </button>
+        </div>
+
         {/* Content Stack */}
         <div className="flex flex-col gap-6">
+
+        {activeTab === 'users' ? (
+            <div className="animate-in fade-in duration-300">
+                <div className="bg-slate-900/50 rounded-xl border border-slate-700 overflow-hidden">
+                    <div className="p-4 border-b border-slate-700 flex flex-col md:flex-row gap-4 justify-between items-center">
+                        <div className="relative w-full md:w-64">
+                            <Search className="absolute left-3 top-2.5 text-slate-500" size={16} />
+                            <input 
+                                type="text" 
+                                placeholder="ID or Check Name..."
+                                className="w-full bg-slate-800 border border-slate-600 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-yellow-500 placeholder-slate-500"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                        </div>
+                        <div className="text-xs text-slate-500 font-mono">
+                            {filteredUsers.length} Users Loaded
+                        </div>
+                    </div>
+                    
+                    <div className="max-h-[60vh] overflow-y-auto">
+                        {isLoadingUsers ? (
+                            <div className="p-8 text-center text-slate-500">Scanning bio-signals...</div>
+                        ) : (
+                            <table className="w-full text-left text-sm text-slate-400">
+                                <thead className="bg-slate-800/50 text-xs uppercase font-mono text-slate-500 sticky top-0 z-10 backdrop-blur-sm">
+                                    <tr>
+                                        <th className="px-6 py-3">User</th>
+                                        <th className="px-6 py-3">Status</th>
+                                        <th className="px-6 py-3">Role</th>
+                                        <th className="px-6 py-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-800">
+                                    {filteredUsers.map(u => (
+                                        <tr key={u.id} className="hover:bg-slate-800/30 transition-colors">
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">
+                                                        {u.name?.charAt(0) || '?'}
+                                                    </div>
+                                                    <div>
+                                                        <div className="font-bold text-slate-200">{u.name || 'Unknown'}</div>
+                                                        <div className="font-mono text-[10px] text-slate-600">{u.id}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex flex-col text-xs">
+                                                    <span>XP: {u.xp?.toLocaleString()}</span>
+                                                    <span>Warmth: {u.warmth?.toLocaleString()}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                {u.role === 'admin' ? (
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-900/50">
+                                                        <Shield size={10} />
+                                                        Admin
+                                                    </span>
+                                                ) : (
+                                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-500">
+                                                        User
+                                                    </span>
+                                                )}
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                {u.role === 'admin' ? (
+                                                    <button 
+                                                        onClick={() => handleToggleAdmin(u)}
+                                                        className="text-xs bg-slate-800 hover:bg-red-900/50 text-slate-400 hover:text-red-400 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors flex items-center gap-1 ml-auto"
+                                                    >
+                                                        <ShieldOff size={12} />
+                                                        Revoke
+                                                    </button>
+                                                ) : (
+                                                    <button 
+                                                        onClick={() => handleToggleAdmin(u)}
+                                                        className="text-xs bg-slate-800 hover:bg-green-900/50 text-slate-400 hover:text-green-400 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors flex items-center gap-1 ml-auto"
+                                                    >
+                                                        <Shield size={12} />
+                                                        Grant Admin
+                                                    </button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+                        {!isLoadingUsers && filteredUsers.length === 0 && (
+                             <div className="p-12 text-center text-slate-600 flex flex-col items-center gap-2">
+                                <Search size={24} className="opacity-50" />
+                                <p>No users found matching "{searchQuery}"</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        ) : (
+          <>
           {/* SECTION A: ACTIVE CYCLES */}
           <div
             className={`p-6 rounded-2xl border border-slate-700 bg-slate-900/20 relative overflow-hidden group`}
@@ -537,6 +746,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                <AnomalyScanner />
              </div>
           </div>
+          </>
+        )}
         </div>
       </div>
 

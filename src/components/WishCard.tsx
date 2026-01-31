@@ -87,7 +87,7 @@ interface WishCardProps {
 }
 
 export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenProfile }) => {
-  const { applyForWish, approveWish, fulfillWish, reportCompletion, cancelWish, updateWish, resignWish } =
+  const { applyForWish, approveWish, fulfillWish, cancelWish, updateWish, resignWish } =
     useWishActions();
   const { openUserProfile } = useUserView();
   const { profile: requesterProfile } = useOtherProfile(wish.requester_id);
@@ -478,7 +478,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                 </div>
               )}
 
-              {wish.status === "review_pending" && (
+              {(wish.status === "review_pending" || wish.status === "in_progress") && (
                 <button
                   onClick={() => {
                     if (
@@ -504,7 +504,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                   disabled={isLoading}
                   className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold shadow-lg shadow-pink-200 hover:scale-105 active:scale-95 transition-all"
                 >
-                  <Handshake className="w-4 h-4" />
+                  <Handshake className="w-4 h-4 text-white" />
                   <span>お礼をする (完了)</span>
                 </button>
               )}
@@ -552,42 +552,23 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
               )}
 
 
-              {wish.status === "in_progress" &&
+              {/* Helper Views: In Progress (Just Status) */}
+              {(wish.status === "in_progress" || wish.status === "review_pending") &&
                 wish.helper_id === currentUserId && (
-                  <button
-                    onClick={async () => {
-                      if (confirm("依頼主に完了を報告しますか？")) {
-                        setIsLoading(true);
-                        await reportCompletion(wish.id);
-                        setIsLoading(false);
-                      }
-                    }}
-                    disabled={isLoading}
-                    className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-blue-500 text-white font-bold shadow-lg shadow-blue-200 hover:bg-blue-600 active:scale-95 transition-all"
-                  >
-                    <CheckCircle className="w-4 h-4" />
-                    <span>完了を報告する</span>
-                  </button>
-                )}
-
-              {/* Helper Resignation */}
-              {wish.status === "in_progress" &&
-                wish.helper_id === currentUserId && (
-                  <button
-                    onClick={handleCancel}
-                    disabled={isLoading}
-                    className="flex items-center gap-2 px-4 py-2.5 text-slate-400 hover:text-red-500 text-xs font-bold transition-all"
-                  >
-                    <span>辞退する</span>
-                  </button>
-              )}
-
-              {wish.status === "review_pending" &&
-                wish.helper_id === currentUserId && (
-                  <span className="flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-600 rounded-full text-xs font-bold border border-purple-100 whitespace-nowrap shrink-0">
-                    <Clock size={14} />
-                    承認待ち
-                  </span>
+                  <div className="flex items-center gap-3">
+                     <span className="text-xs font-bold text-blue-600 flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        進行中
+                     </span>
+                      {/* Helper Resignation */}
+                      <button
+                        onClick={handleCancel}
+                        disabled={isLoading}
+                        className="text-slate-400 hover:text-red-500 text-xs font-bold transition-all underline decoration-slate-200 hover:decoration-red-200 underline-offset-4"
+                      >
+                        辞退する
+                      </button>
+                  </div>
                 )}
             </>
           )}

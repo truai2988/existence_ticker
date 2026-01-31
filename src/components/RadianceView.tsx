@@ -33,7 +33,8 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
     );
     // 2. Outbound Contracts (My In-Progress Requests)
     const myOutboundWishes = wishes.filter(w => 
-        w.requester_id === currentUserId && w.status === 'in_progress'
+        w.requester_id === currentUserId && 
+        (w.status === 'in_progress' || w.status === 'review_pending')
     );
 
     const renderModals = () => {

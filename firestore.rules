@@ -19,8 +19,14 @@ service cloud.firestore {
       // Strict Ownership: Only the user can write to their own profile
       // Physical Law: Balance cannot be negative (Vessel Integrity)
       allow create: if isSignedIn() && isOwner(userId);
-      allow update: if isSignedIn() && isOwner(userId) 
-                    && request.resource.data.balance >= 0; 
+      // Update: Owner can update own profile (balance constrained), OR Admin can update any profile (role management)
+      allow update: if isSignedIn() && (
+        // Case 1: Owner updating own profile
+        (isOwner(userId) && request.resource.data.balance >= 0) ||
+        // Case 2: Admin updating any profile (Governance)
+        // Using get() to check the requester's role within the database
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
+      ); 
       
       // History Subcollection (for logs)
       match /history/{historyId} {
@@ -47,8 +53,7 @@ service cloud.firestore {
     }
     
     function isAdmin() {
-      // TODO: Replace 'REPLACE_WITH_YOUR_ADMIN_UID' with the actual Admin UID from Authentication
-      return request.auth.uid == 'REPLACE_WITH_YOUR_ADMIN_UID';
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
     // --- System Settings (Global Config) ---
