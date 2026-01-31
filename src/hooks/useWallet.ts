@@ -84,27 +84,15 @@ export const useWallet = () => {
     if (!user) return 0;
     
     // 各依頼のcostを発行時から現在までの減価を考慮して合計
-    const total = activeWishes.reduce((sum, w) => {
+    return activeWishes.reduce((sum, w) => {
       const initialCost = w.cost || 0;
       const createdAt = w.created_at; // Firestore Timestamp or ISO string
       
       // calculateDecayedValueで減価した現在価値を計算
       const currentValue = calculateDecayedValue(initialCost, createdAt);
       
-      // デバッグ: 願いの詳細をログ出力
-      const createdDate = (createdAt && typeof createdAt === 'object' && 'toDate' in createdAt) 
-        ? (createdAt as { toDate: () => Date }).toDate() 
-        : new Date(createdAt as string || Date.now());
-      console.log(`[Wish Debug] ID: ${w.id.slice(0,8)}, Initial: ${initialCost} Lm, Current: ${Math.floor(currentValue)} Lm, Created: ${createdDate.toLocaleString('ja-JP')}`);
-      
       return sum + currentValue;
     }, 0);
-    
-    if (activeWishes.length > 0) {
-      console.log(`[Committed Total] ${Math.floor(total)} Lm from ${activeWishes.length} active wish(es)`);
-    }
-    
-    return total;
   }, [activeWishes, user]);
 
   /**

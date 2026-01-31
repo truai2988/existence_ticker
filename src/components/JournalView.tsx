@@ -5,7 +5,6 @@ import { useAuth } from '../hooks/useAuthHook';
 import { db } from '../lib/firebase';
 import { collection, query, where, orderBy, limit, onSnapshot, Timestamp } from 'firebase/firestore';
 import { UserSubBar } from './UserSubBar';
-import { useOtherProfile } from '../hooks/useOtherProfile';
 
 // Type Definition for our unified Transaction
 type TransactionLog = {
@@ -165,10 +164,8 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
     const date = parseDate(log.created_at);
     const dateStr = formatDate(date);
     
-    // Identify Partner ID for Live Name Fetching
-    const partnerId = isSender ? log.recipient_id : log.sender_id;
-    const { profile: partnerProfile } = useOtherProfile(partnerId || null);
-    const partnerName = partnerProfile?.name || (isSender ? log.recipient_name : log.sender_name) || '誰か';
+    // Use snapshot name (name saved at transaction time)
+    const partnerName = (isSender ? log.recipient_name : log.sender_name) || '誰か';
 
     // Determining Content based on rules
     let icon, title, metaColor, amountPrefix, amountColor;
