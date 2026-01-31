@@ -91,6 +91,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
     useWishActions();
   const { openUserProfile } = useUserView();
   const { profile: requesterProfile } = useOtherProfile(wish.requester_id);
+  const { profile: helperProfile } = useOtherProfile(wish.helper_id || null);
   const { profile: myProfile } = useProfile();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -208,62 +209,107 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
       {/* Header: User & Meta & Badge */}
       <div className="relative flex justify-between items-start mb-4 gap-4">
         {/* User Info (Left) */}
+        {/* User Info (Left) - Perspective Logic */}
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0 overflow-hidden">
-            {requesterProfile?.avatarUrl ? (
-                <img src={requesterProfile.avatarUrl} alt={requesterProfile.name} className="w-full h-full object-cover" />
-            ) : (
-                <span className="text-lg font-bold text-slate-400">
-                    {requesterProfile?.name?.charAt(0).toUpperCase() || <User className="w-5 h-5 text-slate-300" />}
-                </span>
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  openUserProfile(wish.requester_id);
-                }}
-                className="block text-sm font-bold text-slate-800 tracking-wide hover:underline text-left truncate max-w-full"
-              >
-                {requesterProfile?.name || wish.requester_name || wish.requester_id.slice(0, 8)}
-              </button>
-              {trust.isVerified && (
-                <ShieldCheck size={14} className="text-blue-400 fill-blue-50 shrink-0" strokeWidth={2.5} />
-              )}
-              <div className="flex items-center gap-2 text-xs shrink-0">
-                <div
-                  title={`Helped ${wish.requester_trust_score || 0} times`}
-                  className={`flex items-center gap-0.5 ${trust.color}`}
-                >
-                  {trust.icon}
-                  <span className="font-mono">
-                    ({wish.requester_trust_score || 0})
-                  </span>
-                </div>
-                <span className="text-slate-300">|</span>
-                <span
-                  title="過去に完了/支払いを行った回数"
-                  className="text-slate-500 font-bold flex items-center gap-1"
-                >
-                  <Megaphone className="w-3 h-3" /> <span className="font-bold">依頼実績: {wish.requester_completed_requests || 0}</span>
-                </span>
-              </div>
-            </div>
-            {/* Bio snippet - replaces headline */}
-            {requesterProfile?.bio && (
-              <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                {requesterProfile.bio.length > 60 
-                  ? `${requesterProfile.bio.slice(0, 60)}...` 
-                  : requesterProfile.bio}
-              </p>
-            )}
-            <span className="flex items-center gap-1 text-[10px] text-slate-400 mt-0.5">
-              <Clock className="w-3 h-3" />
-              <span>{formatDate(wish.created_at)}</span>
-            </span>
-          </div>
+          
+          {isMyWish ? (
+              // My Wish View
+              (wish.status === 'in_progress' || wish.status === 'review_pending') ? (
+                  // Show Helper Info
+                  <>
+                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 shrink-0 overflow-hidden">
+                        {helperProfile?.avatarUrl ? (
+                            <img src={helperProfile.avatarUrl} alt={helperProfile.name} className="w-full h-full object-cover" />
+                        ) : (
+                            <User className="w-5 h-5 text-blue-300" />
+                        )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                        <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-0.5">
+                            手伝ってくれる人
+                        </div>
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if(wish.helper_id) openUserProfile(wish.helper_id);
+                                }}
+                                className="block text-sm font-bold text-slate-800 tracking-wide hover:underline text-left truncate max-w-full"
+                            >
+                                {helperProfile?.name || "名無しの隣人"}
+                            </button>
+                        </div>
+                    </div>
+                  </>
+              ) : (
+                  // Open Status (Just Title)
+                  <div className="min-w-0 flex-1 py-1">
+                      <div className="text-xs font-bold text-amber-600/70 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                          あなたのお願い
+                      </div>
+                  </div>
+              )
+          ) : (
+              // Others View (Show Requester - Existing Logic)
+              <>
+                  <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0 overflow-hidden">
+                    {requesterProfile?.avatarUrl ? (
+                        <img src={requesterProfile.avatarUrl} alt={requesterProfile.name} className="w-full h-full object-cover" />
+                    ) : (
+                        <span className="text-lg font-bold text-slate-400">
+                            {requesterProfile?.name?.charAt(0).toUpperCase() || <User className="w-5 h-5 text-slate-300" />}
+                        </span>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openUserProfile(wish.requester_id);
+                        }}
+                        className="block text-sm font-bold text-slate-800 tracking-wide hover:underline text-left truncate max-w-full"
+                      >
+                        {requesterProfile?.name || wish.requester_name || wish.requester_id.slice(0, 8)}
+                      </button>
+                      {trust.isVerified && (
+                        <ShieldCheck size={14} className="text-blue-400 fill-blue-50 shrink-0" strokeWidth={2.5} />
+                      )}
+                      <div className="flex items-center gap-2 text-xs shrink-0">
+                        <div
+                          title={`Helped ${wish.requester_trust_score || 0} times`}
+                          className={`flex items-center gap-0.5 ${trust.color}`}
+                        >
+                          {trust.icon}
+                          <span className="font-mono">
+                            ({wish.requester_trust_score || 0})
+                          </span>
+                        </div>
+                        <span className="text-slate-300">|</span>
+                        <span
+                          title="過去に完了/支払いを行った回数"
+                          className="text-slate-500 font-bold flex items-center gap-1"
+                        >
+                          <Megaphone className="w-3 h-3" /> <span className="font-bold">依頼実績: {wish.requester_completed_requests || 0}</span>
+                        </span>
+                      </div>
+                    </div>
+                    {/* Bio snippet - replaces headline */}
+                    {requesterProfile?.bio && (
+                      <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                        {requesterProfile.bio.length > 60 
+                          ? `${requesterProfile.bio.slice(0, 60)}...` 
+                          : requesterProfile.bio}
+                      </p>
+                    )}
+                    <span className="flex items-center gap-1 text-[10px] text-slate-400 mt-0.5">
+                      <Clock className="w-3 h-3" />
+                      <span>{formatDate(wish.created_at)}</span>
+                    </span>
+                  </div>
+              </>
+          )}
         </div>
 
         {/* My Wish Badge & Actions (Right - Flex Item) */}
@@ -347,9 +393,11 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
       <div className="relative mb-6 border-t border-slate-100 pt-4">
         <div className="flex justify-between items-center bg-slate-50/50 p-3 rounded-xl border border-slate-100/50">
           <div>
-            <div className="text-xs text-slate-500 font-bold flex items-center gap-1 mb-1">
-              <Hourglass className="w-3 h-3 text-amber-500" />
-              今もらえるお礼
+            <div className="flex items-center gap-2 mb-1.5 opacity-80">
+                <Hourglass size={14} className={isMyWish ? "text-amber-500" : "text-orange-400"} />
+                <span className={`text-xs font-bold ${isMyWish ? "text-amber-600" : "text-slate-500"}`}>
+                    {isMyWish ? "お礼の予約額" : "今もらえるお礼"}
+                </span>
             </div>
             <div className="text-[10px] text-red-400 font-semibold tracking-wide">
               ※時間が経つと減ってしまいます

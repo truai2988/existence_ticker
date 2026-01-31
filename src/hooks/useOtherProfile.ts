@@ -19,13 +19,16 @@ export const useOtherProfile = (userId: string | null) => {
         // Use snapshot for real-time updates if they are looking at it
         const unsubscribe = onSnapshot(ref, (snap) => {
             if (snap.exists()) {
-                setProfile({ id: snap.id, ...snap.data() } as UserProfile);
+                const data = snap.data();
+                // console.log("Fetched Profile:", userId, data.name);
+                setProfile({ id: snap.id, ...data } as UserProfile);
             } else {
+                console.warn("Profile not found for:", userId);
                 setProfile(null);
             }
             setLoading(false);
         }, (err) => {
-            console.error(err);
+            console.error("Profile fetch error:", err);
             setLoading(false);
         });
 
