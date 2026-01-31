@@ -8,6 +8,8 @@ import { getTrustRank } from "../logic/worldPhysics";
 import { useOtherProfile } from "../hooks/useOtherProfile";
 import { useProfile } from "../hooks/useProfile";
 import { isProfileComplete } from "../utils/profileCompleteness";
+import { useToast } from "../contexts/ToastContext";
+import { useWishesContext } from "../contexts/WishesContext";
 
 // Internal Component: Individual Applicant Row with Real-time Data
 const ApplicantItem: React.FC<{
@@ -93,6 +95,8 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
   const { profile: requesterProfile } = useOtherProfile(wish.requester_id);
   const { profile: helperProfile } = useOtherProfile(wish.helper_id || null);
   const { profile: myProfile } = useProfile();
+  const { showToast } = useToast();
+  const { refresh } = useWishesContext();
   const [isLoading, setIsLoading] = useState(false);
 
   const [showApplicants, setShowApplicants] = useState(false);
@@ -146,7 +150,9 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
     const success = await approveWish(wish.id, applicantId);
     setIsLoading(false);
     if (success) {
-      setShowApplicants(false); // Close the modal
+      showToast("お願いしました", "success");
+      setShowApplicants(false);
+      refresh(); // リストを更新
     }
   };
 
@@ -544,8 +550,10 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                             wish.id,
                             wish.helper_id!,
                           );
-                          if (success)
-                            alert("お礼を送信しました！");
+                          if (success) {
+                            showToast("お礼を送りました", "success");
+                            setTimeout(() => refresh(), 500);
+                          }
                           setIsLoading(false);
                         };
                         run();

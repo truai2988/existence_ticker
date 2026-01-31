@@ -6,6 +6,8 @@ import { useProfile } from '../hooks/useProfile';
 import { useWallet } from '../hooks/useWallet';
 import { GratitudeTier } from '../types';
 import { WISH_COST, UNIT_LABEL } from '../constants';
+import { useToast } from '../contexts/ToastContext';
+import { useWishesContext } from '../contexts/WishesContext';
 
 type TierOption = {
   id: GratitudeTier;
@@ -43,6 +45,8 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
     const { name } = useProfile();
     const { availableLm } = useWallet();
     const { castWish, isSubmitting } = useWishActions();
+    const { showToast } = useToast();
+    const { refresh } = useWishesContext();
     
     const [newWishContent, setNewWishContent] = useState('');
     const [selectedTier, setSelectedTier] = useState<GratitudeTier>('light');
@@ -60,6 +64,8 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
         });
 
         if (result) {
+            showToast("依頼を投稿しました", "success");
+            setTimeout(() => refresh(), 300);
             onClose();
         }
     };
