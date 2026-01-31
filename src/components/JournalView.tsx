@@ -195,6 +195,15 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
             amountColor = "text-cyan-600";
         }
     } 
+    else if (log.type === 'WISH_EXPIRED') {
+        // [期限切れ]
+        icon = <CheckCircle2 size={14} className="text-slate-400 fill-slate-50" />;
+        const wishTitle = log.wish_title || '依頼';
+        title = `${wishTitle}：お礼がなくなるまでに完了しませんでした`;
+        metaColor = "bg-slate-50 border-slate-200";
+        amountPrefix = "";
+        amountColor = "text-slate-400";
+    }
     else { // WISH_FULFILLMENT
         if (isSender) {
              // [依頼支払い] (I was the requester, I paid)
