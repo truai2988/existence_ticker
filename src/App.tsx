@@ -7,10 +7,10 @@ import { MainContent } from './components/MainContent';
 import { AdminDashboard } from './components/AdminDashboard'; 
 
 import { useAuth } from './hooks/useAuthHook';
-import { useProfile } from './hooks/useProfile';
+// import { useProfile } from './hooks/useProfile';
 import { useWallet } from './hooks/useWallet';
 import { AppViewMode } from './types'; 
-import { ADMIN_UIDS } from './constants'; 
+// import { ADMIN_UIDS } from './constants'; 
 
 import { useRegisterSW } from 'virtual:pwa-register/react';
 
@@ -28,7 +28,7 @@ const PWALogic = () => {
 
 function App() {
   const { user, loading: authLoading } = useAuth();
-  const { profile } = useProfile();
+  // const { profile } = useProfile();
   // const isAdmin = profile?.role === 'admin' || (user && ADMIN_UIDS.includes(user.uid));
   
   const [viewMode, setViewMode] = useState<AppViewMode>('home');
