@@ -143,8 +143,11 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
   const handleApprove = async (applicantId: string, name: string) => {
     if (!confirm(`${name}さんにお願いしますか？`)) return;
     setIsLoading(true);
-    await approveWish(wish.id, applicantId);
+    const success = await approveWish(wish.id, applicantId);
     setIsLoading(false);
+    if (success) {
+      setShowApplicants(false); // Close the modal
+    }
   };
 
   const handleUpdate = async () => {
