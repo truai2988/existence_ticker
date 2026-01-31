@@ -70,16 +70,8 @@ export const useWallet = () => {
     const rawBalance = profile?.balance ?? 0;
     const lastUpdated = profile?.last_updated;
     
-    // 減価計算を適用
-    const val = calculateDecayedValue(rawBalance, lastUpdated);
-    console.log("[Wallet Debug]", JSON.stringify({ 
-        rawBalance, 
-        lastUpdated, 
-        decayed: val,
-        cycleStart: profile?.cycle_started_at
-    }, null, 2));
-    return val;
-  }, [profile?.balance, profile?.last_updated, profile?.cycle_started_at]);
+    return calculateDecayedValue(rawBalance, lastUpdated);
+  }, [profile?.balance, profile?.last_updated]);
 
   // === Reservation Logic (聖なる約定) ===
   /**
