@@ -10,6 +10,7 @@ import { useProfile } from "../hooks/useProfile";
 import { isProfileComplete } from "../utils/profileCompleteness";
 import { useToast } from "../contexts/ToastContext";
 import { useWishesContext } from "../contexts/WishesContext";
+import { useExpiredWishHandler } from "../hooks/useExpiredWishHandler";
 
 // Internal Component: Individual Applicant Row with Real-time Data
 const ApplicantItem: React.FC<{
@@ -99,6 +100,9 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
   const { refresh } = useWishesContext();
   const [isLoading, setIsLoading] = useState(false);
 
+  // 期限切れの自動処理
+  useExpiredWishHandler(wish, refresh);
+
   const [showApplicants, setShowApplicants] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(wish.content);
@@ -124,6 +128,10 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
   
   // 静的な値を計算（Ticker廃止 - 1時間ごとに自動更新）
   const displayValue = calculateDecayedValue(initialCost, wish.created_at);
+  
+  // 期限切れ判定
+  const isExpired = displayValue <= 0 && 
+    (wish.status === 'open' || wish.status === 'in_progress' || wish.status === 'review_pending');
 
   const isMyWish = wish.requester_id === currentUserId;
   const applicants = wish.applicants || [];
@@ -535,7 +543,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                 </div>
               )}
 
-              {(wish.status === "review_pending" || wish.status === "in_progress") && (
+              {!isExpired && (wish.status === "review_pending" || wish.status === "in_progress") && (
                 <button
                   onClick={() => {
                     if (
@@ -566,6 +574,21 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                   <Handshake className="w-4 h-4 text-white" />
                   <span>お礼をする (完了)</span>
                 </button>
+              )}
+
+              {/* 期限切れ表示 */}
+              {isExpired && isMyWish && (
+                <div className="flex flex-col gap-3 items-center py-4">
+                  <div className="px-4 py-2 bg-slate-100 text-slate-500 rounded-full text-sm font-medium">
+                    期限切れ（終了）
+                  </div>
+                  {wish.helper_id && helperProfile?.name && (
+                    <p className="text-xs text-slate-500 text-center leading-relaxed">
+                      お礼をしたい場合は、プロフィールページから<br />
+                      <span className="font-bold text-slate-700">{helperProfile.name}</span>さんへ直接Lmを贈ることができます
+                    </p>
+                  )}
+                </div>
               )}
             </>
           )}

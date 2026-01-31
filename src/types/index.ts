@@ -62,7 +62,7 @@ export interface Wish {
   content: string;
   applicants?: { id: string; name: string; trust_score?: number }[]; // Handshake candidates
   gratitude_preset: GratitudeTier;
-  status: 'open' | 'in_progress' | 'review_pending' | 'fulfilled' | 'completed' | 'cancelled';
+  status: 'open' | 'in_progress' | 'review_pending' | 'fulfilled' | 'completed' | 'cancelled' | 'expired';
   created_at: string;
   tags?: string[];
   helper_id?: string; // ID of the user who accepted the wish
