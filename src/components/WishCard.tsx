@@ -484,7 +484,7 @@ export const WishCard: React.FC<WishCardProps> = ({
 
       {/* Value / Outcome Area */}
       <div className="relative mb-3 border-t border-slate-100 pt-2">
-        {['fulfilled', 'expired'].includes(wish.status) ? (
+        {['fulfilled', 'cancelled', 'expired'].includes(wish.status) ? (
             <div className={`p-4 rounded-xl border flex justify-between items-center ${
                 wish.status === 'fulfilled' ? 'bg-green-50/50 border-green-100/50' : 'bg-slate-50/50 border-slate-100/50'
             }`}>
