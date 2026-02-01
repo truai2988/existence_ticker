@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ClipboardList, Timer, PlayCircle } from 'lucide-react';
+import { ClipboardList, X, ChevronRight, Timer, PlayCircle } from "lucide-react";
 import { useWishes } from '../hooks/useWishes';
 import { calculateLifePoints } from '../utils/decay';
 
@@ -13,43 +13,74 @@ interface FlowViewProps {
     onOpenProfile?: () => void;
 }
 
-type TabType = 'explore' | 'entries';
+type TabType = 'explore' | 'pending' | 'active' | 'history';
 
 export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOpenProfile }) => {
     const { wishes, loadMore, hasMore, isFetchingMore } = useWishes();
     const [activeTab, setActiveTab] = useState<TabType>('explore');
     
-    // --- Filter Logic ---
-
-    // 1. Explore (探す)
-    // - Open Status
-    // - Not My Wish
-    // - Not Applied by Me
-    // - Not Expired
+    // 1. Explore (お願いを探す)
+    // - status: 'open'
+    // - NOT my wish
+    // - NOT applied by me
     const exploreWishes = wishes.filter(w => {
         if (w.status !== 'open') return false;
         if (w.requester_id === currentUserId) return false;
-        if (w.applicants && w.applicants.some(a => a.id === currentUserId)) return false; // Exclude applied
+        if (w.applicants && w.applicants.some(a => a.id === currentUserId)) return false;
         
+        // Also hide if 0 Lm (already decayed completely)
         const currentValue = calculateLifePoints(w.cost || 0, w.created_at);
         if (currentValue <= 0) return false;
-
+        
         return true;
     });
 
-    // 2. Entries (活動状況)
-    // A. Applied (返事待ち)
-    const appliedWishes = wishes.filter(w => 
-        w.status === 'open' && 
-        w.applicants && w.applicants.some(a => a.id === currentUserId)
-    );
+    // 2. Pending (返事待ち)
+    // - status: 'open'
+    // - applied by me
+    const pendingWishes = wishes.filter(w => {
+        if (w.status !== 'open') return false;
+        if (!w.applicants || !w.applicants.some(a => a.id === currentUserId)) return false;
+        
+        // Hide if expired
+        const currentValue = calculateLifePoints(w.cost || 0, w.created_at);
+        if (currentValue <= 0) return false;
+        
+        return true;
+    });
 
-    // B. Working / History (進行中・完了)
-    const activeWishes = wishes.filter(w => 
-        w.helper_id === currentUserId && 
-        (w.status === 'in_progress' || w.status === 'review_pending' || w.status === 'fulfilled')
-    );
-    
+    // 3. Active (進行中)
+    // - helper_id is me
+    // - status: 'in_progress' or 'review_pending'
+    const activeWishes = wishes.filter(w => {
+        if (w.helper_id !== currentUserId) return false;
+        if (w.status !== 'in_progress' && w.status !== 'review_pending') return false;
+        
+        // Hide if expired
+        const currentValue = calculateLifePoints(w.cost || 0, w.created_at);
+        if (currentValue <= 0) return false;
+        
+        return true;
+    });
+
+    // 4. History (過去の記録)
+    // - helper_id is me OR I applied
+    // - status: 'fulfilled', 'cancelled', 'expired' OR (open/in_progress/review_pending AND 0 Lm)
+    const historyWishes = wishes.filter(w => {
+        const isHelper = w.helper_id === currentUserId;
+        const isApplicant = w.applicants && w.applicants.some(a => a.id === currentUserId);
+        if (!isHelper && !isApplicant) return false;
+
+        // Official history statuses
+        if (['fulfilled', 'cancelled', 'expired'].includes(w.status)) return true;
+
+        // Auto-expiration for helpers (even if requester hasn't cleaned up yet)
+        const currentValue = calculateLifePoints(w.cost || 0, w.created_at);
+        if (currentValue <= 0) return true;
+
+        return false;
+    });
+
     // Combine for counts ?? No, keep sections separate.
 
     return (
@@ -64,6 +95,22 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
                         <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">みんなの広場</p>
                     </div>
                     <div className="flex items-center gap-3">
+                        <button 
+                            onClick={() => setActiveTab('explore')}
+                            className={`flex items-center gap-2 px-4 h-9 rounded-full text-xs font-bold transition-all shadow-sm active:scale-95 border ${
+                                activeTab === 'explore' 
+                                    ? 'bg-blue-600 text-white border-transparent shadow-blue-100' 
+                                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                            }`}
+                        >
+                            <ClipboardList size={14} className={activeTab === 'explore' ? 'text-white/80' : 'text-slate-400'} />
+                            <span>お願いを探す</span>
+                            <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] tabular-nums ${
+                                activeTab === 'explore' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                            }`}>
+                                {exploreWishes.length}
+                            </span>
+                        </button>
                         <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
                             <X size={20} className="text-slate-400" />
                         </button>
@@ -71,28 +118,59 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
                 </div>
 
                 {/* Bottom Row: Tabs */}
-                <div className="flex items-end w-full">
-                    <div className="flex gap-8">
+                <div className="flex items-end w-full overflow-hidden">
+                    <div className="flex gap-2 pb-0.5 w-full justify-between sm:justify-start sm:gap-6">
                         <button
-                            onClick={() => setActiveTab('explore')}
-                            className={`pb-1 text-xs font-bold transition-all relative ${
-                                activeTab === 'explore' ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'
+                            onClick={() => setActiveTab('pending')}
+                            className={`pb-1 text-[11px] font-bold transition-all whitespace-nowrap relative ${
+                                activeTab === 'pending' ? 'text-amber-600' : 'text-slate-400 hover:text-slate-600'
                             }`}
                         >
-                            お願いを探す
-                            {activeTab === 'explore' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500 rounded-t-full" />}
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('entries')}
-                            className={`pb-1 text-xs font-bold transition-all relative ${
-                                activeTab === 'entries' ? 'text-green-600' : 'text-slate-400 hover:text-slate-600'
-                            }`}
-                        >
-                            活動履歴
-                            <span className="ml-2 bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full text-[10px] tabular-nums">
-                                {appliedWishes.length + activeWishes.length}
+                            返事待ち
+                            <span className={`ml-1 px-1 py-0.5 rounded-full text-[9px] tabular-nums ${
+                                activeTab === 'pending' ? 'bg-amber-100/50 text-amber-700' : 'bg-slate-100 text-slate-500'
+                            }`}>
+                                {pendingWishes.length}
                             </span>
-                            {activeTab === 'entries' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-green-500 rounded-t-full" />}
+                            {activeTab === 'pending' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500 rounded-t-full" />}
+                        </button>
+
+                        <div className="flex items-center pb-2">
+                            <ChevronRight size={14} className="text-slate-300" />
+                        </div>
+
+                        <button
+                            onClick={() => setActiveTab('active')}
+                            className={`pb-1 text-[11px] font-bold transition-all whitespace-nowrap relative ${
+                                activeTab === 'active' ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'
+                            }`}
+                        >
+                            進行中
+                            <span className={`ml-1 px-1 py-0.5 rounded-full text-[9px] tabular-nums ${
+                                activeTab === 'active' ? 'bg-emerald-100/50 text-emerald-700' : 'bg-slate-100 text-slate-500'
+                            }`}>
+                                {activeWishes.length}
+                            </span>
+                            {activeTab === 'active' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-emerald-500 rounded-t-full" />}
+                        </button>
+
+                        <div className="flex items-center pb-2">
+                            <ChevronRight size={14} className="text-slate-300" />
+                        </div>
+
+                        <button
+                            onClick={() => setActiveTab('history')}
+                            className={`pb-1 text-[11px] font-bold transition-all whitespace-nowrap relative ${
+                                activeTab === 'history' ? 'text-slate-600' : 'text-slate-400 hover:text-slate-600'
+                            }`}
+                        >
+                            過去の記録
+                            <span className={`ml-1 px-1 py-0.5 rounded-full text-[9px] tabular-nums ${
+                                activeTab === 'history' ? 'bg-slate-200 text-slate-700' : 'bg-slate-100 text-slate-500'
+                            }`}>
+                                {historyWishes.length}
+                            </span>
+                            {activeTab === 'history' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-slate-400 rounded-t-full" />}
                         </button>
                     </div>
                 </div>
@@ -118,50 +196,34 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
                     />
                 )}
 
-                {activeTab === 'entries' && (
-                    <div className="space-y-8">
-                        {/* Section A: Applied */}
-                        <div>
-                            <div className="flex items-center gap-2 mb-3 px-1 text-slate-400">
-                                <Timer size={14} />
-                                <h3 className="text-xs font-bold uppercase tracking-wider">返事待ち</h3>
-                                <span className="text-[10px] bg-slate-100 px-1.5 rounded-full">{appliedWishes.length}</span>
-                            </div>
-                            
-                            {appliedWishes.length > 0 ? (
-                                <WishCardList 
-                                    wishes={appliedWishes} 
-                                    currentUserId={currentUserId}
-                                    onOpenProfile={onOpenProfile}
-                                />
-                            ) : (
-                                <div className="p-6 text-center border-2 border-dashed border-slate-100 rounded-2xl bg-slate-50/50">
-                                    <p className="text-xs text-slate-400">返事待ちの依頼はありません</p>
-                                </div>
-                            )}
-                        </div>
+                {activeTab === 'pending' && (
+                    <WishCardList 
+                        wishes={pendingWishes} 
+                        currentUserId={currentUserId}
+                        emptyMessage="返事待ちの依頼はありません"
+                        emptyIcon={<Timer size={48} className="text-slate-300 mb-2" />}
+                        onOpenProfile={onOpenProfile}
+                    />
+                )}
 
-                        {/* Section B: Active/History */}
-                        <div>
-                            <div className="flex items-center gap-2 mb-3 px-1 text-slate-400 border-t border-slate-100 pt-6">
-                                <PlayCircle size={14} className="text-green-500" />
-                                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">進行中・完了</h3>
-                                <span className="text-[10px] bg-slate-100 px-1.5 rounded-full">{activeWishes.length}</span>
-                            </div>
+                {activeTab === 'active' && (
+                    <WishCardList 
+                        wishes={activeWishes} 
+                        currentUserId={currentUserId}
+                        emptyMessage="進行中の依頼はありません"
+                        emptyIcon={<PlayCircle size={48} className="text-slate-300 mb-2" />}
+                        onOpenProfile={onOpenProfile}
+                    />
+                )}
 
-                            {activeWishes.length > 0 ? (
-                                <WishCardList 
-                                    wishes={activeWishes} 
-                                    currentUserId={currentUserId}
-                                    onOpenProfile={onOpenProfile}
-                                />
-                            ) : (
-                                <div className="p-6 text-center border-2 border-dashed border-slate-100 rounded-2xl bg-slate-50/50">
-                                    <p className="text-xs text-slate-400">進行中の依頼はありません</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                {activeTab === 'history' && (
+                    <WishCardList 
+                        wishes={historyWishes} 
+                        currentUserId={currentUserId}
+                        emptyMessage="活動記録はありません"
+                        emptyIcon={<ClipboardList size={48} className="text-slate-300 mb-2" />}
+                        onOpenProfile={onOpenProfile}
+                    />
                 )}
             </div>
         </div>

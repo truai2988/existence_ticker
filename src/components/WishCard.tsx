@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Handshake, Loader2, Clock, User, CheckCircle, Hourglass, Megaphone, X, ShieldCheck, Pencil, Trash2, AlertTriangle } from "lucide-react";
+import { Handshake, Loader2, Clock, User, CheckCircle, Hourglass, Megaphone, X, ShieldCheck, Pencil, Trash2, AlertTriangle, Archive } from "lucide-react";
 import { Wish } from "../types";
 import { calculateDecayedValue } from "../logic/worldPhysics";
 import { useWishActions } from "../hooks/useWishActions";
@@ -10,7 +10,6 @@ import { useProfile } from "../hooks/useProfile";
 import { isProfileComplete } from "../utils/profileCompleteness";
 import { useToast } from "../contexts/ToastContext";
 import { useWishesContext } from "../contexts/WishesContext";
-import { useExpiredWishHandler } from "../hooks/useExpiredWishHandler";
 
 // Internal Component: Individual Applicant Row with Real-time Data
 const ApplicantItem: React.FC<{
@@ -90,7 +89,7 @@ interface WishCardProps {
 }
 
 export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenProfile }) => {
-  const { applyForWish, approveWish, fulfillWish, cancelWish, updateWish, resignWish, withdrawApplication } =
+  const { applyForWish, approveWish, fulfillWish, cancelWish, updateWish, resignWish, withdrawApplication, expireWish } =
     useWishActions();
   const { openUserProfile } = useUserView();
   const { profile: requesterProfile } = useOtherProfile(wish.requester_id);
@@ -99,9 +98,6 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
   const { showToast } = useToast();
   const { refresh } = useWishesContext();
   const [isLoading, setIsLoading] = useState(false);
-
-  // 期限切れの自動処理
-  useExpiredWishHandler(wish, refresh);
 
   const [showApplicants, setShowApplicants] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -148,8 +144,12 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
 
     if (!confirm("この依頼に立候補しますか？")) return;
     setIsLoading(true);
-    await applyForWish(wish.id);
+    const success = await applyForWish(wish.id);
     setIsLoading(false);
+    if (success) {
+        showToast("立候補しました", "success");
+        refresh();
+    }
   };
 
   const handleApprove = async (applicantId: string, name: string) => {
@@ -168,7 +168,11 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
       if (!editContent.trim()) return;
       setIsLoading(true);
       const success = await updateWish(wish.id, editContent);
-      if (success) setIsEditing(false);
+      if (success) {
+          setIsEditing(false);
+          showToast("更新しました", "success");
+          refresh();
+      }
       setIsLoading(false);
   };
 
@@ -192,18 +196,31 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
   const executeCancel = async () => {
       setIsLoading(true);
       try {
+          let success = false;
           if (confirmAction === 'resign') {
-              await resignWish(wish.id);
+              success = await resignWish(wish.id);
+              if (success) showToast("辞退しました", "success");
           } else {
-              // Both delete and compensate checks are handled inside cancelWish or just pass ID
-              // (cancelWish logic in hook handles status distinction)
-              await cancelWish(wish.id);
+              success = await cancelWish(wish.id);
+              if (success) showToast(wish.status === 'in_progress' ? "補償を支払ってキャンセルしました" : "キャンセルしました", "success");
           }
+          if (success) refresh();
       } catch (e) {
           console.error(e);
       } finally {
           setIsLoading(false);
           setConfirmAction(null);
+      }
+  };
+
+  const handleCleanup = async () => {
+      if (!confirm("この記録を整理して「過去の記録」へ移動しますか？")) return;
+      setIsLoading(true);
+      const success = await expireWish(wish.id);
+      setIsLoading(false);
+      if (success) {
+          showToast("記録を整理しました", "success");
+          refresh();
       }
   };
 
@@ -221,18 +238,18 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
 
   return (
     <div
-      className={`relative bg-white border shadow-sm rounded-2xl p-6 ${applicants.length > 0 && isMyWish && wish.status === "open" ? "border-yellow-400 shadow-yellow-100 ring-1 ring-yellow-400/50" : "border-slate-100"}`}
+      className={`relative bg-white border shadow-sm rounded-2xl px-6 py-4 ${applicants.length > 0 && isMyWish && wish.status === "open" ? "border-yellow-400 shadow-yellow-100 ring-1 ring-yellow-400/50" : "border-slate-100"}`}
     >
       {/* Header: User & Meta & Badge */}
-      <div className="relative flex justify-between items-start mb-4 gap-4">
+      <div className="relative flex justify-between items-start mb-2 gap-4">
         {/* User Info (Left) */}
         {/* User Info (Left) - Perspective Logic */}
         <div className="flex items-center gap-3 flex-1 min-w-0">
           
           {isMyWish ? (
               // My Wish View
-              (wish.status === 'in_progress' || wish.status === 'review_pending') ? (
-                  // Show Helper Info
+              wish.helper_id ? (
+                  // Show Helper Info (for in_progress, fulfilled, expired, etc.)
                   <>
                     <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 shrink-0 overflow-hidden">
                         {helperProfile?.avatarUrl ? (
@@ -259,13 +276,8 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                     </div>
                   </>
               ) : (
-                  // Open Status (Just Title)
-                  <div className="min-w-0 flex-1 py-1">
-                      <div className="text-xs font-bold text-amber-600/70 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                          あなたのお願い
-                      </div>
-                  </div>
+                  // Open Status (Preserve helper area spacing)
+                  <div className="min-w-0 flex-1 py-1" />
               )
           ) : (
               // Others View (Show Requester - Existing Logic)
@@ -332,8 +344,8 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
         {/* My Wish Badge & Actions (Right - Flex Item) */}
         {isMyWish && (
             <div className="flex items-center gap-2 shrink-0">
-                {/* Edit/Delete Actions for Open Wishes */}
-                {wish.status === 'open' && (
+                {/* Edit/Delete Actions for Open Wishes - Only if NOT expired */}
+                {!isExpired && wish.status === 'open' && (
                     <>
                         <button 
                             onClick={() => setIsEditing(!isEditing)}
@@ -353,8 +365,8 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                         </button>
                     </>
                 )}
-                {/* In Progress Cancel (Compensation) */}
-                {wish.status === 'in_progress' && (
+                {/* In Progress Cancel (Compensation) - Only if NOT expired */}
+                {!isExpired && wish.status === 'in_progress' && (
                      <button 
                         onClick={handleCancel}
                         disabled={isLoading}
@@ -364,15 +376,12 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                         <AlertTriangle size={14} />
                     </button>
                 )}
-                <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-1 rounded-full border border-slate-200 whitespace-nowrap">
-                    あなたのお願い
-                </span>
             </div>
         )}
       </div>
 
       {/* Body: Content */}
-      <div className="relative mb-6">
+      <div className="relative mb-3">
         {isEditing ? (
             <div className="space-y-3">
                 <textarea
@@ -406,24 +415,46 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
         )}
       </div>
 
-      {/* Value / Entropy Area (Antigravity) */}
-      <div className="relative mb-6 border-t border-slate-100 pt-4">
-        <div className="flex justify-between items-center bg-slate-50/50 p-3 rounded-xl border border-slate-100/50">
-          <div>
-            <div className="flex items-center gap-2 mb-1.5 opacity-80">
-                <Hourglass size={14} className={isMyWish ? "text-amber-500" : "text-orange-400"} />
-                <span className={`text-xs font-bold ${isMyWish ? "text-amber-600" : "text-slate-500"}`}>
-                    {isMyWish ? "お礼の予約額" : "今もらえるお礼"}
-                </span>
+      {/* Value / Outcome Area */}
+      <div className="relative mb-3 border-t border-slate-100 pt-2">
+        {['fulfilled', 'cancelled', 'expired'].includes(wish.status) ? (
+            <div className={`p-4 rounded-xl border flex justify-between items-center ${
+                wish.status === 'fulfilled' ? 'bg-green-50/50 border-green-100/50' : 'bg-slate-50/50 border-slate-100/50'
+            }`}>
+                <div className="flex items-center gap-2 text-slate-500">
+                    {wish.status === "fulfilled" ? (
+                        <CheckCircle size={16} className="text-green-500" />
+                    ) : (
+                        <Archive size={16} className="text-slate-400" />
+                    )}
+                    <span className="text-xs font-bold">
+                        {wish.status === "fulfilled" ? "届けられた感謝 (最終値)" : "記録の状態"}
+                    </span>
+                </div>
+                <div className="text-lg font-bold font-mono text-slate-900 tracking-tight">
+                    {(wish.val_at_fulfillment || 0).toFixed(3)} <span className="text-[10px] text-slate-400 ml-0.5">Lm</span>
+                </div>
             </div>
-            <div className="text-[10px] text-red-400 font-semibold tracking-wide">
-              ※時間が経つと減ってしまいます
+        ) : (
+            <div className="flex justify-between items-center bg-slate-50/50 p-3 rounded-xl border border-slate-100/50">
+              <div>
+                <div className="flex items-center gap-2 mb-1.5 opacity-80">
+                    <Hourglass size={14} className={isMyWish ? "text-amber-500" : "text-orange-400"} />
+                    <span className={`text-xs font-bold ${isMyWish ? "text-amber-600" : "text-slate-500"}`}>
+                        {isMyWish ? "お礼の予約額" : "今もらえるお礼"}
+                    </span>
+                </div>
+                {displayValue > 0 && (
+                    <div className="text-[10px] text-red-400 font-semibold tracking-wide">
+                      ※時間が経つと減ってしまいます
+                    </div>
+                )}
+              </div>
+              <div className="text-xl font-mono text-slate-800 font-bold tracking-tight">
+                {displayValue.toFixed(3)} <span className="text-sm font-normal text-slate-500 ml-0.5">Lm</span>
+              </div>
             </div>
-          </div>
-          <div className="text-xl font-mono text-slate-800 font-bold tracking-tight">
-            {displayValue.toFixed(3)} <span className="text-sm font-normal text-slate-500 ml-0.5">Lm</span>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Footer: Action Area */}
@@ -445,8 +476,13 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
               感謝済み
             </span>
           )}
+          {wish.status === "expired" && (
+            <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
+              整理済み（期限切れ）
+            </span>
+          )}
           {wish.status === 'open' && (
-             displayValue === 0 ? (
+             isExpired ? (
               <span className="flex items-center gap-1 text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full border border-red-100 whitespace-nowrap shrink-0">
                   <AlertTriangle size={12} />
                   期限切れ
@@ -467,10 +503,7 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
               {wish.status === "open" && (
                 <div>
                   {applicants.length === 0 ? (
-                    <span className="text-xs text-slate-400 italic flex items-center gap-1">
-                      <span className="animate-pulse">...</span>
-                      手伝ってくれる人を待っています
-                    </span>
+                    null
                   ) : (
                     <div className="relative">
                       <button
@@ -576,25 +609,12 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                 </button>
               )}
 
-              {/* 期限切れ表示 */}
-              {isExpired && isMyWish && (
-                <div className="flex flex-col gap-3 items-center py-4">
-                  <div className="px-4 py-2 bg-slate-100 text-slate-500 rounded-full text-sm font-medium">
-                    期限切れ（終了）
-                  </div>
-                  {wish.helper_id && helperProfile?.name && (
-                    <p className="text-xs text-slate-500 text-center leading-relaxed">
-                      お礼をしたい場合は、プロフィールページから<br />
-                      <span className="font-bold text-slate-700">{helperProfile.name}</span>さんへ直接Lmを贈ることができます
-                    </p>
-                  )}
-                </div>
-              )}
+              {/* Redundant expired display removed as requested */}
             </>
           )}
 
           {/* 2. Case: Helper View (Applying/Working) */}
-          {!isMyWish && (
+          {!isMyWish && !isExpired && (
             <>
               {wish.status === "open" && (
                 <div>
@@ -608,8 +628,12 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                             onClick={async () => {
                                 if (confirm("本当に立候補を取り消しますか？")) {
                                     setIsLoading(true);
-                                    await withdrawApplication(wish.id);
+                                    const success = await withdrawApplication(wish.id);
                                     setIsLoading(false);
+                                    if (success) {
+                                        showToast("立候補を取り消しました", "success");
+                                        refresh();
+                                    }
                                 }
                             }}
                             disabled={isLoading}
@@ -638,13 +662,6 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                       <span>立候補する</span>
                     </button>
                   )}
-                  
-                  {/* Expired Warning for Others */}
-                  {displayValue === 0 && (
-                      <p className="text-[10px] text-red-400 mt-2 text-center font-bold">
-                          ※ この依頼は期限切れです
-                      </p>
-                  )}
                 </div>
               )}
 
@@ -665,6 +682,25 @@ export const WishCard: React.FC<WishCardProps> = ({ wish, currentUserId, onOpenP
                   </div>
                 )}
             </>
+          )}
+
+          {/* 2b. Case: Expired Passive Message (Non-Requester) */}
+          {!isMyWish && isExpired && (
+              <p className="text-[10px] text-slate-400 italic">
+                  期限切れのため終了しました
+              </p>
+          )}
+
+          {/* 3. Cleanup Action for 0 Lm (My Wish) */}
+          {isMyWish && isExpired && (
+              <button
+                onClick={handleCleanup}
+                disabled={isLoading}
+                className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition-all active:scale-[0.98] shadow-md shadow-slate-200 disabled:opacity-50"
+              >
+                {isLoading ? <Loader2 className="w-3 h-3 animate-spin"/> : <Archive size={14} />}
+                <span>この記録を整理する</span>
+              </button>
           )}
         </div>
       </div>
