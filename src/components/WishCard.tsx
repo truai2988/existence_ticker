@@ -323,21 +323,6 @@ export const WishCard: React.FC<WishCardProps> = ({
                   </div>
                 </div>
               </>
-            ) : // No Helper (Open, Cancelled, Expired without match)
-            ["cancelled", "expired"].includes(wish.status) ? (
-              <>
-                <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center border border-slate-100 shrink-0 overflow-hidden">
-                  <X className="w-5 h-5 text-slate-300" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-0.5">
-                    状態
-                  </div>
-                  <div className="text-sm font-bold text-slate-500">
-                    未成立で終了
-                  </div>
-                </div>
-              </>
             ) : (
               // Open Status (Preserve helper area spacing)
               <div className="min-w-0 flex-1 py-1" />
@@ -499,58 +484,43 @@ export const WishCard: React.FC<WishCardProps> = ({
 
       {/* Value / Outcome Area */}
       <div className="relative mb-3 border-t border-slate-100 pt-2">
-        {["fulfilled", "cancelled", "expired"].includes(wish.status) ? (
-          <div
-            className={`p-4 rounded-xl border flex justify-between items-center ${
-              wish.status === "fulfilled"
-                ? "bg-green-50/50 border-green-100/50"
-                : "bg-slate-50/50 border-slate-100/50"
-            }`}
-          >
-            <div className="flex items-center gap-2 text-slate-500">
-              {wish.status === "fulfilled" ? (
-                <CheckCircle size={16} className="text-green-500" />
-              ) : (
-                <Archive size={16} className="text-slate-400" />
-              )}
-              <span className="text-xs font-bold">
-                {wish.status === "fulfilled"
-                  ? "届けられた感謝 (最終値)"
-                  : "記録の状態"}
-              </span>
-            </div>
-            <div className="text-lg font-bold font-mono text-slate-900 tracking-tight">
-              {(wish.val_at_fulfillment || 0).toFixed(3)}{" "}
-              <span className="text-[10px] text-slate-400 ml-0.5">Lm</span>
-            </div>
-          </div>
-        ) : (
-          <div className="flex justify-between items-center bg-slate-50/50 p-3 rounded-xl border border-slate-100/50">
-            <div>
-              <div className="flex items-center gap-2 mb-1.5 opacity-80">
-                <Hourglass
-                  size={14}
-                  className={isMyWish ? "text-amber-500" : "text-orange-400"}
-                />
-                <span
-                  className={`text-xs font-bold ${isMyWish ? "text-amber-600" : "text-slate-500"}`}
-                >
-                  {isMyWish ? "お礼の予約額" : "今もらえるお礼"}
-                </span>
-              </div>
-              {displayValue > 0 && (
-                <div className="text-[10px] text-red-400 font-semibold tracking-wide">
-                  ※時間が経つと減ってしまいます
+        {['fulfilled', 'expired'].includes(wish.status) ? (
+            <div className={`p-4 rounded-xl border flex justify-between items-center ${
+                wish.status === 'fulfilled' ? 'bg-green-50/50 border-green-100/50' : 'bg-slate-50/50 border-slate-100/50'
+            }`}>
+                <div className="flex items-center gap-2 text-slate-500">
+                    {wish.status === "fulfilled" ? (
+                        <CheckCircle size={16} className="text-green-500" />
+                    ) : (
+                        <Archive size={16} className="text-slate-400" />
+                    )}
+                    <span className="text-xs font-bold">
+                        {wish.status === "fulfilled" ? "届けられた感謝 (最終値)" : "記録の状態"}
+                    </span>
                 </div>
-              )}
+                <div className="text-lg font-bold font-mono text-slate-900 tracking-tight">
+                    {(wish.val_at_fulfillment || 0).toFixed(3)} <span className="text-[10px] text-slate-400 ml-0.5">Lm</span>
+                </div>
             </div>
-            <div className="text-xl font-mono text-slate-800 font-bold tracking-tight">
-              {displayValue.toFixed(3)}{" "}
-              <span className="text-sm font-normal text-slate-500 ml-0.5">
-                Lm
-              </span>
+        ) : (
+            <div className="flex justify-between items-center bg-slate-50/50 p-3 rounded-xl border border-slate-100/50">
+              <div>
+                <div className="flex items-center gap-2 mb-1.5 opacity-80">
+                    <Hourglass size={14} className={isMyWish ? "text-amber-500" : "text-orange-400"} />
+                    <span className={`text-xs font-bold ${isMyWish ? "text-amber-600" : "text-slate-500"}`}>
+                        {isMyWish ? "お礼の予約額" : "今もらえるお礼"}
+                    </span>
+                </div>
+                {displayValue > 0 && (
+                    <div className="text-[10px] text-red-400 font-semibold tracking-wide">
+                      ※時間が経つと減ってしまいます
+                    </div>
+                )}
+              </div>
+              <div className="text-xl font-mono text-slate-800 font-bold tracking-tight">
+                {displayValue.toFixed(3)} <span className="text-sm font-normal text-slate-500 ml-0.5">Lm</span>
+              </div>
             </div>
-          </div>
         )}
       </div>
 
@@ -576,11 +546,6 @@ export const WishCard: React.FC<WishCardProps> = ({
           {wish.status === "expired" && (
             <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
               整理済み（期限切れ）
-            </span>
-          )}
-          {wish.status === "cancelled" && (
-            <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
-              取り下げ済み
             </span>
           )}
           {wish.status === "open" &&
