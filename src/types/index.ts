@@ -60,12 +60,15 @@ export interface Wish {
   requester_trust_score?: number; // Snapshot of their reliability (completed contracts as helper) at creation
   requester_completed_requests?: number; // Snapshot of their reliability (completed requests as requester) at creation
   content: string;
-  applicants?: { id: string; name: string; trust_score?: number }[]; // Handshake candidates
+  applicants?: { id: string; name: string; trust_score?: number; contact_email?: string }[]; // Handshake candidates
   gratitude_preset: GratitudeTier;
   status: 'open' | 'in_progress' | 'review_pending' | 'fulfilled' | 'completed' | 'cancelled' | 'expired';
   created_at: string;
   tags?: string[];
   helper_id?: string; // ID of the user who accepted the wish
+  helper_contact_email?: string; // Email for contact (visible only to requester)
+  requester_contact_email?: string; // Email for contact (visible only to helper)
+  contact_note?: string; // Note from requester to helper upon approval
   cost?: number; // Initial Cost / Bounty
   val_at_fulfillment?: number; // Value when it was fulfilled (or compensated)
   accepted_at?: string;

@@ -141,6 +141,7 @@ export const useWishActions = () => {
           id: user.uid,
           name: userData?.name || "Anonymous",
           trust_score: userData?.completed_contracts || 0,
+          contact_email: user.email || undefined,
         };
 
         // Add to applicants array (Union)
@@ -167,16 +168,33 @@ export const useWishActions = () => {
   const approveWish = async (
     wishId: string,
     applicantId: string,
+    contactNote?: string,
   ): Promise<boolean> => {
     if (!db || !user) return false;
     setIsSubmitting(true);
     try {
       const wishRef = doc(db, "wishes", wishId);
-      await updateDoc(wishRef, {
-        status: "in_progress",
-        helper_id: applicantId,
-        accepted_at: serverTimestamp(),
+      
+      await runTransaction(db, async (transaction) => {
+          const wishDoc = await transaction.get(wishRef);
+          if (!wishDoc.exists()) throw "Wish not found";
+          
+          const data = wishDoc.data();
+          const applicants = data.applicants || [];
+          const selectedApplicant = applicants.find((a: any) => a.id === applicantId);
+          
+          if (!selectedApplicant) throw "Applicant not found";
+
+          transaction.update(wishRef, {
+            status: "in_progress",
+            helper_id: applicantId,
+            accepted_at: serverTimestamp(),
+            contact_note: contactNote || "",
+            requester_contact_email: user.email || "",
+            helper_contact_email: selectedApplicant.contact_email || "",
+          });
       });
+
       return true;
     } catch (e) {
       console.error(e);

@@ -137,6 +137,10 @@ export const WishCard: React.FC<WishCardProps> = ({
   const [confirmAction, setConfirmAction] = useState<
     "delete" | "compensate" | "resign" | null
   >(null);
+  
+  // Approval Modal State
+  const [approvalTarget, setApprovalTarget] = useState<{id: string, name: string} | null>(null);
+  const [contactNote, setContactNote] = useState("");
 
   // Anti-Gravity: Universal Decay Logic (静的計算)
   // Derived initial cost
@@ -191,16 +195,22 @@ export const WishCard: React.FC<WishCardProps> = ({
     }
   };
 
-  const handleApprove = async (applicantId: string, name: string) => {
-    if (!confirm(`${name}さんにお願いしますか？`)) return;
-    setIsLoading(true);
-    const success = await approveWish(wish.id, applicantId);
-    setIsLoading(false);
-    if (success) {
-      showToast("お願いしました", "success");
-      setShowApplicants(false);
-      refresh(); // リストを更新
-    }
+  const handleApprove = (applicantId: string, name: string) => {
+    setApprovalTarget({ id: applicantId, name });
+    setContactNote(""); // Reset
+  };
+  
+  const executeApprove = async () => {
+      if (!approvalTarget) return;
+      setIsLoading(true);
+      const success = await approveWish(wish.id, approvalTarget.id, contactNote);
+      setIsLoading(false);
+      if (success) {
+        showToast("お願いしました", "success");
+        setShowApplicants(false);
+        setApprovalTarget(null);
+        refresh(); // リストを更新
+      }
   };
 
   const handleUpdate = async () => {
@@ -571,6 +581,48 @@ export const WishCard: React.FC<WishCardProps> = ({
         )}
       </div>
 
+      {/* Contact Panel (For Active Participants) */}
+      {wish.status === 'in_progress' && (isMyWish || wish.helper_id === currentUserId) && (
+          <div className="relative mb-4 p-4 border border-slate-200 rounded-xl bg-slate-50/30">
+              <h5 className="text-xs font-bold text-slate-700 mb-3 flex items-center gap-2">
+                  <Megaphone size={14} className="text-slate-400" />
+                  隣人に連絡する
+              </h5>
+              
+              <div className="space-y-3">
+                  {/* Email Section */}
+                  <div className="flex flex-col gap-1">
+                      <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                          {isMyWish ? "相手の連絡先" : "依頼主の連絡先"}
+                      </span>
+                      {((isMyWish && wish.helper_contact_email) || (!isMyWish && wish.requester_contact_email)) ? (
+                          <a 
+                             href={`mailto:${isMyWish ? wish.helper_contact_email : wish.requester_contact_email}`}
+                             className="text-sm font-mono font-bold text-blue-600 hover:underline flex items-center gap-1.5"
+                          >
+                             <Pencil size={12} />
+                             {isMyWish ? wish.helper_contact_email : wish.requester_contact_email}
+                          </a>
+                      ) : (
+                          <span className="text-xs text-slate-400 italic">連絡先は設定されていません</span>
+                      )}
+                  </div>
+
+                  {/* Note Section (Only if note exists) */}
+                  {wish.contact_note && (
+                      <div className="flex flex-col gap-1 pt-2 border-t border-slate-100">
+                          <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                              承認時のメモ
+                          </span>
+                          <p className="text-xs text-slate-600 bg-white p-2 rounded-lg border border-slate-100 whitespace-pre-wrap">
+                              {wish.contact_note}
+                          </p>
+                      </div>
+                  )}
+              </div>
+          </div>
+      )}
+
       {/* Footer: Action Area */}
       <div className="relative pt-4 border-t border-slate-100 min-h-[50px] flex items-center justify-between gap-4 flex-wrap">
         {/* Status Badge (Left) */}
@@ -896,6 +948,49 @@ export const WishCard: React.FC<WishCardProps> = ({
               戻る
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Approval Modal */}
+      {approvalTarget && (
+        <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center p-6 animate-in fade-in duration-200">
+           <div className="bg-green-100 text-green-600 p-3 rounded-full mb-4">
+             <Handshake size={24} />
+           </div>
+           
+           <h4 className="text-base font-bold text-slate-800 mb-1 text-center">
+             {approvalTarget.name}さんにお願いしますか？
+           </h4>
+           <p className="text-xs text-slate-500 mb-6 text-center">
+             承認時に相手へのメッセージ（連絡事項など）を送れます。
+           </p>
+
+           <textarea
+             value={contactNote}
+             onChange={(e) => setContactNote(e.target.value)}
+             placeholder="例: よろしくお願いします。詳細はメールでご連絡します。"
+             className="w-full p-3 border border-slate-200 rounded-xl mb-4 text-sm focus:ring-2 focus:ring-green-100 focus:border-green-400 outline-none resize-none min-h-[80px]"
+           />
+
+           <div className="flex flex-col gap-2 w-full">
+             <button
+               onClick={executeApprove}
+               disabled={isLoading}
+               className="w-full py-3 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200 transition-all active:scale-[0.98]"
+             >
+               {isLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "承認して開始する"}
+             </button>
+             <button
+               onClick={() => {
+                 setApprovalTarget(null);
+                 setContactNote("");
+               }}
+               disabled={isLoading}
+               className="w-full py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 transition-colors"
+             >
+               キャンセル
+             </button>
+           </div>
         </div>
       )}
     </div>
