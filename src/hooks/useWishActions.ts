@@ -181,7 +181,7 @@ export const useWishActions = () => {
           
           const data = wishDoc.data();
           const applicants = data.applicants || [];
-          const selectedApplicant = applicants.find((a: any) => a.id === applicantId);
+          const selectedApplicant = applicants.find((a: { id: string }) => a.id === applicantId);
           
           if (!selectedApplicant) throw "Applicant not found";
 
@@ -438,23 +438,31 @@ export const useWishActions = () => {
           });
         }
 
-        // 3. Salvation for Issuer (Physics C) & Purification (禊)
-        if (issuerDoc.exists()) {
-          const iBalance = issuerDoc.data().balance || 0;
-          const iData = issuerDoc.data() as UserProfile;
+          // 3. Salvation for Issuer (Physics C) & Purification (禊)
+          if (issuerDoc.exists()) {
+            const iData = issuerDoc.data() as UserProfile;
+            const iBalance = iData.balance || 0;
+            const iLastUpdated = iData.last_updated;
 
-          // Purification Logic: Increment Streak
-          const newStreak = (iData.consecutive_completions || 0) + 1;
+            // Strict Recalculation of User's Current Balance (Decayed)
+            const iCurrentReal = calculateDecayedValue(iBalance, iLastUpdated);
+            
+            // Deduct the Lm (Consumption)
+            // Even if mathematically safe due to reservation, we clamp at 0 to prevent checking errors
+            const iNewBalance = Math.max(0, iCurrentReal - actualValue);
 
-          const updateData = {
-            completed_requests: increment(1), // Properly Paid Count
-            consecutive_completions: newStreak, // Increment Streak
-            last_updated: serverTimestamp(),
-            ...(iBalance < 0 ? { balance: 0 } : {}),
-          };
+            // Purification Logic: Increment Streak
+            const newStreak = (iData.consecutive_completions || 0) + 1;
 
-          transaction.update(issuerRef, updateData);
-        }
+            const updateData = {
+              balance: iNewBalance, // CRITICAL FIX: Update Balance
+              completed_requests: increment(1), // Properly Paid Count
+              consecutive_completions: newStreak, // Increment Streak
+              last_updated: serverTimestamp(),
+            };
+
+            transaction.update(issuerRef, updateData);
+          }
 
         // 4. Mark Wish Fulfilled
         transaction.update(wishRef, {

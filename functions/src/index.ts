@@ -12,7 +12,12 @@ const db = admin.firestore();
  * 管理者権限を持つユーザーのみが呼び出し可能。
  * 全生存ユーザーのLumenを指定された容量(capacity)にリセットする。
  */
-export const resetCycle = functions.https.onCall(async (data: any, context: functions.https.CallableContext) => {
+// Interface for the input data
+interface ResetCycleData {
+  capacity?: number;
+}
+
+export const resetCycle = functions.https.onCall(async (data: ResetCycleData, context: functions.https.CallableContext) => {
   // 1. Security Check
   if (!context.auth) {
     throw new functions.https.HttpsError(
@@ -80,3 +85,33 @@ export const resetCycle = functions.https.onCall(async (data: any, context: func
     );
   }
 });
+
+/**
+ * 2. Balance Monitor: The Silent Watcher
+ * ユーザー残高が更新されるたびに、0未満になっていないか監視する。
+ * もし負の残高が発生した場合、それは「物理法則の崩壊」を意味するため、
+ * 直ちに異常ログ（anomalies collection）に記録する。
+ */
+export const monitorBalances = functions.firestore
+  .document('users/{userId}')
+  .onUpdate(async (change, context) => {
+    const newValue = change.after.data();
+    const balance = newValue.balance;
+
+    // 負の不渡りを検知
+    if (typeof balance === 'number' && balance < 0) {
+      console.error(`[CRITICAL] Negative Balance Detected! User: ${context.params.userId}, Balance: ${balance}`);
+      
+      // 異常事態を記録
+      await db.collection('anomalies').add({
+        type: 'negative_balance',
+        userId: context.params.userId,
+        userName: newValue.name || 'Unknown',
+        balance: balance,
+        detectedAt: admin.firestore.FieldValue.serverTimestamp(),
+        severity: 'CRITICAL',
+        snapshot: newValue
+      });
+    }
+  });
+
