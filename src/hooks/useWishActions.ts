@@ -291,12 +291,36 @@ export const useWishActions = () => {
     setIsSubmitting(true);
     try {
       const wishRef = doc(db, "wishes", wishId);
-      // 辞退: Openに戻し、Helperを削除
-      await updateDoc(wishRef, {
-        status: "open",
-        helper_id: deleteField(),
-        accepted_at: deleteField(),
+      const userRef = doc(db, "users", user.uid);
+
+      await runTransaction(db, async (transaction) => {
+        const wishDoc = await transaction.get(wishRef);
+        if (!wishDoc.exists()) throw "Wish not found";
+
+        const wishData = wishDoc.data();
+        
+        // 1. Remove from Applicants (Clean Slate)
+        const currentApplicants = wishData.applicants || [];
+        const updatedApplicants = currentApplicants.filter(
+            (a: { id: string }) => a.id !== user.uid
+        );
+
+        // 2. Reset Helper Stats (Purification/Penalty)
+        // consecutive_completions = 0 -> Rank Deprivation
+        transaction.update(userRef, {
+            consecutive_completions: 0,
+            last_updated: serverTimestamp()
+        });
+
+        // 3. Reset Wish Status
+        transaction.update(wishRef, {
+            status: "open",
+            applicants: updatedApplicants,
+            helper_id: deleteField(),
+            accepted_at: deleteField(),
+        });
       });
+
       return true;
     } catch (e) {
       console.error("Failed to resign wish:", e);
