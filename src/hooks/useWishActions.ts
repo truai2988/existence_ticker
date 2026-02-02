@@ -264,15 +264,13 @@ export const useWishActions = () => {
           });
         } else {
           // === 通常キャンセル (Open Status) ===
+          // 依頼取り消し：跡形もなく消滅させる (Delete)
           const requesterRef = doc(db!, "users", user.uid);
           transaction.update(requesterRef, {
             last_updated: serverTimestamp(),
           });
 
-          transaction.update(wishRef, {
-            status: "cancelled",
-            cancelled_at: serverTimestamp(),
-          });
+          transaction.delete(wishRef);
         }
       });
 

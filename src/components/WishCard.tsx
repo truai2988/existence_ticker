@@ -515,8 +515,8 @@ export const WishCard: React.FC<WishCardProps> = ({
                         'text-slate-500'
                     }`}>
                         {wish.status === "fulfilled" ? "届けられた感謝 (最終値)" : 
-                         wish.status === "cancelled" ? (wish.cancel_reason === 'compensatory_cancellation' || wish.val_at_fulfillment ? "お詫びのしるし" : "幻の感謝") : 
-                         "届かなかった感謝"}
+                         wish.status === "cancelled" ? "お詫びのしるし" : 
+                         "期限により自然消滅"}
                     </span>
                 </div>
                 <div className="text-lg font-bold font-mono text-slate-900 tracking-tight">
@@ -540,11 +540,12 @@ export const WishCard: React.FC<WishCardProps> = ({
                                 <span className="text-[9px] text-red-300 font-bold">補償済</span>
                              </div>
                         ) : (
-                             // Void Case
-                             <span className="text-sm font-bold text-red-300">無効</span>
+                             // Void Case (Show nothing on right, rely on main label)
+                             null
                         )
                     ) : (
-                        <span className="text-slate-300">0.000 <span className="text-[10px]">Lm</span></span>
+                        // Expired Case (Show nothing on right)
+                        null
                     )}
                 </div>
             </div>
