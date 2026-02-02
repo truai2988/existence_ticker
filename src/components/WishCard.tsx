@@ -579,6 +579,11 @@ export const WishCard: React.FC<WishCardProps> = ({
               進行中
             </span>
           )}
+          {wish.status === "cancelled" && (
+            <span className="text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full border border-red-100 whitespace-nowrap shrink-0">
+              キャンセル済み
+            </span>
+          )}
           {wish.status === "review_pending" && (
             <span className="text-xs font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full border border-purple-100 animate-pulse whitespace-nowrap shrink-0">
               確認待ち
