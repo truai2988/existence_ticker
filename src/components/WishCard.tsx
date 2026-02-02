@@ -613,7 +613,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                   {wish.contact_note && (
                       <div className="flex flex-col gap-1 pt-2 border-t border-slate-100">
                           <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                              承認時のメモ
+                              {isMyWish ? "承認時のメモ" : "依頼者さんより"}
                           </span>
                           <p className="text-xs text-slate-600 bg-white p-2 rounded-lg border border-slate-100 whitespace-pre-wrap">
                               {wish.contact_note}
