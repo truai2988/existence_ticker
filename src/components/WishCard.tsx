@@ -515,7 +515,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                         'text-slate-500'
                     }`}>
                         {wish.status === "fulfilled" ? "届けられた感謝 (最終値)" : 
-                         wish.status === "cancelled" ? "キャンセル済み" : 
+                         wish.status === "cancelled" ? "願いの結末" : 
                          "期限切れ (自然消滅)"}
                     </span>
                 </div>
