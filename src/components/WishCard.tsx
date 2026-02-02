@@ -486,20 +486,36 @@ export const WishCard: React.FC<WishCardProps> = ({
       <div className="relative mb-3 border-t border-slate-100 pt-2">
         {['fulfilled', 'cancelled', 'expired'].includes(wish.status) ? (
             <div className={`p-4 rounded-xl border flex justify-between items-center ${
-                wish.status === 'fulfilled' ? 'bg-green-50/50 border-green-100/50' : 'bg-slate-50/50 border-slate-100/50'
+                wish.status === 'fulfilled' ? 'bg-green-50/50 border-green-100/50' : 
+                wish.status === 'cancelled' ? 'bg-red-50/30 border-red-100/50' : // Subtle Red for Cancelled
+                'bg-slate-50/50 border-slate-100/50' // Gray for Expired
             }`}>
-                <div className="flex items-center gap-2 text-slate-500">
+                <div className="flex items-center gap-2">
                     {wish.status === "fulfilled" ? (
                         <CheckCircle size={16} className="text-green-500" />
+                    ) : wish.status === "cancelled" ? (
+                        <X size={16} className="text-red-400" />
                     ) : (
                         <Archive size={16} className="text-slate-400" />
                     )}
-                    <span className="text-xs font-bold">
-                        {wish.status === "fulfilled" ? "届けられた感謝 (最終値)" : "記録の状態"}
+                    <span className={`text-xs font-bold ${
+                        wish.status === 'fulfilled' ? 'text-green-700' :
+                        wish.status === 'cancelled' ? 'text-red-600' :
+                        'text-slate-500'
+                    }`}>
+                        {wish.status === "fulfilled" ? "届けられた感謝 (最終値)" : 
+                         wish.status === "cancelled" ? "キャンセル済み" : 
+                         "期限切れ (自然消滅)"}
                     </span>
                 </div>
                 <div className="text-lg font-bold font-mono text-slate-900 tracking-tight">
-                    {(wish.val_at_fulfillment || 0).toFixed(3)} <span className="text-[10px] text-slate-400 ml-0.5">Lm</span>
+                    {wish.status === "fulfilled" ? (
+                        <>{(wish.val_at_fulfillment || 0).toFixed(3)} <span className="text-[10px] text-slate-400 ml-0.5">Lm</span></>
+                    ) : wish.status === "cancelled" ? (
+                        <span className="text-sm font-sans text-red-300 font-bold">Void</span>
+                    ) : (
+                        <span className="text-slate-300">0.000 <span className="text-[10px]">Lm</span></span>
+                    )}
                 </div>
             </div>
         ) : (
