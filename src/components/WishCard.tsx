@@ -517,7 +517,7 @@ export const WishCard: React.FC<WishCardProps> = ({
 
       {/* Value / Outcome Area */}
       <div className="relative mb-3 border-t border-slate-100 pt-2">
-        {['fulfilled', 'cancelled', 'expired'].includes(wish.status) ? (
+        {['fulfilled', 'cancelled', 'expired'].includes(wish.status) || (wish.status === 'open' && isExpired) ? (
             <div className={`p-4 rounded-xl border flex justify-between items-center ${
                 wish.status === 'fulfilled' ? 'bg-green-50/50 border-green-100/50' : 
                 wish.status === 'cancelled' ? 'bg-red-50/30 border-red-100/50' : // Subtle Red for Cancelled
@@ -682,7 +682,7 @@ export const WishCard: React.FC<WishCardProps> = ({
           {/* 1. Case: Requester View (My Wish) */}
           {isMyWish && (
             <>
-              {wish.status === "open" && (
+              {wish.status === "open" && !isExpired && (
                 <div>
                   {applicants.length === 0 ? null : (
                     <div className="relative">
@@ -870,11 +870,7 @@ export const WishCard: React.FC<WishCardProps> = ({
           )}
 
           {/* 2b. Case: Expired Passive Message (Non-Requester) */}
-          {!isMyWish && isExpired && (
-            <p className="text-[10px] text-slate-400 italic">
-              期限切れのため終了しました
-            </p>
-          )}
+
 
           {/* 3. Cleanup Action for 0 Lm (My Wish) */}
           {isMyWish && isExpired && (

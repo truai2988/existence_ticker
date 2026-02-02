@@ -69,14 +69,28 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
     const historyWishes = wishes.filter(w => {
         const isHelper = w.helper_id === currentUserId;
         const isApplicant = w.applicants && w.applicants.some(a => a.id === currentUserId);
+        
+        // Base check: Must be involved
         if (!isHelper && !isApplicant) return false;
 
-        // Official history statuses
-        if (['fulfilled', 'cancelled', 'expired'].includes(w.status)) return true;
+        // Status check
+        const isOfficialHistory = ['fulfilled', 'cancelled', 'expired'].includes(w.status);
+        const isDecayed = calculateLifePoints(w.cost || 0, w.created_at) <= 0;
 
-        // Auto-expiration for helpers (even if requester hasn't cleaned up yet)
-        const currentValue = calculateLifePoints(w.cost || 0, w.created_at);
-        if (currentValue <= 0) return true;
+        if (isOfficialHistory || isDecayed) {
+            // SPEC CHANGE: If expired (or decayed), ONLY show if actual Helper.
+            // Applicants don't see "missed/expired" opportunities in history.
+            if (w.status === 'expired' || isDecayed) {
+                return isHelper;
+            }
+            // For fulfilled/cancelled, Applicants might see it? 
+            // Usually 'fulfilled' implies a helper existed. 
+            // 'cancelled' might happen while open.
+            // If cancelled while open, applicants might want to know? 
+            // User spec implies "Expired" is the main specific exclusion.
+            // Let's stick to "If expired/decayed, must be Helper".
+            return true;
+        }
 
         return false;
     });
