@@ -38,4 +38,24 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Core React Runtime (Stable, rarely changes)
+          'vendor-react': ['react', 'react-dom'],
+          
+          // Firebase SDK (Heavy, split to allow parallel loading)
+          'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          
+          // UI Libraries (Visual components)
+          'vendor-ui': ['framer-motion', 'lucide-react', 'clsx', 'tailwind-merge'],
+          
+          // NOTE: "Purification of Dependencies"
+          // When adding new large libraries, explicitly add them here to keep the main bundle light.
+          // Maintain awareness of what weighs down the vessel.
+        }
+      }
+    }
+  }
 })

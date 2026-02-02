@@ -111,6 +111,29 @@ export const useWallet = () => {
    */
   const checkLunarPhase = async (): Promise<{ reset: boolean }> => {
     if (!user || !db) return { reset: false };
+
+    // === OPTIMIZATION: Early Exit using local data ===
+    // If we have profile data (from useProfile listener), check locally first.
+    // This prevents running a write transaction on every page load/mount.
+    if (profile && profile.cycle_started_at && typeof profile.cycle_started_at.toMillis === 'function') {
+        const cycleStartedAt = profile.cycle_started_at.toMillis();
+        const effectiveCycleDays = profile.scheduled_cycle_days || 10;
+        const cycleDurationMillis = effectiveCycleDays * 24 * 60 * 60 * 1000;
+        const now = Date.now();
+
+        // If current time is strictly BEFORE the expiry, do nothing.
+        // INTEGRITY UPDATE: Add a 60-second safety buffer for client clock skew.
+        // If we are within 1 minute of expiry, allow the transaction to proceed (Safety Side).
+        const timeRemaining = (cycleStartedAt + cycleDurationMillis) - now;
+        const SAFETY_BUFFER = 60 * 1000; // 1 minute
+
+        if (timeRemaining > SAFETY_BUFFER) {
+            // Debug log only in dev or if specifically debugging
+            // console.debug("Metabolism: Cycle active (Local Check). Skipping transaction.", timeRemaining / 1000, "s left");
+            return { reset: false };
+        }
+    }
+
     const userRef = doc(db, "users", user.uid);
 
     try {
@@ -121,8 +144,10 @@ export const useWallet = () => {
         if (!userDoc.exists()) throw "User missing";
 
         const data = userDoc.data();
-        const cycleStartedAt =
-          data.cycle_started_at?.toMillis() || data.created_at?.toMillis() || 0;
+        // Safe access to Timestamp
+        const cycleStartedAt = data.cycle_started_at 
+            ? (data.cycle_started_at.toMillis ? data.cycle_started_at.toMillis() : 0)
+            : (data.created_at?.toMillis ? data.created_at.toMillis() : 0);
 
         // 1. NON-RETROACTIVITY Check (法の不遡及)
         // Use the cycle duration that was scheduled for THIS cycle.
