@@ -198,6 +198,7 @@ export const WishCard: React.FC<WishCardProps> = ({
   const handleApprove = (applicantId: string, name: string) => {
     setApprovalTarget({ id: applicantId, name });
     setContactNote(""); // Reset
+    setShowApplicants(false);
   };
   
   const executeApprove = async () => {
@@ -881,116 +882,120 @@ export const WishCard: React.FC<WishCardProps> = ({
         </div>
       </div>
 
-      {/* Confirmation Overlay (Absolute) */}
+      {/* Confirmation Overlay (Fixed) */}
       {confirmAction && (
-        <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center p-6 animate-in fade-in duration-200">
-          <div
-            className={`p-3 rounded-full mb-4 ${
-              confirmAction === "compensate"
-                ? "bg-red-100 text-red-600"
-                : "bg-slate-100 text-slate-500"
-            }`}
-          >
-            <AlertTriangle size={24} />
-          </div>
-
-          <h4 className="text-base font-bold text-slate-800 mb-2 text-center">
-            {confirmAction === "compensate"
-              ? "進行中の依頼を取り下げますか？"
-              : confirmAction === "resign"
-              ? "このお手伝いを辞退しますか？"
-              : "このお願いを取り下げますか？"}
-          </h4>
-
-          <p className="text-xs text-slate-600 text-center mb-6 leading-relaxed whitespace-pre-wrap">
-            {confirmAction === "compensate" ? (
-              <>
-                協力者はすでに時間を空けて待機しています。
-                <br />
-                今キャンセルする場合、予約していたLmは
-                <br />
-                <strong className="text-red-500">
-                  『時間の補償』として全額相手に支払われます。
-                </strong>
-              </>
-            ) : confirmAction === "resign" ? (
-              "これまでの経緯は白紙に戻ります。"
-            ) : (
-              "予約していたLmは、再び自由に使えるようになります。"
-            )}
-          </p>
-
-          <div className="flex flex-col gap-2 w-full">
-            <button
-              onClick={executeCancel}
-              disabled={isLoading}
-              className={`w-full py-3 rounded-xl text-sm font-bold text-white shadow-md transition-all active:scale-[0.98] ${
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <div
+              className={`p-3 rounded-full mb-4 ${
                 confirmAction === "compensate"
-                  ? "bg-red-500 hover:bg-red-600 shadow-red-200"
-                  : "bg-slate-700 hover:bg-slate-800 shadow-slate-200"
+                  ? "bg-red-100 text-red-600"
+                  : "bg-slate-100 text-slate-500"
               }`}
             >
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin mx-auto" />
-              ) : confirmAction === "compensate" ? (
-                "補償してキャンセルする"
+              <AlertTriangle size={24} />
+            </div>
+
+            <h4 className="text-base font-bold text-slate-800 mb-2 text-center">
+              {confirmAction === "compensate"
+                ? "進行中の依頼を取り下げますか？"
+                : confirmAction === "resign"
+                ? "このお手伝いを辞退しますか？"
+                : "このお願いを取り下げますか？"}
+            </h4>
+
+            <p className="text-xs text-slate-600 text-center mb-6 leading-relaxed whitespace-pre-wrap">
+              {confirmAction === "compensate" ? (
+                <>
+                  協力者はすでに時間を空けて待機しています。
+                  <br />
+                  今キャンセルする場合、予約していたLmは
+                  <br />
+                  <strong className="text-red-500">
+                    『時間の補償』として全額相手に支払われます。
+                  </strong>
+                </>
               ) : confirmAction === "resign" ? (
-                "辞退する"
+                "これまでの経緯は白紙に戻ります。"
               ) : (
-                "取り下げる"
+                "予約していたLmは、再び自由に使えるようになります。"
               )}
-            </button>
-            <button
-              onClick={() => setConfirmAction(null)}
-              disabled={isLoading}
-              className="w-full py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 transition-colors"
-            >
-              戻る
-            </button>
+            </p>
+
+            <div className="flex flex-col gap-2 w-full">
+              <button
+                onClick={executeCancel}
+                disabled={isLoading}
+                className={`w-full py-3 rounded-xl text-sm font-bold text-white shadow-md transition-all active:scale-[0.98] ${
+                  confirmAction === "compensate"
+                    ? "bg-red-500 hover:bg-red-600 shadow-red-200"
+                    : "bg-slate-700 hover:bg-slate-800 shadow-slate-200"
+                }`}
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                ) : confirmAction === "compensate" ? (
+                  "補償してキャンセルする"
+                ) : confirmAction === "resign" ? (
+                  "辞退する"
+                ) : (
+                  "取り下げる"
+                )}
+              </button>
+              <button
+                onClick={() => setConfirmAction(null)}
+                disabled={isLoading}
+                className="w-full py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 transition-colors"
+              >
+                戻る
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Approval Modal */}
+      {/* Approval Modal (Fixed) */}
       {approvalTarget && (
-        <div className="absolute inset-0 z-50 bg-white/95 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center p-6 animate-in fade-in duration-200">
-           <div className="bg-green-100 text-green-600 p-3 rounded-full mb-4">
-             <Handshake size={24} />
-           </div>
-           
-           <h4 className="text-base font-bold text-slate-800 mb-1 text-center">
-             {approvalTarget.name}さんにお願いしますか？
-           </h4>
-           <p className="text-xs text-slate-500 mb-6 text-center">
-             承認時に相手へのメッセージ（連絡事項など）を送れます。
-           </p>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-sm animate-in fade-in duration-200">
+           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
+             <div className="bg-green-100 text-green-600 p-3 rounded-full mb-4">
+               <Handshake size={24} />
+             </div>
+             
+             <h4 className="text-base font-bold text-slate-800 mb-1 text-center">
+               {approvalTarget.name}さんにお願いしますか？
+             </h4>
+             <p className="text-xs text-slate-500 mb-6 text-center">
+               承認時に相手へのメッセージ（連絡事項など）を送れます。
+             </p>
 
-           <textarea
-             value={contactNote}
-             onChange={(e) => setContactNote(e.target.value)}
-             placeholder="例: よろしくお願いします。詳細はメールでご連絡します。"
-             className="w-full p-3 border border-slate-200 rounded-xl mb-4 text-sm focus:ring-2 focus:ring-green-100 focus:border-green-400 outline-none resize-none min-h-[80px]"
-           />
+             <textarea
+               value={contactNote}
+               onChange={(e) => setContactNote(e.target.value)}
+               placeholder="例: よろしくお願いします。詳細はメールでご連絡します。"
+               className="w-full p-3 border border-slate-200 rounded-xl mb-4 text-sm focus:ring-2 focus:ring-green-100 focus:border-green-400 outline-none resize-none min-h-[80px]"
+             />
 
-           <div className="flex flex-col gap-2 w-full">
-             <button
-               onClick={executeApprove}
-               disabled={isLoading}
-               className="w-full py-3 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200 transition-all active:scale-[0.98]"
-             >
-               {isLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "承認して開始する"}
-             </button>
-             <button
-               onClick={() => {
-                 setApprovalTarget(null);
-                 setContactNote("");
-               }}
-               disabled={isLoading}
-               className="w-full py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 transition-colors"
-             >
-               キャンセル
-             </button>
-           </div>
+             <div className="flex flex-col gap-2 w-full">
+               <button
+                 onClick={executeApprove}
+                 disabled={isLoading}
+                 className="w-full py-3 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200 transition-all active:scale-[0.98]"
+               >
+                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "承認して開始する"}
+               </button>
+               <button
+                 onClick={() => {
+                   setApprovalTarget(null);
+                   setContactNote("");
+                 }}
+                 disabled={isLoading}
+                 className="w-full py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 transition-colors"
+               >
+                 キャンセル
+               </button>
+             </div>
+          </div>
         </div>
       )}
     </div>
