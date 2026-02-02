@@ -80,6 +80,28 @@ export const calculateDecayedValue = (initialValue: number, lastUpdated: unknown
   return Math.max(0, Math.floor(result));
 };
 
+/**
+ * 過去の特定の時点での価値を計算する (Historical Truth)
+ * キャンセル時や過去の記録の照会に使用。
+ */
+export const calculateHistoricalValue = (initialValue: number, startTime: unknown, endTime: unknown): number => {
+    if (startTime === null || startTime === undefined || endTime === null || endTime === undefined) {
+        return Math.floor(initialValue); // Data missing, return base
+    }
+
+    const startMs = getMillis(startTime);
+    const endMs = getMillis(endTime);
+
+    if (endMs < startMs) return Math.floor(initialValue);
+
+    const elapsedMs = endMs - startMs;
+    const elapsedHours = Math.floor(elapsedMs / 3600000);
+    const decayAmount = elapsedHours * WORLD_CONSTANTS.DECAY_RATE_HOURLY;
+    
+    const result = initialValue - decayAmount;
+    return Math.max(0, Math.floor(result));
+};
+
 // =========================================================================================
 // Liquidity Logic (ゆとり計算)
 // =========================================================================================

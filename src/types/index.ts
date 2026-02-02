@@ -67,9 +67,11 @@ export interface Wish {
   tags?: string[];
   helper_id?: string; // ID of the user who accepted the wish
   cost?: number; // Initial Cost / Bounty
-  val_at_fulfillment?: number; // Value when it was fulfilled
+  val_at_fulfillment?: number; // Value when it was fulfilled (or compensated)
   accepted_at?: string;
   fulfilled_at?: unknown;
+  cancelled_at?: unknown; // Firestore Timestamp
+  cancel_reason?: string;
 }
 
 // UI Input Type

@@ -15,7 +15,7 @@ import {
   Archive,
 } from "lucide-react";
 import { Wish } from "../types";
-import { calculateDecayedValue } from "../logic/worldPhysics";
+import { calculateDecayedValue, calculateHistoricalValue } from "../logic/worldPhysics";
 import { useWishActions } from "../hooks/useWishActions";
 import { useUserView } from "../contexts/UserViewContext";
 import { getTrustRank } from "../logic/worldPhysics";
@@ -324,8 +324,19 @@ export const WishCard: React.FC<WishCardProps> = ({
                 </div>
               </>
             ) : (
-              // Open Status (Preserve helper area spacing)
-              <div className="min-w-0 flex-1 py-1" />
+              // Open Status or Unmatched History
+              <div className="min-w-0 flex-1 py-1">
+                 {['cancelled', 'expired'].includes(wish.status) && (
+                     <div className="flex items-center gap-2 opacity-50">
+                         <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
+                             <User className="w-5 h-5 text-slate-300" />
+                         </div>
+                         <div className="text-xs text-slate-400 font-medium">
+                             未成立
+                         </div>
+                     </div>
+                 )}
+              </div>
             )
           ) : (
             // Others View (Show Requester - Existing Logic)
@@ -512,7 +523,26 @@ export const WishCard: React.FC<WishCardProps> = ({
                     {wish.status === "fulfilled" ? (
                         <>{(wish.val_at_fulfillment || 0).toFixed(3)} <span className="text-[10px] text-slate-400 ml-0.5">Lm</span></>
                     ) : wish.status === "cancelled" ? (
-                        <span className="text-sm font-sans text-red-300 font-bold">Void</span>
+                        wish.cancel_reason === 'compensatory_cancellation' || wish.val_at_fulfillment ? (
+                             // Compensation Paid Case
+                             <div className="flex flex-col items-end">
+                                <span className="text-base text-red-500">
+                                    {wish.val_at_fulfillment !== undefined 
+                                        ? wish.val_at_fulfillment.toFixed(3) 
+                                        : calculateHistoricalValue(
+                                            wish.cost || 0, 
+                                            wish.created_at, 
+                                            wish.cancelled_at
+                                          ).toFixed(3)
+                                    } 
+                                    <span className="text-[10px] ml-0.5">Lm</span>
+                                </span>
+                                <span className="text-[9px] text-red-300 font-bold">補償済</span>
+                             </div>
+                        ) : (
+                             // Void Case
+                             <span className="text-sm font-bold text-red-300">無効</span>
+                        )
                     ) : (
                         <span className="text-slate-300">0.000 <span className="text-[10px]">Lm</span></span>
                     )}

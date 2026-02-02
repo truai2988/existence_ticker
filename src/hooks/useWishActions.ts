@@ -260,6 +260,7 @@ export const useWishActions = () => {
             status: "cancelled",
             cancel_reason: "compensatory_cancellation",
             cancelled_at: serverTimestamp(),
+            val_at_fulfillment: currentValue, // Store for records (Compensation Amount)
           });
         } else {
           // === 通常キャンセル (Open Status) ===
