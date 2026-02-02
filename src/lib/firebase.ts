@@ -26,6 +26,11 @@ if (apiKey) {
   app = initializeApp(firebaseConfig);
   db = getFirestore(app);
   auth = getAuth(app);
+  
+  // 物理法則の調律：認証メールの言語を日本語に固定
+  auth.languageCode = 'ja';
+  console.log('Auth Language Code set to:', auth.languageCode); // Verification log
+
   functions = getFunctions(app);
   storage = getStorage(app);
 
