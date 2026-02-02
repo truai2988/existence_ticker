@@ -83,6 +83,15 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
 
     // Combine for counts ?? No, keep sections separate.
 
+    // Auto-Tab Switch Handler
+    const handleActionComplete = (action: 'applied' | 'withdrawn' | 'approved' | 'cancelled' | 'resigned' | 'completed' | 'cleanup') => {
+        if (action === 'applied') {
+            setActiveTab('pending');
+        } else if (action === 'withdrawn' || action === 'resigned') {
+            setActiveTab('explore');
+        }
+    };
+
     return (
         <div className="fixed inset-0 z-[60] bg-slate-50 flex flex-col w-full h-full">
             {/* Header Container (Full Width) */}
@@ -192,6 +201,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
                         hasMore={hasMore}
                         isFetchingMore={isFetchingMore}
                         onOpenProfile={onOpenProfile}
+                        onActionComplete={handleActionComplete}
                     />
                 )}
 
@@ -202,6 +212,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
                         emptyMessage="返事待ちの依頼はありません"
                         emptyIcon={<Timer size={48} className="text-slate-300 mb-2" />}
                         onOpenProfile={onOpenProfile}
+                        onActionComplete={handleActionComplete}
                     />
                 )}
 
@@ -212,6 +223,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
                         emptyMessage="進行中の依頼はありません"
                         emptyIcon={<PlayCircle size={48} className="text-slate-300 mb-2" />}
                         onOpenProfile={onOpenProfile}
+                        onActionComplete={handleActionComplete}
                     />
                 )}
 
@@ -222,6 +234,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
                         emptyMessage="活動記録はありません"
                         emptyIcon={<ClipboardList size={48} className="text-slate-300 mb-2" />}
                         onOpenProfile={onOpenProfile}
+                        onActionComplete={handleActionComplete}
                     />
                 )}
             </div>

@@ -53,6 +53,14 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
         );
     };
 
+    const handleActionComplete = (action: 'applied' | 'withdrawn' | 'approved' | 'cancelled' | 'resigned' | 'completed' | 'cleanup') => {
+        if (action === 'approved') {
+            setActiveTab('outbound');
+        } else if ((action === 'cancelled' && activeTab === 'outbound') || action === 'completed' || action === 'cleanup') {
+            setActiveTab('past');
+        }
+    };
+
     return (
         <div className="fixed inset-0 z-[60] bg-slate-50/95 backdrop-blur-md flex flex-col w-full h-full">
             {/* Header Container */}
@@ -141,18 +149,21 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                             wishes={myActiveWishes} 
                             currentUserId={currentUserId} 
                             emptyMessage="現在、募集中のお願いはありません。"
+                            onActionComplete={handleActionComplete}
                          />
                      ) : activeTab === 'outbound' ? (
                          <WishCardList 
                             wishes={myOutboundWishes} 
                             currentUserId={currentUserId} 
                             emptyMessage="現在、誰かが手伝ってくれている案件はありません。"
+                            onActionComplete={handleActionComplete}
                          />
                      ) : (
                          <WishCardList 
                             wishes={myPastWishes} 
                             currentUserId={currentUserId} 
                             emptyMessage="過去の記録はありません。"
+                            onActionComplete={handleActionComplete}
                          />
                      )}
                 </div>

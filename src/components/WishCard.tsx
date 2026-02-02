@@ -104,12 +104,14 @@ interface WishCardProps {
   wish: Wish;
   currentUserId: string;
   onOpenProfile?: () => void;
+  onActionComplete?: (action: 'applied' | 'withdrawn' | 'approved' | 'cancelled' | 'resigned' | 'completed' | 'cleanup') => void;
 }
 
 export const WishCard: React.FC<WishCardProps> = ({
   wish,
   currentUserId,
   onOpenProfile,
+  onActionComplete,
 }) => {
   const {
     applyForWish,
@@ -192,6 +194,7 @@ export const WishCard: React.FC<WishCardProps> = ({
     if (success) {
       showToast("立候補しました", "success");
       refresh();
+      if (onActionComplete) onActionComplete('applied');
     }
   };
 
@@ -211,6 +214,7 @@ export const WishCard: React.FC<WishCardProps> = ({
         setShowApplicants(false);
         setApprovalTarget(null);
         refresh(); // リストを更新
+        if (onActionComplete) onActionComplete('approved');
       }
   };
 
@@ -243,29 +247,35 @@ export const WishCard: React.FC<WishCardProps> = ({
   };
 
   // Execute Logic
+  // Execute Logic
   const executeCancel = async () => {
+    if (!confirmAction) return;
+
     setIsLoading(true);
-    try {
-      let success = false;
-      if (confirmAction === "resign") {
-        success = await resignWish(wish.id);
-        if (success) showToast("辞退しました", "success");
-      } else {
-        success = await cancelWish(wish.id);
-        if (success)
-          showToast(
-            wish.status === "in_progress"
-              ? "補償を支払ってキャンセルしました"
-              : "キャンセルしました",
-            "success",
-          );
-      }
-      if (success) refresh();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setIsLoading(false);
-      setConfirmAction(null);
+    let success = false;
+    let actionType: 'cancelled' | 'resigned' = 'cancelled';
+
+    if (confirmAction === "resign") {
+      success = await resignWish(wish.id);
+      actionType = 'resigned';
+    } else {
+      success = await cancelWish(wish.id);
+    }
+
+    setIsLoading(false);
+    setConfirmAction(null);
+
+    if (success) {
+      showToast(
+        confirmAction === "resign"
+          ? "辞退しました"
+          : confirmAction === "compensate"
+          ? "補償してキャンセルしました"
+          : "取り下げました",
+        "success",
+      );
+      refresh();
+      if (onActionComplete) onActionComplete(actionType);
     }
   };
 
@@ -277,6 +287,7 @@ export const WishCard: React.FC<WishCardProps> = ({
     if (success) {
       showToast("記録を整理しました", "success");
       refresh();
+      if (onActionComplete) onActionComplete('cleanup');
     }
   };
 
@@ -807,6 +818,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                             if (success) {
                               showToast("立候補を取り消しました", "success");
                               refresh();
+                              if (onActionComplete) onActionComplete('withdrawn');
                             }
                           }
                         }}
