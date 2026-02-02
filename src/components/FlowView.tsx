@@ -91,8 +91,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
             <div className="max-w-md mx-auto px-6 h-[90px] flex flex-col justify-start pt-3">
                 <div className="flex justify-between items-center w-full mb-2">
                     <div>
-                        <h2 className="text-lg font-bold font-sans text-slate-900">募集中の願い</h2>
-                        <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">みんなの広場</p>
+                        <h2 className="text-lg font-bold font-sans text-slate-900">みんなの願い</h2>
                     </div>
                     <div className="flex items-center gap-3">
                         <button 

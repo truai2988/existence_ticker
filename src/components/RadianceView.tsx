@@ -61,7 +61,6 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                     <div className="flex justify-between items-center w-full mb-2">
                         <div>
                              <h2 className="text-lg font-bold font-sans text-slate-900">自分のお願い</h2>
-                             <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">My Wishes Hub</p>
                         </div>
                         <div className="flex items-center gap-3">
                             <button 

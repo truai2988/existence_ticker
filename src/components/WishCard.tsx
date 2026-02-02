@@ -845,6 +845,8 @@ export const WishCard: React.FC<WishCardProps> = ({
           <h4 className="text-base font-bold text-slate-800 mb-2 text-center">
             {confirmAction === "compensate"
               ? "進行中の依頼を取り下げますか？"
+              : confirmAction === "resign"
+              ? "このお手伝いを辞退しますか？"
               : "このお願いを取り下げますか？"}
           </h4>
 
@@ -859,8 +861,10 @@ export const WishCard: React.FC<WishCardProps> = ({
                   『時間の補償』として全額相手に支払われます。
                 </strong>
               </>
+            ) : confirmAction === "resign" ? (
+              "これまでの経緯は白紙に戻ります。"
             ) : (
-              "予約していたLmはあなたの器に戻ります。"
+              "予約していたLmは、再び自由に使えるようになります。"
             )}
           </p>
 
@@ -878,6 +882,8 @@ export const WishCard: React.FC<WishCardProps> = ({
                 <Loader2 className="w-4 h-4 animate-spin mx-auto" />
               ) : confirmAction === "compensate" ? (
                 "補償してキャンセルする"
+              ) : confirmAction === "resign" ? (
+                "辞退する"
               ) : (
                 "取り下げる"
               )}
