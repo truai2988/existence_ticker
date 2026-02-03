@@ -6,7 +6,7 @@ import { JournalView } from './JournalView';
 import { AdminDashboard } from './AdminDashboard';
 import { RadianceView } from './RadianceView';
 import { FlowView } from './FlowView';
-import { GiftView } from './GiftView';
+
 import { SeasonalRevelation } from './SeasonalRevelation';
 import { AppViewMode } from '../types';
 
@@ -40,7 +40,6 @@ export const MainContent: React.FC<MainContentProps> = ({ viewMode, setViewMode,
                     <HomeView 
                         onOpenFlow={() => setViewMode('flow')} 
                         onOpenRequest={() => setViewMode('give')}
-                        onOpenGift={() => setViewMode('gift')}
                         onOpenProfileEdit={() => setViewMode('profile_edit')}
                     />,
                     'home'
@@ -75,8 +74,7 @@ export const MainContent: React.FC<MainContentProps> = ({ viewMode, setViewMode,
                 );
             case 'give':
                  return withTransition(<RadianceView onClose={onGoHome} currentUserId={currentUserId} />, 'give');
-            case 'gift':
-                 return withTransition(<GiftView onClose={onGoHome} />, 'gift');
+
             case 'admin':
                  return withTransition(<AdminDashboard onClose={onGoHome} />, 'admin');
             default:

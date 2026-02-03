@@ -95,4 +95,4 @@ export interface PendingWish {
   preset: GratitudeTier;
 }
 
-export type AppViewMode = 'home' | 'history' | 'profile' | 'profile_edit' | 'flow' | 'give' | 'gift' | 'admin';
+export type AppViewMode = 'home' | 'history' | 'profile' | 'profile_edit' | 'flow' | 'give' | 'admin';
