@@ -232,8 +232,8 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
         >
             {/* Date Column */}
             <div className="w-12 pt-1 text-right shrink-0">
-                <span className="text-[10px] font-mono text-slate-400 block">{dateStr}</span>
-                <span className="text-[9px] font-mono text-slate-300 block">
+                <span className="text-[11px] font-mono text-slate-400 block">{dateStr}</span>
+                <span className="text-[10px] font-mono text-slate-300 block">
                     {date.getHours().toString().padStart(2, '0')}:{date.getMinutes().toString().padStart(2, '0')}
                 </span>
             </div>
@@ -261,10 +261,10 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
                     <span className={`text-sm font-mono font-bold ${amountColor}`}>
                         {amountPrefix}{Math.floor(log.amount).toLocaleString()}
                     </span>
-                    <span className="text-[10px] text-slate-400">Lm</span>
+                    <span className="text-[11px] text-slate-400">Lm</span>
                     {/* Specific Phrasing for Outflow */}
                     {(isSender && log.type !== 'REBIRTH') && (
-                        <span className="text-[10px] text-slate-400 ml-1">を分かち合いました</span>
+                        <span className="text-[11px] text-slate-400 ml-1">を分かち合いました</span>
                     )}
                 </div>
             </div>

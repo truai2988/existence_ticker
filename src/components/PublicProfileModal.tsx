@@ -90,19 +90,19 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                         
                         {/* Meta Row: Rank | ID | Location */}
                         <div className="flex flex-wrap justify-center gap-2 mb-4 items-center">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${rank.bg} ${rank.color} flex items-center gap-1`}>
+                            <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${rank.bg} ${rank.color} flex items-center gap-1`}>
                                 {rank.icon}
                                 {rank.label}
                             </span>
-                            <span className="text-[10px] text-slate-300 font-light">|</span>
-                            <span className="text-[10px] text-slate-400 font-mono">
+                            <span className="text-[11px] text-slate-300 font-light">|</span>
+                            <span className="text-[11px] text-slate-400 font-mono">
                                 ID: {profile.id.slice(0,6)}
                             </span>
                             
                             {locationText && (
                                 <>
-                                    <span className="text-[10px] text-slate-300 font-light">|</span>
-                                    <span className="text-[10px] text-slate-500 flex items-center gap-0.5">
+                                    <span className="text-[11px] text-slate-300 font-light">|</span>
+                                    <span className="text-[11px] text-slate-500 flex items-center gap-0.5">
                                         <MapPin size={10} />
                                         {locationText}
                                     </span>
@@ -158,7 +158,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                         {/* Stats - Subtle & Dignified */}
                         <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
                             <div className="flex flex-col items-center p-3 rounded-xl hover:bg-slate-50/50 transition-colors">
-                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">手伝った回数</div>
+                                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">手伝った回数</div>
                                 <div className="flex items-baseline gap-1">
                                     <Handshake size={14} className="text-blue-400" />
                                     <span className="text-xl font-medium text-slate-700 tabular-nums">
@@ -169,7 +169,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                             </div>
                             
                             <div className="flex flex-col items-center p-3 rounded-xl hover:bg-slate-50/50 transition-colors">
-                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">依頼実績</div>
+                                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">依頼実績</div>
                                 <div className="flex items-baseline gap-1">
                                     <Megaphone size={14} className="text-slate-400" />
                                     <span className="text-xl font-medium text-slate-700 tabular-nums">

@@ -141,7 +141,7 @@ export const AuthScreen = () => {
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold text-slate-500 ml-1">
                                         お名前 (表示名)
-                                        <span className="text-rose-500 text-[10px] ml-1 font-normal">(必須)</span>
+                                        <span className="text-rose-500 text-[11px] ml-1 font-normal">(必須)</span>
                                     </label>
                                     <input 
                                         type="text" 
@@ -156,7 +156,7 @@ export const AuthScreen = () => {
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold text-slate-500 ml-1">
                                             都道府県
-                                            <span className="text-rose-500 text-[10px] ml-1 font-normal">(必須)</span>
+                                            <span className="text-rose-500 text-[11px] ml-1 font-normal">(必須)</span>
                                         </label>
                                         <div className="relative">
                                             <select 
@@ -176,7 +176,7 @@ export const AuthScreen = () => {
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold text-slate-500 ml-1">
                                             市区町村
-                                            <span className="text-rose-500 text-[10px] ml-1 font-normal">(必須)</span>
+                                            <span className="text-rose-500 text-[11px] ml-1 font-normal">(必須)</span>
                                         </label>
                                         <div className="relative">
                                             <select 
@@ -195,7 +195,7 @@ export const AuthScreen = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <p className="text-[10px] text-slate-400 mt-2 ml-1 leading-relaxed">
+                                <p className="text-[11px] text-slate-400 mt-2 ml-1 leading-relaxed">
                                     ※番地やマンション名の入力は<strong className="text-slate-500 font-bold">不要</strong>です。<br/>
                                     あなたの生活圏の隣人とつながるための情報です。
                                 </p>
@@ -205,7 +205,7 @@ export const AuthScreen = () => {
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-500 ml-1">
                             メールアドレス
-                            {mode === 'register' && <span className="text-rose-500 text-[10px] ml-1 font-normal">(必須)</span>}
+                            {mode === 'register' && <span className="text-rose-500 text-[11px] ml-1 font-normal">(必須)</span>}
                         </label>
                         <input 
                             type="email" 
@@ -220,7 +220,7 @@ export const AuthScreen = () => {
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-500 ml-1">
                             パスワード
-                            {mode === 'register' && <span className="text-rose-500 text-[10px] ml-1 font-normal">(必須)</span>}
+                            {mode === 'register' && <span className="text-rose-500 text-[11px] ml-1 font-normal">(必須)</span>}
                         </label>
                         <input 
                             type="password" 
@@ -282,7 +282,7 @@ export const AuthScreen = () => {
                 )}
             </div>
             
-            <p className="absolute bottom-6 text-[10px] text-slate-400 font-sans">
+            <p className="absolute bottom-6 text-[11px] text-slate-400 font-sans">
                 © 2026 Existence Ticker Project
             </p>
         </div>

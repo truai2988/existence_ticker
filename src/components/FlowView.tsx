@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { ClipboardList, X, ChevronRight, Timer, PlayCircle } from "lucide-react";
 import { useWishes } from '../hooks/useWishes';
 import { calculateLifePoints } from '../utils/decay';
-
 import { WishCardList } from './WishCardList';
 
 import { UserSubBar } from './UserSubBar';
@@ -114,7 +113,9 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
             <div className="max-w-md mx-auto px-6 h-[90px] flex flex-col justify-start pt-3">
                 <div className="flex justify-between items-center w-full mb-2">
                     <div>
-                        <h2 className="text-lg font-bold font-sans text-slate-900">みんなの願い</h2>
+                        <h2 className="text-lg font-bold font-sans text-slate-900 flex items-center gap-3">
+                            みんなの願い
+                        </h2>
                     </div>
                     <div className="flex items-center gap-3">
                         <button 
@@ -127,7 +128,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
                         >
                             <ClipboardList size={14} className={activeTab === 'explore' ? 'text-white/80' : 'text-slate-400'} />
                             <span>お願いを探す</span>
-                            <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] tabular-nums ${
+                            <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[11px] tabular-nums ${
                                 activeTab === 'explore' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
                             }`}>
                                 {exploreWishes.length}
@@ -144,12 +145,12 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
                     <div className="flex gap-2 pb-0.5 w-full justify-between sm:justify-start sm:gap-6">
                         <button
                             onClick={() => setActiveTab('pending')}
-                            className={`pb-1 text-[11px] font-bold transition-all whitespace-nowrap relative ${
+                            className={`pb-1 text-xs font-bold transition-all whitespace-nowrap relative ${
                                 activeTab === 'pending' ? 'text-amber-600' : 'text-slate-400 hover:text-slate-600'
                             }`}
                         >
                             返事待ち
-                            <span className={`ml-1 px-1 py-0.5 rounded-full text-[9px] tabular-nums ${
+                            <span className={`ml-1 px-1 py-0.5 rounded-full text-[10px] tabular-nums ${
                                 activeTab === 'pending' ? 'bg-amber-100/50 text-amber-700' : 'bg-slate-100 text-slate-500'
                             }`}>
                                 {pendingWishes.length}
@@ -163,12 +164,12 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
 
                         <button
                             onClick={() => setActiveTab('active')}
-                            className={`pb-1 text-[11px] font-bold transition-all whitespace-nowrap relative ${
+                            className={`pb-1 text-xs font-bold transition-all whitespace-nowrap relative ${
                                 activeTab === 'active' ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-600'
                             }`}
                         >
                             進行中
-                            <span className={`ml-1 px-1 py-0.5 rounded-full text-[9px] tabular-nums ${
+                            <span className={`ml-1 px-1 py-0.5 rounded-full text-[10px] tabular-nums ${
                                 activeTab === 'active' ? 'bg-emerald-100/50 text-emerald-700' : 'bg-slate-100 text-slate-500'
                             }`}>
                                 {activeWishes.length}
@@ -182,12 +183,12 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
 
                         <button
                             onClick={() => setActiveTab('history')}
-                            className={`pb-1 text-[11px] font-bold transition-all whitespace-nowrap relative ${
+                            className={`pb-1 text-xs font-bold transition-all whitespace-nowrap relative ${
                                 activeTab === 'history' ? 'text-slate-600' : 'text-slate-400 hover:text-slate-600'
                             }`}
                         >
                             過去の記録
-                            <span className={`ml-1 px-1 py-0.5 rounded-full text-[9px] tabular-nums ${
+                            <span className={`ml-1 px-1 py-0.5 rounded-full text-[11px] tabular-nums ${
                                 activeTab === 'history' ? 'bg-slate-200 text-slate-700' : 'bg-slate-100 text-slate-500'
                             }`}>
                                 {historyWishes.length}
@@ -241,7 +242,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
                     />
                 )}
 
-                {activeTab === 'history' && (
+            {activeTab === 'history' && (
                     <WishCardList 
                         wishes={historyWishes} 
                         currentUserId={currentUserId}

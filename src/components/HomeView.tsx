@@ -38,39 +38,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
     <div className="flex-1 flex flex-col justify-center items-center w-full min-h-full p-4 pt-6 pb-12 relative max-w-md mx-auto">
       {/* Onboarding Banner */}
 
-      {!trustRank.isVerified && !isDismissed && (
-        <div className="w-full max-w-lg mx-auto z-20 bg-white border border-slate-100 shadow-xl shadow-slate-200/50 rounded-2xl p-4 flex flex-col gap-4 animate-fade-in-down mb-6 relative">
-             <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2.5 bg-slate-50 rounded-full text-slate-400 border border-slate-100 shrink-0">
-                      <User size={18} />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-800">
-                        プロフィールを充実させて、信頼を高めましょう
-                      </h3>
-                      <p className="text-[10px] text-slate-500 font-medium">
-                        あなたの誠実さがより伝わりやすくなります
-                      </p>
-                    </div>
-                  </div>
-                   <button
-                    onClick={() => setIsDismissed(true)}
-                    className="p-1 hover:bg-slate-100 rounded-full transition-colors shrink-0"
-                    aria-label="閉じる"
-                  >
-                    <X size={16} className="text-slate-400" />
-                  </button>
-             </div>
-          
-          <button
-            onClick={onOpenProfileEdit}
-            className="w-full text-xs font-bold bg-slate-900 text-white px-4 py-3 rounded-xl hover:bg-slate-800 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2"
-          >
-            プロフィールを編集
-          </button>
-        </div>
-      )}
+
 
       {/* === CENTER VISUALIZATION: ENERGY FLOW === */}
       <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 -z-10 flex flex-col items-center justify-center opacity-5 pointer-events-none">
@@ -173,6 +141,41 @@ export const HomeView: React.FC<HomeViewProps> = ({
           )}
         </button>
       </div>
+
+      {/* Onboarding Banner (Moved to bottom) */}
+      {!trustRank.isVerified && !isDismissed && (
+        <div className="w-full max-w-lg mx-auto z-20 bg-white border border-slate-100 shadow-xl shadow-slate-200/50 rounded-2xl p-4 flex flex-col gap-4 animate-fade-in-down mt-6 relative">
+             <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-slate-50 rounded-full text-slate-400 border border-slate-100 shrink-0">
+                      <User size={18} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-800">
+                        プロフィールを充実させて、信頼を高めましょう
+                      </h3>
+                      <p className="text-[11px] text-slate-500 font-medium">
+                        あなたの誠実さがより伝わりやすくなります
+                      </p>
+                    </div>
+                  </div>
+                   <button
+                    onClick={() => setIsDismissed(true)}
+                    className="p-1 hover:bg-slate-100 rounded-full transition-colors shrink-0"
+                    aria-label="閉じる"
+                  >
+                    <X size={16} className="text-slate-400" />
+                  </button>
+             </div>
+          
+          <button
+            onClick={onOpenProfileEdit}
+            className="w-full text-xs font-bold bg-slate-900 text-white px-4 py-3 rounded-xl hover:bg-slate-800 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center justify-center gap-2"
+          >
+            プロフィールを編集
+          </button>
+        </div>
+      )}
     </div>
   );
 };

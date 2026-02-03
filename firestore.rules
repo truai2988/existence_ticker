@@ -16,15 +16,21 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if true;
       
-      // Strict Ownership: Only the user can write to their own profile
-      // Physical Law: Balance cannot be negative (Vessel Integrity)
-      allow create: if isSignedIn() && isOwner(userId);
-      // Update: Owner can update own profile (balance constrained), OR Admin can update any profile (role management)
+      // SCHEMA ENFORCEMENT: Name and Location are required seeds for existence.
+      // Only strict checking on CREATE.
+      allow create: if isSignedIn() && isOwner(userId)
+                    && request.resource.data.name is string && request.resource.data.name.size() > 0
+                    && request.resource.data.location.prefecture is string
+                    && request.resource.data.location.city is string
+                    && request.resource.data.balance is number
+                    && request.resource.data.last_updated is timestamp;
+
+      // INTEGRITY CHECK: Update only requires the final state to be valid (e.g. non-negative balance)
+      // Partial updates (only name) are allowed as long as the result is valid.
       allow update: if isSignedIn() && (
         // Case 1: Owner updating own profile
         (isOwner(userId) && request.resource.data.balance >= 0) ||
         // Case 2: Admin updating any profile (Governance)
-        // Using get() to check the requester's role within the database
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
       ); 
       
@@ -72,6 +78,11 @@ service cloud.firestore {
     match /daily_stats/{day} {
       allow read: if true;
       allow write: if isSignedIn(); // Users update stats efficiently via increments
+    }
+
+    match /location_stats/{statId} {
+      allow read: if true;
+      allow write: if isSignedIn();
     }
   }
 }

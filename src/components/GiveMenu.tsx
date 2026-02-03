@@ -36,7 +36,7 @@ export const GiveMenu: React.FC<GiveMenuProps> = ({ onClose, currentUserId }) =>
                              <Type className="text-gold-500" />
                         </div>
                         <span className="text-sm font-bold text-slate-300 group-hover:text-white">願いを放つ</span>
-                        <span className="text-[10px] text-slate-500">Create Wish</span>
+                        <span className="text-[11px] text-slate-500">Create Wish</span>
                     </button>
 
                     {/* Give Light (Gift) */}
@@ -48,7 +48,7 @@ export const GiveMenu: React.FC<GiveMenuProps> = ({ onClose, currentUserId }) =>
                              <Send className="text-blue-500" />
                         </div>
                         <span className="text-sm font-bold text-slate-300 group-hover:text-white">光を贈る</span>
-                        <span className="text-[10px] text-slate-500">Direct Gift</span>
+                        <span className="text-[11px] text-slate-500">Direct Gift</span>
                     </button>
                 </motion.div>
             </div>

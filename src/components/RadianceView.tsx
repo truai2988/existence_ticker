@@ -95,7 +95,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                             }`}
                         >
                             募集中
-                            <span className="ml-1 bg-amber-100/50 text-amber-700 px-1 py-0.5 rounded-full text-[9px] tabular-nums">
+                            <span className="ml-1 bg-amber-100/50 text-amber-700 px-1 py-0.5 rounded-full text-[11px] tabular-nums">
                                 {myActiveWishes.length}
                             </span>
                             {activeTab === 'active' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500 rounded-t-full" />}
@@ -112,7 +112,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                             }`}
                         >
                             進行中
-                            <span className="ml-1 bg-slate-100 text-slate-600 px-1 py-0.5 rounded-full text-[9px] tabular-nums">
+                            <span className="ml-1 bg-slate-100 text-slate-600 px-1 py-0.5 rounded-full text-[11px] tabular-nums">
                                 {myOutboundWishes.length}
                             </span>
                             {activeTab === 'outbound' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500 rounded-t-full" />}
@@ -129,7 +129,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                             }`}
                         >
                             過去の記録
-                            <span className="ml-1 bg-slate-100 text-slate-600 px-1 py-0.5 rounded-full text-[9px] tabular-nums">
+                            <span className="ml-1 bg-slate-100 text-slate-600 px-1 py-0.5 rounded-full text-[11px] tabular-nums">
                                 {myPastWishes.length}
                             </span>
                             {activeTab === 'past' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500 rounded-t-full" />}

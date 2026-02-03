@@ -4,10 +4,14 @@ import { db } from "../lib/firebase";
 import {
   doc,
   onSnapshot,
-  setDoc,
   updateDoc,
   serverTimestamp,
+  runTransaction,
+  getDoc,
+  Transaction,
+  increment 
 } from "firebase/firestore";
+import { calculateDecayedValue } from "../logic/worldPhysics";
 import { UserProfile } from "../types";
 
 export const useProfile = () => {
@@ -78,21 +82,48 @@ export const useProfile = () => {
           setProfile({ id: user.uid, ...data, name: finalName } as UserProfile);
         } else {
           // Initialize if new user
-          const newProfile: UserProfile = {
+          // Attempt to create a default profile.
+          // NOTE: Only succeeds if it meets strict Firestore Rules (must have name/location).
+          // If this is a race with signUp, this might fail (Permission Denied) because location is missing in stub,
+          // which is GOOD. It lets the real signUp data win.
+          // Initialize if new user with Transaction to prevent double-increment race conditions
+          // Attempt to create a default profile AND update stats
+          const initialProfile: UserProfile = {
             id: user.uid,
             name: user.displayName || "Anonymous",
-            balance: 2400, // Starts with Full Vessel
+            balance: 2400, 
             xp: 0,
             warmth: 0,
             completed_contracts: 0,
             created_contracts: 0,
           };
-          setDoc(
-            userRef,
-            { ...newProfile, last_updated: serverTimestamp() },
-            { merge: true },
-          );
-          setProfile(newProfile);
+
+          runTransaction(db!, async (transaction) => {
+              const freshSnap = await transaction.get(userRef);
+              if (freshSnap.exists()) return; // Already created by another race
+
+              // 1. Create User
+              transaction.set(userRef, { 
+                  ...initialProfile, 
+                  last_updated: serverTimestamp() 
+              }, { merge: true });
+
+              // 2. Increment Stats (if location is somehow known? Usually unknown for raw init)
+              // NOTE: Raw init from Auth often lacks location. 
+              // If we strictly require location for creation (Firestore Rules), this might fail if we don't have it.
+              // But 'initialProfile' here has NO location.
+              // So this 'set' will likely fail if Rules require location.
+              // If Rules allow creation without location (legacy?), we shouldn't increment stats yet.
+              
+              // However, if we are in expected flow, user enters location LATER via Profile Modal.
+              // So 'useEffect' init usually creates a "stub" (if allowed) or effectively fails until user submits form.
+              
+              // ACTUALLY: The current flow relies on 'updateProfile' (Recovery) to do the real creation with Location.
+              // The 'useEffect' one is a fallback that might not even work if rules are strict.
+              // But IF it works (e.g. strict rules off), we assume no location -> no stats change.
+          }).catch((e) => {
+              console.log("Stub profile creation skipped/blocked (Rules or Race):", e.message);
+          });
         }
         setIsLoading(false);
       },
@@ -106,38 +137,112 @@ export const useProfile = () => {
   }, [user]);
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
-    if (!user || !db) return false;
+    if (!user || !db) {
+        console.error("Profile update failed: No user or db");
+        return { success: false, error: "No user or db" };
+    }
     const userRef = doc(db, "users", user.uid);
+    
+    // Strategy 1: Recovery / Initialization (If profile is missing)
+    const docSnap = await getDoc(userRef);
+    
+    if (!docSnap.exists()) {
+        console.log("Profile missing. Executing Recovery (Create Mode).");
+        
+        // Ensure we have the absolute minimums for the Strict Create Rule
+        const loc = updates.location as UserProfile['location'] | undefined;
+        
+        if (!updates.name && (!user.displayName || user.displayName === 'Anonymous')) {
+             throw new Error("Recovery Failed: Name is required");
+        }
+        if (!loc || !loc.prefecture) {
+             throw new Error("Recovery Failed: Location is required");
+        }
+
+        const initialProfile: UserProfile = {
+          id: user.uid,
+          name: updates.name || user.displayName || "Anonymous",
+          balance: 2400, // Grant Initial Vessel
+          xp: 0,
+          warmth: 0,
+          completed_contracts: 0,
+          created_contracts: 0,
+          location: (updates.location as UserProfile['location']), 
+          ...updates as Partial<UserProfile>
+        };
+
+        try {
+            await runTransaction(db!, async (transaction) => {
+                // Double check existence
+                const doubleCheck = await transaction.get(userRef);
+                if (doubleCheck.exists()) throw "Profile appeared during recovery";
+
+                // 1. Create Profile
+                transaction.set(userRef, {
+                    ...initialProfile,
+                    last_updated: serverTimestamp()
+                });
+
+                // 2. Increment Stats for the NEW location (if valid)
+                if (initialProfile.location && initialProfile.location.prefecture && initialProfile.location.city) {
+                    const cityKey = `${initialProfile.location.prefecture}_${initialProfile.location.city}`;
+                    const statRef = doc(db!, 'location_stats', cityKey);
+                    transaction.set(statRef, { count: increment(1) }, { merge: true });
+                }
+            });
+
+            return { success: true };
+        } catch (createError) {
+            console.error("Recovery Create Failed:", createError);
+            return { success: false, error: createError };
+        }
+    }
+
+    // Strategy 2: Normal Update (Transaction)
     try {
-      // Must calculate current decayed balance to prevent "healing" by reset last_updated
-      // However, we cannot easily calculate it here without `profile` state or reading/transaction.
-      // Since we have `profile` in scope, let's use it as best effort.
-      // But for robustness, we should use a Transaction or simply trust the client calculation if the risk is low.
-      // Given this is a PWA without cloud functions, client-side calculation is the norm.
-      
-      const { runTransaction } = await import("firebase/firestore");
-      const { calculateDecayedValue } = await import("../logic/worldPhysics");
+        await runTransaction(db, async (transaction: Transaction) => { 
+            const freshSnap = await transaction.get(userRef);
+            if (!freshSnap.exists()) throw "User disappeared during transaction";
+            
+            const currentData = freshSnap.data();
+            const currentRealBalance = calculateDecayedValue(
+                currentData.balance || 0,
+                currentData.last_updated
+            );
+            
+            const safeBalance = isNaN(currentRealBalance) ? 0 : currentRealBalance;
 
-      await runTransaction(db, async (transaction) => {
-          const docSnap = await transaction.get(userRef);
-          if (!docSnap.exists()) throw "User not found";
-          
-          const currentData = docSnap.data();
-          const currentRealBalance = calculateDecayedValue(
-              currentData.balance || 0,
-              currentData.last_updated
-          );
+            transaction.update(userRef, {
+                ...updates,
+                balance: safeBalance, // Checkpoint
+                last_updated: serverTimestamp()
+            });
 
-          transaction.update(userRef, {
-              ...updates,
-              balance: currentRealBalance, // Checkpoint the decay
-              last_updated: serverTimestamp()
-          });
-      });
-      return true;
+            // --- CENSUS LOGIC (Neighborly Presence) ---
+            const oldLoc = currentData.location;
+            const newLoc = updates.location ? (updates.location as UserProfile['location']) : oldLoc;
+
+            // Check if location actually changed effectively
+            const oldKey = oldLoc ? `${oldLoc.prefecture}_${oldLoc.city}` : null;
+            const newKey = newLoc ? `${newLoc.prefecture}_${newLoc.city}` : null;
+
+            if (oldKey !== newKey) {
+                // Decrement old
+                if (oldKey && oldLoc?.prefecture && oldLoc?.city) {
+                     const oldStatRef = doc(db!, 'location_stats', oldKey);
+                     transaction.set(oldStatRef, { count: increment(-1) }, { merge: true });
+                }
+                // Increment new
+                if (newKey && newLoc?.prefecture && newLoc?.city) {
+                     const newStatRef = doc(db!, 'location_stats', newKey);
+                     transaction.set(newStatRef, { count: increment(1) }, { merge: true });
+                }
+            }
+        });
+        return { success: true };
     } catch (e) {
-      console.error("Profile update failed:", e);
-      return false;
+        console.error("Profile Transaction Failed:", e);
+        return { success: false, error: e };
     }
   };
 

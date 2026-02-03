@@ -11,7 +11,7 @@ export interface FirestoreTimestamp {
 export interface UserProfile {
   id: string;
   name: string;
-  avatarUrl?: string;
+  avatarUrl?: string | null;
   headline?: string;
   location?: {
     prefecture: string;
@@ -21,8 +21,8 @@ export interface UserProfile {
     x?: string;
     instagram?: string;
     website?: string;
-  };
-  bio?: string;
+  } | null;
+  bio?: string | null;
   balance: number;
   xp: number;
   warmth: number;

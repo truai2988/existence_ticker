@@ -83,7 +83,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ targetUserName, on
                         <User size={16} className="text-slate-500" />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">宛先</span>
+                        <span className="text-[11px] uppercase font-bold text-slate-400 tracking-wider">宛先</span>
                         <span className="text-sm font-bold text-slate-700">{targetUserName}</span>
                     </div>
                 </div>
@@ -126,7 +126,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ targetUserName, on
                                     }`}>
                                         {preset.label}
                                     </span>
-                                    <span className="text-[10px] text-slate-500">
+                                    <span className="text-[11px] text-slate-500">
                                         {preset.subLabel}
                                     </span>
                                 </div>
@@ -134,7 +134,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ targetUserName, on
                             <span className={`font-mono font-bold transition-colors ${
                                 exceedsAvailable ? 'text-slate-300' : 'text-slate-900 group-hover:text-blue-600'
                             }`}>
-                                {preset.amount} <span className="text-[10px] font-sans text-slate-400">{UNIT_LABEL}</span>
+                                {preset.amount} <span className="text-[11px] font-sans text-slate-400">{UNIT_LABEL}</span>
                             </span>
                         </button>
                     );
@@ -149,7 +149,7 @@ export const DonationModal: React.FC<DonationModalProps> = ({ targetUserName, on
                     </div>
                 )}
                 
-                <p className="text-center text-[10px] text-slate-400">
+                <p className="text-center text-[11px] text-slate-400">
                     選択すると即座に送金されます
                 </p>
             </div>

@@ -36,7 +36,7 @@ export const GiftView: React.FC<GiftViewProps> = ({ onClose }) => {
                                 <Heart className="text-pink-500 fill-pink-50 w-5 h-5" />
                                 直接贈る
                              </h2>
-                             <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">Pure Gift</p>
+                             <p className="text-[11px] text-slate-500 font-mono tracking-widest uppercase">Pure Gift</p>
                         </div>
                         <div className="flex items-center gap-3">
                              <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">

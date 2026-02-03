@@ -76,13 +76,13 @@ export const AnomalyScanner: React.FC = () => {
                         <div>
                             <div className="flex items-center gap-2 mb-1">
                                 <span className="text-red-400 font-bold text-xs">{item.user.name || 'Unknown'}</span>
-                                <span className="text-[10px] text-slate-500 font-mono">{item.user.id}</span>
+                                <span className="text-[11px] text-slate-500 font-mono">{item.user.id}</span>
                             </div>
-                            <div className="text-[10px] text-slate-300">
+                            <div className="text-[11px] text-slate-300">
                                 {item.anomaly.description}
                             </div>
                         </div>
-                        <div className="px-2 py-0.5 bg-red-500/20 text-red-400 text-[10px] rounded border border-red-500/30 uppercase font-bold">
+                        <div className="px-2 py-0.5 bg-red-500/20 text-red-400 text-[11px] rounded border border-red-500/30 uppercase font-bold">
                             {item.anomaly.severity}
                         </div>
                     </div>

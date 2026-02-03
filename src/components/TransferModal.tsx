@@ -239,7 +239,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, o
                                     </div>
                                     <div className="text-left">
                                         <span className="block text-sm font-medium text-gray-200">{preset.label}</span>
-                                        <span className="text-[10px] text-gray-500">
+                                        <span className="text-[11px] text-gray-500">
                                             {preset.id === 'light' ? 'ささやかな感謝' : preset.id === 'medium' ? '心からの敬意' : '深い愛と祝福'}
                                         </span>
                                     </div>
@@ -307,13 +307,13 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, o
                             </div>
                             
                             {feedback.balance > 0 && (
-                                <div className="flex justify-between items-center text-[10px]">
+                                <div className="flex justify-between items-center text-[11px]">
                                     <span className="text-gold-500">あなたの光 (Balance)</span>
                                     <span className="font-mono text-gold-500">-{feedback.balance}</span>
                                 </div>
                             )}
                             {feedback.mint > 0 && (
-                                <div className="flex justify-between items-center text-[10px]">
+                                <div className="flex justify-between items-center text-[11px]">
                                     <span className="text-blue-300">新たな光 (Mint)</span>
                                     <span className="font-mono text-blue-300">+{feedback.mint}</span>
                                 </div>
@@ -322,7 +322,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, o
                             {/* Rank XP only visible/highlighted for Balance payment */}
                             {feedback.xp > 0 ? (
                                 <div className="pt-2 mt-2 border-t border-dashed border-white/10 flex justify-between items-center">
-                                    <span className="text-[10px] tracking-widest text-gray-400 uppercase">Contribution XP</span>
+                                    <span className="text-[11px] tracking-widest text-gray-400 uppercase">Contribution XP</span>
                                     <motion.span 
                                         initial={{ scale: 1 }} animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 2 }}
                                         className="text-xs font-bold text-green-400 flex items-center gap-1"
@@ -332,7 +332,7 @@ export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, o
                                     </motion.span>
                                 </div>
                             ) : (
-                                <div className="pt-2 mt-2 text-center text-[10px] text-gray-600 font-mono italic">
+                                <div className="pt-2 mt-2 text-center text-[11px] text-gray-600 font-mono italic">
                                     作成された光は徳になりません
                                 </div>
                             )}

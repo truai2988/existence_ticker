@@ -121,7 +121,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                        <label className="block text-sm font-bold text-slate-700">
                            お礼として渡す Lm (時間)
                        </label>
-                       <span className="text-[10px] font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded-full border border-orange-100">
+                       <span className="text-[11px] font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded-full border border-orange-100">
                            対価として支払われます
                        </span>
                    </div>

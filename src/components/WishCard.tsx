@@ -67,7 +67,7 @@ const ApplicantItem: React.FC<{
           >
             {displayName}
           </button>
-          <div className="text-[10px] text-slate-400 flex items-center gap-2 mt-0.5">
+          <div className="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
             {/* Trust/Helped Count Badge */}
             <div
               title={`${trustScore} times helped`}
@@ -329,7 +329,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-0.5">
+                  <div className="text-[11px] uppercase font-bold text-slate-400 tracking-wider mb-0.5">
                     手伝ってくれる人
                   </div>
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
@@ -428,7 +428,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                       : requesterProfile.bio}
                   </p>
                 )}
-                <span className="flex items-center gap-1 text-[10px] text-slate-400 mt-0.5">
+                <span className="flex items-center gap-1 text-xs text-slate-400 mt-0.5">
                   <Clock className="w-3 h-3" />
                   <span>{formatDate(wish.created_at)}</span>
                 </span>
@@ -543,7 +543,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                 </div>
                 <div className="text-lg font-bold font-mono text-slate-900 tracking-tight">
                     {wish.status === "fulfilled" ? (
-                        <>{(wish.val_at_fulfillment || 0).toFixed(3)} <span className="text-[10px] text-slate-400 ml-0.5">Lm</span></>
+                        <>{(wish.val_at_fulfillment || 0).toFixed(3)} <span className="text-[11px] text-slate-400 ml-0.5">Lm</span></>
                     ) : wish.status === "cancelled" ? (
                         wish.cancel_reason === 'compensatory_cancellation' || wish.val_at_fulfillment ? (
                              // Compensation Paid Case
@@ -557,9 +557,9 @@ export const WishCard: React.FC<WishCardProps> = ({
                                             wish.cancelled_at
                                           ).toFixed(3)
                                     } 
-                                    <span className="text-[10px] ml-0.5">Lm</span>
+                                    <span className="text-[11px] ml-0.5">Lm</span>
                                 </span>
-                                <span className="text-[9px] text-red-300 font-bold">補償済</span>
+                                <span className="text-[11px] text-red-300 font-bold">補償済</span>
                              </div>
                         ) : (
                              // Void Case (Show nothing on right, rely on main label)
@@ -581,7 +581,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                     </span>
                 </div>
                 {displayValue > 0 && (
-                    <div className="text-[10px] text-red-400 font-semibold tracking-wide">
+                    <div className="text-[11px] text-red-400 font-semibold tracking-wide">
                       ※時間が経つと減ってしまいます
                     </div>
                 )}
@@ -604,7 +604,7 @@ export const WishCard: React.FC<WishCardProps> = ({
               <div className="space-y-3">
                   {/* Email Section */}
                   <div className="flex flex-col gap-1">
-                      <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                      <span className="text-[11px] uppercase font-bold text-slate-400 tracking-wider">
                           {isMyWish ? "相手の連絡先" : "依頼主の連絡先"}
                       </span>
                       {((isMyWish && wish.helper_contact_email) || (!isMyWish && wish.requester_contact_email)) ? (
@@ -623,7 +623,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                   {/* Note Section (Only if note exists) */}
                   {wish.contact_note && (
                       <div className="flex flex-col gap-1 pt-2 border-t border-slate-100">
-                          <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                          <span className="text-[11px] uppercase font-bold text-slate-400 tracking-wider">
                               {isMyWish ? "承認時のメモ" : "依頼者さんより"}
                           </span>
                           <p className="text-xs text-slate-600 bg-white p-2 rounded-lg border border-slate-100 whitespace-pre-wrap">
@@ -747,7 +747,7 @@ export const WishCard: React.FC<WishCardProps> = ({
 
                             {/* Footer Note */}
                             <div className="p-3 bg-slate-50 border-t border-slate-100 text-center">
-                              <p className="text-[10px] text-slate-400">
+                              <p className="text-xs text-slate-400">
                                 お願いする人を一人選んでください
                               </p>
                             </div>
@@ -823,7 +823,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                           }
                         }}
                         disabled={isLoading}
-                        className="px-3 py-1.5 text-[10px] font-bold text-slate-400 border border-slate-200 rounded-full hover:bg-slate-50 hover:text-slate-600 hover:border-slate-300 transition-all"
+                        className="px-3 py-1.5 text-xs font-bold text-slate-400 border border-slate-200 rounded-full hover:bg-slate-50 hover:text-slate-600 hover:border-slate-300 transition-all"
                       >
                         取り消す
                       </button>

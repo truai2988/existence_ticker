@@ -142,19 +142,25 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
             }
 
             // 2. Update Profile
+            // Clean undefined values to prevent Firestore errors
             const updates: Partial<UserProfile> = {
                 name,
-                bio,
-                location,
-                links,
-                avatarUrl
+                location, // location is required type, assumed set
+                bio: bio || null,
+                links: links || null,
+                avatarUrl: avatarUrl || null
             };
 
-            await updateProfile(updates);
-            onBack(); // Go back to profile view
+            const result = await updateProfile(updates);
+            if (result && result.success) {
+                onBack(); 
+            } else {
+                const errorMsg = result?.error ? String(result.error) : "不明なエラー";
+                alert(`保存に失敗しました: ${errorMsg}`);
+            }
         } catch (error) {
             console.error("Failed to update profile", error);
-            alert("更新に失敗しました。");
+            alert(`システムエラーが発生しました: ${error}`);
         } finally {
             setIsLoading(false);
         }
@@ -242,7 +248,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 <XCircle size={16} className="text-slate-300 shrink-0" strokeWidth={2.5} />
                             )}
                             <span className={`text-xs ${bio.length >= 30 ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>
-                                自己紹介を30文字以上入力 <span className="font-mono text-[10px]">({bio.length}/30)</span>
+                                自己紹介を30文字以上入力 <span className="font-mono text-[11px]">({bio.length}/30)</span>
                             </span>
                         </div>
                         {/* Links Check */}
@@ -282,7 +288,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     placeholder="自己紹介文を入力してください (最大160文字)"
                                     maxLength={160}
                                 />
-                                <div className="text-right text-[10px] text-slate-400 mt-1">{bio.length}/160</div>
+                                <div className="text-right text-[11px] text-slate-400 mt-1">{bio.length}/160</div>
                             </div>
                         </div>
                     </div>
@@ -393,7 +399,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     <div className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-slate-600 text-sm font-mono">
                                         {user.email}
                                     </div>
-                                    <p className="text-[10px] text-slate-400 mt-1.5 ml-1 flex items-center gap-1">
+                                    <p className="text-[11px] text-slate-400 mt-1.5 ml-1 flex items-center gap-1">
                                         <AlertCircle size={10} />
                                         このアドレスは他のユーザーには公開されません
                                     </p>

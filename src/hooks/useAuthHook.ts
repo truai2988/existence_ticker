@@ -55,7 +55,7 @@ export const useAuth = () => {
                     id: cred.user.uid,
                     name: name,
                     location: location,
-                    balance: 0,
+                    balance: 2400,
                     xp: 0,
                     warmth: 0,
                     last_updated: serverTimestamp()
