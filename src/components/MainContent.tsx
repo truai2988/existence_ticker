@@ -40,7 +40,6 @@ export const MainContent: React.FC<MainContentProps> = ({ viewMode, setViewMode,
                     <HomeView 
                         onOpenFlow={() => setViewMode('flow')} 
                         onOpenRequest={() => setViewMode('give')}
-                        onOpenProfileEdit={() => setViewMode('profile_edit')}
                     />,
                     'home'
                 );
