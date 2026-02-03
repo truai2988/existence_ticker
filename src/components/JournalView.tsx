@@ -182,15 +182,15 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
         if (isSender) {
             // [ギフト送付]
             icon = <Heart size={14} className="text-pink-500 fill-pink-50" />;
-            title = `${partnerName}さんに光を贈りました（ギフト）`;
-            metaColor = "bg-pink-50 border-pink-200";
+            title = `${partnerName}さんに光を贈りました（旧機能）`;
+            metaColor = "bg-slate-50 border-slate-200 grayscale";
             amountPrefix = ""; // No negative sign requested
             amountColor = "text-slate-400"; // Neutral for "Sharing"
         } else {
             // [ギフト受取]
             icon = <Sparkles size={14} className="text-cyan-500 fill-cyan-50" />;
-            title = `${partnerName}さんから光を預かりました（ギフト）`;
-            metaColor = "bg-cyan-50 border-cyan-200";
+            title = `${partnerName}さんから光を預かりました（旧機能）`;
+            metaColor = "bg-slate-50 border-slate-200 grayscale";
             amountPrefix = "+";
             amountColor = "text-cyan-600";
         }

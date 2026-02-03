@@ -72,7 +72,7 @@ service cloud.firestore {
     // --- Transactions & Stats ---
     match /transactions/{txId} {
       allow read: if isSignedIn();
-      allow create: if isSignedIn(); // Users create records of their transfers
+      allow create: if isSignedIn() && request.resource.data.type != 'GIFT'; // Users create records, but GIFT is deprecated
     }
     
     match /daily_stats/{day} {

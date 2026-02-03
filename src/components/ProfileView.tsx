@@ -3,14 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
   ChevronRight,
-  ChevronDown,
-  QrCode,
   LogOut,
   Trash2,
   KeyRound,
   Sun,
   Wallet,
-  Heart,
   Star,
   Handshake,
   Megaphone,
@@ -21,7 +18,6 @@ import {
   ShieldCheck,
   Settings,
 } from "lucide-react";
-import QRCode from "react-qr-code";
 import { useProfile } from "../hooks/useProfile";
 import { calculateDecayedValue } from "../logic/worldPhysics";
 import { UNIT_LABEL, ADMIN_UIDS, SURVIVAL_CONSTANTS } from "../constants";
@@ -90,7 +86,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
   // UI States
   const [isEditingProfile, setIsEditingProfile] = useState(initialEditMode);
-  const [isQrOpen, setIsQrOpen] = useState(false);
 
   // Auth Flow States (Link/Password/Delete)
   const [showLinkModal, setShowLinkModal] = useState(false);
@@ -113,7 +108,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
   // Stats Logic
   const xp = profile?.xp || 0;
-  const warmth = profile?.warmth || 0;
+
   const currentName = profile?.name || "名もなき旅人";
   const helpfulCount = profile?.completed_contracts || 0;
   const requestCount = profile?.completed_requests || 0;
@@ -271,6 +266,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </div>
 
             <div className="flex flex-col items-center gap-2">
+              {/* Profile Completion Hint */}
+              {(!profile?.bio || !profile?.avatarUrl) && (
+                <button
+                  onClick={() => setIsEditingProfile(true)}
+                  className="mt-1 text-xs text-blue-500 font-bold hover:text-blue-600 hover:underline transition-colors animate-pulse"
+                >
+                  自己紹介を入力して信頼を高めましょう
+                </button>
+              )}
+
               {/* Rank Badge */}
               <div
                 className={`text-xs font-bold px-3 py-1 rounded-full ${rank.bg} ${rank.color} flex items-center gap-1.5 shadow-sm`}
@@ -403,44 +408,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               </div>
 
               <div className="border-t border-slate-100">
-                <button
-                  onClick={() => setIsQrOpen(!isQrOpen)}
-                  className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-slate-100 rounded-full">
-                      <QrCode size={16} className="text-slate-500" />
-                    </div>
-                    <span className="text-sm font-medium text-slate-700">
-                      受取用QRコード
-                    </span>
-                  </div>
-                  {isQrOpen ? (
-                    <ChevronDown size={16} className="text-slate-300" />
-                  ) : (
-                    <ChevronRight size={16} className="text-slate-300" />
-                  )}
-                </button>
-
-                <AnimatePresence>
-                  {isQrOpen && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden bg-slate-50"
-                    >
-                      <div className="p-6 flex flex-col items-center justify-center border-t border-slate-100">
-                        <div className="p-2 bg-white rounded-lg shadow-sm border border-slate-200 mb-2">
-                          <QRCode value={profile?.id || "loading"} size={160} />
-                        </div>
-                        <p className="text-[11px] text-slate-400">
-                          相手にスキャンしてもらってください
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {/* No actions here for now */}
               </div>
             </div>
 
@@ -474,14 +442,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   iconColor="text-amber-500"
                   iconBg="bg-amber-50"
                 />
-                <ListItem
-                  icon={Heart}
-                  label="贈られた総額"
-                  value={`${warmth.toLocaleString()} ${UNIT_LABEL}`}
-                  hasArrow={false}
-                  iconColor="text-pink-500"
-                  iconBg="bg-pink-50"
-                />
+
               </div>
             </div>
 

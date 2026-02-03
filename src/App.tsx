@@ -104,12 +104,16 @@ function App() {
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen font-sans selection:bg-yellow-500/30 overflow-hidden flex flex-col relative text-slate-900">
+    <div className="bg-slate-50 h-screen font-sans selection:bg-yellow-500/30 overflow-hidden flex flex-col relative text-slate-900">
       {/* HEADER (Always visible except maybe Admin?) */}
       <Header onOpenWishHub={handleOpenWishHub} viewMode={viewMode} />
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 relative overflow-y-auto no-scrollbar scroll-smooth pb-24 flex flex-col">
+      <main
+        className={`flex-1 relative overflow-y-auto no-scrollbar scroll-smooth flex flex-col ${
+          viewMode === "home" ? "pb-16" : "pb-24"
+        }`}
+      >
         <Suspense fallback={<ScreenLoader />}>
           <MainContent
             viewMode={viewMode}

@@ -311,140 +311,7 @@ export const useWallet = () => {
     }
   };
 
-  const transferLumen = async (
-    recipientId: string,
-    amount: number,
-  ): Promise<boolean> => {
-    if (!user || !db) return false;
-    if (amount <= 0) return false;
 
-    const senderRef = doc(db, "users", user.uid);
-    const recipientRef = doc(db, "users", recipientId);
-
-    // Create specific reference for transaction record to ensure it is part of atomic write if needed
-    // However, runTransaction usually handles reads then writes.
-    // We will generate a new ID for the transaction record.
-    const newTxRef = doc(collection(db, "transactions"));
-
-    try {
-      await runTransaction(db, async (txn) => {
-        // 1. Get Sender
-        const senderDoc = await txn.get(senderRef);
-        if (!senderDoc.exists()) throw "Sender not found";
-
-        const senderData = senderDoc.data();
-        const senderBalance = calculateDecayedValue(
-          senderData.balance || 0,
-          senderData.last_updated,
-        );
-
-        // === STRICT COMMITMENT CHECK ===
-        // 凍結リスク回避のため、約束中のLm（committedLm）を考慮して残高を確認する
-        // トランザクション内でActive Wishを取得して計算
-        const wishesRef = collection(db!, "wishes");
-        const q = query(
-            wishesRef,
-            where("requester_id", "==", user.uid),
-            where("status", "in", ["open", "in_progress"])
-        );
-        // Note: Transactional query is not supported directly with query() in some SDKs, 
-        // but getDocs(q) inside runTransaction will read consistently if indices are set.
-        // However, to be purely atomic on the *same* read time, simply querying is usually sufficient for "read" consistency in Firestore.
-        const wishesSnapshot = await getDocs(q);
-        
-        let txCommittedLm = 0;
-        wishesSnapshot.forEach(doc => {
-            const w = doc.data();
-            txCommittedLm += calculateDecayedValue(w.cost || 0, w.created_at);
-        });
-
-        const available = senderBalance - txCommittedLm;
-
-        if (available < amount) {
-            throw new Error(`Insufficient available funds. (Available: ${Math.floor(available)}, Required: ${amount})`);
-        }
-
-        // 2. Get Recipient
-        const recipientDoc = await txn.get(recipientRef);
-        if (!recipientDoc.exists()) throw "Recipient not found";
-
-        // 3. Get Global Capacity (for capping)
-        let globalCapacity = WORLD_CONSTANTS.REBIRTH_AMOUNT;
-        try {
-          const settingsRef = doc(db!, "system_settings", "stats");
-          const settingsDoc = await txn.get(settingsRef);
-          if (settingsDoc.exists()) {
-            const val = settingsDoc.data().global_capacity;
-            if (typeof val === "number") globalCapacity = val;
-          }
-        } catch (e) {
-          console.warn("Using default capacity", e);
-        }
-
-        // 4. Calculate Recipient New Balance
-        const recipientData = recipientDoc.data();
-        const recipientCurrentReal = calculateDecayedValue(
-          recipientData.balance || 0,
-          recipientData.last_updated,
-        );
-
-        // Cap at globalCapacity
-        const newRecipientBalance = Math.min(
-          recipientCurrentReal + amount,
-          globalCapacity,
-        );
-
-        // 5. Writes
-        // Deduct from Sender
-        txn.update(senderRef, {
-          balance: senderBalance - amount,
-          last_updated: serverTimestamp(),
-        });
-
-        // Add to Recipient
-        txn.update(recipientRef, {
-          balance: newRecipientBalance,
-          last_updated: serverTimestamp(),
-        });
-
-        // Record Transaction
-        txn.set(newTxRef, {
-          type: "GIFT",
-          sender_id: user.uid,
-          sender_name: senderData.name || 'Unknown', // Log Name
-          recipient_id: recipientId,
-          recipient_name: recipientData.name || 'Unknown', // Log Name
-          amount: amount,
-          overflow_loss: recipientCurrentReal + amount - newRecipientBalance, 
-          created_at: serverTimestamp(),
-        });
-
-        // Record Daily Stats
-        const today = new Date().toISOString().split("T")[0];
-        const dailyStatsRef = doc(db!, "daily_stats", today);
-
-        const overflowAmount =
-          recipientCurrentReal + amount - newRecipientBalance;
-
-        txn.set(
-          dailyStatsRef,
-          {
-            volume: increment(amount),
-            gift_volume: increment(amount),
-            overflow_volume: increment(overflowAmount > 0 ? overflowAmount : 0),
-            updated_at: serverTimestamp(),
-          },
-          { merge: true },
-        );
-      });
-
-      console.log(`Transferred ${amount} to ${recipientId}`);
-      return true;
-    } catch (e) {
-      console.error("Transfer failed:", e);
-      return false;
-    }
-  };
 
   // === 凍結方針（Freeze Policy）===
   // committedLm > balance の状態を検出し、警告を表示する（自動キャンセルは行わない）
@@ -471,7 +338,6 @@ export const useWallet = () => {
     committedLm,
     availableLm,
     pay,
-    transferLumen,
     checkLunarPhase,
     refundUnfairDeductions, // 返金機能をエクスポート
     isLoading: profileLoading,
