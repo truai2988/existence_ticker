@@ -105,158 +105,131 @@ export const useWallet = () => {
   const availableLm = calculateAvailableLm(balance, committedLm);
 
   // === Lunar Cycle Logic (Metabolism) ===
+  const cycleStatus = useMemo(() => {
+    if (!profile) return { isExpired: false, expiryDate: null };
+
+    const cycleStartedAt = profile.cycle_started_at 
+        ? (typeof profile.cycle_started_at.toMillis === 'function' ? profile.cycle_started_at.toMillis() : 0)
+        : (profile.created_at && typeof profile.created_at.toMillis === 'function' ? profile.created_at.toMillis() : 0);
+    
+    // Fallback if no timestamps (shouldn't happen for valid users)
+    if (cycleStartedAt === 0) return { isExpired: false, expiryDate: null };
+
+    const effectiveCycleDays = profile.scheduled_cycle_days || 10;
+    const cycleDurationMillis = effectiveCycleDays * 24 * 60 * 60 * 1000;
+    const expiryDate = cycleStartedAt + cycleDurationMillis;
+    const now = Date.now();
+
+    return {
+        isUnborn: cycleStartedAt === 0,
+        isExpired: cycleStartedAt !== 0 && now >= expiryDate,
+        expiryDate: cycleStartedAt !== 0 ? expiryDate : null,
+        cycleStartedAt,
+        cycleDurationMillis
+    };
+  }, [profile]);
+
   /**
-   * Checks if the user's personal 10-day cycle has expired.
-   * If so, resets their balance to 2400 (The Vessel Cap).
+   * 存在の祝祭 (Existence Celebration)
+   * Resets the vessel to 2400 Lm.
+   * - First Birth: Anchored to NOW. Balance 2400.
+   * - Rebirth: Anchored to "Objective Past" (cycle expiry). Balance < 2400 (Decayed).
+   * This is a manual ritual triggered by the user.
    */
-  const checkLunarPhase = async (): Promise<{ reset: boolean }> => {
-    if (!user || !db) return { reset: false };
-
-    // === OPTIMIZATION: Early Exit using local data ===
-    // If we have profile data (from useProfile listener), check locally first.
-    // This prevents running a write transaction on every page load/mount.
-    if (profile && profile.cycle_started_at && typeof profile.cycle_started_at.toMillis === 'function') {
-        const cycleStartedAt = profile.cycle_started_at.toMillis();
-        const effectiveCycleDays = profile.scheduled_cycle_days || 10;
-        const cycleDurationMillis = effectiveCycleDays * 24 * 60 * 60 * 1000;
-        const now = Date.now();
-
-        // If current time is strictly BEFORE the expiry, do nothing.
-        // INTEGRITY UPDATE: Add a 60-second safety buffer for client clock skew.
-        // If we are within 1 minute of expiry, allow the transaction to proceed (Safety Side).
-        const timeRemaining = (cycleStartedAt + cycleDurationMillis) - now;
-        const SAFETY_BUFFER = 60 * 1000; // 1 minute
-
-        if (timeRemaining > SAFETY_BUFFER) {
-            // Debug log only in dev or if specifically debugging
-            // console.debug("Metabolism: Cycle active (Local Check). Skipping transaction.", timeRemaining / 1000, "s left");
-            return { reset: false };
-        }
+  const performRebirthReset = async (): Promise<{ success: boolean; newBalance?: number; newAnchorTime?: number }> => {
+    if (!user || !db) return { success: false };
+    if (!cycleStatus.isExpired && !cycleStatus.isUnborn) return { success: false };
+    
+    // Calculate Anchor Time
+    const { cycleStartedAt, cycleDurationMillis, isUnborn } = cycleStatus;
+    const now = Date.now();
+    
+    let newAnchorTimeMillis = now;
+    
+    if (isUnborn) {
+        // First Birth: Life starts NOW
+        newAnchorTimeMillis = now;
+    } else {
+        // Rebirth: Anchored to the past end of cycle
+        // Safety checks
+        if (!cycleStartedAt || !cycleDurationMillis) return { success: false };
+        
+        const elapsed = now - cycleStartedAt;
+        const cyclesElapsed = Math.floor(elapsed / cycleDurationMillis); 
+        newAnchorTimeMillis = cycleStartedAt + (cyclesElapsed * cycleDurationMillis);
     }
-
+    
     const userRef = doc(db, "users", user.uid);
 
     try {
-      let hasReset = false;
+      let resultBalance = 0;
+      let nextCycleDays = 10;
 
       await runTransaction(db, async (transaction) => {
         const userDoc = await transaction.get(userRef);
         if (!userDoc.exists()) throw "User missing";
 
-        const data = userDoc.data();
-        // Safe access to Timestamp
-        const cycleStartedAt = data.cycle_started_at 
-            ? (data.cycle_started_at.toMillis ? data.cycle_started_at.toMillis() : 0)
-            : (data.created_at?.toMillis ? data.created_at.toMillis() : 0);
+        const { REBIRTH_AMOUNT } = WORLD_CONSTANTS;
 
-        // 1. NON-RETROACTIVITY Check (法の不遡及)
-        // Use the cycle duration that was scheduled for THIS cycle.
-        // If missing (legacy), default to 10 days.
-        const effectiveCycleDays = data.scheduled_cycle_days || 10;
-        
-        const now = Date.now();
-        const cycleDurationMillis = effectiveCycleDays * 24 * 60 * 60 * 1000;
-        
-        if (
-          cycleStartedAt === 0 ||
-          now - cycleStartedAt >= cycleDurationMillis
-        ) {
-          // === METABOLIC RESET (Rebirth) ===
-          hasReset = true;
-          const { REBIRTH_AMOUNT } = WORLD_CONSTANTS;
-
-          // 2. Fetch NEXT Cycle Configuration (Apply New Law)
-          // 次のサイクルの長さを決定する（ここで初めて新しい法が適用される）
-          let nextCycleDays = 10; 
-          try {
-              const settingsRef = doc(db!, "system_settings", "global");
-              const settingsDoc = await transaction.get(settingsRef);
-              
-              if (settingsDoc.exists()) {
-                const val = settingsDoc.data().cycleDays;
-                if (typeof val === "number") nextCycleDays = val;
-              }
-          } catch (e) {
-              console.warn("Using default cycle days due to fetch error", e);
-          }
-
-          // === 第一の大罪の修正: 約束中のLmを計算 ===
-          // トランザクション内でユーザーの依頼を読み取る
-          const wishesRef = collection(db!, "wishes");
-          const q = query(
-            wishesRef,
-            where("requester_id", "==", user.uid),
-            where("status", "in", ["open", "in_progress"])
-          );
-          const wishesSnapshot = await getDocs(q); // Note: getDocs is NOT transactional but query is read-only
-          
-          // 約束中のLmを計算（減価を考慮）
-          let committedLm = 0;
-          wishesSnapshot.forEach((wishDoc) => {
-            const wish = wishDoc.data();
-            const initialCost = wish.cost || 0;
-            const createdAt = wish.created_at;
+        // 2. Fetch NEXT Cycle Configuration
+        try {
+            const settingsRef = doc(db!, "system_settings", "global");
+            const settingsDoc = await transaction.get(settingsRef);
             
-            // calculateDecayedValueで減価した現在価値を計算
-            const currentValue = calculateDecayedValue(initialCost, createdAt);
-            committedLm += currentValue;
-          });
-
-          // リセット額を計算: 約束 + 100 Lm または 定数(2400) の大きい方
-          // これにより、約束超過を防ぎつつ、常に最低限の余白(100)を確保
-          const safeResetAmount = Math.max(REBIRTH_AMOUNT, Math.ceil(committedLm) + 100);
-
-          console.log('[Lunar Cycle Reset]', {
-            effectiveCycleDays,
-            nextCycleDays,
-            baseRebirthAmount: REBIRTH_AMOUNT,
-            committedLm: Math.ceil(committedLm),
-            finalResetAmount: safeResetAmount,
-            保護された: safeResetAmount > REBIRTH_AMOUNT
-          });
-
-          transaction.update(userRef, {
-            balance: safeResetAmount,
-            last_updated: serverTimestamp(),
-            cycle_started_at: serverTimestamp(), // New Cycle Starts Now
-            scheduled_cycle_days: nextCycleDays, // Schedule Next Cycle Duration
-            // last_phase_index: ... // Deprecated
-          });
-
-          // Incremental Counter for Souls Reborn (Daily Stats)
-          const today = new Date().toISOString().split("T")[0];
-          // db is defined here due to early return at line 20
-          const dailyStatsRef = doc(db!, "daily_stats", today);
-          transaction.set(
-            dailyStatsRef,
-            {
-              reborn_count: increment(1),
-              updated_at: serverTimestamp(),
-            },
-            { merge: true },
-          ); // Merge ensures volume isn't wiped if updated concurrently
-
-           // === Log Rebirth Transaction ===
-          const txRef = doc(collection(db!, 'transactions'));
-          transaction.set(txRef, {
-              type: 'REBIRTH',
-              recipient_id: user.uid,
-              recipient_name: data.name || 'User',
-              amount: safeResetAmount,
-              created_at: serverTimestamp(),
-              description: '太陽の光で器が満たされました'
-          });
+            if (settingsDoc.exists()) {
+              const val = settingsDoc.data().cycleDays;
+              if (typeof val === "number") nextCycleDays = val;
+            }
+        } catch (e) {
+            console.warn("Using default cycle days due to fetch error", e);
         }
+
+        const anchorDate = new Date(newAnchorTimeMillis);
+        
+        // Calculate the "Truth" Balance
+        // If First Birth (Anchor=Now), decay is 0, Balance=2400.
+        // If Rebirth, decay is applied.
+        const exactElapsedMs = now - newAnchorTimeMillis;
+        const exactElapsedHours = Math.floor(exactElapsedMs / 3600000);
+        const decay = exactElapsedHours * WORLD_CONSTANTS.DECAY_RATE_HOURLY;
+        resultBalance = Math.max(0, REBIRTH_AMOUNT - decay);
+
+        transaction.update(userRef, {
+          balance: REBIRTH_AMOUNT,
+          last_updated: anchorDate, // Set "Last Updated" to Anchor Time
+          cycle_started_at: anchorDate, // New Cycle Starts at Anchor Time
+          scheduled_cycle_days: nextCycleDays,
+        });
+
+        // Incremental Counter for Souls Reborn (Daily Stats)
+        const today = new Date().toISOString().split("T")[0];
+        const dailyStatsRef = doc(db!, "daily_stats", today);
+        transaction.set(
+          dailyStatsRef,
+          {
+            reborn_count: increment(1),
+            updated_at: serverTimestamp(),
+          },
+          { merge: true },
+        );
+
+         // === Log Rebirth Transaction ===
+        const txRef = doc(collection(db!, 'transactions'));
+        transaction.set(txRef, {
+            type: isUnborn ? 'BIRTH' : 'REBIRTH',
+            recipient_id: user.uid,
+            amount: REBIRTH_AMOUNT,
+            created_at: serverTimestamp(),
+            description: isUnborn ? '世界に産声を上げました' : '光が満ちました',
+            anchor_time: anchorDate 
+        });
       });
 
-      if (hasReset) {
-        console.log("Metabolism: New Cycle Started (Protected Reset)");
-        return { reset: true };
-      }
-      return { reset: false };
+      console.log("Metabolism: Ritual Complete. New Anchor:", new Date(newAnchorTimeMillis).toISOString());
+      return { success: true, newBalance: resultBalance, newAnchorTime: newAnchorTimeMillis };
     } catch (e) {
       console.error("Metabolism Check Failed:", e);
-      return { reset: false };
+      return { success: false };
     }
   };
 
@@ -338,7 +311,8 @@ export const useWallet = () => {
     committedLm,
     availableLm,
     pay,
-    checkLunarPhase,
+    cycleStatus,
+    performRebirthReset,
     refundUnfairDeductions, // 返金機能をエクスポート
     isLoading: profileLoading,
   };

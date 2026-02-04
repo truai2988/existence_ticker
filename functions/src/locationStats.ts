@@ -8,77 +8,128 @@ const db = admin.firestore();
  * This ensures we have a real-time counter of users in each city without
  * querying the entire users collection.
  */
+// Helper to clean up wishes (requests)
+const cleanupUserWishes = async (userId: string) => {
+  const requestsRef = db.collection("requests");
+  
+  // 1. Close "Open" requests (Natural Expiration)
+  const openSnapshot = await requestsRef
+    .where("author_id", "==", userId)
+    .where("status", "==", "open")
+    .get();
+
+  const batch = db.batch();
+  let opCount = 0;
+
+  openSnapshot.docs.forEach((doc) => {
+    batch.update(doc.ref, { 
+      status: "expired",
+      archived: true,
+      updated_at: admin.firestore.FieldValue.serverTimestamp()
+    });
+    opCount++;
+  });
+
+  // 2. Handle "In Progress" requests (Preserve Integrity? Or Interrupt?)
+  // Prompt: "Avoid one-sided disappearance... notify or system interruption"
+  // We will mark them as "interrupted" or "cancelled" so the other party isn't stuck.
+  const progressSnapshot = await requestsRef
+    .where("author_id", "==", userId)
+    .where("status", "==", "in_progress")
+    .get();
+
+  progressSnapshot.docs.forEach((doc) => {
+    batch.update(doc.ref, {
+      status: "interrupted", // Custom status for withdrawal
+      helper_note: "The wisher has withdrawn from the world.",
+      updated_at: admin.firestore.FieldValue.serverTimestamp()
+    });
+    opCount++;
+  });
+
+  if (opCount > 0) {
+    await batch.commit();
+    console.log(`Cleaned up ${opCount} wishes for deleted user ${userId}`);
+  }
+};
+
+/**
+ * Updates the location_stats collection when a user's location changes.
+ * Enforces strict synchronization and safety against negative counts using Transactions.
+ */
 export const updateLocationStats = functions.firestore
   .document("users/{userId}")
   .onWrite(async (change, context) => {
+    const userId = context.params.userId;
     const beforeData = change.before.exists ? change.before.data() : null;
     const afterData = change.after.exists ? change.after.data() : null;
 
-    const batch = db.batch();
-    let isModified = false;
-
-    // Helper to get doc ID from location
-    const getDocId = (prefecture: string, city: string) =>
-      `${prefecture}_${city}`;
-
-    // 1. User Deleted or Location Removed
-    if (beforeData?.location?.prefecture && beforeData?.location?.city) {
-      // If user was deleted OR location changed/removed
-      if (
-        !afterData ||
-        afterData.location?.prefecture !== beforeData.location.prefecture ||
-        afterData.location?.city !== beforeData.location.city
-      ) {
-        const oldDocId = getDocId(
-          beforeData.location.prefecture,
-          beforeData.location.city,
-        );
-        const oldRef = db.collection("location_stats").doc(oldDocId);
-
-        batch.set(
-          oldRef,
-          {
-            count: admin.firestore.FieldValue.increment(-1),
-            prefecture: beforeData.location.prefecture,
-            city: beforeData.location.city,
-          },
-          { merge: true },
-        );
-        isModified = true;
-      }
+    // 1. DETECT DELETION & CLEANUP TRACES
+    if (beforeData && !afterData) {
+        console.log(`User ${userId} deleted. Initiating Trace Cleanup.`);
+        await cleanupUserWishes(userId);
     }
 
-    // 2. User Created or Location Added/Changed
-    if (afterData?.location?.prefecture && afterData?.location?.city) {
-      // If user is new OR location changed/added
-      if (
-        !beforeData ||
-        beforeData.location?.prefecture !== afterData.location.prefecture ||
-        beforeData.location?.city !== afterData.location.city
-      ) {
-        const newDocId = getDocId(
-          afterData.location.prefecture,
-          afterData.location.city,
-        );
-        const newRef = db.collection("location_stats").doc(newDocId);
+    // 2. DETECT LOCATION CHANGES (Stats Sync)
+    const oldLoc = beforeData?.location;
+    const newLoc = afterData?.location;
 
-        batch.set(
-          newRef,
-          {
-            count: admin.firestore.FieldValue.increment(1),
-            prefecture: afterData.location.prefecture,
-            city: afterData.location.city,
-          },
-          { merge: true },
-        );
-        isModified = true;
-      }
-    }
+    const oldKey = oldLoc?.prefecture && oldLoc?.city ? `${oldLoc.prefecture}_${oldLoc.city}` : null;
+    const newKey = newLoc?.prefecture && newLoc?.city ? `${newLoc.prefecture}_${newLoc.city}` : null;
 
-    if (isModified) {
-      await batch.commit();
-      console.log(`Updated location stats for user ${context.params.userId}`);
-    }
+    // Logic:
+    // If oldKey exists AND (User deleted OR key changed) -> Decrement Old
+    // If newKey exists AND (User created OR key changed) -> Increment New
+
+    const shouldDecrement = oldKey && (!afterData || oldKey !== newKey);
+    const shouldIncrement = newKey && (!beforeData || oldKey !== newKey);
+
+    if (!shouldDecrement && !shouldIncrement) return;
+
+    // STRICT SYNC: Run in Transaction to enforce "No Negative" rule
+    await db.runTransaction(async (t) => {
+        // Reads
+        let oldDoc: admin.firestore.DocumentSnapshot | null = null;
+        let newDoc: admin.firestore.DocumentSnapshot | null = null;
+        const oldRef = oldKey ? db.collection("location_stats").doc(oldKey) : null;
+        const newRef = newKey ? db.collection("location_stats").doc(newKey) : null;
+
+        if (shouldDecrement && oldRef) {
+            oldDoc = await t.get(oldRef);
+        }
+        if (shouldIncrement && newRef) {
+            newDoc = await t.get(newRef);
+        }
+
+        // Writes
+        if (shouldDecrement && oldRef) {
+            const current = oldDoc && oldDoc.exists ? (oldDoc.data()?.count || 0) : 0;
+            // SAFETY DEVICE: Prevent negative count
+            const next = Math.max(0, current - 1);
+            
+            t.set(oldRef, {
+                count: next,
+                prefecture: oldLoc.prefecture,
+                city: oldLoc.city,
+                last_updated: admin.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+        }
+
+        if (shouldIncrement && newRef) {
+            // For increment, we can just use atomic increment usually, but since we are in transaction:
+            const current = newDoc && newDoc.exists ? (newDoc.data()?.count || 0) : 0;
+            const next = current + 1;
+            
+            t.set(newRef, {
+                count: next,
+                prefecture: newLoc.prefecture,
+                city: newLoc.city,
+                last_updated: admin.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+        }
+    });
+    
+    console.log(`Synced location stats for user ${userId}.`);
   });
 
 /**

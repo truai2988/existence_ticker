@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense, lazy } from "react";
+import { useState, Suspense, lazy } from "react";
 // Main App Component
 import { AuthScreen } from "./components/AuthScreen";
 import { Header } from "./components/Header";
@@ -18,7 +18,7 @@ const AdminDashboard = lazy(() =>
 
 import { useAuth } from "./hooks/useAuthHook";
 // import { useProfile } from './hooks/useProfile';
-import { useWallet } from "./hooks/useWallet";
+// import { useWallet } from "./hooks/useWallet";
 import { AppViewMode } from "./types";
 // import { ADMIN_UIDS } from './constants';
 
@@ -66,19 +66,8 @@ function App() {
     setViewMode(tab);
   };
 
-  const { checkLunarPhase } = useWallet();
-
-  // Lunar Phase Logic (Preserved from TopScreen)
-  useEffect(() => {
-    if (!user) return;
-    const doCheck = async () => {
-      await checkLunarPhase();
-    };
-    // Short delay to allow UI to settle first (Optimization)
-    const timer = setTimeout(doCheck, 1000);
-    return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid]);
+  // Lunar Phase Logic (Metabolism) is now handled manually in HomeView
+  // const { checkLunarPhase } = useWallet();
 
   const handleGoHome = () => {
     setActiveTab("home");

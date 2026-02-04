@@ -6,6 +6,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { MapPin, ChevronRight } from 'lucide-react';
 import { PresenceModal } from './PresenceModal';
+import { AccountSettingsModal } from './AccountSettingsModal';
 import { AnimatePresence } from 'framer-motion';
 
 export const UserSubBar: React.FC = () => {
@@ -16,6 +17,7 @@ export const UserSubBar: React.FC = () => {
     // --- Presence / Status Line Logic ---
     const [statsCount, setStatsCount] = useState<number | null>(null);
     const [showPresenceModal, setShowPresenceModal] = useState(false);
+    const [showSettingsModal, setShowSettingsModal] = useState(false);
     
     // Fetch stats for current location
     useEffect(() => {
@@ -68,16 +70,20 @@ export const UserSubBar: React.FC = () => {
                         <ChevronRight size={11} className="text-slate-300 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
                     </button>
 
-                    {/* User Name */}
-                    <span className="text-xs text-slate-300 font-mono tracking-wide flex items-center gap-1">
+                    {/* User Name (Settings Trigger) */}
+                    <button 
+                        onClick={() => setShowSettingsModal(true)}
+                        className="text-xs text-slate-300 font-mono tracking-wide flex items-center gap-1 hover:text-slate-200 transition-colors"
+                    >
                         <span>Signed in as:</span>
-                        <span className="text-slate-400 font-bold">{currentName}</span>
-                    </span>
+                        <span className="text-slate-400 font-bold hover:text-blue-500 hover:underline transition-all underline-offset-2">{currentName}</span>
+                    </button>
                 </div>
             </div>
 
             <AnimatePresence>
                 {showPresenceModal && <PresenceModal onClose={() => setShowPresenceModal(false)} />}
+                {showSettingsModal && <AccountSettingsModal onClose={() => setShowSettingsModal(false)} />}
             </AnimatePresence>
         </>
     );

@@ -13,7 +13,7 @@ import {
     updateEmail,
     reauthenticateWithCredential
 } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 // collection, query, where, getDocs, deleteDoc, writeBatch removed
 
@@ -111,22 +111,10 @@ export const useAuth = () => {
         if (!auth || !auth.currentUser || !user) throw new Error("Not authenticated");
         if (!db) throw new Error("Database not connected");
 
-        // 1. Tombstone: Anonymize User Profile (The Departure)
+        // 1. Physical Deletion of User Profile (Triggers Backend Cleanup)
         const userRef = doc(db, 'users', user.uid);
         
-        // Overwrite personal data while keeping ID for referential integrity
-        await setDoc(userRef, {
-            name: "名もなき住人", // Anonymized
-            balance: 0, // Assets Burned
-            xp: 0, // Reputation Reset (Optional, but requested "erasure")
-            warmth: 0,
-            completed_contracts: 0, 
-            created_contracts: 0,
-            bio: null,
-            is_deleted: true,
-            deleted_at: serverTimestamp(),
-            last_updated: serverTimestamp()
-        }, { merge: true }); // Merge to keep ID, but overwrite specified fields
+        await deleteDoc(userRef);
 
         // 2. Hard Delete Auth (Irreversible)
         try {
@@ -134,10 +122,9 @@ export const useAuth = () => {
             // Note: This automatically signs out.
         } catch (authError) {
              console.error("Auth Delete Failed (Requires recent login):", authError);
-             // If sensitive, prompt re-login. For now, we accept Firestore anonymization as 'good enough' if Auth fails.
-             // But we should try to sign out at least.
+             // If sensitive, prompt re-login. For now, we try to ensure local logout at least.
              await signOut();
-             throw authError; // Let UI handle "Requires Login" error if strictly needed
+             throw authError; 
         }
     };
 
