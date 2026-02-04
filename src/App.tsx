@@ -69,6 +69,10 @@ function App() {
         (window as any).auditAll = () => auditAllGravity(db as Firestore);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (window as any).shiro = () => analyzeShiro(db as Firestore);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).shiroDebug = () => {
+             import('./logic/auditGravity').then(m => m.debugShiroRebirth(db as Firestore));
+        };
         
         console.log("Console Tools Ready:");
         console.log("- cleanup(): Deduplicate transactions");

@@ -160,15 +160,14 @@ export const useWallet = () => {
     }
     
     const userRef = doc(db, "users", user.uid);
+    let resultBalance = 0;
 
     try {
-      let resultBalance = 0;
-      let nextCycleDays = 10;
-
       await runTransaction(db, async (transaction) => {
         const userDoc = await transaction.get(userRef);
         if (!userDoc.exists()) throw "User missing";
 
+        let nextCycleDays = 10;
         const { REBIRTH_AMOUNT } = WORLD_CONSTANTS;
 
         // 2. Fetch NEXT Cycle Configuration
@@ -186,14 +185,29 @@ export const useWallet = () => {
 
         const anchorDate = new Date(newAnchorTimeMillis);
         
+        // === PRE-WRITE CHECK: Rebirth Log ===
+        // ID Rule: 
+        // - First Birth: "birth_<UID>" (Born once)
+        // - Rebirth: "rebirth_<UID>_<AnchorTimestamp>" (Unique per cycle)
+        const txId = isUnborn 
+            ? `birth_${user.uid}` 
+            : `rebirth_${user.uid}_${newAnchorTimeMillis}`;
+            
+        const txRef = doc(db!, 'transactions', txId);
+        const txDoc = await transaction.get(txRef);
+
+        if (txDoc.exists()) {
+            console.log("Idempotency Check: Ritual already recorded. Skipping.");
+            return; 
+        }
+
         // Calculate the "Truth" Balance
-        // If First Birth (Anchor=Now), decay is 0, Balance=2400.
-        // If Rebirth, decay is applied.
         const exactElapsedMs = now - newAnchorTimeMillis;
         const exactElapsedHours = Math.floor(exactElapsedMs / 3600000);
         const decay = exactElapsedHours * WORLD_CONSTANTS.DECAY_RATE_HOURLY;
         resultBalance = Math.max(0, REBIRTH_AMOUNT - decay);
 
+        // === EXECUTE WRITES ===
         transaction.update(userRef, {
           balance: REBIRTH_AMOUNT,
           last_updated: anchorDate, // Set "Last Updated" to Anchor Time
@@ -212,24 +226,6 @@ export const useWallet = () => {
           },
           { merge: true },
         );
-
-         // === Log Rebirth Transaction (Deterministic ID for Idempotency) ===
-        // ID Rule: 
-        // - First Birth: "birth_<UID>" (Born once)
-        // - Rebirth: "rebirth_<UID>_<AnchorTimestamp>" (Unique per cycle)
-        const txId = isUnborn 
-            ? `birth_${user.uid}` 
-            : `rebirth_${user.uid}_${newAnchorTimeMillis}`;
-            
-        const txRef = doc(db!, 'transactions', txId);
-        const txDoc = await transaction.get(txRef);
-
-        if (txDoc.exists()) {
-            console.log("Idempotency Check: Ritual already recorded. Skipping.");
-            // We assume if the log exists, the balancing was also done. 
-            // Returning early prevents double-decay application or reset.
-            return; 
-        }
 
         transaction.set(txRef, {
             type: isUnborn ? 'BIRTH' : 'REBIRTH',

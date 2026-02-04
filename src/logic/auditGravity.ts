@@ -190,3 +190,58 @@ export const analyzeShiro = async (db: Firestore) => {
     // Check History
     await auditGravity(db, uid);
 };
+
+export const debugShiroRebirth = async (db: Firestore) => {
+    console.log("🕵️‍♀️ Debugging Rebirth Conditions for SHIRO...");
+    const { collection, getDocs, query, where, doc: getDoc, getDoc: fetchDoc } = await import('firebase/firestore');
+    
+    // 1. Get User
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('name', '==', 'SHIRO TAMAKI'));
+    const snap = await getDocs(q);
+    if (snap.empty) { console.log("User not found"); return; }
+    const user = snap.docs[0];
+    const data = user.data();
+    
+    // 2. Cycle Stats
+    const now = Date.now();
+    const cycleStartedAt = data.cycle_started_at?.toMillis() || 0;
+    const cycleDays = data.scheduled_cycle_days || 10;
+    const cycleDurationMillis = cycleDays * 24 * 60 * 60 * 1000;
+    const expiryDate = cycleStartedAt + cycleDurationMillis;
+    const isExpired = now >= expiryDate;
+    
+    console.log(`Cycle Started: ${new Date(cycleStartedAt).toISOString()}`);
+    console.log(`Cycle Duration: ${cycleDays} days`);
+    console.log(`Expires At: ${new Date(expiryDate).toISOString()}`);
+    console.log(`Current Time: ${new Date(now).toISOString()}`);
+    console.log(`IS EXPIRED? ${isExpired ? "YES" : "NO"}`);
+    
+    if (!isExpired) {
+        console.log("❌ Not expired. Rebirth button should not be visible.");
+        return;
+    }
+    
+    // 3. Predicte New Anchor
+    const elapsed = now - cycleStartedAt;
+    const cyclesElapsed = Math.floor(elapsed / cycleDurationMillis);
+    const newAnchorTimeMillis = cycleStartedAt + (cyclesElapsed * cycleDurationMillis);
+    
+    console.log(`Elapsed Cycles: ${cyclesElapsed}`);
+    console.log(`Predicted New Anchor: ${new Date(newAnchorTimeMillis).toISOString()} (Millis: ${newAnchorTimeMillis})`);
+    
+    // 4. Check ID Collision
+    const txId = `rebirth_${user.id}_${newAnchorTimeMillis}`;
+    console.log(`Checking Transaction ID: ${txId}`);
+    
+    const txRef = getDoc(db, 'transactions', txId);
+    const txSnapCheck = await fetchDoc(txRef);
+    
+    if (txSnapCheck.exists()) {
+        console.error(`⛔ FATAL: Transaction ${txId} ALREADY EXISTS!`);
+        console.error("This explains the failure. The system thinks the ritual was already done for this cycle.");
+        console.log("Tx Data:", txSnapCheck.data());
+    } else {
+        console.log("✅ Transaction ID is available. Idempotency check should PASS.");
+    }
+};
