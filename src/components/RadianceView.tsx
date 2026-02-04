@@ -7,10 +7,6 @@ import { UserSubBar } from './UserSubBar';
 
 
 import { CreateWishModal } from './CreateWishModal';
-// import { DonationModal } from './DonationModal'; 
-// import { CompleteWishModal } from './CompleteWishModal'; // Removed unused
-// import { useScanProcessor } from '../hooks/useScanProcessor'; 
-// import { PendingWish } from '../types'; // Removed unused
 
 interface RadianceViewProps {
     onClose: () => void;
@@ -18,7 +14,7 @@ interface RadianceViewProps {
 }
 
 type TabType = 'active' | 'outbound' | 'past';
-type ModalState = 'none' | 'create_wish' | 'gift_amount' | 'settle_wish';
+type ModalState = 'none' | 'create_wish';
 
 export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUserId }) => {
     const { wishes } = useWishes();

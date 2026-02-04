@@ -172,6 +172,7 @@ export const WishCard: React.FC<WishCardProps> = ({
   // Recalculate whenever tick changes (every 10 seconds)
   const displayValue = React.useMemo(() => {
     return calculateDecayedValue(initialCost, wish.created_at);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tick, initialCost, wish.created_at]);
 
   // 期限切れ判定
@@ -281,7 +282,7 @@ export const WishCard: React.FC<WishCardProps> = ({
         confirmAction === "resign"
           ? "辞退しました"
           : confirmAction === "compensate"
-          ? "補償してキャンセルしました"
+          ? "お詫びを渡して取り下げました"
           : "取り下げました",
         "success",
       );
@@ -478,7 +479,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                 onClick={handleCancel}
                 disabled={isLoading}
                 className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                title="強制キャンセル (補償払い)"
+                title="お詫びを渡して取り下げ"
               >
                 <AlertTriangle size={14} />
               </button>
@@ -549,9 +550,29 @@ export const WishCard: React.FC<WishCardProps> = ({
                     }`}>
                         {wish.status === "fulfilled" ? "届けられた感謝 (最終値)" : 
                          wish.status === "cancelled" ? (
-                           (wish.cancel_reason === "compensatory_cancellation" || wish.cancel_reason === "helper_cancellation") 
-                             ? "お詫びのしるし" 
-                             : "キャンセル済み"
+                             // Logic to determine Label
+                             (() => {
+                                 const isRequester = wish.requester_id === currentUserId;
+                                 const isHelperCancellation = wish.cancel_reason === 'helper_cancellation';
+                                 const isCompensatory = wish.cancel_reason === 'compensatory_cancellation';
+
+                                 // Case 1: Helper Cancelled (Resignation)
+                                 if (isHelperCancellation) {
+                                     return isRequester 
+                                         ? "お詫びを受け取りました（相手の辞退）" 
+                                         : "お詫びを渡しました（自分の辞退）";
+                                 }
+                                 // Case 2: Requester Cancelled (Withdrawal with Compensation)
+                                 else if (isCompensatory) {
+                                     return isRequester 
+                                         ? "お詫びを渡しました（自分の取消）" 
+                                         : "お詫びを受け取りました（相手の取消）";
+                                 }
+                                 // Case 3: Simple Void (Open Cancel)
+                                 else {
+                                     return isRequester ? "取り下げ済み" : "キャンセル済み";
+                                 }
+                             })()
                          ) : 
                          "期限により自然消滅"}
                     </span>
@@ -560,8 +581,8 @@ export const WishCard: React.FC<WishCardProps> = ({
                     {wish.status === "fulfilled" ? (
                         <>{(wish.val_at_fulfillment || 0).toFixed(3)} <span className="text-[11px] text-slate-400 ml-0.5">Lm</span></>
                     ) : wish.status === "cancelled" ? (
-                        wish.cancel_reason === 'compensatory_cancellation' || wish.val_at_fulfillment ? (
-                             // Compensation Paid Case
+                        wish.cancel_reason === 'compensatory_cancellation' || wish.cancel_reason === 'helper_cancellation' || wish.val_at_fulfillment ? (
+                             // Apology Transaction Case using generic wording
                              <div className="flex flex-col items-end">
                                 <span className="text-base text-red-500">
                                     {wish.val_at_fulfillment !== undefined 
@@ -574,14 +595,16 @@ export const WishCard: React.FC<WishCardProps> = ({
                                     } 
                                     <span className="text-[11px] ml-0.5">Lm</span>
                                 </span>
-                                <span className="text-[11px] text-red-300 font-bold">補償済</span>
+                                <span className="text-[10px] text-red-300 font-bold uppercase tracking-wider">
+                                    お詫び
+                                </span>
                              </div>
                         ) : (
-                             // Void Case (Show nothing on right, rely on main label)
+                             // Void Case
                              null
                         )
                     ) : (
-                        // Expired Case (Show nothing on right)
+                        // Expired Case
                         null
                     )}
                 </div>

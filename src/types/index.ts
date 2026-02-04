@@ -24,27 +24,23 @@ export interface UserProfile {
   } | null;
   bio?: string | null;
   balance: number;
-  committed_lm: number; // Phase 2: 明示的な予約フィールド
+  committed_lm: number; 
   xp: number;
   warmth: number;
-  // Role for Governance
   role?: 'user' | 'admin';
 
-  // Computed / Virtual
   is_deleted?: boolean;
   last_updated?: unknown;
-  completed_contracts?: number; // How many times they helped
-  created_contracts?: number;   // How many times they requested
-  completed_requests?: number;  // How many times their requests were fulfilled & paid
+  completed_contracts?: number; 
+  created_contracts?: number;   
+  completed_requests?: number;  
   
-  // Trust Metrics (Impurity & Purification)
-  consecutive_completions?: number; // Streak of honest fulfillments
-  has_cancellation_history?: boolean; // Flag if they ever canceled in-progress
+  consecutive_completions?: number; 
+  has_cancellation_history?: boolean; 
   
-  // Seasonal Cycle
-  scheduled_cycle_days?: number; // The duration of the current cycle (Non-Retroactive)
-  cycle_started_at?: FirestoreTimestamp; // Firestore Timestamp
-  created_at?: FirestoreTimestamp; // Firestore Timestamp (Fallback)
+  scheduled_cycle_days?: number; 
+  cycle_started_at?: FirestoreTimestamp; 
+  created_at?: FirestoreTimestamp; 
 }
 
 export interface Point {
@@ -58,42 +54,29 @@ export interface Wish {
   id: string;
   requester_id: string; 
   requester_name?: string; 
-  requester_trust_score?: number; // Snapshot of their reliability (completed contracts as helper) at creation
-  requester_completed_requests?: number; // Snapshot of their reliability (completed requests as requester) at creation
+  requester_trust_score?: number; 
+  requester_completed_requests?: number; 
   content: string;
-  applicants?: { id: string; name: string; trust_score?: number; contact_email?: string }[]; // Handshake candidates
+  applicants?: { id: string; name: string; trust_score?: number; contact_email?: string }[]; 
   gratitude_preset: GratitudeTier;
   status: 'open' | 'in_progress' | 'review_pending' | 'fulfilled' | 'completed' | 'cancelled' | 'expired';
   created_at: string;
   tags?: string[];
-  helper_id?: string; // ID of the user who accepted the wish
-  helper_contact_email?: string; // Email for contact (visible only to requester)
-  requester_contact_email?: string; // Email for contact (visible only to helper)
-  contact_note?: string; // Note from requester to helper upon approval
-  cost?: number; // Initial Cost / Bounty
-  val_at_fulfillment?: number; // Value when it was fulfilled (or compensated)
+  helper_id?: string; 
+  helper_contact_email?: string; 
+  requester_contact_email?: string; 
+  contact_note?: string; 
+  cost?: number; 
+  val_at_fulfillment?: number; 
   accepted_at?: string;
   fulfilled_at?: unknown;
-  cancelled_at?: unknown; // Firestore Timestamp
+  cancelled_at?: unknown; 
   cancel_reason?: string;
 }
 
-// UI Input Type
 export interface CreateWishInput {
   content: string;
   tier: GratitudeTier;
-}
-
-export interface ScannedUser {
-  id: string;
-  name: string;
-}
-
-export interface PendingWish {
-  id: string;
-  title: string;
-  cost: number;
-  preset: GratitudeTier;
 }
 
 export type AppViewMode = 'home' | 'history' | 'profile' | 'profile_edit' | 'flow' | 'give' | 'admin';

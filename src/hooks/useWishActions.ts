@@ -217,8 +217,16 @@ export const useWishActions = () => {
         if (wishData.status === "in_progress") {
           // === 補償キャンセル (Compensation Logic) ===
           
+          // Determine who is canceling
+          const isRequesterCanceling = wishData.requester_id === user.uid;
+          const isHelperCanceling = wishData.helper_id === user.uid;
+          
+          if (!isRequesterCanceling && !isHelperCanceling) {
+            throw "You are not authorized to cancel this wish";
+          }
+          
           // 1. Fetch Requester Data FIRST to check solvency
-          const requesterRef = doc(db!, "users", user.uid);
+          const requesterRef = doc(db!, "users", wishData.requester_id);
           const requesterDoc = await transaction.get(requesterRef);
           if (!requesterDoc.exists()) throw "Requester not found";
           
@@ -244,69 +252,126 @@ export const useWishActions = () => {
           // Requester's Real Holding (Now)
           const requesterCurrentReal = calculateDecayedValue(rBalance, rLastUpdated);
 
-          // === Phase 2: Use explicit committed_lm ===
-          // Available = Balance - Committed (簡潔！)
-          const availableForThisPayment = Math.max(0, requesterCurrentReal - rCommittedLm + wishDecayedValue);
-          // Note: +wishDecayedValue because this wish is still in committed, but we're about to cancel it
+          if (isRequesterCanceling) {
+            // === REQUESTER CANCELS: Requester pays helper ===
+            // === Phase 2: Use explicit committed_lm ===
+            // Available = Balance - Committed (簡潔！)
+            const availableForThisPayment = Math.max(0, requesterCurrentReal - rCommittedLm + wishDecayedValue);
+            // Note: +wishDecayedValue because this wish is still in committed, but we're about to cancel it
 
-          // 4. Determine Actual Payment (NO INFLATION RULE)
-          // "You cannot give what you do not have (after honoring other promises)."
-          const actualPayment = Math.min(availableForThisPayment, wishDecayedValue);
-          const isBankruptcy = actualPayment < wishDecayedValue;
+            // 4. Determine Actual Payment (NO INFLATION RULE)
+            // "You cannot give what you do not have (after honoring other promises)."
+            const actualPayment = Math.min(availableForThisPayment, wishDecayedValue);
+            const isBankruptcy = actualPayment < wishDecayedValue;
 
-          // === ATOMIC UPDATE: Balance - Payment, Committed - Reservation ===
-          // 保存則: Available = Balance - Committed
-          // Available は変わらない（両方同じ額減らす）
-          transaction.update(requesterRef, {
-            balance: requesterCurrentReal - actualPayment,
-            committed_lm: Math.max(0, rCommittedLm - wishDecayedValue), // 予約を解放
-            consecutive_completions: 0, // Reset Streak
-            has_cancellation_history: true, // Mark of Impurity
-            last_updated: serverTimestamp(),
-          });
+            // === ATOMIC UPDATE: Balance - Payment, Committed - Reservation ===
+            // 保存則: Available = Balance - Committed
+            // Available は変わらない（両方同じ額減らす）
+            transaction.update(requesterRef, {
+              balance: requesterCurrentReal - actualPayment,
+              committed_lm: Math.max(0, rCommittedLm - wishDecayedValue), // 予約を解放
+              consecutive_completions: 0, // Reset Streak
+              has_cancellation_history: true, // Mark of Impurity
+              last_updated: serverTimestamp(),
+            });
 
-          // Helper Update
-          const hData = helperDoc.data();
-          const hBalance = hData?.balance || 0;
-          const hLastUpdated = hData?.last_updated;
-          const hCurrentDecayed = calculateDecayedValue(hBalance, hLastUpdated);
+            // Helper Update
+            const hData = helperDoc.data();
+            const hBalance = hData?.balance || 0;
+            const hLastUpdated = hData?.last_updated;
+            const hCurrentDecayed = calculateDecayedValue(hBalance, hLastUpdated);
 
-          transaction.update(helperRef, {
-            balance: hCurrentDecayed + actualPayment,
-            last_updated: serverTimestamp(),
-          });
+            transaction.update(helperRef, {
+              balance: hCurrentDecayed + actualPayment,
+              last_updated: serverTimestamp(),
+            });
 
-          // 5. Log Global Transaction
-          const txId = `compensate_${wishId}_TO_${wishData.helper_id}`;
-          const txRef = doc(collection(db!, "transactions"), txId);
-          
-          const txCheck = await transaction.get(txRef);
-          if (!txCheck.exists()) {
-              transaction.set(txRef, {
-                type: "COMPENSATION",
-                amount: actualPayment, // Log actual transfer
-                created_at: serverTimestamp(),
-                
-                // Context
-                sender_id: user.uid,
-                sender_name: rName,
-                recipient_id: wishData.helper_id,
-                recipient_name: hName,
-                wish_title: wishData.content,
-                wish_id: wishId,
-                description: isBankruptcy 
-                    ? "request_cancelled_by_owner (Bankruptcy Partial Payment)" 
-                    : "request_cancelled_by_owner"
-              });
+            // 5. Log Global Transaction
+            const txId = `compensate_${wishId}_TO_${wishData.helper_id}`;
+            const txRef = doc(collection(db!, "transactions"), txId);
+            
+            const txCheck = await transaction.get(txRef);
+            if (!txCheck.exists()) {
+                transaction.set(txRef, {
+                  type: "COMPENSATION",
+                  amount: actualPayment, // Log actual transfer
+                  created_at: serverTimestamp(),
+                  
+                  // Context
+                  sender_id: wishData.requester_id,
+                  sender_name: rName,
+                  recipient_id: wishData.helper_id,
+                  recipient_name: hName,
+                  wish_title: wishData.content,
+                  wish_id: wishId,
+                  description: isBankruptcy 
+                      ? "request_cancelled_by_owner (Bankruptcy Partial Payment)" 
+                      : "request_cancelled_by_owner"
+                });
+            }
+
+            // 6. Update Wish Status
+            transaction.update(wishRef, {
+              status: "cancelled",
+              cancel_reason: "compensatory_cancellation",
+              cancelled_at: serverTimestamp(),
+              val_at_fulfillment: actualPayment, // Record what was ACTUALLY paid
+            });
+          } else {
+            // === HELPER CANCELS: Helper pays requester ===
+            const hData = helperDoc.data();
+            const hBalance = hData?.balance || 0;
+            const hLastUpdated = hData?.last_updated;
+            const helperCurrentReal = calculateDecayedValue(hBalance, hLastUpdated);
+
+            // Helper has no reservation for this wish, so available = balance
+            const availableForThisPayment = Math.max(0, helperCurrentReal);
+            const actualPayment = Math.min(availableForThisPayment, wishDecayedValue);
+            const isBankruptcy = actualPayment < wishDecayedValue;
+
+            // Update helper: pay compensation
+            transaction.update(helperRef, {
+              balance: helperCurrentReal - actualPayment,
+              last_updated: serverTimestamp(),
+            });
+
+            // Update requester: receive compensation + release reservation
+            transaction.update(requesterRef, {
+              balance: requesterCurrentReal + actualPayment,
+              committed_lm: Math.max(0, rCommittedLm - wishDecayedValue), // Release reservation
+              last_updated: serverTimestamp(),
+            });
+
+            // Log transaction: helper → requester
+            const txId = `compensate_${wishId}_TO_${wishData.requester_id}`;
+            const txRef = doc(collection(db!, "transactions"), txId);
+            
+            const txCheck = await transaction.get(txRef);
+            if (!txCheck.exists()) {
+                transaction.set(txRef, {
+                  type: "COMPENSATION",
+                  amount: actualPayment,
+                  created_at: serverTimestamp(),
+                  sender_id: wishData.helper_id,
+                  sender_name: hName,
+                  recipient_id: wishData.requester_id,
+                  recipient_name: rName,
+                  wish_title: wishData.content,
+                  wish_id: wishId,
+                  description: isBankruptcy 
+                      ? "helper_cancelled (Bankruptcy Partial Payment)" 
+                      : "helper_cancelled"
+                });
+            }
+
+            // Update Wish Status
+            transaction.update(wishRef, {
+              status: "cancelled",
+              cancel_reason: "helper_cancellation",
+              cancelled_at: serverTimestamp(),
+              val_at_fulfillment: actualPayment,
+            });
           }
-
-          // 6. Update Wish Status
-          transaction.update(wishRef, {
-            status: "cancelled",
-            cancel_reason: "compensatory_cancellation",
-            cancelled_at: serverTimestamp(),
-            val_at_fulfillment: actualPayment, // Record what was ACTUALLY paid
-          });
         } else {
         // === 通常キャンセル (Open Status) ===
         // 予約解放を明示的に記録（アトミック化）

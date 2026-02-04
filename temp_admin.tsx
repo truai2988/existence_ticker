@@ -1,13 +1,11 @@
 import React, { useState } from "react";
-import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, ShieldOff, RefreshCw, Scale } from "lucide-react";
+import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, ShieldOff } from "lucide-react";
 import { useStats, MetabolismStatus } from "../hooks/useStats";
 import { useDiagnostics } from "../hooks/useDiagnostics";
 import { DiagnosticModal } from "./DiagnosticModal";
 import { db } from "../lib/firebase";
 import { AnomalyScanner } from "./AnomalyScanner";
 import { UserProfile } from "../types";
-import { useAuth } from "../hooks/useAuthHook";
-import { auditGravity, auditAllGravity } from "../logic/auditGravity";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -18,31 +16,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [cycleDays, setCycleDays] = useState(10);
   const [showManual, setShowManual] = useState(false);
   const [showDiagnosisModal, setShowDiagnosisModal] = useState(false);
-  
-  const { user } = useAuth();
-  const [isAuditing, setIsAuditing] = useState(false);
-
-  const handleAuditSelf = async () => {
-    if (!user || !db) return;
-    if (!window.confirm("現在のユーザーの物理監査を実行しますか？")) return;
-    setIsAuditing(true);
-    try {
-        await auditGravity(db, user.uid);
-        alert("監査完了。Consoleログを確認してください。");
-    } catch(e) { console.error(e); alert(String(e)); }
-    setIsAuditing(false);
-  };
-
-  const handleGlobalAudit = async () => {
-    if (!db) return;
-    if (!window.confirm("【注意】世界中の全ユーザーをスキャンします。\n負荷がかかる可能性があります。実行しますか？")) return;
-    setIsAuditing(true);
-    try {
-        await auditAllGravity(db);
-        alert("全球監査完了。世界の物理法則は正常化されました。");
-    } catch(e) { console.error(e); alert(String(e)); }
-    setIsAuditing(false);
-  };
   
   const supplySectionRef = React.useRef<HTMLDivElement>(null);
 
@@ -116,11 +89,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       }
   };
 
-
   const handleToggleAdmin = async (targetUser: UserProfile) => {
       const isCurrentlyAdmin = targetUser.role === 'admin';
       const actionLabel = isCurrentlyAdmin ? "管理者権限を削除" : "管理者権限を付与";
       
+      // Safety Check: Prevent removing the last admin (heuristic based on loaded list, better safety is backend rule but UI warning helps)
+      // Note: This local check is imperfect if not all admins are loaded, but serves as basic friction.
       if (isCurrentlyAdmin && adminCount <= 1) {
           alert("禁止操作: あなたはこの世界で最後の管理者です。\n権限を放棄する前に、別の後継者を指名してください。");
           return;
@@ -186,6 +160,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
   const { cycle, metabolism, distribution } = stats;
 
+  // Helper Styles
+  // getSeasonColor removed as it is no longer used in the new UI layout
+
   const getMetaColor = (s: MetabolismStatus) => {
     if (s === "Active") return "text-green-400";
     if (s === "Stable") return "text-yellow-400";
@@ -194,6 +171,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
   const totalPop = distribution.full + distribution.quarter + distribution.new;
 
+  // Pre-calculate ratios for diagnosis
   const distRatio = {
     full: distribution.full / (totalPop || 1), // Avoid DBZ
     quarter: distribution.quarter / (totalPop || 1),
@@ -218,8 +196,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </p>
                 </div>
             </div>
-
-            <div className="flex items-center gap-2">
+            <div className="flex gap-2">
                 <button
                 onClick={() => setShowManual(true)}
                 className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-white"
@@ -234,7 +211,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <X size={24} />
                 </button>
             </div>
-        </div>
+          </div>
       </div>
 
       <div className="min-h-full p-4 pb-40 max-w-3xl mx-auto relative">
@@ -343,13 +320,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="px-6 py-4 text-right flex justify-end gap-2">
-
-
+                                            <td className="px-6 py-4 text-right">
                                                 {u.role === 'admin' ? (
                                                     <button 
                                                         onClick={() => handleToggleAdmin(u)}
-                                                        className="text-xs bg-slate-800 hover:bg-red-900/50 text-slate-400 hover:text-red-400 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors flex items-center gap-1"
+                                                        className="text-xs bg-slate-800 hover:bg-red-900/50 text-slate-400 hover:text-red-400 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors flex items-center gap-1 ml-auto"
                                                     >
                                                         <ShieldOff size={12} />
                                                         Revoke
@@ -357,7 +332,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                                 ) : (
                                                     <button 
                                                         onClick={() => handleToggleAdmin(u)}
-                                                        className="text-xs bg-slate-800 hover:bg-green-900/50 text-slate-400 hover:text-green-400 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors flex items-center gap-1"
+                                                        className="text-xs bg-slate-800 hover:bg-green-900/50 text-slate-400 hover:text-green-400 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors flex items-center gap-1 ml-auto"
                                                     >
                                                         <Shield size={12} />
                                                         Grant Admin
@@ -502,6 +477,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 // 2. Gravity (Decay Loss) - approximated naturally lost
                 const decay = m.decay24h;
 
+                // 3. Static (Retention) - Remaining pool
+                // const staticPool = Math.max(0, total - circulation);
+
+
+                // Ratios against (Total Supply + Decay + Overflow)
+                // Decay & Overflow are "Gone", but we want to show ratio of "Loss" vs "Circulation".
+                // Let's base everything on Total Current Supply for readability, but show Loss as separate metric.
+                
                 const flowRatio = Math.min(100, (circulation / total) * 100);
                 const decayRatio = Math.min(100, (decay / total) * 100);
                 const overflowLoss = m.overflowLoss || 0;
@@ -763,43 +746,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                <AnomalyScanner />
              </div>
           </div>
-
-          {/* SECTION F: PHYSICS AUDIT */}
-          <div className="p-6 rounded-2xl border border-indigo-900/30 bg-indigo-900/5 md:col-span-2 relative">
-               <div className="absolute top-0 right-0 p-4 opacity-10 text-indigo-500">
-                 <Scale size={80} />
-               </div>
-               <h2 className="text-xs font-mono text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                 <RefreshCw size={14} />
-                 物理監査 (PHYSICS AUDIT)
-               </h2>
-               
-               <div className="flex flex-col gap-4">
-                 <p className="text-sm text-slate-400">
-                   重力漏れ（Gravity Leak）や計算不整合を検出し、強制的に正しい物理法則（減価）を適用して修復します。
-                 </p>
-                 
-                 <div className="flex gap-4">
-                     <button
-                         onClick={handleAuditSelf}
-                         disabled={isAuditing}
-                         className="px-4 py-3 bg-indigo-900/20 hover:bg-indigo-900/40 border border-indigo-500/30 text-indigo-300 text-xs font-bold rounded-lg transition-colors flex items-center gap-2"
-                     >
-                         <RefreshCw className={isAuditing ? "animate-spin" : ""} size={14} />
-                         Audit Self (Repair My Gravity)
-                     </button>
-                     
-                     <button
-                         onClick={handleGlobalAudit}
-                         disabled={isAuditing}
-                         className="px-4 py-3 bg-indigo-900/20 hover:bg-indigo-900/40 border border-indigo-500/30 text-indigo-300 text-xs font-bold rounded-lg transition-colors flex items-center gap-2"
-                     >
-                         <Scale size={14} />
-                         Global Audit (Repair World)
-                     </button>
-                 </div>
-               </div>
-          </div>
           </>
         )}
         </div>
@@ -933,7 +879,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                    </h4>
                    <p className="font-mono text-slate-600 text-sm mb-4 leading-relaxed">
                        本システムのデフォルト容量（物理定数）は <strong className="text-slate-900">2400 Lm</strong> に設定されています。<br/><br/>
-                       これは「24時間 × 10日間 = 2400 Lm」という, <strong className="text-slate-900">一人の人間が誰にも助けられずに生存できる最大備蓄量</strong>を意味します。孤立した個体が保持できるエネルギーの物理的限界点です。<br/><br/>
+                       これは「24時間 × 10日間 = 2400 Lm」という、<strong className="text-slate-900">一人の人間が誰にも助けられずに生存できる最大備蓄量</strong>を意味します。孤立した個体が保持できるエネルギーの物理的限界点です。<br/><br/>
                        この器（Cap）を超えたエネルギーは「溢出（Overflow）」となり、虚空へ還ります。<br/>
                        しかし、この「溢れ」こそが、実は「太陽（Basic Supply）」のエネルギー源として再利用される<strong className="text-slate-900">隠れたエコシステム・ループ</strong>を形成しています。<br/>
                        個人の余剰は、巡り巡って世界全体の生命維持装置を稼働させる燃料となるのです。
@@ -1101,3 +1047,4 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     </div>
   );
 };
+

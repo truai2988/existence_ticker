@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Inbox, Megaphone, Sparkles, Hand } from "lucide-react";
+import { Inbox, Megaphone, Sparkles } from "lucide-react";
 import { useWallet } from "../hooks/useWallet";
 
 interface HomeViewProps {
@@ -12,17 +12,17 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onOpenFlow,
   onOpenRequest,
 }) => {
-  const { cycleStatus, performRebirthReset } = useWallet();
+  const { status, performRebirthReset } = useWallet();
   const [ritualState, setRitualState] = React.useState<'idle' | 'breathing' | 'blooming' | 'syncing'>('idle');
   const [targetBalance, setTargetBalance] = React.useState(2400);
 
   // Sound Effect: 528Hz Crystal Tone
   const playCrystalSound = () => {
       try {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-          if (!AudioContext) return;
-          const ctx = new AudioContext();
+          const win = window as any;
+          const AudioContextClass = win.AudioContext || win.webkitAudioContext;
+          if (!AudioContextClass) return;
+          const ctx = new AudioContextClass();
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           
@@ -43,55 +43,41 @@ export const HomeView: React.FC<HomeViewProps> = ({
       }
   };
 
-  // Ref to prevent double-execution (Idempotency Lock)
   const isRitualLocked = React.useRef(false);
 
   const handleRitual = async () => {
-      // 1. Strict UI Lock
       if (isRitualLocked.current || ritualState !== 'idle') return;
       isRitualLocked.current = true;
       
       try {
-          // 2. Whiteout & Breath
           setRitualState('breathing');
           playCrystalSound(); 
           
           await new Promise(r => setTimeout(r, 1500));
           
-          // 3. Data Reset
           const result = await performRebirthReset();
           
           if (result.success && result.newBalance !== undefined) {
               setTargetBalance(result.newBalance);
               setRitualState('blooming'); 
-              
               await new Promise(r => setTimeout(r, 1500));
-              
               setRitualState('syncing');
-              
               await new Promise(r => setTimeout(r, 2000));
-              
               setRitualState('idle'); 
           } else {
-              setRitualState('idle'); // Failed
+              setRitualState('idle');
           }
       } catch (e) {
           console.error("Ritual Error", e);
           setRitualState('idle');
       } finally {
-          // Release lock after completion (though user might be in new cycle)
           isRitualLocked.current = false;
       }
   };
 
-  const isExpired = (cycleStatus.isExpired || cycleStatus.isUnborn) && ritualState === 'idle';
+  const isRitualReady = status === 'RITUAL_READY' && ritualState === 'idle';
+  const isEmpty = status === 'EMPTY';
 
-
-
-
-
-  // Pure CSS Animation for "Breathing" to offload JS thread
-  // Added directly into style block for zero overhead
   const loadingStyle = `
     @keyframes breathe {
       0%, 100% { transform: scale(1); }
@@ -103,14 +89,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
     <div className="flex-1 flex flex-col items-center justify-center w-full min-h-full p-4 relative max-w-md mx-auto overflow-hidden">
       <style>{loadingStyle}</style>
 
-      {/* 2. CORE VESSEL: YIN-YANG INTERFACE */}
       <div className="flex-1 flex items-center justify-center w-full relative">
-        {/* Simplified Background Aura - Pure CSS Opacity */}
         <div className="absolute inset-0 bg-slate-100/50 rounded-full blur-2xl opacity-30 z-0 pointer-events-none" />
 
-        {/* CONTAINER: 288px (w-72) */}
         <div className="relative w-72 h-72 z-10">
-          {/* A. BACKGROUND LAYER (The Breathing Shape - Pure CSS) */}
           <div
             className="absolute inset-0 rounded-full shadow-2xl shadow-slate-200/50 border-4 border-white overflow-hidden bg-white"
             style={{ animation: "breathe 8s ease-in-out infinite" }}
@@ -120,7 +102,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
               className="w-full h-full shape-rendering-geometricPrecision"
             >
               <defs>
-                {/* 境界線等のフィルタ */}
                 <filter id="dividerGlow">
                   <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
                   <feMerge>
@@ -128,53 +109,37 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     <feMergeNode in="SourceGraphic"/>
                   </feMerge>
                 </filter>
-
-                {/* グラデーション定義 */}
-                {/* Yang (Blue): Top Area */}
                 <linearGradient id="yangGradient" x1="0%" y1="100%" x2="0%" y2="0%">
-                  <stop offset="0%" stopColor="#BFDBFE" /> {/* blue-200 */}
-                  <stop offset="100%" stopColor="#DBEAFE" /> {/* blue-100 */}
+                  <stop offset="0%" stopColor="#BFDBFE" />
+                  <stop offset="100%" stopColor="#DBEAFE" />
                 </linearGradient>
-                
-                {/* Yin (Yellow): Bottom Area */}
                 <linearGradient id="yinGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#FEF3C7" /> {/* amber-100 */}
-                  <stop offset="100%" stopColor="#FDE68A" /> {/* amber-200 */}
+                  <stop offset="0%" stopColor="#FEF3C7" />
+                  <stop offset="100%" stopColor="#FDE68A" />
                 </linearGradient>
-
-                {/* Porcelain (White/Mono): For Empty Vessel */}
                 <linearGradient id="porcelainGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                   <stop offset="0%" stopColor="#F8FAFC" /> {/* slate-50 */}
-                   <stop offset="100%" stopColor="#E2E8F0" /> {/* slate-200 */}
+                   <stop offset="0%" stopColor="#F8FAFC" />
+                   <stop offset="100%" stopColor="#E2E8F0" />
                 </linearGradient>
               </defs>
 
-              {/* GROUP ROTATION: -45 degrees (Counter-Clockwise) */}
-              {/* Rotates horizontal layout (Left=Start, Right=End) to Diagonal (Left-Bottom to Right-Top) */}
-              {/* Creates a POSITIVE slope (/) */}
               <g transform="rotate(-45 50 50)">
-                  
-                  {/* YIN (Bottom) */}
                   <path
                      d="M 0 50 A 25 25 0 0 0 50 50 A 25 25 0 0 1 100 50 A 50 50 0 0 1 0 50 Z"
-                     fill={isExpired ? "url(#porcelainGradient)" : "url(#yinGradient)"}
+                     fill={(isRitualReady || isEmpty) ? "url(#porcelainGradient)" : "url(#yinGradient)"}
                      stroke="none"
                      className="transition-all duration-1000"
                   />
-
-                  {/* YANG (Top) */}
                   <path
                      d="M 0 50 A 25 25 0 0 0 50 50 A 25 25 0 0 1 100 50 A 50 50 0 0 0 0 50 Z"
-                     fill={isExpired ? "url(#porcelainGradient)" : "url(#yangGradient)"}
+                     fill={(isRitualReady || isEmpty) ? "url(#porcelainGradient)" : "url(#yangGradient)"}
                      stroke="none"
                      className="transition-all duration-1000"
                   />
-                  
-                  {/* Divider Line (S-curve) */}
                   <path 
                      d="M 0 50 A 25 25 0 0 0 50 50 A 25 25 0 0 1 100 50"
                      fill="none" 
-                     stroke={isExpired ? "#94A3B8" : "white"} 
+                     stroke={(isRitualReady || isEmpty) ? "#94A3B8" : "white"} 
                      strokeWidth="2.5"
                      filter="url(#dividerGlow)"
                      opacity="0.9"
@@ -185,13 +150,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </svg>
           </div>
 
-          {/* B. INTERACTIVE LAYER */}
-
-          {/* Standard Mode: Show Yang/Yin Buttons */}
           <AnimatePresence>
-            {!isExpired && (
+            {!isRitualReady && (
              <>
-              {/* Right-Top Content (Yang) - 手伝う / HELP */}
               <motion.button
                 key="btn-help"
                 onClick={onOpenFlow}
@@ -220,7 +181,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 </motion.div>
               </motion.button>
 
-              {/* Left-Bottom Content (Yin) - 頼む / WISH */}
               <motion.button
                 key="btn-wish"
                 onClick={onOpenRequest}
@@ -252,9 +212,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
             )}
           </AnimatePresence>
 
-          {/* Ritual Mode: Central Button */}
           <AnimatePresence>
-            {isExpired && (
+            {isRitualReady && (
                 <motion.button
                     key="btn-ritual"
                     onClick={handleRitual}
@@ -263,19 +222,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                 >
-                    {cycleStatus.isUnborn ? (
-                        <>
-                           <Hand size={32} strokeWidth={1} className="mb-2 opacity-50" />
-                           <span className="text-xl font-serif tracking-widest font-bold">命を受け入れる</span>
-                           <span className="text-xs tracking-[0.3em] uppercase mt-2 opacity-70">Accept Existence</span>
-                        </>
-                    ) : (
-                        <>
-                           <Sparkles size={32} strokeWidth={1} className="mb-2 opacity-50" />
-                           <span className="text-2xl font-serif tracking-widest font-bold">ここにいます</span>
-                           <span className="text-xs tracking-[0.3em] uppercase mt-2 opacity-70">I am here</span>
-                        </>
-                    )}
+                    <Sparkles size={32} strokeWidth={1} className="mb-2 opacity-50" />
+                    <span className="text-2xl font-serif tracking-widest font-bold">ここにいます</span>
+                    <span className="text-xs tracking-[0.3em] uppercase mt-2 opacity-70">I am here</span>
                 </motion.button>
             )}
           </AnimatePresence>
@@ -283,9 +232,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
       </div>
 
-
-
-      {/* RITUAL OVERLAY */}
       <AnimatePresence>
           {ritualState !== 'idle' && (
               <motion.div
@@ -295,10 +241,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   exit={{ opacity: 0 }}
                   transition={{ duration: 1 }}
               >
-                  {/* Backdrop Blur & Brightness */}
                   <div className={`absolute inset-0 bg-white/90 backdrop-blur-xl transition-all duration-1000 ${ritualState === 'syncing' ? 'opacity-0' : 'opacity-100'}`} />
                   
-                  {/* Content Container */}
                   <div className="relative z-10 flex flex-col items-center justify-center text-slate-800">
                       {ritualState === 'blooming' && (
                           <motion.div
@@ -338,7 +282,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
   );
 };
 
-// Helper Component for Counting Animation
 const CountingNumber: React.FC<{ value: number, duration: number }> = ({ value, duration }) => {
     const [display, setDisplay] = React.useState(2400);
 
@@ -350,17 +293,13 @@ const CountingNumber: React.FC<{ value: number, duration: number }> = ({ value, 
         const update = () => {
             const now = Date.now();
             const progress = Math.min((now - startTime) / (duration * 1000), 1);
-            // Ease out quart
             const ease = 1 - Math.pow(1 - progress, 4);
-            
             const current = Math.floor(start - (start - end) * ease);
             setDisplay(current);
-            
             if (progress < 1) {
                 requestAnimationFrame(update);
             }
         };
-        
         requestAnimationFrame(update);
     }, [value, duration]);
 

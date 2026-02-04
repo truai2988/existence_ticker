@@ -236,7 +236,7 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
         amountColor = "text-slate-400";
     }
     else if (log.type === 'COMPENSATION') {
-        // [キャンセル補償]
+        // [お詫び]
         if (isSender) {
             // [お詫び支払い]
              icon = <CheckCircle2 size={14} className="text-red-400" />;
