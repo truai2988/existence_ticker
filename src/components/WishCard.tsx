@@ -596,7 +596,13 @@ export const WishCard: React.FC<WishCardProps> = ({
                                     <span className="text-[11px] ml-0.5">Lm</span>
                                 </span>
                                 <span className="text-[10px] text-red-300 font-bold uppercase tracking-wider">
-                                    お詫び
+                                    {(() => {
+                                        const isRequester = wish.requester_id === currentUserId;
+                                        const isHelperCancellation = wish.cancel_reason === 'helper_cancellation';
+                                        return isHelperCancellation 
+                                            ? (isRequester ? '受取済' : '送付済') 
+                                            : (isRequester ? '送付済' : '受取済');
+                                    })()}
                                 </span>
                              </div>
                         ) : (
