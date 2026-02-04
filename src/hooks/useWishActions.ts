@@ -427,14 +427,22 @@ export const useWishActions = () => {
             console.warn("Using default cap", e);
           }
 
-          const fBalance = fulfillerDoc.data().balance || 0;
-          const rawNewBalance = fBalance + actualValue;
+          const fData = fulfillerDoc.data();
+          const fBalance = fData.balance || 0;
+          const fLastUpdated = fData.last_updated;
+          
+          // === FIX GRAVITY LEAK ===
+          // Must decay the stored balance to NOW before adding reward.
+          // Otherwise, the time passed since last_updated becomes "tax-free".
+          const currentDecayed = calculateDecayedValue(fBalance, fLastUpdated);
+          
+          const rawNewBalance = currentDecayed + actualValue;
           const cappedBalance = Math.min(rawNewBalance, cap);
 
           transaction.update(fulfillerRef, {
             balance: cappedBalance,
             completed_contracts: increment(1), // Track helps
-            last_updated: serverTimestamp(),
+            last_updated: serverTimestamp(), // Reset gravity anchor
           });
         }
 
@@ -472,8 +480,16 @@ export const useWishActions = () => {
           fulfilled_at: serverTimestamp(),
         });
 
-        // 5. Log Transaction for Metabolism Tracking
-        const txRef = doc(collection(database, "transactions"));
+        // 5. Log Transaction for Metabolism Tracking (Deterministic ID)
+        // ID Rule: "wish_<WishID>_PAY_<FulfillerID>"
+        const txId = `wish_${wishId}_PAY_${fulfillerId}`;
+        const txRef = doc(collection(database, "transactions"), txId);
+        
+        const txDoc = await transaction.get(txRef);
+        if (txDoc.exists()) {
+             throw "Transaction already processed (Idempotency Check)";
+        }
+
         let txType = "SPARK";
         if (actualValue >= 900) txType = "BONFIRE";
         else if (actualValue >= 400) txType = "CANDLE";

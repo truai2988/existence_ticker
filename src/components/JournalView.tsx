@@ -71,14 +71,45 @@ export const JournalView: React.FC<JournalViewProps> = ({ onClose }) => {
 
      const updateState = () => {
          const merged = [...sentData, ...receivedData];
-         // Remove duplicates if any (self-send?)
-         const unique = Array.from(new Map(merged.map(item => [item.id, item])).values());
-         const sorted = unique.sort((a, b) => {
+         
+         // 1. Unique by ID first
+         const uniqueById = Array.from(new Map(merged.map(item => [item.id, item])).values());
+         
+         // 2. Sort by Date Desc
+         const sorted = uniqueById.sort((a, b) => {
              const tA = parseDate(a.created_at).getTime();
              const tB = parseDate(b.created_at).getTime();
              return tB - tA;
          });
-         setLogs(sorted);
+
+         // 3. Deduplicate by Content (Legacy Cleanup)
+         // Rules: Same Type, Same Amount, Same Title (if any), Time diff < 2 mins -> Duplicate
+         const cleanLogs: TransactionLog[] = [];
+         
+         sorted.forEach((current, i) => {
+             if (i === 0) {
+                 cleanLogs.push(current);
+                 return;
+             }
+             
+             const prev = cleanLogs[cleanLogs.length - 1];
+             const tCurrent = parseDate(current.created_at).getTime();
+             const tPrev = parseDate(prev.created_at).getTime(); // Note: sorted desc, so tPrev >= tCurrent usually
+             
+             const isTimeClose = Math.abs(tPrev - tCurrent) < 2 * 60 * 1000; // < 2 mins difference
+             const isSameType = current.type === prev.type;
+             const isSameTitle = current.wish_title === prev.wish_title;
+             const isSameAmount = current.amount === prev.amount;
+             
+             // If all match, it's a duplicate. Skip it.
+             if (isTimeClose && isSameType && isSameTitle && isSameAmount) {
+                 return;
+             }
+             
+             cleanLogs.push(current);
+         });
+
+         setLogs(cleanLogs);
          setIsLoading(false);
      };
 

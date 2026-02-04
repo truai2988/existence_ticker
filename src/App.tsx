@@ -48,8 +48,33 @@ const ScreenLoader = () => (
     </div>
 );
 
+// Cleanup Script Import
+import { cleanupDuplicates } from './logic/cleanupDuplicates';
+import { auditGravity, auditAllGravity } from './logic/auditGravity';
+import { db } from './lib/firebase';
+import { Firestore } from 'firebase/firestore';
+import { useEffect } from "react";
+
 function App() {
   const { user, loading: authLoading } = useAuth();
+  
+  // Expose Cleanup Script to Console
+  useEffect(() => {
+    if (user && db) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).cleanup = () => cleanupDuplicates(db as Firestore);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).audit = () => auditGravity(db as Firestore, user.uid);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).auditAll = () => auditAllGravity(db as Firestore);
+        
+        console.log("Console Tools Ready:");
+        console.log("- cleanup(): Deduplicate transactions");
+        console.log("- audit(): Fix current user gravity leak");
+        console.log("- auditAll(): Fix GLOBAL gravity leaks");
+    }
+  }, [user]);
+
   // const { profile } = useProfile();
   // const isAdmin = profile?.role === 'admin' || (user && ADMIN_UIDS.includes(user.uid));
 

@@ -43,37 +43,44 @@ export const HomeView: React.FC<HomeViewProps> = ({
       }
   };
 
+  // Ref to prevent double-execution (Idempotency Lock)
+  const isRitualLocked = React.useRef(false);
+
   const handleRitual = async () => {
-      if (ritualState !== 'idle') return;
+      // 1. Strict UI Lock
+      if (isRitualLocked.current || ritualState !== 'idle') return;
+      isRitualLocked.current = true;
       
-      // 1. Whiteout & Breath
-      setRitualState('breathing');
-      playCrystalSound(); // Trigger sound at start of whiteout (max light) idea
-      
-      // Allow whiteout to fill screen (3s duration in CSS/Motion)
-      // Visuals: Fade to White (1s), Hold (1s)
-      
-      // Wait for whiteout to be fully opaque before resetting data
-      await new Promise(r => setTimeout(r, 1500));
-      
-      // 2. Data Reset (Rebirth)
-      const result = await performRebirthReset();
-      
-      if (result.success && result.newBalance !== undefined) {
-          setTargetBalance(result.newBalance);
-          setRitualState('blooming'); // Show "2400"
+      try {
+          // 2. Whiteout & Breath
+          setRitualState('breathing');
+          playCrystalSound(); 
           
-          // 3. Bloom (Show 2400) for 1.5s
           await new Promise(r => setTimeout(r, 1500));
           
-          // 4. Time Sync (Count down to current balance)
-          setRitualState('syncing');
+          // 3. Data Reset
+          const result = await performRebirthReset();
           
-          await new Promise(r => setTimeout(r, 2000)); // Allow countdown to finish
-          
-          setRitualState('idle'); // Complete
-      } else {
-          setRitualState('idle'); // Failed
+          if (result.success && result.newBalance !== undefined) {
+              setTargetBalance(result.newBalance);
+              setRitualState('blooming'); 
+              
+              await new Promise(r => setTimeout(r, 1500));
+              
+              setRitualState('syncing');
+              
+              await new Promise(r => setTimeout(r, 2000));
+              
+              setRitualState('idle'); 
+          } else {
+              setRitualState('idle'); // Failed
+          }
+      } catch (e) {
+          console.error("Ritual Error", e);
+          setRitualState('idle');
+      } finally {
+          // Release lock after completion (though user might be in new cycle)
+          isRitualLocked.current = false;
       }
   };
 

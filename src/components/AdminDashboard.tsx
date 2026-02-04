@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, ShieldOff } from "lucide-react";
+import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, ShieldOff, RefreshCw, Scale } from "lucide-react";
 import { useStats, MetabolismStatus } from "../hooks/useStats";
 import { useDiagnostics } from "../hooks/useDiagnostics";
 import { DiagnosticModal } from "./DiagnosticModal";
 import { db } from "../lib/firebase";
 import { AnomalyScanner } from "./AnomalyScanner";
 import { UserProfile } from "../types";
+import { useAuth } from "../hooks/useAuthHook";
+import { auditGravity, auditAllGravity } from "../logic/auditGravity";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -16,6 +18,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [cycleDays, setCycleDays] = useState(10);
   const [showManual, setShowManual] = useState(false);
   const [showDiagnosisModal, setShowDiagnosisModal] = useState(false);
+  
+  const { user } = useAuth();
+  const [isAuditing, setIsAuditing] = useState(false);
+
+  const handleAuditSelf = async () => {
+    if (!user || !db) return;
+    if (!window.confirm("現在のユーザーの物理監査を実行しますか？")) return;
+    setIsAuditing(true);
+    try {
+        await auditGravity(db, user.uid);
+        alert("監査完了。Consoleログを確認してください。");
+    } catch(e) { console.error(e); alert(String(e)); }
+    setIsAuditing(false);
+  };
+
+  const handleGlobalAudit = async () => {
+    if (!db) return;
+    if (!window.confirm("【注意】世界中の全ユーザーをスキャンします。\n負荷がかかる可能性があります。実行しますか？")) return;
+    setIsAuditing(true);
+    try {
+        await auditAllGravity(db);
+        alert("全球監査完了。世界の物理法則は正常化されました。");
+    } catch(e) { console.error(e); alert(String(e)); }
+    setIsAuditing(false);
+  };
   
   const supplySectionRef = React.useRef<HTMLDivElement>(null);
 
@@ -745,6 +772,43 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                
                <AnomalyScanner />
              </div>
+          </div>
+
+          {/* SECTION F: PHYSICS AUDIT */}
+          <div className="p-6 rounded-2xl border border-indigo-900/30 bg-indigo-900/5 md:col-span-2 relative">
+               <div className="absolute top-0 right-0 p-4 opacity-10 text-indigo-500">
+                 <Scale size={80} />
+               </div>
+               <h2 className="text-xs font-mono text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                 <RefreshCw size={14} />
+                 物理監査 (PHYSICS AUDIT)
+               </h2>
+               
+               <div className="flex flex-col gap-4">
+                 <p className="text-sm text-slate-400">
+                   重力漏れ（Gravity Leak）や計算不整合を検出し、強制的に正しい物理法則（減価）を適用して修復します。
+                 </p>
+                 
+                 <div className="flex gap-4">
+                     <button
+                         onClick={handleAuditSelf}
+                         disabled={isAuditing}
+                         className="px-4 py-3 bg-indigo-900/20 hover:bg-indigo-900/40 border border-indigo-500/30 text-indigo-300 text-xs font-bold rounded-lg transition-colors flex items-center gap-2"
+                     >
+                         <RefreshCw className={isAuditing ? "animate-spin" : ""} size={14} />
+                         Audit Self (Repair My Gravity)
+                     </button>
+                     
+                     <button
+                         onClick={handleGlobalAudit}
+                         disabled={isAuditing}
+                         className="px-4 py-3 bg-indigo-900/20 hover:bg-indigo-900/40 border border-indigo-500/30 text-indigo-300 text-xs font-bold rounded-lg transition-colors flex items-center gap-2"
+                     >
+                         <Scale size={14} />
+                         Global Audit (Repair World)
+                     </button>
+                 </div>
+               </div>
           </div>
           </>
         )}

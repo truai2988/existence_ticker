@@ -213,8 +213,24 @@ export const useWallet = () => {
           { merge: true },
         );
 
-         // === Log Rebirth Transaction ===
-        const txRef = doc(collection(db!, 'transactions'));
+         // === Log Rebirth Transaction (Deterministic ID for Idempotency) ===
+        // ID Rule: 
+        // - First Birth: "birth_<UID>" (Born once)
+        // - Rebirth: "rebirth_<UID>_<AnchorTimestamp>" (Unique per cycle)
+        const txId = isUnborn 
+            ? `birth_${user.uid}` 
+            : `rebirth_${user.uid}_${newAnchorTimeMillis}`;
+            
+        const txRef = doc(db!, 'transactions', txId);
+        const txDoc = await transaction.get(txRef);
+
+        if (txDoc.exists()) {
+            console.log("Idempotency Check: Ritual already recorded. Skipping.");
+            // We assume if the log exists, the balancing was also done. 
+            // Returning early prevents double-decay application or reset.
+            return; 
+        }
+
         transaction.set(txRef, {
             type: isUnborn ? 'BIRTH' : 'REBIRTH',
             recipient_id: user.uid,
