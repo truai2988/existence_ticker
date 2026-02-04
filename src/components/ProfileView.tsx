@@ -553,8 +553,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 ) : (
                   <>
                     <h3 className="font-bold text-red-600 mb-2">最終確認</h3>
-                    <p className="text-xs text-red-500 mb-4 font-bold">
-                      本当に削除してよろしいですか？
+                    <p className="text-sm text-red-500 mb-4 font-bold leading-relaxed px-2">
+                      すべての記録と LM は時の流れに還り、元に戻すことはできません。よろしいですか？
                     </p>
                     <div className="flex gap-3">
                       <button
@@ -565,9 +565,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       </button>
                       <button
                         onClick={handleDelete}
-                        className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-bold"
+                        className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-bold shadow-md"
                       >
-                        削除実行
+                        はい、還ります
                       </button>
                     </div>
                   </>
