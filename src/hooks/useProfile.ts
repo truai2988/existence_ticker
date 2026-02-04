@@ -92,6 +92,7 @@ export const useProfile = () => {
             id: user.uid,
             name: user.displayName || "Anonymous",
             balance: 2400, 
+            committed_lm: 0,
             xp: 0,
             warmth: 0,
             completed_contracts: 0,
@@ -163,6 +164,7 @@ export const useProfile = () => {
           id: user.uid,
           name: updates.name || user.displayName || "Anonymous",
           balance: 2400, // Grant Initial Vessel
+          committed_lm: 0,
           xp: 0,
           warmth: 0,
           completed_contracts: 0,

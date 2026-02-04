@@ -169,7 +169,10 @@ export const WishCard: React.FC<WishCardProps> = ({
      return () => clearInterval(timer);
   }, []);
 
-  const displayValue = calculateDecayedValue(initialCost, wish.created_at);
+  // Recalculate whenever tick changes (every 10 seconds)
+  const displayValue = React.useMemo(() => {
+    return calculateDecayedValue(initialCost, wish.created_at);
+  }, [tick, initialCost, wish.created_at]);
 
   // 期限切れ判定
   const isExpired =
