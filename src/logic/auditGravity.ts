@@ -1,4 +1,4 @@
-import { Firestore, DocumentData } from 'firebase/firestore';
+import { Firestore, DocumentData, Timestamp } from 'firebase/firestore';
 
 // Core Physics Simulation Engine
 const simulateAndCorrect = async (db: Firestore, user: DocumentData, userTxs: DocumentData[]) => {
@@ -14,7 +14,7 @@ const simulateAndCorrect = async (db: Firestore, user: DocumentData, userTxs: Do
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const originTx = userTxs.find((tx: any) => ['BIRTH', 'REBIRTH'].includes(tx.type));
     
-    let originTime: any;
+    let originTime: Timestamp;
     let originBalance = 0;
     let fallbackMode = false;
 
@@ -166,4 +166,27 @@ export const auditAllGravity = async (db: Firestore) => {
     }));
 
     console.log(`=== 🌎 RESTORATION COMPLETE. Scanned ${processed} vessels. ===`);
+};
+
+
+export const analyzeShiro = async (db: Firestore) => {
+    console.log("Creating dossier for SHIRO TAMAKI...");
+    const { collection, getDocs, query, where } = await import('firebase/firestore');
+    const usersRef = collection(db, 'users');
+    const q = query(usersRef, where('name', '==', 'SHIRO TAMAKI'));
+    const snap = await getDocs(q);
+    
+    if (snap.empty) {
+        console.log("SHIRO TAMAKI not found.");
+        return;
+    }
+    
+    const user = snap.docs[0];
+    const uid = user.id;
+    const data = user.data();
+    console.log(`FOUND: ${uid}`);
+    console.log(`State: Balance=${data.balance}, LastUpdated=${data.last_updated?.toDate().toISOString()}`);
+    
+    // Check History
+    await auditGravity(db, uid);
 };

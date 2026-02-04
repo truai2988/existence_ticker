@@ -134,7 +134,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                    {/* Warning if exceeds */}
                    {exceedsAvailable && (
                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-xs text-orange-800 leading-relaxed">
-                           器のゆとりを超えた約束はできません
+                           分かち合える分（ゆとり）がありません。今の約束（募集中の願い）を整理してください
                        </div>
                    )}
                     

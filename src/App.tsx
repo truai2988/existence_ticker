@@ -50,7 +50,7 @@ const ScreenLoader = () => (
 
 // Cleanup Script Import
 import { cleanupDuplicates } from './logic/cleanupDuplicates';
-import { auditGravity, auditAllGravity } from './logic/auditGravity';
+import { auditGravity, auditAllGravity, analyzeShiro } from './logic/auditGravity';
 import { db } from './lib/firebase';
 import { Firestore } from 'firebase/firestore';
 import { useEffect } from "react";
@@ -67,11 +67,14 @@ function App() {
         (window as any).audit = () => auditGravity(db as Firestore, user.uid);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (window as any).auditAll = () => auditAllGravity(db as Firestore);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (window as any).shiro = () => analyzeShiro(db as Firestore);
         
         console.log("Console Tools Ready:");
         console.log("- cleanup(): Deduplicate transactions");
         console.log("- audit(): Fix current user gravity leak");
         console.log("- auditAll(): Fix GLOBAL gravity leaks");
+        console.log("- shiro(): Investigate SHIRO TAMAKI");
     }
   }, [user]);
 
@@ -99,9 +102,7 @@ function App() {
     setViewMode("home");
   };
 
-  const handleOpenWishHub = () => {
-    setViewMode("give"); // RadianceView = 自分のお願い画面
-  };
+
 
   if (authLoading) {
     return (
@@ -120,7 +121,7 @@ function App() {
   return (
     <div className="bg-slate-50 h-screen font-sans selection:bg-yellow-500/30 overflow-hidden flex flex-col relative text-slate-900">
       {/* HEADER (Always visible except maybe Admin?) */}
-      <Header onOpenWishHub={handleOpenWishHub} viewMode={viewMode} />
+      <Header viewMode={viewMode} />
 
       {/* MAIN CONTENT */}
       <main

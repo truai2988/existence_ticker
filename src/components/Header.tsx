@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, Sparkles, Wallet } from 'lucide-react';
+import { Sparkles, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { UNIT_LABEL } from '../constants';
 import { WORLD_CONSTANTS } from '../logic/worldPhysics';
@@ -9,11 +9,10 @@ import { useProfile } from '../hooks/useProfile';
 import { AppViewMode } from '../types';
 
 interface HeaderProps {
-    onOpenWishHub?: () => void;
     viewMode?: AppViewMode;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenWishHub, viewMode }) => {
+export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
     const { balance, availableLm, committedLm } = useWallet();
     const { profile } = useProfile();
     
@@ -127,19 +126,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenWishHub, viewMode }) => {
 
                         {/* Status / Link */}
                         <div className="h-4 flex items-center justify-end">
-                            {isFullyCommitted && onOpenWishHub ? (
-                                <button 
-                                    onClick={onOpenWishHub}
-                                    className="flex items-center gap-1 text-[10px] font-bold text-orange-500 hover:text-orange-600 transition-colors bg-orange-50 px-2 py-0.5 rounded-full"
-                                >
-                                    <span>Lmを補充する</span>
-                                    <ExternalLink size={10} />
-                                </button>
-                            ) : (
-                                <span className="text-[10px] text-slate-300 font-mono">
-                                    {Math.round(availablePercent)}%
-                                </span>
-                            )}
+                            <span className="text-[10px] text-slate-300 font-mono">
+                                {Math.round(availablePercent)}%
+                            </span>
                         </div>
                     </div>
                 </div>
