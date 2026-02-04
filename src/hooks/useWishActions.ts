@@ -60,27 +60,8 @@ export const useWishActions = () => {
           lastUpdated,
         );
 
-        // === 厳密な予約チェック (Strict Constraint) ===
-        // トランザクション内で現在のアクティブな依頼を全て取得し、committedLmを計算する
-        // これにより、クライアント側の計算ミスや悪意あるリクエストによる「約束超過」を完全に防ぐ
-        const wishesRef = collection(db!, "wishes");
-        const activeWishesQuery = query(
-          wishesRef,
-          where("requester_id", "==", user.uid),
-          where("status", "in", ["open", "in_progress"]),
-        );
-        // Transactional Read (via getDocs)
-        const activeWishesSnapshot = await getDocs(activeWishesQuery);
-
-        let currentCommittedLm = 0;
-        activeWishesSnapshot.forEach((doc) => {
-          const w = doc.data();
-          currentCommittedLm += calculateDecayedValue(
-            w.cost || 0,
-            w.created_at,
-          );
-        });
-
+        // === Phase 2: Read committed_lm from User Document ===
+        const currentCommittedLm = data.committed_lm || 0;
         const availableLm = decayedBalance - currentCommittedLm;
 
         if (availableLm < bounty) {
@@ -89,10 +70,12 @@ export const useWishActions = () => {
           );
         }
 
-        // Update user: 減価適用後のbalanceに更新し、last_updatedをリセット
-        // balance自体は減算しない（予約ロジックで管理）
+        // === ATOMIC UPDATE: Balance + Committed ===
+        // 保存則: Available = Balance - Committed
+        // Available は変わらない（予約を増やすため）
         transaction.update(userRef, {
           balance: decayedBalance, // 減価適用後の値に更新（減算なし）
+          committed_lm: currentCommittedLm + bounty, // 予約を増やす
           created_contracts: increment(1), // Track Requests (Created)
           last_updated: serverTimestamp(),
         });
@@ -243,6 +226,7 @@ export const useWishActions = () => {
           const rBalance = rData?.balance || 0;
           const rLastUpdated = rData?.last_updated;
           const rName = rData?.name || "Requester";
+          const rCommittedLm = rData?.committed_lm || 0;
 
           // 2. Fetch Helper Data
           const helperRef = doc(db!, "users", wishData.helper_id);
@@ -260,15 +244,22 @@ export const useWishActions = () => {
           // Requester's Real Holding (Now)
           const requesterCurrentReal = calculateDecayedValue(rBalance, rLastUpdated);
 
+          // === Phase 2: Use explicit committed_lm ===
+          // Available = Balance - Committed (簡潔！)
+          const availableForThisPayment = Math.max(0, requesterCurrentReal - rCommittedLm + wishDecayedValue);
+          // Note: +wishDecayedValue because this wish is still in committed, but we're about to cancel it
+
           // 4. Determine Actual Payment (NO INFLATION RULE)
-          // "You cannot give what you do not have."
-          const actualPayment = Math.min(requesterCurrentReal, wishDecayedValue);
+          // "You cannot give what you do not have (after honoring other promises)."
+          const actualPayment = Math.min(availableForThisPayment, wishDecayedValue);
           const isBankruptcy = actualPayment < wishDecayedValue;
 
-          // Requester Update
-          // New Balance = CurrentReal - ActualPayment (Always >= 0)
+          // === ATOMIC UPDATE: Balance - Payment, Committed - Reservation ===
+          // 保存則: Available = Balance - Committed
+          // Available は変わらない（両方同じ額減らす）
           transaction.update(requesterRef, {
             balance: requesterCurrentReal - actualPayment,
+            committed_lm: Math.max(0, rCommittedLm - wishDecayedValue), // 予約を解放
             consecutive_completions: 0, // Reset Streak
             has_cancellation_history: true, // Mark of Impurity
             last_updated: serverTimestamp(),
@@ -317,15 +308,44 @@ export const useWishActions = () => {
             val_at_fulfillment: actualPayment, // Record what was ACTUALLY paid
           });
         } else {
-          // === 通常キャンセル (Open Status) ===
-          // 依頼取り消し：跡形もなく消滅させる (Delete)
-          const requesterRef = doc(db!, "users", user.uid);
+        // === 通常キャンセル (Open Status) ===
+        // 予約解放を明示的に記録（アトミック化）
+        const requesterRef = doc(db!, "users", user.uid);
+        const requesterDoc = await transaction.get(requesterRef);
+        
+        if (requesterDoc.exists()) {
+          const rData = requesterDoc.data();
+          const rBalance = rData?.balance || 0;
+          const rLastUpdated = rData?.last_updated;
+          const rCommittedLm = rData?.committed_lm || 0;
+          
+          // Get wish value to release
+          const wishDecayedValue = calculateDecayedValue(
+            wishData.cost || 0,
+            wishData.created_at
+          );
+          
+          // 減価適用（予約解放時にタイムスタンプを更新）
+          const currentReal = calculateDecayedValue(rBalance, rLastUpdated);
+          
+          // === ATOMIC UPDATE: Committed - Reservation ===
+          // Balance は変わらない（支払いなし）
+          // Committed を減らすことで、Available が増える
           transaction.update(requesterRef, {
-            last_updated: serverTimestamp(),
+            balance: currentReal, // 減価適用後の値をセット
+            committed_lm: Math.max(0, rCommittedLm - wishDecayedValue), // 予約を解放
+            last_updated: serverTimestamp(), // タイムスタンプ更新
           });
-
-          transaction.delete(wishRef);
         }
+
+        // 願いを削除ではなく、cancelled に変更（履歴保持）
+        transaction.update(wishRef, {
+          status: "cancelled",
+          cancel_reason: "user_cancellation",
+          cancelled_at: serverTimestamp(),
+          val_at_fulfillment: 0, // No payment occurred
+        });
+      }
       });
 
       return true;
@@ -448,13 +468,20 @@ export const useWishActions = () => {
           // Value is dust.
         }
 
-        // 1.5 Check Issuer Solvency (The Truth)
+        // 1.5 Check Issuer Solvency (Phase 2: Use explicit committed_lm)
         let paymentAmount = promisedValue;
         if (issuerDoc.exists()) {
              const iData = issuerDoc.data() as UserProfile;
              const iCurrentReal = calculateDecayedValue(iData.balance || 0, iData.last_updated);
-             // "You cannot give what you do not have."
-             paymentAmount = Math.min(promisedValue, iCurrentReal);
+             const iCommittedLm = iData.committed_lm || 0;
+             
+             // === Phase 2: Simple availability check ===
+             // Available = Balance - Committed (excluding this wish which is about to be paid)
+             const availableForThisPayment = Math.max(0, iCurrentReal - iCommittedLm + promisedValue);
+             // Note: +promisedValue because this wish is still in committed, but we're about to fulfill it
+             
+             // "You cannot give what you do not have (after honoring other promises)."
+             paymentAmount = Math.min(promisedValue, availableForThisPayment);
         } else {
              // Issuer vanished? No payment can be collected.
              paymentAmount = 0;
@@ -500,19 +527,25 @@ export const useWishActions = () => {
             const iData = issuerDoc.data() as UserProfile;
             const iBalance = iData.balance || 0;
             const iLastUpdated = iData.last_updated;
+            const iCommittedLm = iData.committed_lm || 0;
 
             // Strict Recalculation of User's Current Balance (Decayed)
             const iCurrentReal = calculateDecayedValue(iBalance, iLastUpdated);
             
-            // Deduct the Lm (Consumption)
-            // Balance = CurrentReal - Payment. Since payment <= CurrentReal, this is safe.
+            // === ATOMIC UPDATE: Balance - Payment, Committed - Payment ===
+            // 保存則: Available = Balance - Committed
+            // Before: Available = 1000 - 830 = 170
+            // After:  Available = (1000-830) - (830-830) = 170 - 0 = 170
+            // Available is UNCHANGED ✅
             const iNewBalance = iCurrentReal - paymentAmount;
+            const iNewCommitted = Math.max(0, iCommittedLm - promisedValue); // 予約を解放
 
             // Purification Logic: Increment Streak
             const newStreak = (iData.consecutive_completions || 0) + 1;
 
             const updateData = {
               balance: iNewBalance, // CRITICAL FIX: Update Balance
+              committed_lm: iNewCommitted, // CRITICAL: Release reservation
               completed_requests: increment(1), // Properly Paid Count
               consecutive_completions: newStreak, // Increment Streak
               last_updated: serverTimestamp(),

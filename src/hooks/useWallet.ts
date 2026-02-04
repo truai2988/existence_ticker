@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useState } from "react";
+import { useMemo, useEffect } from "react";
 import { useAuth } from "./useAuthHook";
 import { db } from "../lib/firebase";
 import {
@@ -10,55 +10,14 @@ import {
   query,
   where,
   getDocs,
-  onSnapshot,
 } from "firebase/firestore";
 import { useProfile } from "./useProfile";
 import { calculateDecayedValue, calculateAvailableLm, WORLD_CONSTANTS } from "../logic/worldPhysics";
-import { Wish } from "../types";
 
 
 export const useWallet = () => {
   const { user } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
-  
-  // Local state for MY active wishes (to calculate committedLm accurately without context dependency)
-  const [activeWishes, setActiveWishes] = useState<Wish[]>([]);
-
-  // === 自分のActive Wishを購読 (Optimization) ===
-  // wishesContextに依存せず、必要なデータ("open", "in_progress")のみを購読
-  useEffect(() => {
-     if (!user || !db) {
-         setActiveWishes([]);
-         return;
-     }
-
-     const q = query(
-         collection(db, 'wishes'),
-         where('requester_id', '==', user.uid),
-         where('status', 'in', ['open', 'in_progress'])
-     );
-
-     const unsubscribe = onSnapshot(q, (snapshot) => {
-         const docs = snapshot.docs.map(d => {
-             const data = d.data();
-             return {
-                 id: d.id,
-                 ...data,
-                 // Ensure mandatory fields exist for type safety
-                 requester_id: data.requester_id || '',
-                 content: data.content || '',
-                 gratitude_preset: data.gratitude_preset || 'light',
-                 status: data.status || 'open',
-                 created_at: data.created_at,
-             } as Wish;
-         });
-         setActiveWishes(docs);
-     }, (err) => {
-         console.error("Failed to subscribe to active wishes:", err);
-     });
-
-     return () => unsubscribe();
-  }, [user]);
 
   // === 減価適用後のバランス（Physical Truth）===
   /**
@@ -76,24 +35,14 @@ export const useWallet = () => {
   // === Reservation Logic (聖なる約定) ===
   /**
    * 約束中の光（Committed Lm）:
-   * 自分が発信した依頼のうち、status が 'open' または 'in_progress' のものに
-   * 対する報酬（cost）の合計。ただし、手持ちと同じレート（10 Lm/h）で減価させた現在価値を使用。
-   * これにより、「手持ち」と「約束」が同じ速度で減り続け、常に整合性を保つ。
+   * User ドキュメントの committed_lm フィールドから直接読み取る。
+   * 減価は既に Balance と同期されているため、再計算不要。
+   * 
+   * Phase 3: 重い reduce 計算を完全に排除。
    */
   const committedLm = useMemo(() => {
-    if (!user) return 0;
-    
-    // 各依頼のcostを発行時から現在までの減価を考慮して合計
-    return activeWishes.reduce((sum, w) => {
-      const initialCost = w.cost || 0;
-      const createdAt = w.created_at; // Firestore Timestamp or ISO string
-      
-      // calculateDecayedValueで減価した現在価値を計算
-      const currentValue = calculateDecayedValue(initialCost, createdAt);
-      
-      return sum + currentValue;
-    }, 0);
-  }, [activeWishes, user]);
+    return profile?.committed_lm || 0;
+  }, [profile?.committed_lm]);
 
   /**
    * 分かち合える光（Available Lm）:

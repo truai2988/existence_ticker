@@ -24,6 +24,7 @@ export interface UserProfile {
   } | null;
   bio?: string | null;
   balance: number;
+  committed_lm: number; // Phase 2: 明示的な予約フィールド
   xp: number;
   warmth: number;
   // Role for Governance
