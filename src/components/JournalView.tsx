@@ -235,6 +235,24 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
         amountPrefix = "";
         amountColor = "text-slate-400";
     }
+    else if (log.type === 'COMPENSATION') {
+        // [キャンセル補償]
+        if (isSender) {
+            // [お詫び支払い]
+             icon = <CheckCircle2 size={14} className="text-red-400" />;
+             title = `${partnerName}さんにお詫びのしるしを渡しました`;
+             metaColor = "bg-red-50 border-red-100";
+             amountPrefix = ""; 
+             amountColor = "text-red-500";
+        } else {
+             // [お詫び受取]
+             icon = <Sun size={14} className="text-orange-500 fill-orange-50" />;
+             title = `${partnerName}さんからお詫びのしるしを受け取りました`;
+             metaColor = "bg-orange-50 border-orange-100";
+             amountPrefix = "+";
+             amountColor = "text-orange-600";
+        }
+    }
     else { // WISH_FULFILLMENT
         if (isSender) {
              // [依頼支払い] (I was the requester, I paid)

@@ -233,52 +233,88 @@ export const useWishActions = () => {
 
         if (wishData.status === "in_progress") {
           // === 補償キャンセル (Compensation Logic) ===
-          // 1. Calculate decayed value (Compensation Amount)
-          const currentValue = calculateDecayedValue(
+          
+          // 1. Fetch Requester Data FIRST to check solvency
+          const requesterRef = doc(db!, "users", user.uid);
+          const requesterDoc = await transaction.get(requesterRef);
+          if (!requesterDoc.exists()) throw "Requester not found";
+          
+          const rData = requesterDoc.data();
+          const rBalance = rData?.balance || 0;
+          const rLastUpdated = rData?.last_updated;
+          const rName = rData?.name || "Requester";
+
+          // 2. Fetch Helper Data
+          const helperRef = doc(db!, "users", wishData.helper_id);
+          const helperDoc = await transaction.get(helperRef);
+          if (!helperDoc.exists()) throw "Helper not found";
+          
+          const hName = helperDoc.data()?.name || "Helper";
+
+          // 3. Calculate PHYSICAL TRUTHS (All Decayed)
+          const wishDecayedValue = calculateDecayedValue(
             wishData.cost || 0,
             wishData.created_at,
           );
+          
+          // Requester's Real Holding (Now)
+          const requesterCurrentReal = calculateDecayedValue(rBalance, rLastUpdated);
 
-          // 2. Transfer from Requester to Helper
-          const requesterRef = doc(db!, "users", user.uid);
-          const helperRef = doc(db!, "users", wishData.helper_id);
+          // 4. Determine Actual Payment (NO INFLATION RULE)
+          // "You cannot give what you do not have."
+          const actualPayment = Math.min(requesterCurrentReal, wishDecayedValue);
+          const isBankruptcy = actualPayment < wishDecayedValue;
 
-          // Requester Balance Update (Payment)
-          const requesterDoc = await transaction.get(requesterRef);
-          const requesterBalance = requesterDoc.data()?.balance || 0;
-
-          // Requester Penalty (Impurity / 穢れ)
+          // Requester Update
+          // New Balance = CurrentReal - ActualPayment (Always >= 0)
           transaction.update(requesterRef, {
-            balance: requesterBalance - currentValue,
+            balance: requesterCurrentReal - actualPayment,
             consecutive_completions: 0, // Reset Streak
-            has_cancellation_history: true, // Mark of Impurity (Crack)
+            has_cancellation_history: true, // Mark of Impurity
             last_updated: serverTimestamp(),
           });
 
-          // Helper Balance Update (Compensation Receive)
+          // Helper Update
+          const hData = helperDoc.data();
+          const hBalance = hData?.balance || 0;
+          const hLastUpdated = hData?.last_updated;
+          const hCurrentDecayed = calculateDecayedValue(hBalance, hLastUpdated);
+
           transaction.update(helperRef, {
-            balance: increment(currentValue),
+            balance: hCurrentDecayed + actualPayment,
             last_updated: serverTimestamp(),
           });
 
-          // Log for Helper
-          const helperLogRef = doc(
-            collection(db!, "users", wishData.helper_id, "history"),
-          );
-          transaction.set(helperLogRef, {
-            type: "compensation_received",
-            amount: currentValue,
-            related_wish_id: wishId,
-            reason: "request_cancelled_by_owner",
-            timestamp: serverTimestamp(),
-          });
+          // 5. Log Global Transaction
+          const txId = `compensate_${wishId}_TO_${wishData.helper_id}`;
+          const txRef = doc(collection(db!, "transactions"), txId);
+          
+          const txCheck = await transaction.get(txRef);
+          if (!txCheck.exists()) {
+              transaction.set(txRef, {
+                type: "COMPENSATION",
+                amount: actualPayment, // Log actual transfer
+                created_at: serverTimestamp(),
+                
+                // Context
+                sender_id: user.uid,
+                sender_name: rName,
+                recipient_id: wishData.helper_id,
+                recipient_name: hName,
+                wish_title: wishData.content,
+                wish_id: wishId,
+                description: isBankruptcy 
+                    ? "request_cancelled_by_owner (Bankruptcy Partial Payment)" 
+                    : "request_cancelled_by_owner"
+              });
+          }
 
-          // 3. Update Wish Status
+          // 6. Update Wish Status
           transaction.update(wishRef, {
             status: "cancelled",
             cancel_reason: "compensatory_cancellation",
             cancelled_at: serverTimestamp(),
-            val_at_fulfillment: currentValue, // Store for records (Compensation Amount)
+            val_at_fulfillment: actualPayment, // Record what was ACTUALLY paid
           });
         } else {
           // === 通常キャンセル (Open Status) ===
@@ -399,20 +435,34 @@ export const useWishActions = () => {
         const issuerRef = doc(database, "users", wishData.requester_id);
         const issuerDoc = await transaction.get(issuerRef);
 
-        // === Anti-Gravity Logic ===
+        // === Anti-Gravity Logic & STRICT PHYSICS ===
 
         // 1. Calculate Decayed Value (Universal Decay)
         const createdAt = wishData.created_at as Timestamp;
-        const actualValue = calculateDecayedValue(
+        const promisedValue = calculateDecayedValue(
           wishData.cost || 0,
           createdAt,
         );
 
-        if (actualValue <= 0) {
+        if (promisedValue <= 0) {
           // Value is dust.
         }
 
-        // 2. Reward Fulfiller
+        // 1.5 Check Issuer Solvency (The Truth)
+        let paymentAmount = promisedValue;
+        if (issuerDoc.exists()) {
+             const iData = issuerDoc.data() as UserProfile;
+             const iCurrentReal = calculateDecayedValue(iData.balance || 0, iData.last_updated);
+             // "You cannot give what you do not have."
+             paymentAmount = Math.min(promisedValue, iCurrentReal);
+        } else {
+             // Issuer vanished? No payment can be collected.
+             paymentAmount = 0;
+        }
+        
+        const isBankruptcy = paymentAmount < promisedValue;
+
+        // 2. Reward Fulfiller (With Actual Payment)
         const fulfillerDoc = await transaction.get(fulfillerRef);
         if (fulfillerDoc.exists()) {
           let cap = 2400;
@@ -433,10 +483,9 @@ export const useWishActions = () => {
           
           // === FIX GRAVITY LEAK ===
           // Must decay the stored balance to NOW before adding reward.
-          // Otherwise, the time passed since last_updated becomes "tax-free".
           const currentDecayed = calculateDecayedValue(fBalance, fLastUpdated);
           
-          const rawNewBalance = currentDecayed + actualValue;
+          const rawNewBalance = currentDecayed + paymentAmount;
           const cappedBalance = Math.min(rawNewBalance, cap);
 
           transaction.update(fulfillerRef, {
@@ -456,8 +505,8 @@ export const useWishActions = () => {
             const iCurrentReal = calculateDecayedValue(iBalance, iLastUpdated);
             
             // Deduct the Lm (Consumption)
-            // Even if mathematically safe due to reservation, we clamp at 0 to prevent checking errors
-            const iNewBalance = Math.max(0, iCurrentReal - actualValue);
+            // Balance = CurrentReal - Payment. Since payment <= CurrentReal, this is safe.
+            const iNewBalance = iCurrentReal - paymentAmount;
 
             // Purification Logic: Increment Streak
             const newStreak = (iData.consecutive_completions || 0) + 1;
@@ -476,7 +525,7 @@ export const useWishActions = () => {
         transaction.update(wishRef, {
           status: "fulfilled",
           helper_id: fulfillerId,
-          val_at_fulfillment: actualValue,
+          val_at_fulfillment: paymentAmount, // Record actual payment
           fulfilled_at: serverTimestamp(),
         });
 
@@ -491,11 +540,11 @@ export const useWishActions = () => {
         }
 
         let txType = "SPARK";
-        if (actualValue >= 900) txType = "BONFIRE";
-        else if (actualValue >= 400) txType = "CANDLE";
+        if (paymentAmount >= 900) txType = "BONFIRE";
+        else if (paymentAmount >= 400) txType = "CANDLE";
 
         transaction.set(txRef, {
-          amount: actualValue,
+          amount: paymentAmount,
           timestamp: serverTimestamp(),
           created_at: serverTimestamp(), // Unify timestamp naming
           type: "WISH_FULFILLMENT", // More explicit than SPARK/BONFIRE for history
@@ -506,6 +555,9 @@ export const useWishActions = () => {
           sender_name: wishData.requester_name || "Anonymous",
           recipient_id: fulfillerId,
           recipient_name: fulfillerDoc.data()?.name || "Anonymous",
+          description: isBankruptcy 
+              ? "wish_fulfilled (Bankruptcy Partial Payment)" 
+              : "wish_fulfilled"
         });
 
         // 6. Incremental Counter for Scalability
@@ -515,7 +567,7 @@ export const useWishActions = () => {
         transaction.set(
           dailyStatsRef,
           {
-            volume: increment(actualValue),
+            volume: increment(paymentAmount),
             updated_at: serverTimestamp(),
           },
           { merge: true },

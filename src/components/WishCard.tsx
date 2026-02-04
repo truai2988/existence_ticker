@@ -160,7 +160,15 @@ export const WishCard: React.FC<WishCardProps> = ({
   };
   const initialCost = wish.cost || getInitialCost(wish.gratitude_preset);
 
-  // 静的な値を計算（Ticker廃止 - 1時間ごとに自動更新）
+  // Live Ticker for Decay (re-calculate periodically)
+  const [tick, setTick] = useState(0);
+  React.useEffect(() => {
+     // Update every 10 seconds to show "Living" decay
+     // 10 Lm/h = ~0.0027 Lm/sec. 10s = 0.027 Lm. Visible in toFixed(3).
+     const timer = setInterval(() => setTick(t => t + 1), 10000);
+     return () => clearInterval(timer);
+  }, []);
+
   const displayValue = calculateDecayedValue(initialCost, wish.created_at);
 
   // 期限切れ判定

@@ -159,83 +159,108 @@ export const useWallet = () => {
         newAnchorTimeMillis = cycleStartedAt + (cyclesElapsed * cycleDurationMillis);
     }
     
-    const userRef = doc(db, "users", user.uid);
-    let resultBalance = 0;
-
-    try {
-      await runTransaction(db, async (transaction) => {
-        const userDoc = await transaction.get(userRef);
-        if (!userDoc.exists()) throw "User missing";
-
-        let nextCycleDays = 10;
-        const { REBIRTH_AMOUNT } = WORLD_CONSTANTS;
-
-        // 2. Fetch NEXT Cycle Configuration
-        try {
-            const settingsRef = doc(db!, "system_settings", "global");
-            const settingsDoc = await transaction.get(settingsRef);
-            
-            if (settingsDoc.exists()) {
-              const val = settingsDoc.data().cycleDays;
-              if (typeof val === "number") nextCycleDays = val;
-            }
-        } catch (e) {
-            console.warn("Using default cycle days due to fetch error", e);
-        }
-
-        const anchorDate = new Date(newAnchorTimeMillis);
-        
-        // === PRE-WRITE CHECK: Rebirth Log ===
-        // ID Rule: 
-        // - First Birth: "birth_<UID>" (Born once)
-        // - Rebirth: "rebirth_<UID>_<AnchorTimestamp>" (Unique per cycle)
-        const txId = isUnborn 
-            ? `birth_${user.uid}` 
-            : `rebirth_${user.uid}_${newAnchorTimeMillis}`;
-            
-        const txRef = doc(db!, 'transactions', txId);
-        const txDoc = await transaction.get(txRef);
-
-        if (txDoc.exists()) {
-            console.log("Idempotency Check: Ritual already recorded. Skipping.");
-            return; 
-        }
-
-        // Calculate the "Truth" Balance
-        const exactElapsedMs = now - newAnchorTimeMillis;
-        const exactElapsedHours = Math.floor(exactElapsedMs / 3600000);
-        const decay = exactElapsedHours * WORLD_CONSTANTS.DECAY_RATE_HOURLY;
-        resultBalance = Math.max(0, REBIRTH_AMOUNT - decay);
-
-        // === EXECUTE WRITES ===
-        transaction.update(userRef, {
-          balance: REBIRTH_AMOUNT,
-          last_updated: anchorDate, // Set "Last Updated" to Anchor Time
-          cycle_started_at: anchorDate, // New Cycle Starts at Anchor Time
-          scheduled_cycle_days: nextCycleDays,
-        });
-
-        // Incremental Counter for Souls Reborn (Daily Stats)
-        const today = new Date().toISOString().split("T")[0];
-        const dailyStatsRef = doc(db!, "daily_stats", today);
-        transaction.set(
-          dailyStatsRef,
-          {
-            reborn_count: increment(1),
-            updated_at: serverTimestamp(),
-          },
-          { merge: true },
+        // === PRE-READ: Active Wishes to Cleanse ===
+        // Rebirth must clear all liabilities (Wishes) to prevent Insolvency.
+        // We query outside, then verify/update inside transaction.
+        const wishesRef = collection(db, 'wishes');
+        const activeQ = query(
+             wishesRef, 
+             where('requester_id', '==', user.uid),
+             where('status', 'in', ['open', 'in_progress', 'review_pending'])
         );
+        const activeSnap = await getDocs(activeQ);
+        const wishRefs = activeSnap.docs.map(d => d.ref);
 
-        transaction.set(txRef, {
-            type: isUnborn ? 'BIRTH' : 'REBIRTH',
-            recipient_id: user.uid,
-            amount: REBIRTH_AMOUNT,
-            created_at: serverTimestamp(),
-            description: isUnborn ? '世界に産声を上げました' : '光が満ちました',
-            anchor_time: anchorDate 
-        });
-      });
+        const userRef = doc(db, "users", user.uid);
+        let resultBalance = 0;
+
+        try {
+          await runTransaction(db, async (transaction) => {
+            const userDoc = await transaction.get(userRef);
+            if (!userDoc.exists()) throw "User missing";
+
+            // 1. Cleanse Old Wishes (Absolute Forgiveness)
+            for (const wRef of wishRefs) {
+                const wDoc = await transaction.get(wRef);
+                if (wDoc.exists() && ['open', 'in_progress', 'review_pending'].includes(wDoc.data().status)) {
+                    transaction.update(wRef, {
+                        status: 'expired',
+                        cancel_reason: 'rebirth_cleansing',
+                        cancelled_at: serverTimestamp(),
+                        val_at_fulfillment: 0 // No payout, just oblivion
+                    });
+                }
+            }
+            
+            let nextCycleDays = 10;
+            const { REBIRTH_AMOUNT } = WORLD_CONSTANTS;
+    
+            // 2. Fetch NEXT Cycle Configuration
+            try {
+                const settingsRef = doc(db!, "system_settings", "global");
+                const settingsDoc = await transaction.get(settingsRef);
+                
+                if (settingsDoc.exists()) {
+                  const val = settingsDoc.data().cycleDays;
+                  if (typeof val === "number") nextCycleDays = val;
+                }
+            } catch (e) {
+                console.warn("Using default cycle days due to fetch error", e);
+            }
+    
+            const anchorDate = new Date(newAnchorTimeMillis);
+            
+            // === PRE-WRITE CHECK: Rebirth Log ===
+            // ID Rule: 
+            // - First Birth: "birth_<UID>" (Born once)
+            // - Rebirth: "rebirth_<UID>_<AnchorTimestamp>" (Unique per cycle)
+            const txId = isUnborn 
+                ? `birth_${user.uid}` 
+                : `rebirth_${user.uid}_${newAnchorTimeMillis}`;
+                
+            const txRef = doc(db!, 'transactions', txId);
+            const txDoc = await transaction.get(txRef);
+    
+            if (txDoc.exists()) {
+                console.log("Idempotency Check: Ritual already recorded. Skipping.");
+                return; 
+            }
+    
+            // Calculate the "Truth" Balance
+            const exactElapsedMs = now - newAnchorTimeMillis;
+            const exactElapsedHours = Math.floor(exactElapsedMs / 3600000);
+            const decay = exactElapsedHours * WORLD_CONSTANTS.DECAY_RATE_HOURLY;
+            resultBalance = Math.max(0, REBIRTH_AMOUNT - decay);
+    
+            // === EXECUTE WRITES ===
+            transaction.update(userRef, {
+              balance: REBIRTH_AMOUNT,
+              last_updated: anchorDate, // Set "Last Updated" to Anchor Time
+              cycle_started_at: anchorDate, // New Cycle Starts at Anchor Time
+              scheduled_cycle_days: nextCycleDays,
+            });
+    
+            // Incremental Counter for Souls Reborn (Daily Stats)
+            const today = new Date().toISOString().split("T")[0];
+            const dailyStatsRef = doc(db!, "daily_stats", today);
+            transaction.set(
+              dailyStatsRef,
+              {
+                reborn_count: increment(1),
+                updated_at: serverTimestamp(),
+              },
+              { merge: true },
+            );
+    
+            transaction.set(txRef, {
+                type: isUnborn ? 'BIRTH' : 'REBIRTH',
+                recipient_id: user.uid,
+                amount: REBIRTH_AMOUNT,
+                created_at: serverTimestamp(),
+                description: isUnborn ? '世界に産声を上げました' : '光が満ちました (古い契約は浄化されました)',
+                anchor_time: anchorDate 
+            });
+          });
 
       console.log("Metabolism: Ritual Complete. New Anchor:", new Date(newAnchorTimeMillis).toISOString());
       return { success: true, newBalance: resultBalance, newAnchorTime: newAnchorTimeMillis };
