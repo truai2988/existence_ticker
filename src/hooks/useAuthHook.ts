@@ -111,20 +111,25 @@ export const useAuth = () => {
         if (!auth || !auth.currentUser || !user) throw new Error("Not authenticated");
         if (!db) throw new Error("Database not connected");
 
-        // 1. Physical Deletion of User Profile (Triggers Backend Cleanup)
-        const userRef = doc(db, 'users', user.uid);
-        
-        await deleteDoc(userRef);
-
-        // 2. Hard Delete Auth (Irreversible)
+        // Firebase Auth "requires-recent-login" is a common security hurdle.
+        // We try to delete Auth FIRST because it's the most likely to fail due to security.
+        // If we delete Firestore first and Auth fails, we leave an inconsistent state.
         try {
+            // 1. Hard Delete Auth (Irreversible)
             await user.delete(); 
-            // Note: This automatically signs out.
-        } catch (authError) {
-             console.error("Auth Delete Failed (Requires recent login):", authError);
-             // If sensitive, prompt re-login. For now, we try to ensure local logout at least.
-             await signOut();
-             throw authError; 
+            
+            // 2. If Auth Deletion succeeds, clean up Firestore
+            const userRef = doc(db, 'users', user.uid);
+            await deleteDoc(userRef);
+            
+            console.log("Account and Profile deleted successfully.");
+        } catch (error) {
+             const firebaseError = error as { code?: string };
+             if (firebaseError.code === 'auth/requires-recent-login') {
+                 alert("セキュリティ保護のため、退会には再ログインが必要です。\n一度ログアウトしてから再度ログインし、すぐに退会をやり直してください。");
+             }
+             console.error("Account deletion failed:", error);
+             throw error; 
         }
     };
 

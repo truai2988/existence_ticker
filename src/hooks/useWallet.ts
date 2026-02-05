@@ -138,7 +138,7 @@ export const useWallet = () => {
         for (const { snap } of wishDocs) {
             if (snap.exists()) {
                 const w = snap.data();
-                newCommitted += calculateDecayedValue(w.cost, w.created_at);
+                newCommitted += (w.cost || 0); // Rebirth時は元の予約額（Nominal）で合計する
             }
         }
 

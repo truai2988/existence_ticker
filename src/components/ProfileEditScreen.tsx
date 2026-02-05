@@ -401,7 +401,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     </div>
                                     <p className="text-[11px] text-slate-400 mt-1.5 ml-1 flex items-center gap-1">
                                         <AlertCircle size={10} />
-                                        このアドレスは他のユーザーには公開されません
+                                        プライバシー保護のため、マッチング成立時のお相手以外には公開されません
                                     </p>
                                 </div>
                                 <button

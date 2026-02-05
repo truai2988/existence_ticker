@@ -8,6 +8,7 @@ import { AnomalyScanner } from "./AnomalyScanner";
 import { UserProfile } from "../types";
 import { useAuth } from "../hooks/useAuthHook";
 import { auditGravity, auditAllGravity } from "../logic/auditGravity";
+import { ADMIN_UIDS } from "../constants";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -43,7 +44,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     } catch(e) { console.error(e); alert(String(e)); }
     setIsAuditing(false);
   };
-  
+
   const supplySectionRef = React.useRef<HTMLDivElement>(null);
 
   const scrollToSupply = () => {
@@ -108,7 +109,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           });
           
           setUserList(users);
-          setAdminCount(users.filter(u => u.role === 'admin').length);
+          // データベース上のadmin + コード指定のadminの両方をカウント
+          const totalAdminCount = users.filter(u => u.role === 'admin' || ADMIN_UIDS.includes(u.id?.trim())).length;
+          setAdminCount(totalAdminCount);
       } catch (e) {
           console.error("Failed to fetch users", e);
       } finally {
@@ -122,7 +125,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       const actionLabel = isCurrentlyAdmin ? "管理者権限を削除" : "管理者権限を付与";
       
       if (isCurrentlyAdmin && adminCount <= 1) {
-          alert("禁止操作: あなたはこの世界で最後の管理者です。\n権限を放棄する前に、別の後継者を指名してください。");
+          alert("禁止操作: この世界で最後の管理者です。\n権限を放棄する前に、別の後継者を指名してください。");
           return;
       }
 
@@ -327,7 +330,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex flex-col text-xs">
-                                                    <span>XP: {u.xp?.toLocaleString()}</span>
                                                     <span>Warmth: {u.warmth?.toLocaleString()}</span>
                                                 </div>
                                             </td>
@@ -342,10 +344,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                                         User
                                                     </span>
                                                 )}
+                                                {ADMIN_UIDS.includes(u.id?.trim()) && (
+                                                    <div className="text-[9px] text-indigo-400 mt-1 font-mono opacity-50"> emergency-access </div>
+                                                )}
                                             </td>
                                             <td className="px-6 py-4 text-right flex justify-end gap-2">
-
-
                                                 {u.role === 'admin' ? (
                                                     <button 
                                                         onClick={() => handleToggleAdmin(u)}
@@ -1090,6 +1093,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           </div>
         </div>
       )}
+
 
       <DiagnosticModal 
         isOpen={showDiagnosisModal}

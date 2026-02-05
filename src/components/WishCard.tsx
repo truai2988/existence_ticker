@@ -352,7 +352,11 @@ export const WishCard: React.FC<WishCardProps> = ({
                       }}
                       className="block text-sm font-bold text-slate-800 tracking-wide hover:underline text-left truncate max-w-full"
                     >
-                      {helperProfile?.name || "名無しの隣人"}
+                      {helperProfile?.name || 
+                       wish.helper_name || 
+                       wish.applicants?.find(a => a.id === wish.helper_id)?.name || 
+                       wish.helper_id?.slice(0, 8) || 
+                       "隣人"}
                     </button>
                   </div>
                 </div>

@@ -8,7 +8,6 @@ import {
   KeyRound,
   Sun,
   Wallet,
-  Star,
   Handshake,
   Megaphone,
   MapPin,
@@ -80,7 +79,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onOpenAdmin,
   initialEditMode = false,
 }) => {
-  const { profile } = useProfile();
+  const { profile, isLoading: isProfileLoading } = useProfile();
   const { user, signOut, linkEmail, deleteAccount, updateUserPassword } =
     useAuth();
 
@@ -107,7 +106,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const isAnonymous = user?.isAnonymous ?? false;
 
   // Stats Logic
-  const xp = profile?.xp || 0;
 
   const currentName = profile?.name || "名もなき旅人";
   const helpfulCount = profile?.completed_contracts || 0;
@@ -434,14 +432,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   iconColor="text-slate-500"
                   iconBg="bg-slate-100"
                 />
-                <ListItem
-                  icon={Star}
-                  label="獲得した総額"
-                  value={`${xp.toLocaleString()} ${UNIT_LABEL}`}
-                  hasArrow={false}
-                  iconColor="text-amber-500"
-                  iconBg="bg-amber-50"
-                />
 
               </div>
             </div>
@@ -469,7 +459,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 onClick={() => setConfirmMode("logout")}
               />
 
-              {!isAnonymous && (
+              {!isAnonymous && !isProfileLoading && profile?.role !== "admin" && !ADMIN_UIDS.includes(profile?.id || "") && (
                 <ListItem
                   icon={Trash2}
                   label="退会する"

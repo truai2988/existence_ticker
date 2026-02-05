@@ -59,6 +59,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onClose }) => {
      const txRef = collection(db, 'transactions');
      
      // 1. Sent
+     // 1. Sent
      const qSent = query(txRef, where('sender_id', '==', user.uid), orderBy('created_at', 'desc'), limit(50));
      // 2. Received
      const qReceived = query(txRef, where('recipient_id', '==', user.uid), orderBy('created_at', 'desc'), limit(50));
@@ -70,10 +71,12 @@ export const JournalView: React.FC<JournalViewProps> = ({ onClose }) => {
      let receivedData: TransactionLog[] = [];
 
      const updateState = () => {
-         const merged = [...sentData, ...receivedData];
+         
+         // Filter out insignificant entries (0 Lm)
+         const validData = [...sentData, ...receivedData].filter(tx => tx.amount !== 0);
          
          // 1. Unique by ID first
-         const uniqueById = Array.from(new Map(merged.map(item => [item.id, item])).values());
+         const uniqueById = Array.from(new Map(validData.map(item => [item.id, item])).values());
          
          // 2. Sort by Date Desc
          const sorted = uniqueById.sort((a, b) => {
@@ -108,7 +111,6 @@ export const JournalView: React.FC<JournalViewProps> = ({ onClose }) => {
              
              cleanLogs.push(current);
          });
-
          setLogs(cleanLogs);
          setIsLoading(false);
      };
