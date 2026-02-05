@@ -35,14 +35,16 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
     const hasLinks = !isMasked && profile.links && (profile.links.x || profile.links.instagram || profile.links.website);
     
     // Formatting Location
-    const locationText = !isMasked && profile.location 
+    const locationText = profile.location 
         ? `${profile.location.prefecture || ''} ${profile.location.city || ''}`.trim()
         : '';
 
     // Masking Logic overrides
     const displayName = isMasked ? "匿名" : profile.name;
     const displayAvatar = isMasked ? null : profile.avatarUrl;
-    const displayBio = isMasked ? "このユーザーは匿名です。" : profile.bio;
+    const displayBio = isMasked ? null : profile.bio;
+
+    const ageGroup = profile.ageGroup;
 
     return (
         <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in">
@@ -105,6 +107,15 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                                     <span className="text-[11px] text-slate-300 font-light">|</span>
                                     <span className="text-[11px] text-slate-400 font-mono">
                                         ID: {profile.id.slice(0,6)}
+                                    </span>
+                                </>
+                            )}
+
+                            {ageGroup && (
+                                <>
+                                    <span className="text-[11px] text-slate-300 font-light">|</span>
+                                    <span className="text-[11px] text-slate-500 font-bold">
+                                        {ageGroup}
                                     </span>
                                 </>
                             )}
