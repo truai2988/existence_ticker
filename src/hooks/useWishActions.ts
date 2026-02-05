@@ -60,9 +60,11 @@ export const useWishActions = () => {
           lastUpdated,
         );
 
-        // === Phase 2: Read committed_lm from User Document ===
+        // === Phase 2: Read & Decay committed_lm ===
         const currentCommittedLm = data.committed_lm || 0;
-        const availableLm = decayedBalance - currentCommittedLm;
+        const decayedCommittedLm = calculateDecayedValue(currentCommittedLm, lastUpdated);
+        
+        const availableLm = decayedBalance - decayedCommittedLm;
 
         if (availableLm < bounty) {
           throw new Error(
@@ -75,7 +77,7 @@ export const useWishActions = () => {
         // Available は変わらない（予約を増やすため）
         transaction.update(userRef, {
           balance: decayedBalance, // 減価適用後の値に更新（減算なし）
-          committed_lm: currentCommittedLm + bounty, // 予約を増やす
+          committed_lm: decayedCommittedLm + bounty, // 減価後の予約額に足す
           created_contracts: increment(1), // Track Requests (Created)
           last_updated: serverTimestamp(),
         });
@@ -278,7 +280,7 @@ export const useWishActions = () => {
             // Available は変わらない（両方同じ額減らす）
             transaction.update(requesterRef, {
               balance: requesterCurrentReal - actualPayment,
-              committed_lm: Math.max(0, rCommittedLm - (wishData.cost || 0)), // 解放時は元の予約額（Nominal）を引く
+              committed_lm: Math.max(0, calculateDecayedValue(rCommittedLm, rLastUpdated) - (wishData.cost || 0)), // 減価後の予約額から解放
               consecutive_completions: 0, // Reset Streak
               has_cancellation_history: true, // Mark of Impurity
               last_updated: serverTimestamp(),
@@ -343,7 +345,7 @@ export const useWishActions = () => {
             // Update requester: receive compensation + release reservation
             transaction.update(requesterRef, {
               balance: requesterCurrentReal + actualPayment,
-              committed_lm: Math.max(0, rCommittedLm - (wishData.cost || 0)), // 解放時は元の予約額（Nominal）を引く
+              committed_lm: Math.max(0, calculateDecayedValue(rCommittedLm, rLastUpdated) - (wishData.cost || 0)), // 減価後の予約額から解放
               last_updated: serverTimestamp(),
             });
 
@@ -395,7 +397,7 @@ export const useWishActions = () => {
           // Committed を減らすことで、Available が増える
           transaction.update(requesterRef, {
             balance: currentReal, // 減価適用後の値をセット
-            committed_lm: Math.max(0, rCommittedLm - (wishData.cost || 0)), // 予約を解放
+            committed_lm: Math.max(0, calculateDecayedValue(rCommittedLm, rLastUpdated) - (wishData.cost || 0)), // 減価後の予約額から解放
             last_updated: serverTimestamp(), // タイムスタンプ更新
           });
         }
@@ -587,7 +589,8 @@ export const useWishActions = () => {
           const iCommittedLm = iData.committed_lm || 0;
 
           const iNewBalance = iCurrentReal - paymentAmount;
-          const iNewCommitted = Math.max(0, iCommittedLm - (wishData.cost || 0)); // 予約額（Nominal）を解放
+          const iDecayedCommitted = calculateDecayedValue(iCommittedLm, iData.last_updated);
+          const iNewCommitted = Math.max(0, iDecayedCommitted - (wishData.cost || 0)); // 減価後の予約額から解放
           const newStreak = (iData.consecutive_completions || 0) + 1;
 
           transaction.update(issuerRef, {

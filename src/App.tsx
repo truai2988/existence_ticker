@@ -19,8 +19,7 @@ const AdminDashboard = lazy(() =>
 );
 
 import { useAuth } from "./hooks/useAuthHook";
-// import { useProfile } from './hooks/useProfile';
-// import { useWallet } from "./hooks/useWallet";
+import { useWallet } from "./hooks/useWallet";
 import { AppViewMode } from "./types";
 // import { ADMIN_UIDS } from './constants';
 
@@ -100,8 +99,19 @@ function App() {
     setViewMode(tab);
   };
 
-  // Lunar Phase Logic (Metabolism) is now handled manually in HomeView
-  // const { checkLunarPhase } = useWallet();
+  /* eslint-disable react-refresh/only-export-components */
+  const { verifyWalletIntegrity } = useWallet();
+  
+  // === Auto-Fix Wallet Integrity on Mount ===
+  useEffect(() => {
+    if (user) {
+        verifyWalletIntegrity().then((res) => {
+            if (res.fixed) {
+                console.log("[System] Auto-Exorcism Complete:", res.msg);
+            }
+        });
+    }
+  }, [user, verifyWalletIntegrity]);
 
   const handleGoHome = () => {
     setActiveTab("home");
