@@ -76,29 +76,19 @@ const ApplicantItem: React.FC<{
           </button>
           <div className="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
             {/* Trust/Helped Count Badge */}
-            {!isMasked && (
-                <div
-                title={`${trustScore} times helped`}
-                className={`flex items-center gap-0.5 ${rank.color}`}
-                >
-                {rank.icon}
-                <span className="font-mono font-bold">({trustScore})</span>
-                </div>
-            )}
+            <div
+              title={`${trustScore} times helped`}
+              className={`flex items-center gap-0.5 ${rank.color}`}
+            >
+              {rank.icon}
+              <span className="font-mono font-bold">({trustScore})</span>
+            </div>
 
             {/* Rank Label */}
-            {!isMasked && (
-                <>
-                    <span className="text-slate-300">|</span>
-                    <span className="text-slate-500 font-bold">{rank.label}</span>
-                </>
-            )}
-            
-            {isMasked && (
-                <span className="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
-                    詳細非表示
-                </span>
-            )}
+            <>
+              <span className="text-slate-300">|</span>
+              <span className="text-slate-500 font-bold">{rank.label}</span>
+            </>
           </div>
         </div>
       </div>
@@ -345,8 +335,6 @@ export const WishCard: React.FC<WishCardProps> = ({
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
     });
   };
 
@@ -394,7 +382,13 @@ export const WishCard: React.FC<WishCardProps> = ({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (wish.helper_id) openUserProfile(wish.helper_id);
+                        if (wish.helper_id) openUserProfile(wish.helper_id, isMasked); // Matched, so if masked, it's mutual? Wait.
+                        // If it's MY WISH and Matched, the HELPER is revealed to ME. So isMasked is false for me?
+                        // Logic in line 352: `const isMasked = wish.isAnonymous && isMyWish && wish.status === 'open' ...`
+                        // Actually, if status is 'open', there is no helper.
+                        // If helper_id exists, status is NOT 'open' usually.
+                        // So `isMasked` would be false if matched?
+                        // Let's rely on the button logic.
                       }}
                       className="block text-sm font-bold text-slate-800 tracking-wide hover:underline text-left truncate max-w-full"
                     >
@@ -450,23 +444,21 @@ export const WishCard: React.FC<WishCardProps> = ({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      !isMasked && openUserProfile(wish.requester_id);
+                      openUserProfile(wish.requester_id, isMasked);
                     }}
-                    disabled={isMasked}
-                    className={`block text-sm font-bold tracking-wide text-left truncate max-w-full ${isMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:underline"}`}
+                    className="block text-sm font-bold tracking-wide text-left truncate max-w-full text-slate-800 hover:underline"
                   >
                     {displayRequesterName}
                   </button>
-                  {/* Verified Badge - Hide if masked? */}
-                  {!isMasked && trust.isVerified && (
+                  {/* Verified Badge */}
+                  {trust.isVerified && (
                     <ShieldCheck
                       size={14}
                       className="text-blue-400 fill-blue-50 shrink-0"
                       strokeWidth={2.5}
                     />
                   )}
-                  {/* Trust Stats - Hide if masked */}
-                  {!isMasked && (
+                  {/* Trust Stats */}
                   <div className="flex items-center gap-2 text-xs shrink-0">
                     <div
                       title={`Helped ${wish.requester_trust_score || 0} times`}
@@ -488,12 +480,6 @@ export const WishCard: React.FC<WishCardProps> = ({
                       </span>
                     </span>
                   </div>
-                  )}
-                  {isMasked && (
-                      <div className="text-xs text-slate-400 flex items-center gap-1">
-                          <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">詳細非表示</span>
-                      </div>
-                  )}
                 </div>
                 {/* Bio snippet - replaces headline - HIDE IF MASKED */}
                 {!isMasked && requesterProfile?.bio && (
@@ -793,11 +779,6 @@ export const WishCard: React.FC<WishCardProps> = ({
             <span className="flex items-center gap-1 text-[10px] text-slate-400 ml-1">
               <Clock className="w-3 h-3" />
               <span>{formatDate(wish.created_at)}</span>
-              {wish.isAnonymous && (
-                <span className="ml-1 bg-slate-50 border border-slate-200 px-1 rounded text-slate-500">
-                  匿名
-                </span>
-              )}
             </span>
           )}
         </div>

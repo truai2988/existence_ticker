@@ -6,10 +6,11 @@ import { getTrustRank } from '../utils/trustRank';
 
 interface PublicProfileModalProps {
     userId: string;
+    isMasked?: boolean;
     onClose: () => void;
 }
 
-export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, onClose }) => {
+export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, isMasked, onClose }) => {
     const { profile, loading } = useOtherProfile(userId);
 
     // If loading or null, show skeleton or something
@@ -31,13 +32,17 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
     
     const rank = getTrustRank(profile); 
 
-    // Helper to check if any links exist
-    const hasLinks = profile.links && (profile.links.x || profile.links.instagram || profile.links.website);
+    const hasLinks = !isMasked && profile.links && (profile.links.x || profile.links.instagram || profile.links.website);
     
     // Formatting Location
-    const locationText = profile.location 
+    const locationText = !isMasked && profile.location 
         ? `${profile.location.prefecture || ''} ${profile.location.city || ''}`.trim()
         : '';
+
+    // Masking Logic overrides
+    const displayName = isMasked ? "匿名" : profile.name;
+    const displayAvatar = isMasked ? null : profile.avatarUrl;
+    const displayBio = isMasked ? "このユーザーは匿名です。" : profile.bio;
 
     return (
         <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in">
@@ -68,12 +73,12 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                         {/* Avatar */}
                         <div className="w-24 h-24 mx-auto bg-white rounded-full p-1 shadow-sm mb-3">
                             <div className="w-full h-full bg-slate-50 rounded-full flex items-center justify-center overflow-hidden border border-slate-100">
-                                {profile.avatarUrl ? (
-                                    <img src={profile.avatarUrl} alt={profile.name} className="w-full h-full object-cover" />
+                                {displayAvatar ? (
+                                    <img src={displayAvatar} alt={displayName} className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full bg-slate-100 flex items-center justify-center">
                                         <span className="text-3xl font-bold text-slate-400">
-                                            {profile.name?.charAt(0).toUpperCase() || '?'}
+                                            {isMasked ? '?' : (profile.name?.charAt(0).toUpperCase() || '?')}
                                         </span>
                                     </div>
                                 )}
@@ -82,7 +87,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                         
                         {/* Name & Headline */}
                         <div className="flex items-center justify-center gap-1.5 mb-1">
-                            <h2 className="text-xl font-bold text-slate-900 leading-snug">{profile.name}</h2>
+                            <h2 className="text-xl font-bold text-slate-900 leading-snug">{displayName}</h2>
                             {rank.isVerified && (
                                 <ShieldCheck size={18} className="text-blue-500 fill-blue-50" strokeWidth={2.5} />
                             )}
@@ -94,10 +99,15 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                                 {rank.icon}
                                 {rank.label}
                             </span>
-                            <span className="text-[11px] text-slate-300 font-light">|</span>
-                            <span className="text-[11px] text-slate-400 font-mono">
-                                ID: {profile.id.slice(0,6)}
-                            </span>
+                            
+                            {!isMasked && (
+                                <>
+                                    <span className="text-[11px] text-slate-300 font-light">|</span>
+                                    <span className="text-[11px] text-slate-400 font-mono">
+                                        ID: {profile.id.slice(0,6)}
+                                    </span>
+                                </>
+                            )}
                             
                             {locationText && (
                                 <>
@@ -111,10 +121,10 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                         </div>
 
                         {/* Bio (Quiet Space) */}
-                        {profile.bio && (
+                        {displayBio && (
                             <div className="mb-6 mx-2">
                                 <p className="text-sm text-slate-600 leading-relaxed bg-slate-50/80 px-5 py-4 rounded-2xl border border-slate-100 text-left whitespace-pre-wrap">
-                                    {profile.bio}
+                                    {displayBio}
                                 </p>
                             </div>
                         )}

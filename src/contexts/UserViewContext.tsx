@@ -1,17 +1,20 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { PublicProfileModal } from '../components/PublicProfileModal';
 
 interface UserViewContextType {
-    openUserProfile: (userId: string) => void;
+    openUserProfile: (userId: string, isMasked?: boolean) => void;
 }
 
 const UserViewContext = createContext<UserViewContextType | undefined>(undefined);
 
 export const UserViewProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [viewingUserId, setViewingUserId] = useState<string | null>(null);
+    const [isMasked, setIsMasked] = useState(false);
 
-    const openUserProfile = (userId: string) => {
+    const openUserProfile = (userId: string, masked: boolean = false) => {
         setViewingUserId(userId);
+        setIsMasked(masked);
     };
 
     return (
@@ -20,6 +23,7 @@ export const UserViewProvider: React.FC<{ children: ReactNode }> = ({ children }
             {viewingUserId && (
                 <PublicProfileModal 
                     userId={viewingUserId} 
+                    isMasked={isMasked}
                     onClose={() => setViewingUserId(null)} 
                 />
             )}
