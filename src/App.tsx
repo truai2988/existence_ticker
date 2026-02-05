@@ -1,4 +1,6 @@
-import { useState, Suspense, lazy } from "react";
+import { useState, Suspense, lazy, useEffect } from "react";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { motion } from "framer-motion";
 // Main App Component
 import { AuthScreen } from "./components/AuthScreen";
 import { Header } from "./components/Header";
@@ -53,7 +55,6 @@ import { cleanupDuplicates } from './logic/cleanupDuplicates';
 import { auditGravity, auditAllGravity, analyzeShiro } from './logic/auditGravity';
 import { db } from './lib/firebase';
 import { Firestore } from 'firebase/firestore';
-import { useEffect } from "react";
 
 function App() {
   const { user, loading: authLoading } = useAuth();
@@ -69,6 +70,7 @@ function App() {
         (window as any).auditAll = () => auditAllGravity(db as Firestore);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (window as any).shiro = () => analyzeShiro(db as Firestore);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (window as any).shiroDebug = () => {
              import('./logic/auditGravity').then(m => m.debugShiroRebirth(db as Firestore));
@@ -108,18 +110,61 @@ function App() {
 
 
 
+  const [connectTimeout, setConnectTimeout] = useState(false);
+
+  useEffect(() => {
+    if (authLoading) {
+      const timer = setTimeout(() => {
+        setConnectTimeout(true);
+      }, 10000); // 10 seconds timeout
+      return () => clearTimeout(timer);
+    } else {
+      setConnectTimeout(false);
+    }
+  }, [authLoading]);
+
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-800">
-        <div className="animate-pulse tracking-widest text-xs uppercase text-slate-400">
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-800">
+        <div className="relative mb-8">
+            <div className="w-12 h-12 bg-slate-200 rounded-full animate-ping opacity-20"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-3 h-3 bg-slate-400 rounded-full animate-pulse"></div>
+            </div>
+        </div>
+        
+        <div className="animate-pulse tracking-widest text-xs uppercase text-slate-400 font-bold">
           Connecting to Existence...
         </div>
+
+        {connectTimeout && (
+            <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mt-8 text-center"
+            >
+                <p className="text-sm text-slate-400 mb-4 leading-relaxed">
+                    接続に時間がかかっています。<br/>
+                    通信環境を確認するか、再試行してください。
+                </p>
+                <button 
+                    onClick={() => window.location.reload()}
+                    className="px-6 py-2 bg-white border border-slate-200 rounded-full text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm"
+                >
+                    再読み込みする
+                </button>
+            </motion.div>
+        )}
       </div>
     );
   }
 
   if (!user) {
-    return <AuthScreen />;
+    return (
+        <ErrorBoundary>
+            <AuthScreen />
+        </ErrorBoundary>
+    );
   }
 
   return (

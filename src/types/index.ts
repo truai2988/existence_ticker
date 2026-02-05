@@ -16,6 +16,7 @@ export interface UserProfile {
     prefecture: string;
     city: string;
   };
+  is_cycle_observed?: boolean;
   links?: {
     x?: string;
     instagram?: string;
@@ -27,6 +28,7 @@ export interface UserProfile {
   xp: number;
   warmth: number;
   role?: "user" | "admin";
+  ageGroup?: string;
 
   is_deleted?: boolean;
   last_updated?: unknown;
@@ -84,11 +86,13 @@ export interface Wish {
   fulfilled_at?: unknown;
   cancelled_at?: unknown;
   cancel_reason?: string;
+  isAnonymous?: boolean;
 }
 
 export interface CreateWishInput {
   content: string;
   tier: GratitudeTier;
+  isAnonymous?: boolean;
 }
 
 export type AppViewMode =

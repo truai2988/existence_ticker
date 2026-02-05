@@ -50,6 +50,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
     
     const [newWishContent, setNewWishContent] = useState('');
     const [selectedTier, setSelectedTier] = useState<GratitudeTier>('light');
+    const [isAnonymous, setIsAnonymous] = useState(false);
 
     const selectedTierCost = TIERS.find(t => t.id === selectedTier)?.cost || 0;
     const exceedsAvailable = selectedTierCost > availableLm;
@@ -60,7 +61,8 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
 
         const result = await castWish({
             content: newWishContent,
-            tier: selectedTier
+            tier: selectedTier,
+            isAnonymous
         });
 
         if (result) {
@@ -173,6 +175,38 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                            </button>
                        ))}
                    </div>
+               </div>
+
+               {/* Anonymous Option */}
+               <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
+                   <label className="flex items-start gap-3 cursor-pointer group">
+                       <div className="relative flex items-center mt-0.5">
+                           <input
+                               type="checkbox"
+                               className="peer sr-only"
+                               checked={isAnonymous}
+                               onChange={(e) => setIsAnonymous(e.target.checked)}
+                           />
+                           <div className="w-5 h-5 border-2 border-slate-300 rounded transition-colors peer-checked:bg-slate-800 peer-checked:border-slate-800 bg-white" />
+                           <svg
+                               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"
+                               fill="none"
+                               viewBox="0 0 24 24"
+                               stroke="currentColor"
+                               strokeWidth="3"
+                           >
+                               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                           </svg>
+                       </div>
+                       <div className="flex-1">
+                           <span className={`text-sm font-bold transition-colors ${isAnonymous ? "text-slate-800" : "text-slate-600"}`}>
+                               匿名でお願いする
+                           </span>
+                           <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                               ※相談がまとまる（進行中になる）まで、お互いの名前やアイコンは表示されません
+                           </p>
+                       </div>
+                   </label>
                </div>
                 </div>
             </div>

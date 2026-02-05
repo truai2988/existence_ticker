@@ -44,7 +44,10 @@ export const useWallet = () => {
         ? profile.cycle_started_at.toMillis()
         : 0;
 
-    if (cycleStartedAt === 0) return 'RITUAL_READY'; // First Birth Needed
+    // Condition 1: Has not observed the cycle yet (New User)
+    if (profile.is_cycle_observed === false) return 'RITUAL_READY'; 
+
+    if (cycleStartedAt === 0) return 'RITUAL_READY'; // Safety fallback
 
     const effectiveCycleDays = profile.scheduled_cycle_days || 10;
     const cycleDurationMillis = effectiveCycleDays * 24 * 60 * 60 * 1000;
@@ -150,7 +153,8 @@ export const useWallet = () => {
             committed_lm: newCommitted,
             last_updated: anchorDate,
             cycle_started_at: anchorDate,
-            scheduled_cycle_days: nextCycleDays
+            scheduled_cycle_days: nextCycleDays,
+            is_cycle_observed: true // Ritual completed, cycle is now observed
         });
 
         transaction.set(txRef, {
@@ -176,6 +180,65 @@ export const useWallet = () => {
     } catch (e) {
       console.error("Purification Failed:", e);
       return { success: false };
+    }
+  };
+
+  // === 4. INTEGRITY CHECK (Ghost Exorcism) ===
+  const verifyWalletIntegrity = async (): Promise<{ fixed: boolean; msg: string }> => {
+    if (!user || !db) return { fixed: false, msg: "No connection" };
+    try {
+        let fixed = false;
+        let msg = "Integrity Verified";
+
+        // Re-do with correct pattern: Read outside, then update inside.
+        const wishesRef = collection(db!, 'wishes');
+        const q = query(wishesRef, where('requester_id', '==', user.uid), where('status', 'in', ['open', 'in_progress']));
+        const snapshot = await getDocs(q);
+        
+        let calculatedCommitted = 0;
+        const activeIds: string[] = [];
+
+        snapshot.forEach(d => {
+            const w = d.data();
+            const val = calculateDecayedValue(w.cost || 0, w.created_at);
+            calculatedCommitted += val;
+            activeIds.push(d.id);
+        });
+
+        await runTransaction(db, async (transaction) => {
+             const userRef = doc(db!, "users", user.uid);
+             const userDoc = await transaction.get(userRef);
+             if (!userDoc.exists()) return;
+             
+             const data = userDoc.data();
+             const dbCommitted = data.committed_lm || 0;
+             const diff = Math.abs(dbCommitted - calculatedCommitted);
+
+             if (diff > 1) { // Tolerance (Tighten to 1 Lm)
+                 console.warn(`[Integrity] Mismatch detected. DB: ${dbCommitted}, REAL: ${calculatedCommitted}`);
+                 transaction.update(userRef, {
+                     committed_lm: calculatedCommitted,
+                     last_updated: serverTimestamp()
+                 });
+                 // Log correction
+                 const txRef = doc(collection(db!, "transactions"));
+                 transaction.set(txRef, {
+                     type: 'SYSTEM_CORRECTION',
+                     user_id: user.uid,
+                     amount: calculatedCommitted - dbCommitted, // Negative means we reduced it
+                     description: `Wallet Integrity Fixed. Ghost Lm removed. Active wishes: ${activeIds.length}`,
+                     created_at: serverTimestamp()
+                 });
+                 fixed = true;
+                 msg = `お財布のズレを修正しました (${dbCommitted} -> ${calculatedCommitted})`;
+             }
+        });
+
+        return { fixed, msg };
+
+    } catch (e) {
+        console.error("Integrity Check Failed", e);
+        return { fixed: false, msg: "Check failed" };
     }
   };
 
@@ -220,6 +283,7 @@ export const useWallet = () => {
     status,
     pay,
     performRebirthReset,
+    verifyWalletIntegrity,
     isLoading: profileLoading,
   };
 };

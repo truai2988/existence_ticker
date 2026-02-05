@@ -26,6 +26,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
     // Form States
     const [name, setName] = useState(profile?.name || '');
     const [bio, setBio] = useState(profile?.bio || '');
+    const [ageGroup, setAgeGroup] = useState(profile?.ageGroup || '');
     const [location, setLocation] = useState<{ prefecture: string, city: string }>({
         prefecture: profile?.location?.prefecture || '',
         city: profile?.location?.city || ''
@@ -41,6 +42,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
         if (profile) {
             setName(curr => curr || profile.name || '');
             setBio(curr => curr || profile.bio || '');
+            setAgeGroup(curr => curr || profile.ageGroup || '');
             setLocation(curr => {
                 if (curr.prefecture && curr.city) return curr; // Don't overwrite if user started editing?
                 // Actually if profile loads late, we want to start with profile data.
@@ -147,6 +149,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                 name,
                 location, // location is required type, assumed set
                 bio: bio || null,
+                ageGroup: ageGroup || undefined,
                 links: links || null,
                 avatarUrl: avatarUrl || null
             };
@@ -248,7 +251,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 <XCircle size={16} className="text-slate-300 shrink-0" strokeWidth={2.5} />
                             )}
                             <span className={`text-xs ${bio.length >= 30 ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>
-                                自己紹介を30文字以上入力 <span className="font-mono text-[11px]">({bio.length}/30)</span>
+                                自己紹介を30文字以上入力 <span className="font-mono text-xs">({bio.length}/30)</span>
                             </span>
                         </div>
                         {/* Links Check */}
@@ -280,6 +283,29 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 />
                             </div>
                             <div>
+                                <label className="block text-xs font-bold text-slate-500 mb-1.5">年代</label>
+                                <div className="relative">
+                                    <select 
+                                        value={ageGroup}
+                                        onChange={(e) => setAgeGroup(e.target.value)}
+                                        className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-slate-800 font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100"
+                                    >
+                                        <option value="">未選択</option>
+                                        <option value="20歳未満">20歳未満</option>
+                                        <option value="20代">20代</option>
+                                        <option value="30代">30代</option>
+                                        <option value="40代">40代</option>
+                                        <option value="50代">50代</option>
+                                        <option value="60代">60代</option>
+                                        <option value="70代">70代</option>
+                                        <option value="80代以上">80代以上</option>
+                                    </select>
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                        <ChevronLeft size={16} className="-rotate-90" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
                                 <label className="block text-xs font-bold text-slate-500 mb-1.5">自己紹介 (Bio)</label>
                                 <textarea 
                                     value={bio}
@@ -288,7 +314,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     placeholder="自己紹介文を入力してください (最大160文字)"
                                     maxLength={160}
                                 />
-                                <div className="text-right text-[11px] text-slate-400 mt-1">{bio.length}/160</div>
+                                <div className="text-right text-xs text-slate-400 mt-1">{bio.length}/160</div>
                             </div>
                         </div>
                     </div>
@@ -399,7 +425,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     <div className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-slate-600 text-sm font-mono">
                                         {user.email}
                                     </div>
-                                    <p className="text-[11px] text-slate-400 mt-1.5 ml-1 flex items-center gap-1">
+                                    <p className="text-xs text-slate-400 mt-1.5 ml-1 flex items-center gap-1">
                                         <AlertCircle size={10} />
                                         プライバシー保護のため、マッチング成立時のお相手以外には公開されません
                                     </p>

@@ -2,10 +2,12 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from 'react';
 import { Wish } from '../types';
 import { db } from '../lib/firebase';
-import { collection, query, orderBy, getDocs, limit, startAfter } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, limit, startAfter, where } from 'firebase/firestore';
+import { useAuth } from '../hooks/useAuthHook';
 
 interface WishesContextType {
     wishes: Wish[];
+    userWishes: Wish[];
     isLoading: boolean;
     isFetchingMore: boolean;
     error: Error | null;
@@ -17,7 +19,9 @@ interface WishesContextType {
 const WishesContext = createContext<WishesContextType | undefined>(undefined);
 
 export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const { user } = useAuth();
     const [wishes, setWishes] = useState<Wish[]>([]);
+    const [userWishes, setUserWishes] = useState<Wish[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
     const lastDocRef = useRef<unknown>(null);
@@ -25,6 +29,29 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const [isFetchingMore, setIsFetchingMore] = useState(false);
 
     const LIMIT = 20;
+
+    const fetchUserWishes = useCallback(async () => {
+        if (!db || !user) {
+            setUserWishes([]);
+            return;
+        } 
+        try {
+            const q = query(
+                collection(db, 'wishes'),
+                where('requester_id', '==', user.uid),
+                where('status', 'in', ['open', 'in_progress'])
+            );
+            const snapshot = await getDocs(q);
+            const myWishes = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            })) as Wish[];
+            console.log(`[WishesProvider] Loaded ${myWishes.length} personal wishes.`);
+            setUserWishes(myWishes);
+        } catch (e) {
+            console.error("Failed to fetch user wishes", e);
+        }
+    }, [user]);
 
     const fetchWishes = useCallback(async (isInitial = false) => {
         if (!db) return;
@@ -90,6 +117,15 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         fetchWishes(true);
     }, [fetchWishes]);
 
+    // Fetch user wishes when user changes
+    useEffect(() => {
+        if (user) {
+            fetchUserWishes();
+        } else {
+            setUserWishes([]);
+        }
+    }, [user, fetchUserWishes]);
+
     const loadMore = () => {
         if (!isLoading && !isFetchingMore && hasMore) {
             fetchWishes(false);
@@ -100,10 +136,11 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         lastDocRef.current = null;
         setHasMore(true);
         fetchWishes(true);
+        fetchUserWishes();
     };
 
     return (
-        <WishesContext.Provider value={{ wishes, isLoading, error, loadMore, hasMore, isFetchingMore, refresh }}>
+        <WishesContext.Provider value={{ wishes, userWishes, isLoading, error, loadMore, hasMore, isFetchingMore, refresh }}>
             {children}
         </WishesContext.Provider>
     );

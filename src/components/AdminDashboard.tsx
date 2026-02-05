@@ -305,54 +305,62 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                         {isLoadingUsers ? (
                             <div className="p-8 text-center text-slate-500">Scanning bio-signals...</div>
                         ) : (
-                            <table className="w-full text-left text-sm text-slate-400">
-                                <thead className="bg-slate-800/50 text-xs uppercase font-mono text-slate-500 sticky top-0 z-10 backdrop-blur-sm">
-                                    <tr>
-                                        <th className="px-6 py-3">User</th>
-                                        <th className="px-6 py-3">Status</th>
-                                        <th className="px-6 py-3">Role</th>
-                                        <th className="px-6 py-3 text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-800">
+                            <div className="w-full text-slate-400">
+                                {/* Responsive Header - Hidden on Mobile */}
+                                <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 bg-slate-800/50 text-xs uppercase font-mono text-slate-500 sticky top-0 z-10 backdrop-blur-sm border-b border-slate-700">
+                                    <div className="col-span-5">User</div>
+                                    <div className="col-span-3">Status</div>
+                                    <div className="col-span-2">Role</div>
+                                    <div className="col-span-2 text-right">Actions</div>
+                                </div>
+
+                                {/* Responsive Body */}
+                                <div className="divide-y divide-slate-800">
                                     {filteredUsers.map(u => (
-                                        <tr key={u.id} className="hover:bg-slate-800/30 transition-colors">
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold text-slate-300">
-                                                        {u.name?.charAt(0) || '?'}
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-bold text-slate-200">{u.name || 'Unknown'}</div>
-                                                        <div className="font-mono text-[11px] text-slate-600">{u.id}</div>
-                                                    </div>
+                                        <div key={u.id} className="p-4 md:px-6 md:py-4 hover:bg-slate-800/30 transition-colors flex flex-col md:grid md:grid-cols-12 md:gap-4 items-start md:items-center">
+                                            {/* User Info Col (Mobile: Row 1) */}
+                                            <div className="col-span-5 flex items-center gap-3 w-full mb-3 md:mb-0">
+                                                <div className="w-8 h-8 rounded-full bg-slate-700 flex-shrink-0 flex items-center justify-center text-xs font-bold text-slate-300">
+                                                    {u.name?.charAt(0) || '?'}
                                                 </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex flex-col text-xs">
-                                                    <span>Warmth: {u.warmth?.toLocaleString()}</span>
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="font-bold text-slate-200 truncate">{u.name || 'Unknown'}</div>
+                                                    <div className="font-mono text-[11px] text-slate-600 truncate">{u.id}</div>
                                                 </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {u.role === 'admin' ? (
-                                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-900/50">
-                                                        <Shield size={10} />
-                                                        Admin
-                                                    </span>
-                                                ) : (
-                                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-500">
-                                                        User
-                                                    </span>
-                                                )}
-                                                {ADMIN_UIDS.includes(u.id?.trim()) && (
-                                                    <div className="text-[9px] text-indigo-400 mt-1 font-mono opacity-50"> emergency-access </div>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 text-right flex justify-end gap-2">
+                                            </div>
+
+                                            {/* Status Col (Mobile: Row 2) */}
+                                            <div className="col-span-3 mb-2 md:mb-0 w-full md:w-auto flex items-center md:block text-xs">
+                                                <span className="md:hidden text-slate-500 w-16 flex-shrink-0">Status:</span>
+                                                <span>Warmth: {u.warmth?.toLocaleString()}</span>
+                                            </div>
+
+                                            {/* Role Col (Mobile: Row 3) */}
+                                            <div className="col-span-2 mb-4 md:mb-0 w-full md:w-auto flex items-center md:block text-xs">
+                                                <span className="md:hidden text-slate-500 w-16 flex-shrink-0">Role:</span>
+                                                <div className="inline-flex flex-col items-start gap-1">
+                                                    {u.role === 'admin' ? (
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-900/50">
+                                                            <Shield size={10} />
+                                                            Admin
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-500">
+                                                            User
+                                                        </span>
+                                                    )}
+                                                    {ADMIN_UIDS.includes(u.id?.trim()) && (
+                                                        <div className="text-[9px] text-indigo-400 font-mono opacity-50"> emergency-access </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Action Col (Mobile: Row 4) */}
+                                            <div className="col-span-2 w-full md:w-auto flex justify-end">
                                                 {u.role === 'admin' ? (
                                                     <button 
                                                         onClick={() => handleToggleAdmin(u)}
-                                                        className="text-xs bg-slate-800 hover:bg-red-900/50 text-slate-400 hover:text-red-400 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors flex items-center gap-1"
+                                                        className="w-full md:w-auto justify-center text-xs bg-slate-800 hover:bg-red-900/50 text-slate-400 hover:text-red-400 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors flex items-center gap-1"
                                                     >
                                                         <ShieldOff size={12} />
                                                         Revoke
@@ -360,17 +368,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                                 ) : (
                                                     <button 
                                                         onClick={() => handleToggleAdmin(u)}
-                                                        className="text-xs bg-slate-800 hover:bg-green-900/50 text-slate-400 hover:text-green-400 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors flex items-center gap-1"
+                                                        className="w-full md:w-auto justify-center text-xs bg-slate-800 hover:bg-green-900/50 text-slate-400 hover:text-green-400 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors flex items-center gap-1"
                                                     >
                                                         <Shield size={12} />
                                                         Grant Admin
                                                     </button>
                                                 )}
-                                            </td>
-                                        </tr>
+                                            </div>
+                                        </div>
                                     ))}
-                                </tbody>
-                            </table>
+                                </div>
+                            </div>
                         )}
                         {!isLoadingUsers && filteredUsers.length === 0 && (
                              <div className="p-12 text-center text-slate-600 flex flex-col items-center gap-2">

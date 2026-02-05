@@ -11,6 +11,7 @@ export const AuthScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
+    const [ageGroup, setAgeGroup] = useState('');
     const [location, setLocation] = useState({ prefecture: '', city: '' });
     const { cities, loading: loadingCities } = useLocationData(location.prefecture);
     const [isLoading, setIsLoading] = useState(false);
@@ -27,8 +28,9 @@ export const AuthScreen = () => {
                 await signIn(email, password);
             } else {
                 if (!name.trim()) throw new Error("名前を入力してください");
+                if (!ageGroup) throw new Error("年代を選択してください");
                 if (!location.prefecture) throw new Error("都道府県を選択してください");
-                await signUp(email, password, name, location);
+                await signUp(email, password, name, location, ageGroup);
             }
         } catch (err) {
             console.error(err);
@@ -141,7 +143,7 @@ export const AuthScreen = () => {
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold text-slate-500 ml-1">
                                         お名前 (表示名)
-                                        <span className="text-rose-500 text-[11px] ml-1 font-normal">(必須)</span>
+                                        <span className="text-rose-500 text-xs ml-1 font-normal">(必須)</span>
                                     </label>
                                     <input 
                                         type="text" 
@@ -152,11 +154,36 @@ export const AuthScreen = () => {
                                         required
                                     />
                                 </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-500 ml-1">
+                                        年代
+                                        <span className="text-rose-500 text-xs ml-1 font-normal">(必須)</span>
+                                    </label>
+                                    <div className="relative">
+                                        <select 
+                                            value={ageGroup}
+                                            onChange={(e) => setAgeGroup(e.target.value)}
+                                            className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans text-sm appearance-none"
+                                            required
+                                        >
+                                            <option value="">未選択</option>
+                                            <option value="20歳未満">20歳未満</option>
+                                            <option value="20代">20代</option>
+                                            <option value="30代">30代</option>
+                                            <option value="40代">40代</option>
+                                            <option value="50代">50代</option>
+                                            <option value="60代">60代</option>
+                                            <option value="70代">70代</option>
+                                            <option value="80代以上">80代以上</option>
+                                        </select>
+                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-4 h-4" />
+                                    </div>
+                                </div>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold text-slate-500 ml-1">
                                             都道府県
-                                            <span className="text-rose-500 text-[11px] ml-1 font-normal">(必須)</span>
+                                            <span className="text-rose-500 text-xs ml-1 font-normal">(必須)</span>
                                         </label>
                                         <div className="relative">
                                             <select 
@@ -176,7 +203,7 @@ export const AuthScreen = () => {
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold text-slate-500 ml-1">
                                             市区町村
-                                            <span className="text-rose-500 text-[11px] ml-1 font-normal">(必須)</span>
+                                            <span className="text-rose-500 text-xs ml-1 font-normal">(必須)</span>
                                         </label>
                                         <div className="relative">
                                             <select 
@@ -195,7 +222,7 @@ export const AuthScreen = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <p className="text-[11px] text-slate-400 mt-2 ml-1 leading-relaxed">
+                                <p className="text-xs text-slate-400 mt-2 ml-1 leading-relaxed">
                                     ※番地やマンション名の入力は<strong className="text-slate-500 font-bold">不要</strong>です。<br/>
                                     あなたの生活圏の隣人とつながるための情報です。
                                 </p>
@@ -205,7 +232,7 @@ export const AuthScreen = () => {
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-500 ml-1">
                             メールアドレス
-                            {mode === 'register' && <span className="text-rose-500 text-[11px] ml-1 font-normal">(必須)</span>}
+                            {mode === 'register' && <span className="text-rose-500 text-xs ml-1 font-normal">(必須)</span>}
                         </label>
                         <input 
                             type="email" 
@@ -220,7 +247,7 @@ export const AuthScreen = () => {
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-500 ml-1">
                             パスワード
-                            {mode === 'register' && <span className="text-rose-500 text-[11px] ml-1 font-normal">(必須)</span>}
+                            {mode === 'register' && <span className="text-rose-500 text-xs ml-1 font-normal">(必須)</span>}
                         </label>
                         <input 
                             type="password" 
@@ -282,7 +309,7 @@ export const AuthScreen = () => {
                 )}
             </div>
             
-            <p className="absolute bottom-6 text-[11px] text-slate-400 font-sans">
+            <p className="absolute bottom-6 text-xs text-slate-400 font-sans">
                 © 2026 Existence Ticker Project
             </p>
         </div>

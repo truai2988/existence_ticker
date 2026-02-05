@@ -20,6 +20,18 @@ export const useProfile = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (user && isLoading) {
+      const timer = setTimeout(() => {
+        if (isLoading) {
+          console.warn("[useProfile] Profile loading timed out after 10s");
+          setIsLoading(false);
+        }
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [user, isLoading]);
+
+  useEffect(() => {
     if (!user || !db) {
       setProfile(null);
       setIsLoading(false);
@@ -97,6 +109,7 @@ export const useProfile = () => {
             warmth: 0,
             completed_contracts: 0,
             created_contracts: 0,
+            is_cycle_observed: false, // New: Start unobserved
           };
 
           runTransaction(db!, async (transaction) => {
@@ -106,7 +119,8 @@ export const useProfile = () => {
               // 1. Create User
               transaction.set(userRef, { 
                   ...initialProfile, 
-                  last_updated: serverTimestamp() 
+                  last_updated: serverTimestamp(),
+                  cycle_started_at: serverTimestamp() // New: Real start time
               }, { merge: true });
 
               // 2. Increment Stats (if location is somehow known? Usually unknown for raw init)
@@ -169,6 +183,7 @@ export const useProfile = () => {
           warmth: 0,
           completed_contracts: 0,
           created_contracts: 0,
+          is_cycle_observed: false, // New: Start unobserved
           location: (updates.location as UserProfile['location']), 
           ...updates as Partial<UserProfile>
         };
@@ -182,7 +197,8 @@ export const useProfile = () => {
                 // 1. Create Profile
                 transaction.set(userRef, {
                     ...initialProfile,
-                    last_updated: serverTimestamp()
+                    last_updated: serverTimestamp(),
+                    cycle_started_at: serverTimestamp() // New: Real start time
                 });
 
                 // 2. Increment Stats for the NEW location (if valid)

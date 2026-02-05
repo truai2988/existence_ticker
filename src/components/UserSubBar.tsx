@@ -30,9 +30,13 @@ export const UserSubBar: React.FC = () => {
                 const docRef = doc(db!, 'location_stats', docId);
                 const snap = await getDoc(docRef);
                 if (snap.exists()) {
-                    setStatsCount(snap.data().count || 0);
+                    // Optimistic Adjustment: If this is my location, count must be at least 1.
+                    // This prevents "None yet" race condition display for the logged-in user.
+                    const rawCount = snap.data().count || 0;
+                    setStatsCount(Math.max(rawCount, 1)); 
                 } else {
-                    setStatsCount(0);
+                    // Doc doesn't exist yet -> First user in this city
+                    setStatsCount(1);
                 }
              } catch (e) {
                  console.error("Status fetch failed", e);
@@ -44,6 +48,7 @@ export const UserSubBar: React.FC = () => {
     const getStatusText = () => {
         if (!profile?.location) return "地域未設定";
         if (statsCount === null) return "確認中...";
+        // Restore Specification: Explicit handling for 0 users (e.g., if somehow viewing a different area or system reset)
         if (statsCount === 0) return "登録者はまだいません";
         if (statsCount < 5) return "5名未満";
         return `${statsCount}名`;
@@ -63,11 +68,11 @@ export const UserSubBar: React.FC = () => {
                         onClick={() => setShowPresenceModal(true)}
                         className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors group"
                     >
-                        <MapPin size={11} className="text-slate-300 group-hover:text-blue-400 transition-colors" />
+                        <MapPin size={12} className="text-slate-300 group-hover:text-blue-400 transition-colors" />
                         <span className="font-mono tracking-wide">
                             {profile?.location?.city || "エリア"}: <span className="font-bold text-slate-500 group-hover:text-slate-700">{getStatusText()}</span>
                         </span>
-                        <ChevronRight size={11} className="text-slate-300 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                        <ChevronRight size={12} className="text-slate-300 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
                     </button>
 
                     {/* User Name (Settings Trigger) */}

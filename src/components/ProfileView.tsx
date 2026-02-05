@@ -22,6 +22,7 @@ import { calculateDecayedValue } from "../logic/worldPhysics";
 import { UNIT_LABEL, ADMIN_UIDS, SURVIVAL_CONSTANTS } from "../constants";
 import { useAuth } from "../hooks/useAuthHook";
 import { getTrustRank } from "../logic/worldPhysics";
+import { useWallet } from "../hooks/useWallet";
 import { ProfileEditScreen } from "./ProfileEditScreen";
 
 interface ProfileViewProps {
@@ -82,6 +83,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const { profile, isLoading: isProfileLoading } = useProfile();
   const { user, signOut, linkEmail, deleteAccount, updateUserPassword } =
     useAuth();
+  const { verifyWalletIntegrity } = useWallet();
 
   // UI States
   const [isEditingProfile, setIsEditingProfile] = useState(initialEditMode);
@@ -287,7 +289,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 (profile.consecutive_completions || 0) < 3 &&
                 user?.uid === profile.id && (
                   <div className="mt-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg max-w-[200px]">
-                    <p className="text-[11px] text-slate-500 text-center leading-snug">
+                    <p className="text-xs text-slate-500 text-center leading-snug">
                       器にヒビが入っています。
                       <br />
                       あと{" "}
@@ -300,7 +302,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 )}
 
               {/* Meta Info */}
-              <div className="flex items-center gap-3 text-[11px] text-slate-400 font-mono mt-1">
+              <div className="flex items-center gap-3 text-xs text-slate-400 font-mono mt-1">
                 <div className="flex items-center gap-1">
                   <span>ID: {profile?.id?.slice(0, 8)}...</span>
                 </div>
@@ -308,11 +310,17 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   <>
                     <span className="text-slate-300">|</span>
                     <div className="flex items-center gap-0.5">
-                      <MapPin size={11} />
+                      <MapPin size={12} />
                       <span>
                         {profile.location.prefecture} {profile.location.city}
                       </span>
                     </div>
+                  </>
+                )}
+                {profile?.ageGroup && (
+                  <>
+                    <span className="text-slate-300">|</span>
+                    <span className="text-slate-500">{profile.ageGroup}</span>
                   </>
                 )}
               </div>
@@ -341,7 +349,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                         rel="noopener noreferrer"
                         className="p-2 bg-slate-900 text-white rounded-full hover:opacity-80 transition-opacity"
                       >
-                        <span className="text-[11px] font-bold block w-4 h-4 text-center">
+                        <span className="text-xs font-bold block w-4 h-4 text-center">
                           𝕏
                         </span>
                       </a>
@@ -388,7 +396,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     <div className="text-sm font-bold text-slate-700">
                       手持ち詳細
                     </div>
-                    <div className="text-[11px] text-slate-400">
+                    <div className="text-xs text-slate-400">
                       減価レート: -
                       {(SURVIVAL_CONSTANTS.DECAY_PER_SEC * 3600).toFixed(0)}{" "}
                       {UNIT_LABEL}/h
@@ -405,8 +413,20 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 </div>
               </div>
 
-              <div className="border-t border-slate-100">
-                {/* No actions here for now */}
+              <div className="border-t border-slate-100 flex items-center justify-between px-4 py-2 bg-slate-50/50">
+                  <div className="text-xs text-slate-400">
+                      Integrity Check
+                  </div>
+                  <button 
+                    onClick={async () => {
+                        const { fixed, msg } = await verifyWalletIntegrity();
+                        if (fixed) alert(msg);
+                        else alert("正常です (No anomalies found)");
+                    }}
+                    className="text-xs font-bold text-slate-500 hover:text-slate-800 underline transition-colors"
+                  >
+                      お財布のズレを直す
+                  </button>
               </div>
             </div>
 
@@ -472,7 +492,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               )}
             </div>
 
-            <div className="text-center text-[11px] text-slate-300 py-4">
+            <div className="text-center text-xs text-slate-300 py-4">
               Existence Ticker v0.2.0
             </div>
           </div>

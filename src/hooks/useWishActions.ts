@@ -92,6 +92,7 @@ export const useWishActions = () => {
           requester_trust_score: data.completed_contracts || 0, // Stamp Trust (Helped Count)
           requester_completed_requests: data.completed_requests || 0, // Stamp Reliability (Paid/Completed Requests)
           created_at: serverTimestamp(), // Firestore Timestamp
+          isAnonymous: input.isAnonymous || false,
         });
       });
 

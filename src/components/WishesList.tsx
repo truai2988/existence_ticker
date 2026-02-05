@@ -4,6 +4,7 @@ import { Sparkles, User, Handshake, MapPin } from "lucide-react";
 import { useWishes } from '../hooks/useWishes';
 import { WishCard } from './WishCard';
 import { PresenceModal } from './PresenceModal';
+import { Wish } from '../types';
 
 type TabType = 'all' | 'mine' | 'accepted';
 
@@ -12,7 +13,7 @@ interface WishesListProps {
 }
 
 export const WishesList = ({ currentUserId }: WishesListProps) => {
-  const { wishes } = useWishes();
+  const { wishes, userWishes } = useWishes();
   
   // Local state only for UI interactions, not data
   const [activeTab, setActiveTab] = useState<TabType>('all');
@@ -21,22 +22,24 @@ export const WishesList = ({ currentUserId }: WishesListProps) => {
 
 
   // Filter Logic
-  const filteredWishes = wishes.filter(wish => {
-      // Use real IDs
-      
-      if (activeTab === 'all') {
-          return wish.status === 'open';
-      }
+  const filteredWishes = (() => {
       if (activeTab === 'mine') {
-          return wish.requester_id === currentUserId;
+          // Use explicitly fetched user wishes
+          return userWishes;
       }
-      if (activeTab === 'accepted') {
-          return wish.status === 'in_progress' && (
-              wish.helper_id === currentUserId || wish.requester_id === currentUserId
-            );
-      }
-      return true;
-  });
+      
+      return wishes.filter(wish => {
+          if (activeTab === 'all') {
+              return wish.status === 'open';
+          }
+          if (activeTab === 'accepted') {
+              return wish.status === 'in_progress' && (
+                  wish.helper_id === currentUserId || wish.requester_id === currentUserId
+                );
+          }
+          return true;
+      });
+  })();
 
   // Render Logic for Contract Tab
   const renderContractTabContent = () => {
@@ -64,7 +67,7 @@ export const WishesList = ({ currentUserId }: WishesListProps) => {
               <Handshake className="w-4 h-4" />
               遂行中のクエスト
             </h3>
-            {myQuests.map(wish => (
+            {myQuests.map((wish: Wish) => (
                 <motion.div
                     key={wish.id}
                     initial={{ opacity: 0, x: -20 }}
@@ -90,7 +93,7 @@ export const WishesList = ({ currentUserId }: WishesListProps) => {
               </h3>
             </div>
             
-            {myRequests.map(wish => (
+            {myRequests.map((wish: Wish) => (
                 <motion.div
                     key={wish.id}
                     initial={{ opacity: 0, x: 20 }}
@@ -198,7 +201,7 @@ export const WishesList = ({ currentUserId }: WishesListProps) => {
                 )}
                 </div>
             ) : (
-                filteredWishes.map((wish, index) => (
+                filteredWishes.map((wish: Wish, index: number) => (
                     <motion.div
                     key={wish.id}
                     initial={{ opacity: 0, y: 20 }}

@@ -13,7 +13,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
-    const { balance, availableLm, committedLm } = useWallet();
+    const { balance, availableLm, committedLm, status } = useWallet();
     const { profile } = useProfile();
     
     const displayValue = balance;
@@ -55,7 +55,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
                     <div className="flex flex-col justify-center">
                         <div className="flex items-center gap-1.5 text-slate-500 mb-0.5">
                             <Sparkles size={12} className={isFullyCommitted ? "text-slate-300" : "text-amber-400 fill-amber-400"} />
-                            <span className="text-[11px] font-bold tracking-widest uppercase opacity-80">
+                            <span className="text-xs font-bold tracking-widest uppercase opacity-80">
                                 使える LM
                             </span>
                         </div>
@@ -68,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
                                     isFullyCommitted ? 'text-slate-300' : 'text-slate-800'
                                 }`}
                             >
-                                {Math.floor(displayAvailable).toLocaleString()}
+                                {status === 'RITUAL_READY' ? '－' : Math.floor(displayAvailable).toLocaleString()}
                             </motion.span>
                             <span className={`text-xs font-bold ${isFullyCommitted ? 'text-slate-300' : 'text-slate-400'}`}>
                                 {UNIT_LABEL}
@@ -78,10 +78,10 @@ export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
 
                     {/* Season Indicator (Center-Right) */}
                     <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center opacity-60 pointer-events-none">
-                        <span className={`text-[11px] font-mono font-bold uppercase tracking-widest ${seasonColor}`}>
+                        <span className={`text-xs font-mono font-bold uppercase tracking-widest ${seasonColor}`}>
                             {seasonLabel}
                         </span>
-                        <span className="text-[10px] text-slate-400">
+                        <span className="text-xs text-slate-400">
                             リセットまで {daysLeft} 日
                         </span>
                     </div>
@@ -94,8 +94,8 @@ export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
                         {/* Total Label */}
                         <div className="flex items-center gap-1.5 text-slate-400">
                             <Wallet size={10} strokeWidth={2.5} />
-                            <div className="text-[11px] font-bold tracking-wider tabular-nums">
-                                手持ち: <span className="text-slate-600 font-bold">{Math.floor(displayValue).toLocaleString()}</span>
+                            <div className="text-xs font-bold tracking-wider tabular-nums">
+                                手持ち: <span className="text-slate-600 font-bold">{status === 'RITUAL_READY' ? '－' : Math.floor(displayValue).toLocaleString()}</span>
                             </div>
                         </div>
 
@@ -126,7 +126,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
 
                         {/* Status / Link */}
                         <div className="h-4 flex items-center justify-end">
-                            <span className="text-[10px] text-slate-300 font-mono">
+                            <span className="text-xs text-slate-300 font-mono">
                                 {Math.round(availablePercent)}%
                             </span>
                         </div>

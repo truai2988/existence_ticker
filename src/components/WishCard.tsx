@@ -31,12 +31,14 @@ const ApplicantItem: React.FC<{
   onApprove: (id: string, name: string) => void;
   onOpenProfile: (id: string) => void;
   isActionLoading: boolean;
-}> = ({ applicant, onApprove, onOpenProfile, isActionLoading }) => {
+  isMasked?: boolean;
+}> = ({ applicant, onApprove, onOpenProfile, isActionLoading, isMasked }) => {
   const { profile } = useOtherProfile(applicant.id);
 
   // Use fresh data if available, otherwise snapshot
-  const displayName = profile?.name || applicant.name;
-  const avatarUrl = profile?.avatarUrl;
+  // MASKING LOGIC
+  const displayName = isMasked ? "匿名" : (profile?.name || applicant.name);
+  const avatarUrl = isMasked ? null : profile?.avatarUrl;
   const trustScore = applicant.trust_score || 0;
   const rank = getTrustRank(profile, trustScore);
 
@@ -44,7 +46,7 @@ const ApplicantItem: React.FC<{
     <div className="flex flex-col gap-3 p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-all group">
       <div className="flex items-center gap-3">
         {/* Avatar with fallback */}
-        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0 overflow-hidden">
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center border shrink-0 overflow-hidden ${isMasked ? "bg-slate-200 border-slate-300" : "bg-slate-100 border-slate-200"}`}>
           {avatarUrl ? (
             <img
               src={avatarUrl}
@@ -53,8 +55,12 @@ const ApplicantItem: React.FC<{
             />
           ) : (
             <span className="text-lg font-bold text-slate-400">
-              {displayName?.charAt(0).toUpperCase() || (
-                <User className="w-5 h-5 text-slate-300" />
+              {isMasked ? (
+                 <User className="w-5 h-5 text-slate-400" />
+              ) : (
+                 displayName?.charAt(0).toUpperCase() || (
+                   <User className="w-5 h-5 text-slate-300" />
+                 )
               )}
             </span>
           )}
@@ -62,24 +68,37 @@ const ApplicantItem: React.FC<{
 
         <div className="min-w-0 flex-1">
           <button
-            onClick={() => onOpenProfile(applicant.id)}
-            className="text-sm font-bold text-slate-800 hover:text-blue-600 hover:underline text-left truncate w-full block"
+            onClick={() => !isMasked && onOpenProfile(applicant.id)}
+            disabled={isMasked}
+            className={`text-sm font-bold text-left truncate w-full block transition-colors ${isMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:text-blue-600 hover:underline"}`}
           >
             {displayName}
           </button>
           <div className="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
             {/* Trust/Helped Count Badge */}
-            <div
-              title={`${trustScore} times helped`}
-              className={`flex items-center gap-0.5 ${rank.color}`}
-            >
-              {rank.icon}
-              <span className="font-mono font-bold">({trustScore})</span>
-            </div>
+            {!isMasked && (
+                <div
+                title={`${trustScore} times helped`}
+                className={`flex items-center gap-0.5 ${rank.color}`}
+                >
+                {rank.icon}
+                <span className="font-mono font-bold">({trustScore})</span>
+                </div>
+            )}
 
             {/* Rank Label */}
-            <span className="text-slate-300">|</span>
-            <span className="text-slate-500 font-bold">{rank.label}</span>
+            {!isMasked && (
+                <>
+                    <span className="text-slate-300">|</span>
+                    <span className="text-slate-500 font-bold">{rank.label}</span>
+                </>
+            )}
+            
+            {isMasked && (
+                <span className="text-[10px] text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">
+                    詳細非表示
+                </span>
+            )}
           </div>
         </div>
       </div>
@@ -186,6 +205,13 @@ export const WishCard: React.FC<WishCardProps> = ({
   const applicants = wish.applicants || [];
   const hasApplied = applicants.some((a) => a.id === currentUserId);
 
+  // MASKING LOGIC FOR REQUESTER
+  // Hidden if anonymous AND (open OR (cancelled/expired without match))
+  const isMasked = !!wish.isAnonymous && (
+      wish.status === 'open' || 
+      (!wish.helper_id && ['cancelled', 'expired'].includes(wish.status))
+  );
+
   // Handlers
   const handleApply = async () => {
     if (!isProfileComplete(myProfile)) {
@@ -199,7 +225,7 @@ export const WishCard: React.FC<WishCardProps> = ({
       }
     }
 
-    if (!confirm("この依頼に立候補しますか？")) return;
+    if (!confirm(wish.isAnonymous ? "これは「匿名の願い」です。決定されるまで、あなたも匿名として扱われます。\n\n立候補しますか？" : "この依頼に立候補しますか？")) return;
     setIsLoading(true);
     const success = await applyForWish(wish.id);
     setIsLoading(false);
@@ -303,21 +329,41 @@ export const WishCard: React.FC<WishCardProps> = ({
     }
   };
 
+  // Update formatDate to include time
   const formatDate = (
     val: string | { toDate?: () => Date } | Date | undefined,
   ) => {
     if (!val) return "今";
-    if (typeof val === "string") return new Date(val).toLocaleDateString();
-    if ("toDate" in val && typeof val.toDate === "function")
-      return val.toDate().toLocaleDateString();
-    return "不明";
+    const date =
+      typeof val === "string"
+        ? new Date(val)
+        : "toDate" in val && typeof val.toDate === "function"
+        ? val.toDate()
+        : null;
+    if (!date) return "不明";
+    return date.toLocaleString("ja-JP", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   const trust = getTrustRank(requesterProfile, wish.requester_trust_score);
+  const displayRequesterName = isMasked
+    ? "匿名"
+    : requesterProfile?.name ||
+      wish.requester_name ||
+      wish.requester_id.slice(0, 8);
 
   return (
     <div
-      className={`relative bg-white border shadow-sm rounded-2xl px-6 py-4 ${applicants.length > 0 && isMyWish && wish.status === "open" ? "border-yellow-400 shadow-yellow-100 ring-1 ring-yellow-400/50" : "border-slate-100"}`}
+      className={`relative bg-white border shadow-sm rounded-2xl px-6 py-4 ${
+        applicants.length > 0 && isMyWish && wish.status === "open"
+          ? "border-yellow-400 shadow-yellow-100 ring-1 ring-yellow-400/50"
+          : "border-slate-100"
+      }`}
     >
       {/* Header: User & Meta & Badge */}
       <div className="relative flex justify-between items-start mb-2 gap-4">
@@ -327,7 +373,7 @@ export const WishCard: React.FC<WishCardProps> = ({
           {isMyWish ? (
             // My Wish View
             wish.helper_id ? (
-              // Show Helper Info (for in_progress, fulfilled, expired, etc.)
+              // Show Helper Info + Timestamp
               <>
                 <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 shrink-0 overflow-hidden">
                   {helperProfile?.avatarUrl ? (
@@ -352,11 +398,12 @@ export const WishCard: React.FC<WishCardProps> = ({
                       }}
                       className="block text-sm font-bold text-slate-800 tracking-wide hover:underline text-left truncate max-w-full"
                     >
-                      {helperProfile?.name || 
-                       wish.helper_name || 
-                       wish.applicants?.find(a => a.id === wish.helper_id)?.name || 
-                       wish.helper_id?.slice(0, 8) || 
-                       "隣人"}
+                      {helperProfile?.name ||
+                        wish.helper_name ||
+                        wish.applicants?.find((a) => a.id === wish.helper_id)
+                          ?.name ||
+                        wish.helper_id?.slice(0, 8) ||
+                        "隣人"}
                     </button>
                   </div>
                 </div>
@@ -364,23 +411,23 @@ export const WishCard: React.FC<WishCardProps> = ({
             ) : (
               // Open Status or Unmatched History
               <div className="min-w-0 flex-1 py-1">
-                 {['cancelled', 'expired'].includes(wish.status) && (
-                     <div className="flex items-center gap-2 opacity-50">
-                         <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
-                             <User className="w-5 h-5 text-slate-300" />
-                         </div>
-                         <div className="text-xs text-slate-400 font-medium">
-                             未成立
-                         </div>
-                     </div>
-                 )}
+                {["cancelled", "expired"].includes(wish.status) && (
+                  <div className="flex items-center gap-2 opacity-50 mb-1">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
+                      <User className="w-5 h-5 text-slate-300" />
+                    </div>
+                    <div className="text-xs text-slate-400 font-medium">
+                      未成立
+                    </div>
+                  </div>
+                )}
               </div>
             )
           ) : (
             // Others View (Show Requester - Existing Logic)
             <>
-              <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0 overflow-hidden">
-                {requesterProfile?.avatarUrl ? (
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center border shrink-0 overflow-hidden ${isMasked ? "bg-slate-200 border-slate-300" : "bg-slate-100 border-slate-200"}`}>
+                {!isMasked && requesterProfile?.avatarUrl ? (
                   <img
                     src={requesterProfile.avatarUrl}
                     alt={requesterProfile.name}
@@ -388,8 +435,12 @@ export const WishCard: React.FC<WishCardProps> = ({
                   />
                 ) : (
                   <span className="text-lg font-bold text-slate-400">
-                    {requesterProfile?.name?.charAt(0).toUpperCase() || (
-                      <User className="w-5 h-5 text-slate-300" />
+                    {isMasked ? (
+                        <User className="w-5 h-5 text-slate-400" />
+                    ) : ( 
+                        requesterProfile?.name?.charAt(0).toUpperCase() || (
+                          <User className="w-5 h-5 text-slate-300" />
+                        )
                     )}
                   </span>
                 )}
@@ -399,21 +450,23 @@ export const WishCard: React.FC<WishCardProps> = ({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      openUserProfile(wish.requester_id);
+                      !isMasked && openUserProfile(wish.requester_id);
                     }}
-                    className="block text-sm font-bold text-slate-800 tracking-wide hover:underline text-left truncate max-w-full"
+                    disabled={isMasked}
+                    className={`block text-sm font-bold tracking-wide text-left truncate max-w-full ${isMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:underline"}`}
                   >
-                    {requesterProfile?.name ||
-                      wish.requester_name ||
-                      wish.requester_id.slice(0, 8)}
+                    {displayRequesterName}
                   </button>
-                  {trust.isVerified && (
+                  {/* Verified Badge - Hide if masked? */}
+                  {!isMasked && trust.isVerified && (
                     <ShieldCheck
                       size={14}
                       className="text-blue-400 fill-blue-50 shrink-0"
                       strokeWidth={2.5}
                     />
                   )}
+                  {/* Trust Stats - Hide if masked */}
+                  {!isMasked && (
                   <div className="flex items-center gap-2 text-xs shrink-0">
                     <div
                       title={`Helped ${wish.requester_trust_score || 0} times`}
@@ -435,9 +488,15 @@ export const WishCard: React.FC<WishCardProps> = ({
                       </span>
                     </span>
                   </div>
+                  )}
+                  {isMasked && (
+                      <div className="text-xs text-slate-400 flex items-center gap-1">
+                          <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">詳細非表示</span>
+                      </div>
+                  )}
                 </div>
-                {/* Bio snippet - replaces headline */}
-                {requesterProfile?.bio && (
+                {/* Bio snippet - replaces headline - HIDE IF MASKED */}
+                {!isMasked && requesterProfile?.bio && (
                   <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
                     {requesterProfile.bio.length > 60
                       ? `${requesterProfile.bio.slice(0, 60)}...`
@@ -447,6 +506,9 @@ export const WishCard: React.FC<WishCardProps> = ({
                 <span className="flex items-center gap-1 text-xs text-slate-400 mt-0.5">
                   <Clock className="w-3 h-3" />
                   <span>{formatDate(wish.created_at)}</span>
+                 {wish.isAnonymous && (
+                     <span className="ml-1 text-[10px] bg-slate-100 border border-slate-200 text-slate-500 px-1.5 rounded">匿名</span>
+                 )}
                 </span>
               </div>
             </>
@@ -685,8 +747,9 @@ export const WishCard: React.FC<WishCardProps> = ({
 
       {/* Footer: Action Area */}
       <div className="relative pt-4 border-t border-slate-100 min-h-[50px] flex items-center justify-between gap-4 flex-wrap">
-        {/* Status Badge (Left) */}
-        <div className="">
+        {/* Status Badge & Timestamp (Left) */}
+        <div className="flex flex-col gap-1 items-start">
+          <div className="">
           {wish.status === "in_progress" && (
             <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 whitespace-nowrap shrink-0">
               進行中
@@ -723,6 +786,20 @@ export const WishCard: React.FC<WishCardProps> = ({
                 募集中
               </span>
             ))}
+          </div>
+
+          {/* Timestamp for My Wish (Moved to Footer) */}
+          {isMyWish && (
+            <span className="flex items-center gap-1 text-[10px] text-slate-400 ml-1">
+              <Clock className="w-3 h-3" />
+              <span>{formatDate(wish.created_at)}</span>
+              {wish.isAnonymous && (
+                <span className="ml-1 bg-slate-50 border border-slate-200 px-1 rounded text-slate-500">
+                  匿名
+                </span>
+              )}
+            </span>
+          )}
         </div>
 
         {/* Action Buttons (Right) */}
@@ -788,6 +865,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                                     onApprove={handleApprove}
                                     onOpenProfile={openUserProfile}
                                     isActionLoading={isLoading}
+                                    isMasked={isMasked}
                                   />
                                 ))
                               )}
