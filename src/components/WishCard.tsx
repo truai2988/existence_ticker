@@ -492,9 +492,6 @@ export const WishCard: React.FC<WishCardProps> = ({
                 <span className="flex items-center gap-1 text-xs text-slate-400 mt-0.5">
                   <Clock className="w-3 h-3" />
                   <span>{formatDate(wish.created_at)}</span>
-                 {wish.isAnonymous && (
-                     <span className="ml-1 text-[10px] bg-slate-100 border border-slate-200 text-slate-500 px-1.5 rounded">匿名</span>
-                 )}
                 </span>
               </div>
             </>
