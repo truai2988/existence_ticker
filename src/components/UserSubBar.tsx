@@ -74,7 +74,7 @@ export const UserSubBar: React.FC = () => {
                         </span>
                         <ChevronRight size={12} className="text-slate-300 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
                     </button>
-
+                    
                     {/* User Name (Settings Trigger) */}
                     <button 
                         onClick={() => setShowSettingsModal(true)}

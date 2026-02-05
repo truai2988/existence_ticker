@@ -46,7 +46,7 @@ export const useAuth = () => {
         await signInWithEmailAndPassword(auth, email, pass);
     };
 
-    const signUp = async (email: string, pass: string, name: string, location: { prefecture: string, city: string }, ageGroup: string) => {
+    const signUp = async (email: string, pass: string, name: string, location: { prefecture: string, city: string }, age_group: string) => {
         if (!auth) throw new Error("Auth not initialized");
         const cred = await createUserWithEmailAndPassword(auth, email, pass);
         if (cred.user) {
@@ -60,7 +60,7 @@ export const useAuth = () => {
                     id: cred.user.uid,
                     name: name,
                     location: location,
-                    ageGroup: ageGroup,
+                    age_group: age_group,
                     balance: 2400,
                     xp: 0,
                     warmth: 0,

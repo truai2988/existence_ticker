@@ -7,7 +7,6 @@ import {
   Trash2,
   KeyRound,
   Sun,
-  Wallet,
   Handshake,
   Megaphone,
   MapPin,
@@ -18,11 +17,9 @@ import {
   Settings,
 } from "lucide-react";
 import { useProfile } from "../hooks/useProfile";
-import { calculateDecayedValue } from "../logic/worldPhysics";
-import { UNIT_LABEL, ADMIN_UIDS, SURVIVAL_CONSTANTS } from "../constants";
+import { ADMIN_UIDS } from "../constants";
 import { useAuth } from "../hooks/useAuthHook";
 import { getTrustRank } from "../logic/worldPhysics";
-import { useWallet } from "../hooks/useWallet";
 import { ProfileEditScreen } from "./ProfileEditScreen";
 
 interface ProfileViewProps {
@@ -83,7 +80,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const { profile, isLoading: isProfileLoading } = useProfile();
   const { user, signOut, linkEmail, deleteAccount, updateUserPassword } =
     useAuth();
-  const { verifyWalletIntegrity } = useWallet();
 
   // UI States
   const [isEditingProfile, setIsEditingProfile] = useState(initialEditMode);
@@ -115,19 +111,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
   const rank = getTrustRank(profile);
 
-  // Visual Decay Logic
-  const [displayBalance, setDisplayBalance] = useState(() =>
-    profile ? calculateDecayedValue(profile.balance, profile.last_updated) : 0,
-  );
-
-  React.useEffect(() => {
-    if (!profile) return;
-    // Calculate once on mount/update. No real-time ticker.
-    setDisplayBalance(
-      calculateDecayedValue(profile.balance, profile.last_updated),
-    );
-  }, [profile]);
-
+  // Visual Decay Logic - (Removed detailed block)
+  
   // Auth Handlers
   const handleLinkAccount = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -317,10 +302,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     </div>
                   </>
                 )}
-                {profile?.ageGroup && (
+                {profile?.age_group && (
                   <>
                     <span className="text-slate-300">|</span>
-                    <span className="text-slate-500">{profile.ageGroup}</span>
+                    <span className="text-slate-500">{profile.age_group}</span>
                   </>
                 )}
               </div>
@@ -385,51 +370,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
           {/* 2. Settings & Stats Groups */}
           <div className="px-4 space-y-6">
-            {/* Section: Wallet (Stock) */}
-            <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm">
-              <div className="p-4 border-b border-slate-100 flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-amber-50 rounded-full">
-                    <Wallet size={16} className="text-amber-500" />
-                  </div>
-                  <div>
-                    <div className="text-sm font-bold text-slate-700">
-                      手持ち詳細
-                    </div>
-                    <div className="text-xs text-slate-400">
-                      減価レート: -
-                      {(SURVIVAL_CONSTANTS.DECAY_PER_SEC * 3600).toFixed(0)}{" "}
-                      {UNIT_LABEL}/h
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-bold text-slate-800 tabular-nums">
-                    {Math.floor(displayBalance).toLocaleString()}
-                    <span className="text-xs text-slate-400 ml-1">
-                      {UNIT_LABEL}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t border-slate-100 flex items-center justify-between px-4 py-2 bg-slate-50/50">
-                  <div className="text-xs text-slate-400">
-                      Integrity Check
-                  </div>
-                  <button 
-                    onClick={async () => {
-                        const { fixed, msg } = await verifyWalletIntegrity();
-                        if (fixed) alert(msg);
-                        else alert("正常です (No anomalies found)");
-                    }}
-                    className="text-xs font-bold text-slate-500 hover:text-slate-800 underline transition-colors"
-                  >
-                      お財布のズレを直す
-                  </button>
-              </div>
-            </div>
-
             {/* Section: Activity History (Flow) - NEW */}
             <div>
               <div className="text-xs font-bold text-slate-400 ml-2 mb-2">

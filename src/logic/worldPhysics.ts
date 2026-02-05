@@ -6,8 +6,10 @@ import { UserProfile } from '../types';
 
 export const WORLD_CONSTANTS = {
   REBIRTH_AMOUNT: 2400, // 器（Vessel）の最大容量
+  MAX_VESSEL_CAPACITY_MILLI: 2400000, // 2,400 Lm = 絶対的な壁
   DECAY_RATE_HOURLY: 10, // 減価レート (Lumens per Hour)
   MAX_STREAK_FOR_REPAIR: 3, // 穢れ（Crack）を修復するために必要な連続誠実回数
+  GLOBAL_METABOLISM_PATH: 'stats/global_metabolism',
 };
 
 // =========================================================================================
@@ -39,6 +41,17 @@ const getMillis = (timestamp: unknown): number => {
 };
 
 // =========================================================================================
+// Milli-Lm Helpers (1 Lm = 1000 milli-Lm)
+// =========================================================================================
+
+export const toMilli = (lm: number): number => Math.floor(lm * 1000);
+export const fromMilli = (milli: number): number => milli / 1000;
+
+// Decay Rate: 10 Lm/h = 10,000 milli-Lm / 3600 sec = 25 / 9 milli-Lm per sec
+const MILLI_DECAY_PER_SEC_NUMERATOR = 25;
+const MILLI_DECAY_PER_SEC_DENOMINATOR = 9;
+
+// =========================================================================================
 // Decay Logic (減価計算)
 // =========================================================================================
 
@@ -46,60 +59,50 @@ const getMillis = (timestamp: unknown): number => {
  * 時間経過による価値の減少を計算する (Physical Truth)
  * 
  * [Integer Policy]:
- * UI側での丸め処理を禁止するため、必ず整数（Integer）を返す。
- * 浮動小数点数（小数の端数）は存在しないものとして、切り捨てる。
- * 
- * [Null Safety]:
- * Firestoreの書き込み遅延等で timestamp が null/undefined の場合は、
- * 減価なしとして初期値（initialValue）をそのまま返す。
+ * 内部計算はすべて milli-Lm (1 Lm = 1000) の整数で行う。
+ * 10 Lm/h = 10,000 milli-Lm/h = 25/9 milli-Lm/sec.
  */
-export const calculateDecayedValue = (initialValue: number, lastUpdated: unknown): number => {
-  // 1. Safety Checks
+export const calculateDecayedValue = (initialValueLm: number, lastUpdated: unknown): number => {
+  const initialMilli = toMilli(initialValueLm);
+
   if (lastUpdated === null || lastUpdated === undefined) {
-      return Math.floor(initialValue);
+      return fromMilli(initialMilli);
   }
 
-  // 2. Time Calculation
   const now = Date.now();
   const lastTime = getMillis(lastUpdated);
   
-  // 未来の日時が渡された場合（クロックズレ等）は減価なし
   if (now < lastTime) {
-      return Math.floor(initialValue);
+      return fromMilli(initialMilli);
   }
 
-  const elapsedMs = now - lastTime;
+  const elapsedSec = Math.floor((now - lastTime) / 1000);
+  const milliDecay = Math.floor((elapsedSec * MILLI_DECAY_PER_SEC_NUMERATOR) / MILLI_DECAY_PER_SEC_DENOMINATOR);
   
-  // 3. Integer Decay (1h = 10 Lm)
-  // 時間も「整数時間」として切り捨てて扱う
-  const elapsedHours = Math.floor(elapsedMs / 3600000); // 1h = 3600000ms
-  const decayAmount = elapsedHours * WORLD_CONSTANTS.DECAY_RATE_HOURLY;
-  
-  // 4. Result (No Negative, Always Integer)
-  const result = initialValue - decayAmount;
-  return Math.max(0, Math.floor(result));
+  const resultMilli = Math.max(0, initialMilli - milliDecay);
+  return fromMilli(resultMilli);
 };
 
 /**
  * 過去の特定の時点での価値を計算する (Historical Truth)
- * キャンセル時や過去の記録の照会に使用。
  */
-export const calculateHistoricalValue = (initialValue: number, startTime: unknown, endTime: unknown): number => {
+export const calculateHistoricalValue = (initialValueLm: number, startTime: unknown, endTime: unknown): number => {
+    const initialMilli = toMilli(initialValueLm);
+
     if (startTime === null || startTime === undefined || endTime === null || endTime === undefined) {
-        return Math.floor(initialValue); // Data missing, return base
+        return fromMilli(initialMilli);
     }
 
     const startMs = getMillis(startTime);
     const endMs = getMillis(endTime);
 
-    if (endMs < startMs) return Math.floor(initialValue);
+    if (endMs < startMs) return fromMilli(initialMilli);
 
-    const elapsedMs = endMs - startMs;
-    const elapsedHours = Math.floor(elapsedMs / 3600000);
-    const decayAmount = elapsedHours * WORLD_CONSTANTS.DECAY_RATE_HOURLY;
+    const elapsedSec = Math.floor((endMs - startMs) / 1000);
+    const milliDecay = Math.floor((elapsedSec * MILLI_DECAY_PER_SEC_NUMERATOR) / MILLI_DECAY_PER_SEC_DENOMINATOR);
     
-    const result = initialValue - decayAmount;
-    return Math.max(0, Math.floor(result));
+    const resultMilli = Math.max(0, initialMilli - milliDecay);
+    return fromMilli(resultMilli);
 };
 
 // =========================================================================================
@@ -107,14 +110,12 @@ export const calculateHistoricalValue = (initialValue: number, startTime: unknow
 // =========================================================================================
 
 /**
- * 現在利用可能な（他者に贈れる）余裕資産を可視化する
- * "Available" = DecayedBalance - Committed(Reserved) Amount
+ * Available = Total - Committed
  */
-export const calculateAvailableLm = (currentBalance: number, committedLm: number = 0): number => {
-    // Note: currentBalance should already be decayed before passing here usually,
-    // but safety check or raw naming is up to consumer. 
-    // Usually this function expects "current visible balance".
-    return Math.max(0, currentBalance - committedLm);
+export const calculateAvailableLm = (currentBalanceLm: number, committedLm: number = 0): number => {
+    const balanceMilli = toMilli(currentBalanceLm);
+    const committedMilli = toMilli(committedLm);
+    return fromMilli(Math.max(0, balanceMilli - committedMilli));
 };
 
 // =========================================================================================

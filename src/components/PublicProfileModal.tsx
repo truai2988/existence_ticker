@@ -44,7 +44,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
     const displayAvatar = isMasked ? null : profile.avatarUrl;
     const displayBio = isMasked ? null : profile.bio;
 
-    const ageGroup = profile.ageGroup;
+    const age_group = profile.age_group;
 
     return (
         <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in">
@@ -111,11 +111,11 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                                 </>
                             )}
 
-                            {ageGroup && (
+                            {age_group && (
                                 <>
                                     <span className="text-[11px] text-slate-300 font-light">|</span>
                                     <span className="text-[11px] text-slate-500 font-bold">
-                                        {ageGroup}
+                                        {age_group}
                                     </span>
                                 </>
                             )}

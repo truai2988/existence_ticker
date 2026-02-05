@@ -28,7 +28,7 @@ export interface UserProfile {
   xp: number;
   warmth: number;
   role?: "user" | "admin";
-  ageGroup?: string;
+  age_group?: string;
 
   is_deleted?: boolean;
   last_updated?: unknown;

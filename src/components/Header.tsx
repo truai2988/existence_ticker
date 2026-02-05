@@ -1,7 +1,7 @@
 import React from 'react';
 import { Sparkles, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { UNIT_LABEL } from '../constants';
+import { UNIT_LABEL, LUNAR_CONSTANTS } from '../constants';
 import { WORLD_CONSTANTS } from '../logic/worldPhysics';
 import { UserSubBar } from './UserSubBar';
 import { useWallet } from '../hooks/useWallet';
@@ -16,21 +16,16 @@ export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
     const { balance, availableLm, committedLm, status } = useWallet();
     const { profile } = useProfile();
     
-    const displayValue = balance;
-    const displayAvailable = availableLm;
-    const displayCommitted = committedLm;
-
-    const isFullyCommitted = displayAvailable <= 0;
+    const isFullyCommitted = availableLm <= 0;
     
-    // Percentages
-    const availablePercent = Math.min(100, (displayAvailable / WORLD_CONSTANTS.REBIRTH_AMOUNT) * 100);
-    const committedPercent = Math.min(100, (displayCommitted / WORLD_CONSTANTS.REBIRTH_AMOUNT) * 100);
+    // Percentages (Based on Rebirth Max Capacity)
+    const availablePercent = Math.min(100, (availableLm / WORLD_CONSTANTS.REBIRTH_AMOUNT) * 100);
+    const committedPercent = Math.min(100, (committedLm / WORLD_CONSTANTS.REBIRTH_AMOUNT) * 100);
 
     const shouldShowUserName = viewMode !== 'profile' && viewMode !== 'profile_edit';
 
     // Seasonal Logic
     const cycleDays = profile?.scheduled_cycle_days || 10;
-    // Handle Timestamp or other formats safely
     const cycleStartedAt = profile?.cycle_started_at?.toMillis 
         ? profile.cycle_started_at.toMillis() 
         : (profile?.created_at?.toMillis ? profile.created_at.toMillis() : Date.now());
@@ -42,6 +37,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
     let seasonColor = "text-yellow-600";
     if (cycleDays < 10) { seasonLabel = "春 (循環)"; seasonColor = "text-green-600"; }
     if (cycleDays > 10) { seasonLabel = "冬 (停滞)"; seasonColor = "text-slate-500"; }
+
 
     return (
         <>
@@ -61,14 +57,13 @@ export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
                         </div>
                         <div className="flex items-baseline gap-1.5">
                             <motion.span 
-                                key={Math.floor(displayAvailable)}
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 className={`text-4xl font-sans font-extrabold tracking-tighter tabular-nums ${
                                     isFullyCommitted ? 'text-slate-300' : 'text-slate-800'
                                 }`}
                             >
-                                {status === 'RITUAL_READY' ? '－' : Math.floor(displayAvailable).toLocaleString()}
+                                {status === 'RITUAL_READY' ? '－' : Math.floor(availableLm).toLocaleString()}
                             </motion.span>
                             <span className={`text-xs font-bold ${isFullyCommitted ? 'text-slate-300' : 'text-slate-400'}`}>
                                 {UNIT_LABEL}
@@ -76,13 +71,16 @@ export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
                         </div>
                     </div>
 
-                    {/* Season Indicator (Center-Right) */}
-                    <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center opacity-60 pointer-events-none">
-                        <span className={`text-xs font-mono font-bold uppercase tracking-widest ${seasonColor}`}>
+                    {/* Season & Decay (Center) */}
+                    <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none">
+                        <span className={`text-[10px] font-mono font-bold uppercase tracking-widest ${seasonColor} opacity-60 mb-0.5`}>
                             {seasonLabel}
                         </span>
-                        <span className="text-xs text-slate-400">
+                        <span className="text-[11px] text-slate-400 leading-none">
                             リセットまで {daysLeft} 日
+                        </span>
+                        <span className="text-xs text-slate-500 font-bold mt-1">
+                            -{Math.floor(LUNAR_CONSTANTS.DECAY_PER_SEC * 3600).toLocaleString()} {UNIT_LABEL}/h
                         </span>
                     </div>
 
@@ -95,7 +93,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
                         <div className="flex items-center gap-1.5 text-slate-400">
                             <Wallet size={10} strokeWidth={2.5} />
                             <div className="text-xs font-bold tracking-wider tabular-nums">
-                                手持ち: <span className="text-slate-600 font-bold">{status === 'RITUAL_READY' ? '－' : Math.floor(displayValue).toLocaleString()}</span>
+                                手持ち: <span className="text-slate-600 font-bold">{status === 'RITUAL_READY' ? '－' : Math.floor(balance).toLocaleString()}</span>
                             </div>
                         </div>
 

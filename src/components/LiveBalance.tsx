@@ -29,11 +29,11 @@ export const LiveBalance: React.FC<LiveBalanceProps> = ({
         // Sync immediate on prop change
         setDisplayValue(calculateLifePoints(balance, lastUpdated));
 
-        // Self-contained loop
+        // Self-contained loop (1-Hour Silence: 1 hour)
         const interval = setInterval(() => {
             const current = calculateLifePoints(balance, lastUpdated);
             setDisplayValue(current);
-        }, 100); // 10fps is enough for text updates
+        }, 3600000); 
 
         return () => clearInterval(interval);
     }, [balance, lastUpdated]);
@@ -45,10 +45,7 @@ export const LiveBalance: React.FC<LiveBalanceProps> = ({
         return (
             <div className="flex items-baseline justify-end leading-none">
                 <span className="text-2xl font-mono font-bold text-yellow-400 tabular-nums">
-                    {Math.floor(displayValue)}
-                </span>
-                <span className="text-sm text-yellow-500/60 font-mono ml-0.5">
-                    .{(displayValue % 1).toFixed(2).substring(2)}
+                    {Math.floor(displayValue).toLocaleString()}
                 </span>
                 {addUnit && <span className="text-sm font-normal text-yellow-500 ml-1">{UNIT_LABEL}</span>}
             </div>
@@ -58,7 +55,7 @@ export const LiveBalance: React.FC<LiveBalanceProps> = ({
     // Default Plain Text (e.g. for small headers)
     return (
         <span className="font-mono tabular-nums">
-            {displayValue.toFixed(2)}
+            {Math.floor(displayValue).toLocaleString()}
             {addUnit && ` ${UNIT_LABEL}`}
         </span>
     );

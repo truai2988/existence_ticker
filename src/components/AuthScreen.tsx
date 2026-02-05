@@ -11,7 +11,7 @@ export const AuthScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
-    const [ageGroup, setAgeGroup] = useState('');
+    const [age_group, setAgeGroup] = useState('');
     const [location, setLocation] = useState({ prefecture: '', city: '' });
     const { cities, loading: loadingCities } = useLocationData(location.prefecture);
     const [isLoading, setIsLoading] = useState(false);
@@ -28,9 +28,9 @@ export const AuthScreen = () => {
                 await signIn(email, password);
             } else {
                 if (!name.trim()) throw new Error("名前を入力してください");
-                if (!ageGroup) throw new Error("年代を選択してください");
+                if (!age_group) throw new Error("年代を選択してください");
                 if (!location.prefecture) throw new Error("都道府県を選択してください");
-                await signUp(email, password, name, location, ageGroup);
+                await signUp(email, password, name, location, age_group);
             }
         } catch (err) {
             console.error(err);
@@ -161,7 +161,7 @@ export const AuthScreen = () => {
                                     </label>
                                     <div className="relative">
                                         <select 
-                                            value={ageGroup}
+                                            value={age_group}
                                             onChange={(e) => setAgeGroup(e.target.value)}
                                             className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans text-sm appearance-none"
                                             required

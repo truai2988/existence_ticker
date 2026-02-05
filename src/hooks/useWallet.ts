@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useAuth } from "./useAuthHook";
 import { db } from "../lib/firebase";
 import {
@@ -12,54 +12,121 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { useProfile } from "./useProfile";
-import { calculateDecayedValue, calculateAvailableLm, WORLD_CONSTANTS } from "../logic/worldPhysics";
+import { 
+  calculateDecayedValue, 
+  calculateAvailableLm, 
+  WORLD_CONSTANTS,
+  toMilli,
+  fromMilli
+} from "../logic/worldPhysics";
+import { useWishesContext } from "../contexts/WishesContext";
 
 export type WalletStatus = 'ALIVE' | 'EMPTY' | 'RITUAL_READY';
 
 export const useWallet = () => {
   const { user } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
+  const { userWishes, isLoading: wishesLoading } = useWishesContext();
 
-  // === 1. PHYSICAL TRUTH (Decayed Values) ===
+  // 1-Hour Silence: Live Ticker for live decay updates (1 hour)
+  const [localTick, setLocalTick] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setLocalTick(t => t + 1), 3600000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // === 1. PHYSICAL TRUTH (Absolute Hierarchy) ===
+
+  // Chain 1: Total Balance (Decayed Base)
   const balance = useMemo(() => {
     const rawBalance = profile?.balance ?? 0;
     const lastUpdated = profile?.last_updated;
     return calculateDecayedValue(rawBalance, lastUpdated);
-  }, [profile?.balance, profile?.last_updated]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.balance, profile?.last_updated, localTick]);
 
+  // Chain 2: Committed Lm (Sum of real active wishes, each decayed)
   const committedLm = useMemo(() => {
-    const rawCommitted = profile?.committed_lm || 0;
-    const lastUpdated = profile?.last_updated;
-    return calculateDecayedValue(rawCommitted, lastUpdated);
-  }, [profile?.committed_lm, profile?.last_updated]);
+    if (wishesLoading) return profile?.committed_lm ?? 0;
+    
+    let totalMilli = 0;
+    userWishes.forEach(w => {
+        const decayedCost = calculateDecayedValue(w.cost || 0, w.created_at);
+        totalMilli += toMilli(decayedCost);
+    });
+    return fromMilli(totalMilli);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userWishes, wishesLoading, profile?.committed_lm, localTick]);
 
-  const availableLm = calculateAvailableLm(balance, committedLm);
+  // Chain 3: Available Lm (The Result)
+  const availableLm = useMemo(() => {
+    return calculateAvailableLm(balance, committedLm);
+  }, [balance, committedLm]);
 
-  // === 2. METABOLIC STATUS (The Three States) ===
+
+  // === 2. AUTOMATIC SANITIZATION (Ghost Exorcism) ===
+  useEffect(() => {
+    if (!user || !db || wishesLoading || profileLoading || !profile) return;
+    
+    // We compare with the real-time Truth we just calculated
+    const dbCommitted = profile.committed_lm || 0;
+    const realCommitted = committedLm;
+    
+    // Use a small epsilon for float comparison
+    if (Math.abs(dbCommitted - realCommitted) > 0.01) {
+        console.warn(`[Sanitization] Syncing Committed Lm: DB(${dbCommitted}) -> Real(${realCommitted})`);
+        
+        const syncDb = async () => {
+            try {
+                await runTransaction(db!, async (transaction) => {
+                    const userRef = doc(db!, "users", user.uid);
+                    const userSnap = await transaction.get(userRef);
+                    if (!userSnap.exists()) return;
+                    
+                    transaction.update(userRef, {
+                        committed_lm: realCommitted
+                    });
+                    
+                    // Log the correction
+                    const logRef = doc(collection(db!, "transactions"));
+                    transaction.set(logRef, {
+                        type: 'SYSTEM_SYNC',
+                        user_id: user.uid,
+                        amount: fromMilli(toMilli(realCommitted) - toMilli(dbCommitted)),
+                        description: `Auto-Sync: committed_lm corrected to match decayed active wishes.`,
+                        created_at: serverTimestamp()
+                    });
+                });
+            } catch (e) {
+                console.error("Sanitization Failed", e);
+            }
+        };
+        syncDb();
+    }
+  }, [user, profile, committedLm, wishesLoading, profileLoading]);
+
+  // === 3. METABOLIC STATUS ===
   const status: WalletStatus = useMemo(() => {
-    if (!profile || profileLoading) return 'ALIVE'; // Default while loading
+    if (!profile || profileLoading) return 'ALIVE';
 
-    // Anchor check
     const cycleStartedAt = profile.cycle_started_at && typeof profile.cycle_started_at.toMillis === 'function'
         ? profile.cycle_started_at.toMillis()
         : 0;
 
-    // Condition 1: Has not observed the cycle yet (New User)
     if (profile.is_cycle_observed === false) return 'RITUAL_READY'; 
-
-    if (cycleStartedAt === 0) return 'RITUAL_READY'; // Safety fallback
+    if (cycleStartedAt === 0) return 'RITUAL_READY';
 
     const effectiveCycleDays = profile.scheduled_cycle_days || 10;
     const cycleDurationMillis = effectiveCycleDays * 24 * 60 * 60 * 1000;
     const expiryDate = cycleStartedAt + cycleDurationMillis;
     const now = Date.now();
 
-    if (now >= expiryDate) return 'RITUAL_READY'; // Rebirth Needed
-    if (balance <= 0) return 'EMPTY'; // Vessel is dry
-    return 'ALIVE'; // Flowing
+    if (now >= expiryDate) return 'RITUAL_READY';
+    if (balance <= 0) return 'EMPTY';
+    return 'ALIVE';
   }, [profile, profileLoading, balance]);
 
-  // === 3. THE SACRED RITUAL (Rebirth / First Birth) ===
+  // === 4. THE SACRED RITUAL (Rebirth) ===
   const performRebirthReset = async (): Promise<{ success: boolean; newBalance?: number }> => {
     if (!user || !db) return { success: false };
     if (status !== 'RITUAL_READY') return { success: false };
@@ -68,28 +135,16 @@ export const useWallet = () => {
       let resultBalance = WORLD_CONSTANTS.REBIRTH_AMOUNT;
 
       await runTransaction(db, async (transaction) => {
-        // --- PHASE I: READS (全 transaction.get() を冒頭に集約) ---
         const userRef = doc(db!, "users", user.uid);
         const userDoc = await transaction.get(userRef);
         
         const settingsRef = doc(db!, "system_settings", "global");
         const settingsDoc = await transaction.get(settingsRef);
 
-        // Pre-read active social contracts (Wishes)
         const wishesRef = collection(db!, 'wishes');
-        const activeQ = query(wishesRef, where('requester_id', '==', user.uid));
+        const activeQ = query(wishesRef, where('requester_id', '==', user.uid), where('status', 'in', ['open', 'in_progress']));
         const activeSnap = await getDocs(activeQ);
-        const activeWishRefs = activeSnap.docs
-            .filter(d => ['open', 'in_progress'].includes(d.data().status))
-            .map(d => d.ref);
         
-        const wishDocs = [];
-        for (const wRef of activeWishRefs) {
-            const snap = await transaction.get(wRef);
-            wishDocs.push({ ref: wRef, snap });
-        }
-
-        // --- PHASE II: LOGIC (判定と計算) ---
         if (!userDoc.exists()) throw "World Error: Soul not found";
         
         const data = userDoc.data();
@@ -102,59 +157,48 @@ export const useWallet = () => {
         let isFirstBirth = false;
 
         if (cycleStartedAt === 0) {
-            // First Birth: Anchor to NOW
             newAnchorTimeMillis = now;
             isFirstBirth = true;
         } else {
-            // Rebirth: Anchor to Theoretical Expiry
             const days = data.scheduled_cycle_days || 10;
             const duration = days * 24 * 60 * 60 * 1000;
             const theoreticalEnd = cycleStartedAt + duration;
 
-            // Rescue Logic: If theoretical anchor is too far in past or broken
             if (theoreticalEnd > now || (now - theoreticalEnd) > duration * 2) {
-                newAnchorTimeMillis = now; // Out of sync or broken -> Rescue to NOW
+                newAnchorTimeMillis = now;
             } else {
                 newAnchorTimeMillis = theoreticalEnd;
             }
         }
 
-        // Calculation of Balance at the Anchor (Mathematical Truth)
-        const exactElapsedHours = Math.floor((now - newAnchorTimeMillis) / 3600000);
-        const decay = exactElapsedHours * WORLD_CONSTANTS.DECAY_RATE_HOURLY;
-        resultBalance = Math.max(0, WORLD_CONSTANTS.REBIRTH_AMOUNT - decay);
+        const exactElapsedSec = Math.floor((now - newAnchorTimeMillis) / 1000);
+        const milliDecay = Math.floor((exactElapsedSec * 25) / 9);
+        const milliRebirth = toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT);
+        resultBalance = fromMilli(Math.max(0, milliRebirth - milliDecay));
 
-        // Idempotency: Check if this specific anchor has been recorded
         const txId = `rebirth_${user.uid}_${newAnchorTimeMillis}`;
         const txRef = doc(db!, 'transactions', txId);
         const txDoc = await transaction.get(txRef);
-        if (txDoc.exists() && !isFirstBirth) {
-            console.warn("Idempotency: Ritual already performed for this anchor.");
-            return; 
-        }
+        if (txDoc.exists() && !isFirstBirth) return; 
 
-        // Settings
         const nextCycleDays = settingsDoc.exists() ? (settingsDoc.data().cycleDays || 10) : 10;
         
-        // Calculate remaining liability from active contracts
-        let newCommitted = 0;
-        for (const { snap } of wishDocs) {
-            if (snap.exists()) {
-                const w = snap.data();
-                newCommitted += (w.cost || 0); // Rebirth時は元の予約額（Nominal）で合計する
-            }
-        }
+        let newCommittedMilli = 0;
+        activeSnap.forEach(d => {
+            const w = d.data();
+            const decayed = calculateDecayedValue(w.cost || 0, w.created_at);
+            newCommittedMilli += toMilli(decayed);
+        });
 
-        // --- PHASE III: WRITES (書き込み) ---
         const anchorDate = new Date(newAnchorTimeMillis);
 
         transaction.update(userRef, {
             balance: WORLD_CONSTANTS.REBIRTH_AMOUNT,
-            committed_lm: newCommitted,
+            committed_lm: fromMilli(newCommittedMilli),
             last_updated: anchorDate,
             cycle_started_at: anchorDate,
             scheduled_cycle_days: nextCycleDays,
-            is_cycle_observed: true // Ritual completed, cycle is now observed
+            is_cycle_observed: true
         });
 
         transaction.set(txRef, {
@@ -166,7 +210,6 @@ export const useWallet = () => {
             description: isFirstBirth ? '命が宿りました' : '魂が再生されました'
         });
 
-        // Stats Tracker
         const today = new Date().toISOString().split("T")[0];
         const statsRef = doc(db!, "daily_stats", today);
         transaction.set(statsRef, {
@@ -183,67 +226,9 @@ export const useWallet = () => {
     }
   };
 
-  // === 4. INTEGRITY CHECK (Ghost Exorcism) ===
-  const verifyWalletIntegrity = async (): Promise<{ fixed: boolean; msg: string }> => {
-    if (!user || !db) return { fixed: false, msg: "No connection" };
-    try {
-        let fixed = false;
-        let msg = "Integrity Verified";
-
-        // Re-do with correct pattern: Read outside, then update inside.
-        const wishesRef = collection(db!, 'wishes');
-        const q = query(wishesRef, where('requester_id', '==', user.uid), where('status', 'in', ['open', 'in_progress']));
-        const snapshot = await getDocs(q);
-        
-        let calculatedCommitted = 0;
-        const activeIds: string[] = [];
-
-        snapshot.forEach(d => {
-            const w = d.data();
-            const val = calculateDecayedValue(w.cost || 0, w.created_at);
-            calculatedCommitted += val;
-            activeIds.push(d.id);
-        });
-
-        await runTransaction(db, async (transaction) => {
-             const userRef = doc(db!, "users", user.uid);
-             const userDoc = await transaction.get(userRef);
-             if (!userDoc.exists()) return;
-             
-             const data = userDoc.data();
-             const dbCommitted = data.committed_lm || 0;
-             const diff = Math.abs(dbCommitted - calculatedCommitted);
-
-             if (diff > 1) { // Tolerance (Tighten to 1 Lm)
-                 console.warn(`[Integrity] Mismatch detected. DB: ${dbCommitted}, REAL: ${calculatedCommitted}`);
-                 transaction.update(userRef, {
-                     committed_lm: calculatedCommitted,
-                     last_updated: serverTimestamp()
-                 });
-                 // Log correction
-                 const txRef = doc(collection(db!, "transactions"));
-                 transaction.set(txRef, {
-                     type: 'SYSTEM_CORRECTION',
-                     user_id: user.uid,
-                     amount: calculatedCommitted - dbCommitted, // Negative means we reduced it
-                     description: `Wallet Integrity Fixed. Ghost Lm removed. Active wishes: ${activeIds.length}`,
-                     created_at: serverTimestamp()
-                 });
-                 fixed = true;
-                 msg = `お財布のズレを修正しました (${dbCommitted} -> ${calculatedCommitted})`;
-             }
-        });
-
-        return { fixed, msg };
-
-    } catch (e) {
-        console.error("Integrity Check Failed", e);
-        return { fixed: false, msg: "Check failed" };
-    }
-  };
-
   const pay = async (amount: number, reason: string): Promise<boolean> => {
     if (!user || !db) return false;
+    console.log(`[Wallet] Processing payment: ${amount} for ${reason}`);
     try {
       await runTransaction(db, async (transaction) => {
         const userRef = doc(db!, "users", user.uid);
@@ -255,8 +240,10 @@ export const useWallet = () => {
 
         if (currentRealBalance < amount) throw "Insufficient Energy";
 
+        const milliRemaining = toMilli(currentRealBalance) - toMilli(amount);
+
         transaction.update(userRef, {
-          balance: currentRealBalance - amount,
+          balance: fromMilli(milliRemaining),
           last_updated: serverTimestamp()
         });
 
@@ -266,8 +253,6 @@ export const useWallet = () => {
           volume: increment(amount),
           updated_at: serverTimestamp()
         }, { merge: true });
-        
-        console.log(`Flow: Paid ${amount} for ${reason}`);
       });
       return true;
     } catch (e) {
@@ -283,7 +268,7 @@ export const useWallet = () => {
     status,
     pay,
     performRebirthReset,
-    verifyWalletIntegrity,
-    isLoading: profileLoading,
+    isLoading: profileLoading || wishesLoading,
   };
 };
+

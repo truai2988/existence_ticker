@@ -169,12 +169,12 @@ export const WishCard: React.FC<WishCardProps> = ({
   };
   const initialCost = wish.cost || getInitialCost(wish.gratitude_preset);
 
-  // Live Ticker for Decay (re-calculate periodically)
+  // 1-Hour Silence: Live Ticker for Decay (re-calculate periodically)
   const [tick, setTick] = useState(0);
   React.useEffect(() => {
-     // Update every 10 seconds to show "Living" decay
-     // 10 Lm/h = ~0.0027 Lm/sec. 10s = 0.027 Lm. Visible in toFixed(3).
-     const timer = setInterval(() => setTick(t => t + 1), 10000);
+     // Update every 1 hour to show "Stillness"
+     // 10 Lm/h = exactly 10 Lm drop after 1 hour.
+     const timer = setInterval(() => setTick(t => t + 1), 3600000);
      return () => clearInterval(timer);
   }, []);
 
@@ -628,19 +628,19 @@ export const WishCard: React.FC<WishCardProps> = ({
                 </div>
                 <div className="text-lg font-bold font-mono text-slate-900 tracking-tight">
                     {wish.status === "fulfilled" ? (
-                        <>{(wish.val_at_fulfillment || 0).toFixed(3)} <span className="text-[11px] text-slate-400 ml-0.5">Lm</span></>
+                        <>{Math.floor(wish.val_at_fulfillment || 0).toLocaleString()} <span className="text-[11px] text-slate-400 ml-0.5">Lm</span></>
                     ) : wish.status === "cancelled" ? (
                         wish.cancel_reason === 'compensatory_cancellation' || wish.cancel_reason === 'helper_cancellation' || wish.val_at_fulfillment ? (
                              // Apology Transaction Case using generic wording
                              <div className="flex flex-col items-end">
                                 <span className="text-base text-red-500">
                                     {wish.val_at_fulfillment !== undefined 
-                                        ? wish.val_at_fulfillment.toFixed(3) 
-                                        : calculateHistoricalValue(
+                                        ? Math.floor(wish.val_at_fulfillment).toLocaleString()
+                                        : Math.floor(calculateHistoricalValue(
                                             wish.cost || 0, 
                                             wish.created_at, 
                                             wish.cancelled_at
-                                          ).toFixed(3)
+                                          )).toLocaleString()
                                     } 
                                     <span className="text-[11px] ml-0.5">Lm</span>
                                 </span>
@@ -680,7 +680,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                 )}
               </div>
               <div className="text-xl font-mono text-slate-800 font-bold tracking-tight">
-                {displayValue.toFixed(3)} <span className="text-sm font-normal text-slate-500 ml-0.5">Lm</span>
+                {Math.floor(displayValue).toLocaleString()} <span className="text-sm font-normal text-slate-500 ml-0.5">Lm</span>
               </div>
             </div>
         )}

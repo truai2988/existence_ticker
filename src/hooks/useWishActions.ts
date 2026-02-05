@@ -17,7 +17,7 @@ import {
   FieldValue,
 } from "firebase/firestore";
 
-import { calculateDecayedValue } from "../logic/worldPhysics";
+import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS } from "../logic/worldPhysics";
 
 // タイムスタンプと初期値から現在価値を計算
 
@@ -286,16 +286,33 @@ export const useWishActions = () => {
               last_updated: serverTimestamp(),
             });
 
-            // Helper Update
+            // Helper Update (with Overflow/Solar Return logic)
             const hData = helperDoc.data();
-            const hBalance = hData?.balance || 0;
+            const hBalanceLm = hData?.balance || 0;
             const hLastUpdated = hData?.last_updated;
-            const hCurrentDecayed = calculateDecayedValue(hBalance, hLastUpdated);
+            const hCurrentDecayedLm = calculateDecayedValue(hBalanceLm, hLastUpdated);
+
+            const hCurrentDecayedMilli = toMilli(hCurrentDecayedLm);
+            const actualPaymentMilli = toMilli(actualPayment);
+            const hRawNewMilli = hCurrentDecayedMilli + actualPaymentMilli;
+
+            const hCappedMilli = Math.min(hRawNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
+            const hOverflowMilli = Math.max(0, hRawNewMilli - WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
 
             transaction.update(helperRef, {
-              balance: hCurrentDecayed + actualPayment,
+              balance: fromMilli(hCappedMilli),
               last_updated: serverTimestamp(),
             });
+
+            // Solar Return: Add overflow to global pool
+            if (hOverflowMilli > 0) {
+              const globalStatsRef = doc(db!, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
+              transaction.set(globalStatsRef, {
+                  total_overflow_pool: increment(hOverflowMilli),
+                  updated_at: serverTimestamp()
+              }, { merge: true });
+              console.log(`[Solar Return] Compensation Overflow detected: ${fromMilli(hOverflowMilli)} Lm returned to the Sun.`);
+            }
 
             // 6. Log Global Transaction
             if (!txCheck.exists()) {
@@ -342,12 +359,29 @@ export const useWishActions = () => {
               last_updated: serverTimestamp(),
             });
 
-            // Update requester: receive compensation + release reservation
+            // Update requester: receive compensation + release reservation (with Overflow/Solar Return logic)
+            const rCurrentDecayedMilli = toMilli(requesterCurrentReal);
+            const actualPaymentMilli = toMilli(actualPayment);
+            const rRawNewMilli = rCurrentDecayedMilli + actualPaymentMilli;
+
+            const rCappedMilli = Math.min(rRawNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
+            const rOverflowMilli = Math.max(0, rRawNewMilli - WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
+
             transaction.update(requesterRef, {
-              balance: requesterCurrentReal + actualPayment,
+              balance: fromMilli(rCappedMilli),
               committed_lm: Math.max(0, calculateDecayedValue(rCommittedLm, rLastUpdated) - (wishData.cost || 0)), // 減価後の予約額から解放
               last_updated: serverTimestamp(),
             });
+
+            // Solar Return: Add overflow to global pool
+            if (rOverflowMilli > 0) {
+              const globalStatsRef = doc(db!, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
+              transaction.set(globalStatsRef, {
+                  total_overflow_pool: increment(rOverflowMilli),
+                  updated_at: serverTimestamp()
+              }, { merge: true });
+              console.log(`[Solar Return] Compensation Overflow detected: ${fromMilli(rOverflowMilli)} Lm returned to the Sun.`);
+            }
 
             // Log transaction: helper → requester
             if (!txCheck.exists()) {
@@ -531,18 +565,7 @@ export const useWishActions = () => {
              throw "Transaction already processed (Idempotency Check)";
         }
 
-        // System Settings (Capacity Cap)
-        let cap = 2400;
-        try {
-          const settingsRef = doc(database, "system_settings", "stats");
-          const settingsDoc = await transaction.get(settingsRef);
-          if (settingsDoc.exists()) {
-            const val = settingsDoc.data().global_capacity;
-            if (typeof val === "number") cap = val;
-          }
-        } catch (e) {
-          console.warn("Using default cap", e);
-        }
+        // System Settings (Global Metropolis Cap) - Now strictly enforced via WORLD_CONSTANTS
 
         // --- 2. CALCULATION & WRITES ---
         
@@ -568,34 +591,50 @@ export const useWishActions = () => {
         
         const isBankruptcy = paymentAmount < promisedValue;
 
-        // Reward Fulfiller
+        // Reward Fulfiller (with Overflow/Solar Return logic)
         if (fulfillerDoc.exists()) {
           const fData = fulfillerDoc.data();
-          const currentDecayed = calculateDecayedValue(fData.balance || 0, fData.last_updated);
-          const rawNewBalance = currentDecayed + paymentAmount;
-          const cappedBalance = Math.min(rawNewBalance, cap);
+          const currentDecayedLm = calculateDecayedValue(fData.balance || 0, fData.last_updated);
+          
+          const currentDecayedMilli = toMilli(currentDecayedLm);
+          const paymentMilli = toMilli(paymentAmount);
+          const rawNewMilli = currentDecayedMilli + paymentMilli;
+          
+          const cappedMilli = Math.min(rawNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
+          const overflowMilli = Math.max(0, rawNewMilli - WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
 
           transaction.update(fulfillerRef, {
-            balance: cappedBalance,
+            balance: fromMilli(cappedMilli),
             completed_contracts: increment(1),
             last_updated: serverTimestamp(),
           });
+
+          // Solar Return: Add overflow to global pool
+          if (overflowMilli > 0) {
+            const globalStatsRef = doc(database, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
+            transaction.set(globalStatsRef, {
+                total_overflow_pool: increment(overflowMilli),
+                updated_at: serverTimestamp()
+            }, { merge: true });
+            
+            console.log(`[Solar Return] Overflow detected: ${fromMilli(overflowMilli)} Lm returned to the Sun.`);
+          }
         }
 
         // Salvation for Issuer & Purification
         if (issuerDoc.exists()) {
           const iData = issuerDoc.data() as UserProfile;
-          const iCurrentReal = calculateDecayedValue(iData.balance || 0, iData.last_updated);
+          const iCurrentRealLm = calculateDecayedValue(iData.balance || 0, iData.last_updated);
           const iCommittedLm = iData.committed_lm || 0;
 
-          const iNewBalance = iCurrentReal - paymentAmount;
-          const iDecayedCommitted = calculateDecayedValue(iCommittedLm, iData.last_updated);
-          const iNewCommitted = Math.max(0, iDecayedCommitted - (wishData.cost || 0)); // 減価後の予約額から解放
+          const iNewBalanceLm = iCurrentRealLm - paymentAmount;
+          const iDecayedCommittedLm = calculateDecayedValue(iCommittedLm, iData.last_updated);
+          const iNewCommittedLm = Math.max(0, iDecayedCommittedLm - (wishData.cost || 0)); // 減価後の予約額から解放
           const newStreak = (iData.consecutive_completions || 0) + 1;
 
           transaction.update(issuerRef, {
-            balance: iNewBalance,
-            committed_lm: iNewCommitted,
+            balance: iNewBalanceLm,
+            committed_lm: iNewCommittedLm,
             completed_requests: increment(1),
             consecutive_completions: newStreak,
             last_updated: serverTimestamp(),

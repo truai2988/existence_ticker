@@ -26,7 +26,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
     // Form States
     const [name, setName] = useState(profile?.name || '');
     const [bio, setBio] = useState(profile?.bio || '');
-    const [ageGroup, setAgeGroup] = useState(profile?.ageGroup || '');
+    const [age_group, setAgeGroup] = useState(profile?.age_group || '');
     const [location, setLocation] = useState<{ prefecture: string, city: string }>({
         prefecture: profile?.location?.prefecture || '',
         city: profile?.location?.city || ''
@@ -42,7 +42,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
         if (profile) {
             setName(curr => curr || profile.name || '');
             setBio(curr => curr || profile.bio || '');
-            setAgeGroup(curr => curr || profile.ageGroup || '');
+            setAgeGroup(curr => curr || profile.age_group || '');
             setLocation(curr => {
                 if (curr.prefecture && curr.city) return curr; // Don't overwrite if user started editing?
                 // Actually if profile loads late, we want to start with profile data.
@@ -149,7 +149,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                 name,
                 location, // location is required type, assumed set
                 bio: bio || null,
-                ageGroup: ageGroup || undefined,
+                age_group: age_group || undefined,
                 links: links || null,
                 avatarUrl: avatarUrl || null
             };
@@ -286,7 +286,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 <label className="block text-xs font-bold text-slate-500 mb-1.5">年代</label>
                                 <div className="relative">
                                     <select 
-                                        value={ageGroup}
+                                        value={age_group}
                                         onChange={(e) => setAgeGroup(e.target.value)}
                                         className="w-full p-3 bg-slate-50 border border-slate-100 rounded-xl text-slate-800 font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100"
                                     >

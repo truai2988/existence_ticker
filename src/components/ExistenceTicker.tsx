@@ -14,7 +14,7 @@ export const ExistenceTicker: React.FC<ExistenceTickerProps> = ({ balance, lastU
 
   React.useEffect(() => {
     setDisplayValue(calculateLifePoints(balance, lastUpdated));
-    const INTERVAL_MS = 33; 
+    const INTERVAL_MS = 3600000; 
     const timer = setInterval(() => {
         setDisplayValue(calculateLifePoints(balance, lastUpdated));
     }, INTERVAL_MS);
@@ -73,10 +73,7 @@ export const ExistenceTicker: React.FC<ExistenceTickerProps> = ({ balance, lastU
             {/* Main Number */}
             <div className="flex items-baseline gap-1">
                 <span className="text-3xl font-mono font-medium text-yellow-100 tracking-tight drop-shadow-md tabular-nums">
-                {Math.floor(displayValue)}
-                </span>
-                <span className="text-xl font-mono text-yellow-500/60 tabular-nums">
-                .{(displayValue % 1).toFixed(2).substring(2)}
+                {Math.floor(displayValue).toLocaleString()}
                 </span>
                 <span className="text-xl font-serif text-yellow-500 ml-2">
                     {UNIT_LABEL}
