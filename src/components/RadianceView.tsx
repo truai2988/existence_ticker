@@ -17,24 +17,42 @@ type TabType = 'active' | 'outbound' | 'past';
 type ModalState = 'none' | 'create_wish';
 
 export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUserId }) => {
-    const { userWishes } = useWishes();
+    const { 
+        userActiveWishes, 
+        userArchiveWishes,
+        loadUserArchive,
+        userArchiveHasMore
+    } = useWishes();
     
     const [activeTab, setActiveTab] = useState<TabType>('active');
     const [modalState, setModalState] = useState<ModalState>('none');
     
-    // Filter Logic (using Private Storage: userWishes)
+    const [isArchiveLoading, setIsArchiveLoading] = useState(false);
+
+    // Filter Logic (using Private Storage: userActiveWishes)
     // 1. My Active Stars (My Open Requests)
-    const myActiveWishes = userWishes.filter(w => 
+    const myActiveWishes = userActiveWishes.filter(w => 
         w.status === 'open'
     );
     // 2. Outbound Contracts (My In-Progress Requests)
-    const myOutboundWishes = userWishes.filter(w => 
+    const myOutboundWishes = userActiveWishes.filter(w => 
         (w.status === 'in_progress' || w.status === 'review_pending')
     );
-    // 3. Past Records (Fulfilled, Cancelled, Expired)
-    const myPastWishes = userWishes.filter(w => 
-        (w.status === 'fulfilled' || w.status === 'cancelled' || w.status === 'expired')
-    );
+    // 3. Past Records (Fulfilled, Cancelled, Expired) -> Lazy Loaded from userArchiveWishes
+    const myPastWishes = userArchiveWishes;
+
+    // Rule of 10: Load Archive only when tab is 'past'
+    React.useEffect(() => {
+        if (activeTab === 'past') {
+            loadUserArchive(true); // Initial Load
+        }
+    }, [activeTab, loadUserArchive]);
+
+    const handleLoadMoreArchive = async () => {
+        setIsArchiveLoading(true);
+        await loadUserArchive(false);
+        setIsArchiveLoading(false);
+    };
 
     const renderModals = () => {
         return (
@@ -153,12 +171,24 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                             onActionComplete={handleActionComplete}
                          />
                      ) : (
-                         <WishCardList 
-                            wishes={myPastWishes} 
-                            currentUserId={currentUserId} 
-                            emptyMessage="過去の記録はありません。"
-                            onActionComplete={handleActionComplete}
-                         />
+                         <div className="flex flex-col gap-4">
+                             <WishCardList 
+                                wishes={myPastWishes} 
+                                currentUserId={currentUserId} 
+                                emptyMessage="過去の記録はありません。"
+                                onActionComplete={handleActionComplete}
+                             />
+                             {/* Load More Button */}
+                             {userArchiveHasMore && (
+                                <button 
+                                    onClick={handleLoadMoreArchive}
+                                    disabled={isArchiveLoading}
+                                    className="w-full py-3 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors disabled:opacity-50"
+                                >
+                                    {isArchiveLoading ? "読み込み中..." : "さらに読み込む"}
+                                </button>
+                             )}
+                         </div>
                      )}
                 </div>
             </div>

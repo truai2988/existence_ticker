@@ -20,13 +20,14 @@ import {
   fromMilli
 } from "../logic/worldPhysics";
 import { useWishesContext } from "../contexts/WishesContext";
+import { Wish } from "../types";
 
 export type WalletStatus = 'ALIVE' | 'EMPTY' | 'RITUAL_READY';
 
 export const useWallet = () => {
   const { user } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
-  const { userWishes, isLoading: wishesLoading, isUserWishesLoading } = useWishesContext();
+  const { userActiveWishes, userArchiveWishes, isLoading: wishesLoading } = useWishesContext();
 
   // 1-Hour Silence: Live Ticker for live decay updates (1 hour)
   const [localTick, setLocalTick] = useState(0);
@@ -63,11 +64,14 @@ export const useWallet = () => {
   // === 2. AUTOMATIC SANITIZATION (Ghost Exorcism) ===
   // Performs the O(N) calculation in background to check integrity
   useEffect(() => {
-    if (!user || !db || wishesLoading || profileLoading || !profile || isUserWishesLoading) return;
+    if (!user || !db || wishesLoading || profileLoading || !profile) return;
+
+    // Combine active and archive wishes for comprehensive check
+    const allUserWishes = [...userActiveWishes, ...userArchiveWishes];
 
     // O(N) Calculation: Sum of all active individual promises
     let realCommittedMilli = 0;
-    userWishes.forEach(w => {
+    allUserWishes.forEach((w: Wish) => {
         const isActive = ['open', 'in_progress', 'review_pending'].includes(w.status);
         if (isActive) {
             const decayedCost = calculateDecayedValue(w.cost || 0, w.created_at);
@@ -118,7 +122,7 @@ export const useWallet = () => {
         };
         syncDb();
     }
-  }, [user, profile, userWishes, wishesLoading, profileLoading, committedLm, isUserWishesLoading]);
+  }, [user, profile, userActiveWishes, userArchiveWishes, wishesLoading, profileLoading, committedLm]);
  // Dependent on userWishes (O(N) trigger)
 
   // === 3. METABOLIC STATUS ===
@@ -242,7 +246,7 @@ export const useWallet = () => {
     }
   };
 
-  const pay = async (amount: number, _reason: string): Promise<boolean> => {
+  const pay = async (amount: number): Promise<boolean> => {
     if (!user || !db) return false;
     // console.log(`[Wallet] Processing payment: ${amount} for ${reason}`);
     try {

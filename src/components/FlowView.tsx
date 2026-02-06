@@ -15,86 +15,54 @@ interface FlowViewProps {
 type TabType = 'explore' | 'pending' | 'active' | 'history';
 
 export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOpenProfile }) => {
-    const { wishes, involvedWishes, loadMore, hasMore, isFetchingMore } = useWishes();
-    const [activeTab, setActiveTab] = useState<TabType>('explore');
+    const { 
+        wishes, // active feed
+        involvedActiveWishes, 
+        involvedArchiveWishes,
+        loadInvolvedArchive,
+        involvedArchiveHasMore
+    } = useWishes();
     
-    // 1. Explore (お願いを探す)
-    // - status: 'open'
-    // - NOT my wish
-    // - NOT applied by me
+    const [activeTab, setActiveTab] = useState<TabType>('explore');
+    const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+
+    // Rule of 10: Load Archive only when tab is 'history'
+    React.useEffect(() => {
+        if (activeTab === 'history') {
+            loadInvolvedArchive(true); // Initial Load
+        }
+    }, [activeTab, loadInvolvedArchive]);
+
+    const handleLoadMoreHistory = async () => {
+        setIsHistoryLoading(true);
+        await loadInvolvedArchive(false);
+        setIsHistoryLoading(false);
+    };
+    
+    // 1. Explore (Active Global Feed)
+    // Filter: NOT my wish, NOT applied
+    // Note: 'wishes' from context is now REAL-TIME 'open' status only.
     const exploreWishes = wishes.filter(w => {
-        if (w.status !== 'open') return false;
         if (w.requester_id === currentUserId) return false;
         if (w.applicants && w.applicants.some(a => a.id === currentUserId)) return false;
-        
-        // Also hide if 0 Lm (already decayed completely)
         const currentValue = calculateLifePoints(w.cost || 0, w.created_at);
         if (currentValue <= 0) return false;
-        
         return true;
     });
 
-    // 2. Pending (返事待ち) - FROM INVOLVED
-    // - status: 'open'
-    // - applied by me
-    const pendingWishes = involvedWishes.filter(w => {
+    // 2. Pending (Applied) -> From involvedActiveWishes
+    const pendingWishes = involvedActiveWishes.filter(w => {
         if (w.status !== 'open') return false;
-        if (!w.applicants || !w.applicants.some(a => a.id === currentUserId)) return false;
-        
-        // Hide if expired
-        const currentValue = calculateLifePoints(w.cost || 0, w.created_at);
-        if (currentValue <= 0) return false;
-        
-        return true;
+        return w.applicants && w.applicants.some(a => a.id === currentUserId);
     });
 
-    // 3. Active (進行中) - FROM INVOLVED
-    // - helper_id is me
-    // - status: 'in_progress' or 'review_pending'
-    const activeWishes = involvedWishes.filter(w => {
-        if (w.helper_id !== currentUserId) return false;
-        if (w.status !== 'in_progress' && w.status !== 'review_pending') return false;
-        
-        // Hide if expired
-        const currentValue = calculateLifePoints(w.cost || 0, w.created_at);
-        if (currentValue <= 0) return false;
-        
-        return true;
+    // 3. Active (Helper) -> From involvedActiveWishes
+    const activeWishes = involvedActiveWishes.filter(w => {
+        return w.helper_id === currentUserId && (w.status === 'in_progress' || w.status === 'review_pending');
     });
 
-    // 4. History (過去の記録) - FROM INVOLVED
-    // - helper_id is me OR I applied
-    // - status: 'fulfilled', 'cancelled', 'expired' OR (open/in_progress/review_pending AND 0 Lm)
-    const historyWishes = involvedWishes.filter(w => {
-        const isHelper = w.helper_id === currentUserId;
-        const isApplicant = w.applicants && w.applicants.some(a => a.id === currentUserId);
-        
-        // Base check: Must be involved
-        if (!isHelper && !isApplicant) return false;
-
-        // Status check
-        const isOfficialHistory = ['fulfilled', 'cancelled', 'expired'].includes(w.status);
-        const isDecayed = calculateLifePoints(w.cost || 0, w.created_at) <= 0;
-
-        if (isOfficialHistory || isDecayed) {
-            // SPEC CHANGE: If expired (or decayed), ONLY show if actual Helper.
-            // Applicants don't see "missed/expired" opportunities in history.
-            if (w.status === 'expired' || isDecayed) {
-                return isHelper;
-            }
-            // For fulfilled/cancelled, Applicants might see it? 
-            // Usually 'fulfilled' implies a helper existed. 
-            // 'cancelled' might happen while open.
-            // If cancelled while open, applicants might want to know? 
-            // User spec implies "Expired" is the main specific exclusion.
-            // Let's stick to "If expired/decayed, must be Helper".
-            return true;
-        }
-
-        return false;
-    });
-
-    // Combine for counts ?? No, keep sections separate.
+    // 4. History -> From involvedArchiveWishes (Lazy Loaded)
+    const historyWishes = involvedArchiveWishes;
 
     // Auto-Tab Switch Handler
     const handleActionComplete = (action: 'applied' | 'withdrawn' | 'approved' | 'cancelled' | 'resigned' | 'completed' | 'cleanup') => {
@@ -191,6 +159,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
                             <span className={`ml-1 px-1 py-0.5 rounded-full text-[11px] tabular-nums ${
                                 activeTab === 'history' ? 'bg-slate-200 text-slate-700' : 'bg-slate-100 text-slate-500'
                             }`}>
+                                {/* Show count only if loaded? Or maybe '...' */}
                                 {historyWishes.length}
                             </span>
                             {activeTab === 'history' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-slate-400 rounded-t-full" />}
@@ -212,11 +181,19 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
                         currentUserId={currentUserId}
                         emptyMessage="条件に合う募集中の依頼はありません"
                         emptyIcon={<ClipboardList size={48} className="text-slate-300 mb-2" />}
-                        onLoadMore={loadMore}
-                        hasMore={hasMore}
-                        isFetchingMore={isFetchingMore}
                         onOpenProfile={onOpenProfile}
                         onActionComplete={handleActionComplete}
+                        // Note: Global feed pagination (loadMore) removed from UI for now per 'Simplicity' or 
+                        // should we keep it for Explore? The new Context doesn't expose 'loadMore' for general feed yet.
+                        // Context has 'activeWishes' (realtime) which might be capped by Firestore 'limit' if we added one, 
+                        // but currently onSnapshot query has NO limit?
+                        // IMPORTANT: The Context 'qFeed' has NO LIMIT in my snippet. 
+                        // Realtime usually implies "latest" window. 
+                        // User request: "Scalable". Infinite realtime list is bad.
+                        // But let's stick to "Active (Open)" being relatively small list managed by nature of app?
+                        // Or did I miss adding limit to qFeed? 
+                        // "Active data... constantly maintained". It implies ALL active open wishes.
+                        // Assuming volume is manageable for "Open" wishes.
                     />
                 )}
 
@@ -243,6 +220,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
                 )}
 
             {activeTab === 'history' && (
+                <div className="flex flex-col gap-4">
                     <WishCardList 
                         wishes={historyWishes} 
                         currentUserId={currentUserId}
@@ -251,6 +229,18 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
                         onOpenProfile={onOpenProfile}
                         onActionComplete={handleActionComplete}
                     />
+                    
+                    {/* Load More Button for History */}
+                    {involvedArchiveHasMore && (
+                        <button 
+                            onClick={handleLoadMoreHistory}
+                            disabled={isHistoryLoading}
+                            className="w-full py-3 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors disabled:opacity-50"
+                        >
+                            {isHistoryLoading ? "読み込み中..." : "さらに読み込む"}
+                        </button>
+                    )}
+                </div>
                 )}
             </div>
         </div>

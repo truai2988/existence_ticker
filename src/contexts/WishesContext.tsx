@@ -1,8 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { Wish } from '../types';
 import { db } from '../lib/firebase';
-import { collection, query, orderBy, getDocs, limit, startAfter, where } from 'firebase/firestore';
+import { collection, query, orderBy, getDocs, limit, startAfter, where, onSnapshot } from 'firebase/firestore';
 import { useAuth } from '../hooks/useAuthHook';
 
 // --- Global Helpers ---
@@ -19,198 +19,259 @@ const getMillis = (ts: unknown): number => {
 };
 
 interface WishesContextType {
-    wishes: Wish[];         // World Feed (Open only)
-    userWishes: Wish[];     // Private Storage (My Requests)
-    involvedWishes: Wish[]; // Private Storage (My Responsibilities as Helper)
+    // Active Data (Real-time)
+    wishes: Wish[];
+    userActiveWishes: Wish[];
+    involvedActiveWishes: Wish[];
+    
+    // Archive Data (Lazy)
+    userArchiveWishes: Wish[];
+    involvedArchiveWishes: Wish[];
+    
+    loadUserArchive: (isInitial?: boolean) => void;
+    loadInvolvedArchive: (isInitial?: boolean) => void;
+    
+    userArchiveHasMore: boolean;
+    involvedArchiveHasMore: boolean;
+    
     isLoading: boolean;
-    isFetchingMore: boolean;
     error: Error | null;
-    loadMore: () => void;
-    hasMore: boolean;
-    isUserWishesLoading: boolean;
-    isInvolvedWishesLoading: boolean;
-    refresh: () => void;
 }
 
 const WishesContext = createContext<WishesContextType | undefined>(undefined);
 
 export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const { user } = useAuth();
-    const [wishes, setWishes] = useState<Wish[]>([]);
-    const [userWishes, setUserWishes] = useState<Wish[]>([]);
-    const [involvedWishes, setInvolvedWishes] = useState<Wish[]>([]);
+    // Real-time Active Data
+    const [wishes, setWishes] = useState<Wish[]>([]); // Global Active
+    const [userActiveWishes, setUserActiveWishes] = useState<Wish[]>([]); // My Active
+    const [involvedActiveWishes, setInvolvedActiveWishes] = useState<Wish[]>([]); // My Involved Active
+
+
+
+    // Global Loading State (Initial Real-time setup)
     const [isLoading, setIsLoading] = useState(true);
-    const [isUserWishesLoading, setIsUserWishesLoading] = useState(true);
-    const [isInvolvedWishesLoading, setIsInvolvedWishesLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
-    const lastDocRef = useRef<unknown>(null);
-    const [hasMore, setHasMore] = useState(true);
-    const [isFetchingMore, setIsFetchingMore] = useState(false);
 
-    const LIMIT = 20;
+    const ARCHIVE_LIMIT = 10;
 
-    const fetchUserWishes = useCallback(async () => {
-        if (!db || !user) {
-            setUserWishes([]);
-            setIsUserWishesLoading(false);
-            return;
-        } 
-        try {
-            setIsUserWishesLoading(true);
-            // "Private Storage" (蔵): No Limit, All Statuses
-            const q = query(
-                collection(db, 'wishes'),
-                where('requester_id', '==', user.uid)
-            );
-            const snapshot = await getDocs(q);
-            const myWishes = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            })) as Wish[];
-            
-            // Client-side sort to avoid index requirement
-            const sorted = myWishes.sort((a, b) => getMillis(b.created_at) - getMillis(a.created_at));
 
-            // console.log(`[WishesProvider] Loaded ${sorted.length} personal wishes (Requester).`);
-            setUserWishes(sorted);
-        } catch (e) {
-            console.error("Failed to fetch user wishes", e);
-        } finally {
-            setIsUserWishesLoading(false);
-        }
-    }, [user]);
-
-    const fetchInvolvedWishes = useCallback(async () => {
-        if (!db || !user) {
-            setInvolvedWishes([]);
-            setIsInvolvedWishesLoading(false);
-            return;
-        }
-        try {
-            setIsInvolvedWishesLoading(true);
-            // Helper side: I am the helper or I applied.
-            // Using two queries because of limited OR support in Firestore for arrays vs fields.
-            const qHelper = query(
-                collection(db, 'wishes'),
-                where('helper_id', '==', user.uid)
-            );
-            
-            // Note: This requires applicant_ids field which we'll add.
-            // For now, if it doesn't exist, this will return empty.
-            const qApplicant = query(
-                collection(db, 'wishes'),
-                where('applicant_ids', 'array-contains', user.uid)
-            );
-
-            const [snapH, snapA] = await Promise.all([getDocs(qHelper), getDocs(qApplicant)]);
-            
-            const results = [...snapH.docs, ...snapA.docs];
-            // Deduplicate
-            const unique = Array.from(new Map(results.map(d => [d.id, { id: d.id, ...d.data() }])).values()) as Wish[];
-            
-            const sorted = unique.sort((a, b) => getMillis(b.created_at) - getMillis(a.created_at));
-
-            // console.log(`[WishesProvider] Loaded ${sorted.length} involved wishes (Helper).`);
-            setInvolvedWishes(sorted);
-        } catch (e) {
-            console.error("Failed to fetch involved wishes", e);
-        } finally {
-            setIsInvolvedWishesLoading(false);
-        }
-    }, [user]);
-
-    const fetchWishes = useCallback(async (isInitial = false) => {
+    // --- Real-time Subscriptions (Active Data) ---
+    useEffect(() => {
         if (!db) return;
-        
-        try {
-            if (isInitial) {
-                setIsLoading(true);
-            } else {
-                setIsFetchingMore(true);
-            }
 
-            // "World Stream" (川): Simple orderBy (No where) to avoid index requirement
-            let q = query(
-                collection(db, 'wishes'), 
-                orderBy('created_at', 'desc'), 
-                limit(LIMIT)
-            );
-            
-            if (!isInitial && lastDocRef.current) {
-                q = query(
-                    collection(db, 'wishes'), 
-                    orderBy('created_at', 'desc'), 
-                    startAfter(lastDocRef.current),
-                    limit(LIMIT)
-                );
-            }
+        // 1. Global Feed (Open Only)
+        const qFeed = query(
+            collection(db, 'wishes'),
+            where('status', '==', 'open'),
+            orderBy('created_at', 'desc')
+        );
 
-            // console.log(`[WishesProvider] Fetching wishes... (Initial: ${isInitial})`);
-            const snapshot = await getDocs(q);
-            
-            const newWishes = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            })) as Wish[];
-
-            if (isInitial) {
-                setWishes(newWishes);
-            } else {
-                setWishes(prev => [...prev, ...newWishes]);
-            }
-
-            // Update Cursor
-            const lastVisible = snapshot.docs[snapshot.docs.length - 1];
-            lastDocRef.current = lastVisible;
-
-            // Check if more exist
-            if (snapshot.docs.length < LIMIT) {
-                setHasMore(false);
-            } else {
-                setHasMore(true);
-            }
-
-        } catch (err) {
-            console.error("Wishes fetch error:", err);
-            setError(err as Error);
-        } finally {
+        const unsubFeed = onSnapshot(qFeed, (snap) => {
+            const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Wish));
+            // Filter out 0 Lm
+            const valid = data.filter(w => getMillis(w.created_at) + (w.cost || 0) * 3600 * 1000 > Date.now());
+            setWishes(valid);
             setIsLoading(false);
-            setIsFetchingMore(false);
-        }
-    }, []); // No dependencies - stable reference
+        }, (err) => {
+            console.error("Feed subscription error:", err);
+            setError(err as Error);
+            setIsLoading(false);
+        });
 
-    // Initial Load
+        return () => unsubFeed();
+    }, []);
+
     useEffect(() => {
-        fetchWishes(true);
-    }, [fetchWishes]);
-
-    // Fetch user wishes when user changes
-    useEffect(() => {
-        if (user) {
-            fetchUserWishes();
-            fetchInvolvedWishes();
-        } else {
-            setUserWishes([]);
-            setInvolvedWishes([]);
+        if (!db || !user) {
+            setUserActiveWishes([]);
+            setInvolvedActiveWishes([]);
+            return;
         }
-    }, [user, fetchUserWishes, fetchInvolvedWishes]);
 
-    const loadMore = () => {
-        if (!isLoading && !isFetchingMore && hasMore) {
-            fetchWishes(false);
+        // 2. My Active Wishes (Requester: Open/InProgress/Review)
+        // Note: Firestore 'in' query allows up to 10 values.
+        const qUserActive = query(
+            collection(db, 'wishes'),
+            where('requester_id', '==', user.uid),
+            where('status', 'in', ['open', 'in_progress', 'review_pending'])
+        );
+        
+        const unsubUser = onSnapshot(qUserActive, (snap) => {
+             const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Wish));
+             // Sort client-side
+             setUserActiveWishes(data.sort((a,b) => getMillis(b.created_at) - getMillis(a.created_at)));
+        });
+
+        // 3. Involved Active Wishes (Helper: InProgress/Review/Open(Applied))
+        // This is tricky for "Applied". For now, we track where helper_id == me OR applicants contains me.
+        // Simplified: Helper Only for now to avoid complexity, or use separate listeners.
+        // "Active" from FlowView definition: 
+        //   - Pending (Applied): status='open' AND applicants contains me
+        //   - Active (Helper): helper_id=me AND (in_progress OR review_pending)
+        
+        // A. Helper Active
+        const qHelperActive = query(
+            collection(db, 'wishes'),
+            where('helper_id', '==', user.uid),
+            where('status', 'in', ['in_progress', 'review_pending'])
+        );
+
+        // B. Applied (Pending)
+        // Note: 'array-contains' and 'in' cannot be combined easily in some cases depending on index.
+        const qApplied = query(
+            collection(db, 'wishes'),
+            where('status', '==', 'open'),
+            where('applicant_ids', 'array-contains', user.uid)
+        );
+
+        const unsubHelper = onSnapshot(qHelperActive, (snap) => {
+             updateInvolvedState(snap.docs.map(d => ({id:d.id, ...d.data()} as Wish)), 'helper');
+        });
+        const unsubApplied = onSnapshot(qApplied, (snap) => {
+             updateInvolvedState(snap.docs.map(d => ({id:d.id, ...d.data()} as Wish)), 'applicant');
+        });
+
+        // Merge logic for involved
+        let helperCache: Wish[] = [];
+        let applicantCache: Wish[] = [];
+
+        const updateInvolvedState = (newData: Wish[], type: 'helper' | 'applicant') => {
+            if (type === 'helper') helperCache = newData;
+            else applicantCache = newData;
+
+            const merged = [...helperCache, ...applicantCache];
+            // Dedupe just in case
+            const unique = Array.from(new Map(merged.map(item => [item.id, item])).values());
+            setInvolvedActiveWishes(unique.sort((a,b) => getMillis(b.created_at) - getMillis(a.created_at)));
+        };
+
+        return () => {
+            unsubUser();
+            unsubHelper();
+            unsubApplied();
+        };
+
+    }, [user]);
+
+
+    // --- Lazy Archive Logic (Pagination) ---
+    // User Archive: requester_id == me AND status in [fulfilled, cancelled, expired]
+    // Involved Archive: helper_id == me AND status in [fulfilled, cancelled, expired] OR decayed/expired logic?
+    // For simplicity and "Rule of 10", let's define "loadArchive" to act on the *current view context*.
+    // But WishesContext is global. 
+    // Let's provide a generic "fetchUserArchive" and "fetchInvolvedArchive" or just "fetchArchive" that takes a mode.
+    // Spec says: "History tab or 'Load More'".
+    
+    // Actually, `FlowView` (Involved History) and `RadianceView` (My History) are separate.
+    // We should probably keep simpler state processing here or robust hooks.
+    // Let's implement `loadUserArchive` and `loadInvolvedArchive` separately to be safe.
+    
+    // WAIT: The previously merged "involvedWishes" contained everything.
+    // Now we split "Active" (Realtime) and "Archive" (Lazy).
+    
+    // Let's keep `archiveWishes` as a generic bucket? No, they might conflict if user switches views fast.
+    // Let's use specific buckets.
+    const [userArchiveWishes, setUserArchiveWishes] = useState<Wish[]>([]);
+    const [involvedArchiveWishes, setInvolvedArchiveWishes] = useState<Wish[]>([]);
+
+    const [userArchiveCursor, setUserArchiveCursor] = useState<unknown>(null);
+    const [involvedArchiveCursor, setInvolvedArchiveCursor] = useState<unknown>(null);
+
+    const [userArchiveHasMore, setUserArchiveHasMore] = useState(true);
+    const [involvedArchiveHasMore, setInvolvedArchiveHasMore] = useState(true);
+
+    const loadUserArchive = useCallback(async (isInitial = false) => {
+        if (!user || !db) return;
+        if (!isInitial && !userArchiveHasMore) return;
+
+        try {
+            // My Past: requester_id == me AND status IN [fulfilled, cancelled, expired]
+            // Note: 'in' query supports up to 10.
+            let q = query(
+                collection(db, 'wishes'),
+                where('requester_id', '==', user.uid),
+                where('status', 'in', ['fulfilled', 'cancelled', 'expired']),
+                orderBy('created_at', 'desc'),
+                limit(ARCHIVE_LIMIT)
+            );
+
+            if (!isInitial && userArchiveCursor) {
+                q = query(q, startAfter(userArchiveCursor));
+            }
+
+            const snap = await getDocs(q);
+            const data = snap.docs.map(d => ({id:d.id, ...d.data()} as Wish));
+
+            if (isInitial) {
+                setUserArchiveWishes(data);
+            } else {
+                setUserArchiveWishes(prev => [...prev, ...data]);
+            }
+
+            setUserArchiveCursor(snap.docs[snap.docs.length - 1]);
+            setUserArchiveHasMore(snap.docs.length === ARCHIVE_LIMIT);
+
+        } catch (e) {
+            console.error("User Archive Load Error", e);
         }
-    };
+    }, [user, userArchiveCursor, userArchiveHasMore]);
 
-    const refresh = () => {
-        lastDocRef.current = null;
-        setHasMore(true);
-        fetchWishes(true);
-        fetchUserWishes();
-        fetchInvolvedWishes();
-    };
+    const loadInvolvedArchive = useCallback(async (isInitial = false) => {
+        if (!user || !db) return;
+        if (!isInitial && !involvedArchiveHasMore) return;
+
+        try {
+            // Involved Past: helper_id == me AND status IN [fulfilled, cancelled, expired]
+            // (Applicants don't see history usually per previous logic, or strictly helpers)
+            let q = query(
+                collection(db, 'wishes'),
+                where('helper_id', '==', user.uid),
+                where('status', 'in', ['fulfilled', 'cancelled', 'expired']),
+                orderBy('created_at', 'desc'),
+                limit(ARCHIVE_LIMIT)
+            );
+
+            if (!isInitial && involvedArchiveCursor) {
+                q = query(q, startAfter(involvedArchiveCursor));
+            }
+
+            const snap = await getDocs(q);
+            const data = snap.docs.map(d => ({id:d.id, ...d.data()} as Wish));
+
+             if (isInitial) {
+                setInvolvedArchiveWishes(data);
+            } else {
+                setInvolvedArchiveWishes(prev => [...prev, ...data]);
+            }
+
+            setInvolvedArchiveCursor(snap.docs[snap.docs.length - 1]);
+            setInvolvedArchiveHasMore(snap.docs.length === ARCHIVE_LIMIT);
+
+        } catch (e) {
+             console.error("Involved Archive Load Error", e);
+        }
+    }, [user, involvedArchiveCursor, involvedArchiveHasMore]);
+
 
     return (
-        <WishesContext.Provider value={{ wishes, userWishes, involvedWishes, isLoading, isUserWishesLoading, isInvolvedWishesLoading, error, loadMore, hasMore, isFetchingMore, refresh }}>
+        <WishesContext.Provider value={{ 
+            wishes, // Global Active
+            userActiveWishes, 
+            involvedActiveWishes,
+            
+            userArchiveWishes,
+            involvedArchiveWishes,
+            
+            loadUserArchive,
+            loadInvolvedArchive,
+            
+            userArchiveHasMore,
+            involvedArchiveHasMore,
+
+            isLoading, 
+            error
+        }}>
             {children}
         </WishesContext.Provider>
     );
