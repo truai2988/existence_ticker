@@ -242,9 +242,9 @@ export const useWallet = () => {
     }
   };
 
-  const pay = async (amount: number, reason: string): Promise<boolean> => {
+  const pay = async (amount: number, _reason: string): Promise<boolean> => {
     if (!user || !db) return false;
-    console.log(`[Wallet] Processing payment: ${amount} for ${reason}`);
+    // console.log(`[Wallet] Processing payment: ${amount} for ${reason}`);
     try {
       await runTransaction(db, async (transaction) => {
         const userRef = doc(db!, "users", user.uid);

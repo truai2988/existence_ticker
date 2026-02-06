@@ -71,7 +71,7 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             // Client-side sort to avoid index requirement
             const sorted = myWishes.sort((a, b) => getMillis(b.created_at) - getMillis(a.created_at));
 
-            console.log(`[WishesProvider] Loaded ${sorted.length} personal wishes (Requester).`);
+            // console.log(`[WishesProvider] Loaded ${sorted.length} personal wishes (Requester).`);
             setUserWishes(sorted);
         } catch (e) {
             console.error("Failed to fetch user wishes", e);
@@ -110,7 +110,7 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             
             const sorted = unique.sort((a, b) => getMillis(b.created_at) - getMillis(a.created_at));
 
-            console.log(`[WishesProvider] Loaded ${sorted.length} involved wishes (Helper).`);
+            // console.log(`[WishesProvider] Loaded ${sorted.length} involved wishes (Helper).`);
             setInvolvedWishes(sorted);
         } catch (e) {
             console.error("Failed to fetch involved wishes", e);
@@ -145,7 +145,7 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                 );
             }
 
-            console.log(`[WishesProvider] Fetching wishes... (Initial: ${isInitial})`);
+            // console.log(`[WishesProvider] Fetching wishes... (Initial: ${isInitial})`);
             const snapshot = await getDocs(q);
             
             const newWishes = snapshot.docs.map(doc => ({

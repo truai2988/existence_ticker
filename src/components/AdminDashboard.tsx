@@ -1,14 +1,9 @@
 import React, { useState } from "react";
-import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, ShieldOff, RefreshCw, Scale } from "lucide-react";
+import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, ShieldOff } from "lucide-react";
 import { useStats, MetabolismStatus } from "../hooks/useStats";
-import { useDiagnostics } from "../hooks/useDiagnostics";
-import { DiagnosticModal } from "./DiagnosticModal";
 import { db } from "../lib/firebase";
-import { AnomalyScanner } from "./AnomalyScanner";
-import { UserProfile } from "../types";
-import { useAuth } from "../hooks/useAuthHook";
-import { auditGravity, auditAllGravity } from "../logic/auditGravity";
 import { ADMIN_UIDS } from "../constants";
+import { UserProfile } from "../types";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -18,38 +13,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const { stats, error } = useStats(); // updateCapacity removed
   const [cycleDays, setCycleDays] = useState(10);
   const [showManual, setShowManual] = useState(false);
-  const [showDiagnosisModal, setShowDiagnosisModal] = useState(false);
-  
-  const { user } = useAuth();
-  const [isAuditing, setIsAuditing] = useState(false);
-
-  const handleAuditSelf = async () => {
-    if (!user || !db) return;
-    if (!window.confirm("現在のユーザーの物理監査を実行しますか？")) return;
-    setIsAuditing(true);
-    try {
-        await auditGravity(db, user.uid);
-        alert("監査完了。Consoleログを確認してください。");
-    } catch(e) { console.error(e); alert(String(e)); }
-    setIsAuditing(false);
-  };
-
-  const handleGlobalAudit = async () => {
-    if (!db) return;
-    if (!window.confirm("【注意】世界中の全ユーザーをスキャンします。\n負荷がかかる可能性があります。実行しますか？")) return;
-    setIsAuditing(true);
-    try {
-        await auditAllGravity(db);
-        alert("全球監査完了。世界の物理法則は正常化されました。");
-    } catch(e) { console.error(e); alert(String(e)); }
-    setIsAuditing(false);
-  };
-
-  const supplySectionRef = React.useRef<HTMLDivElement>(null);
-
-  const scrollToSupply = () => {
-      supplySectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  };
 
 
   // Load Cycle Config from Firestore directly
@@ -159,7 +122,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       u.id?.includes(searchQuery)
   );
 
-  const diagnostics = useDiagnostics(stats);
+
 
   // Lock body scroll when dashboard is open
   React.useEffect(() => {
@@ -248,18 +211,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           </div>
         )}
 
-        {/* Diagnosis Banner */}
-        <div 
-            onClick={() => setShowDiagnosisModal(true)}
-            className={`p-4 mb-4 rounded-lg border ${diagnostics.bg} ${diagnostics.text} flex justify-between items-center transition-all duration-500 cursor-pointer hover:bg-opacity-40 group`}
-        >
-             <span className="font-bold tracking-wide group-hover:underline underline-offset-4 decoration-current/50 decoration-1 flex items-center gap-2">
-                 {diagnostics.shortDescription}
-                 <span className="text-[11px] opacity-0 group-hover:opacity-100 transition-opacity font-normal no-underline ml-2 bg-black/20 px-2 py-0.5 rounded">
-                    Click for Analysis
-                 </span>
-             </span>
-        </div>
 
         {/* Tab Navigation */}
         <div className="flex gap-4 mb-6 border-b border-slate-800">
@@ -671,7 +622,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           </div>
 
           {/* SECTION D: TIME CONTROL (Previously Sun Control) */}
-          <div ref={supplySectionRef} className="p-6 rounded-2xl border border-yellow-900/30 bg-yellow-900/5 md:col-span-2 lg:col-span-1 relative overflow-hidden">
+          <div className="p-6 rounded-2xl border border-yellow-900/30 bg-yellow-900/5 md:col-span-2 lg:col-span-1 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-10 text-yellow-500">
               <Sun size={80} />
             </div>
@@ -756,65 +707,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             </p>
           </div>
 
-          {/* SECTION E: ANOMALY SCANNER (New) */}
-          <div className="p-6 rounded-2xl border border-red-900/30 bg-red-900/5 md:col-span-2 relative">
-             <div className="absolute top-0 right-0 p-4 opacity-10 text-red-500">
-               <AlertTriangle size={80} />
-             </div>
-             <h2 className="text-xs font-mono text-red-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-               <Activity size={14} />
-               異常検知 (Anomaly Scanner)
-             </h2>
-             
-             <div className="flex flex-col gap-4">
-               <p className="text-sm text-slate-400">
-                 ユーザーの状態をスキャンし、物理法則（負の残高など）に違反している個体を検出します。
-               </p>
-               
-               <AnomalyScanner />
-             </div>
-          </div>
 
-          {/* SECTION F: PHYSICS AUDIT */}
-          <div className="p-6 rounded-2xl border border-indigo-900/30 bg-indigo-900/5 md:col-span-2 relative">
-               <div className="absolute top-0 right-0 p-4 opacity-10 text-indigo-500">
-                 <Scale size={80} />
-               </div>
-               <h2 className="text-xs font-mono text-indigo-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                 <RefreshCw size={14} />
-                 物理監査 (PHYSICS AUDIT)
-               </h2>
-               
-               <div className="flex flex-col gap-4">
-                 <p className="text-sm text-slate-400">
-                   重力漏れ（Gravity Leak）や計算不整合を検出し、強制的に正しい物理法則（減価）を適用して修復します。
-                 </p>
-                 
-                 <div className="flex gap-4">
-                     <button
-                         onClick={handleAuditSelf}
-                         disabled={isAuditing}
-                         className="px-4 py-3 bg-indigo-900/20 hover:bg-indigo-900/40 border border-indigo-500/30 text-indigo-300 text-xs font-bold rounded-lg transition-colors flex items-center gap-2"
-                     >
-                         <RefreshCw className={isAuditing ? "animate-spin" : ""} size={14} />
-                         Audit Self (Repair My Gravity)
-                     </button>
-                     
-                     <button
-                         onClick={handleGlobalAudit}
-                         disabled={isAuditing}
-                         className="px-4 py-3 bg-indigo-900/20 hover:bg-indigo-900/40 border border-indigo-500/30 text-indigo-300 text-xs font-bold rounded-lg transition-colors flex items-center gap-2"
-                     >
-                         <Scale size={14} />
-                         Global Audit (Repair World)
-                     </button>
-                 </div>
-               </div>
-          </div>
-          </>
-        )}
-        </div>
+
+
+        </>
+      )}
       </div>
+    </div>
+
 
       {/* === PROTOCOL WHITEPAPER OVERLAY === */}
       {showManual && (
@@ -1103,13 +1003,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       )}
 
 
-      <DiagnosticModal 
-        isOpen={showDiagnosisModal}
-        onClose={() => setShowDiagnosisModal(false)}
-        diagnosis={diagnostics}
-        stats={stats}
-        onScrollToSupply={scrollToSupply}
-      />
     </div>
   );
 };
