@@ -1,10 +1,7 @@
-import { useState, useEffect } from 'react';
 import { 
-    User, 
     signInWithEmailAndPassword, 
     createUserWithEmailAndPassword, 
     signOut as firebaseSignOut, 
-    onAuthStateChanged,
     updateProfile,
     linkWithCredential,
     EmailAuthProvider,
@@ -15,31 +12,12 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
-// collection, query, where, getDocs, deleteDoc, writeBatch removed
+import { useAuthContext } from '../contexts/AuthContextDefinition';
 
 
 export const useAuth = () => {
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        if (!auth) {
-            setLoading(false);
-            return;
-        }
-
-        console.log("[useAuth] Initializing onAuthStateChanged...");
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-            console.log("[useAuth] Auth state changed:", currentUser ? `User: ${currentUser.uid}` : "No user");
-            setUser(currentUser);
-            setLoading(false);
-        }, (error) => {
-            console.error("[useAuth] Auth error:", error);
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
-    }, []);
+    // Consume Singleton State
+    const { user, loading } = useAuthContext();
 
     const signIn = async (email: string, pass: string) => {
         if (!auth) throw new Error("Auth not initialized");
