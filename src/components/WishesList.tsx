@@ -13,7 +13,7 @@ interface WishesListProps {
 }
 
 export const WishesList = ({ currentUserId }: WishesListProps) => {
-  const { wishes, userWishes } = useWishes();
+  const { wishes, userActiveWishes } = useWishes();
   
   // Local state only for UI interactions, not data
   const [activeTab, setActiveTab] = useState<TabType>('all');
@@ -24,8 +24,8 @@ export const WishesList = ({ currentUserId }: WishesListProps) => {
   // Filter Logic
   const filteredWishes = (() => {
       if (activeTab === 'mine') {
-          // Use explicitly fetched user wishes
-          return userWishes;
+          // Use explicitly fetched user active wishes
+          return userActiveWishes;
       }
       
       return wishes.filter(wish => {

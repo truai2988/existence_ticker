@@ -26,7 +26,6 @@ import { useOtherProfile } from "../hooks/useOtherProfile";
 import { useProfile } from "../hooks/useProfile";
 import { isProfileComplete } from "../utils/profileCompleteness";
 import { useToast } from "../contexts/ToastContext";
-import { useWishesContext } from "../contexts/WishesContext";
 
 // Internal Component: Individual Applicant Row with Real-time Data
 const ApplicantItem: React.FC<{
@@ -140,7 +139,7 @@ export const WishCard: React.FC<WishCardProps> = ({
   const { profile: helperProfile } = useOtherProfile(wish.helper_id || null);
   const { profile: myProfile } = useProfile();
   const { showToast } = useToast();
-  const { refresh } = useWishesContext();
+
   const [isLoading, setIsLoading] = useState(false);
 
   const [showApplicants, setShowApplicants] = useState(false);
@@ -225,7 +224,7 @@ export const WishCard: React.FC<WishCardProps> = ({
     setIsLoading(false);
     if (success) {
       showToast("立候補しました", "success");
-      refresh();
+
       if (onActionComplete) onActionComplete('applied');
     }
   };
@@ -245,7 +244,7 @@ export const WishCard: React.FC<WishCardProps> = ({
         showToast("お願いしました", "success");
         setShowApplicants(false);
         setApprovalTarget(null);
-        refresh(); // リストを更新
+
         if (onActionComplete) onActionComplete('approved');
       }
   };
@@ -257,7 +256,7 @@ export const WishCard: React.FC<WishCardProps> = ({
     if (success) {
       setIsEditing(false);
       showToast("更新しました", "success");
-      refresh();
+
     }
     setIsLoading(false);
   };
@@ -306,7 +305,7 @@ export const WishCard: React.FC<WishCardProps> = ({
           : "取り下げました",
         "success",
       );
-      refresh();
+
       if (onActionComplete) onActionComplete(actionType);
     }
   };
@@ -318,7 +317,7 @@ export const WishCard: React.FC<WishCardProps> = ({
     setIsLoading(false);
     if (success) {
       showToast("記録を整理しました", "success");
-      refresh();
+
       if (onActionComplete) onActionComplete('cleanup');
     }
   };
@@ -930,7 +929,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                             );
                             if (success) {
                               showToast("お礼を送りました", "success");
-                              setTimeout(() => refresh(), 500);
+
                             }
                             setIsLoading(false);
                           };
@@ -969,7 +968,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                             setIsLoading(false);
                             if (success) {
                               showToast("立候補を取り消しました", "success");
-                              refresh();
+
                               if (onActionComplete) onActionComplete('withdrawn');
                             }
                           }
