@@ -773,9 +773,16 @@ export const WishCard: React.FC<WishCardProps> = ({
 
           {/* Timestamp for My Wish (Moved to Footer) */}
           {isMyWish && (
-            <span className="flex items-center gap-1 text-[10px] text-slate-400 ml-1">
-              <Clock className="w-3 h-3" />
-              <span>{formatDate(wish.created_at)}</span>
+            <span className="flex items-center gap-2">
+                <span className="flex items-center gap-1 text-[10px] text-slate-400 ml-1">
+                    <Clock className="w-3 h-3" />
+                    <span>{formatDate(wish.created_at)}</span>
+                </span>
+                {wish.isAnonymous && (
+                    <span className="text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">
+                        匿名
+                    </span>
+                )}
             </span>
           )}
         </div>

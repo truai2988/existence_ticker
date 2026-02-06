@@ -15,7 +15,7 @@ interface FlowViewProps {
 type TabType = 'explore' | 'pending' | 'active' | 'history';
 
 export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOpenProfile }) => {
-    const { wishes, loadMore, hasMore, isFetchingMore } = useWishes();
+    const { wishes, involvedWishes, loadMore, hasMore, isFetchingMore } = useWishes();
     const [activeTab, setActiveTab] = useState<TabType>('explore');
     
     // 1. Explore (お願いを探す)
@@ -34,10 +34,10 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
         return true;
     });
 
-    // 2. Pending (返事待ち)
+    // 2. Pending (返事待ち) - FROM INVOLVED
     // - status: 'open'
     // - applied by me
-    const pendingWishes = wishes.filter(w => {
+    const pendingWishes = involvedWishes.filter(w => {
         if (w.status !== 'open') return false;
         if (!w.applicants || !w.applicants.some(a => a.id === currentUserId)) return false;
         
@@ -48,10 +48,10 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
         return true;
     });
 
-    // 3. Active (進行中)
+    // 3. Active (進行中) - FROM INVOLVED
     // - helper_id is me
     // - status: 'in_progress' or 'review_pending'
-    const activeWishes = wishes.filter(w => {
+    const activeWishes = involvedWishes.filter(w => {
         if (w.helper_id !== currentUserId) return false;
         if (w.status !== 'in_progress' && w.status !== 'review_pending') return false;
         
@@ -62,10 +62,10 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
         return true;
     });
 
-    // 4. History (過去の記録)
+    // 4. History (過去の記録) - FROM INVOLVED
     // - helper_id is me OR I applied
     // - status: 'fulfilled', 'cancelled', 'expired' OR (open/in_progress/review_pending AND 0 Lm)
-    const historyWishes = wishes.filter(w => {
+    const historyWishes = involvedWishes.filter(w => {
         const isHelper = w.helper_id === currentUserId;
         const isApplicant = w.applicants && w.applicants.some(a => a.id === currentUserId);
         

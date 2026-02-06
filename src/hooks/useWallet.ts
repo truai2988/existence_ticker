@@ -26,7 +26,7 @@ export type WalletStatus = 'ALIVE' | 'EMPTY' | 'RITUAL_READY';
 export const useWallet = () => {
   const { user } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
-  const { userWishes, isLoading: wishesLoading } = useWishesContext();
+  const { userWishes, isLoading: wishesLoading, isUserWishesLoading } = useWishesContext();
 
   // 1-Hour Silence: Live Ticker for live decay updates (1 hour)
   const [localTick, setLocalTick] = useState(0);
@@ -45,18 +45,14 @@ export const useWallet = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.balance, profile?.last_updated, localTick]);
 
-  // Chain 2: Committed Lm (Sum of real active wishes, each decayed)
+  // Chain 2: Committed Lm (Source of Truth: DB Record + Decay) - O(1)
   const committedLm = useMemo(() => {
-    if (wishesLoading) return profile?.committed_lm ?? 0;
-    
-    let totalMilli = 0;
-    userWishes.forEach(w => {
-        const decayedCost = calculateDecayedValue(w.cost || 0, w.created_at);
-        totalMilli += toMilli(decayedCost);
-    });
-    return fromMilli(totalMilli);
+    const rawCommitted = profile?.committed_lm ?? 0;
+    const lastUpdated = profile?.last_updated;
+    // O(1) Calculation: We trust the Vessel's record, decaying it as a single mass
+    return calculateDecayedValue(rawCommitted, lastUpdated);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userWishes, wishesLoading, profile?.committed_lm, localTick]);
+  }, [profile?.committed_lm, profile?.last_updated, localTick]);
 
   // Chain 3: Available Lm (The Result)
   const availableLm = useMemo(() => {
@@ -65,16 +61,33 @@ export const useWallet = () => {
 
 
   // === 2. AUTOMATIC SANITIZATION (Ghost Exorcism) ===
+  // Performs the O(N) calculation in background to check integrity
   useEffect(() => {
-    if (!user || !db || wishesLoading || profileLoading || !profile) return;
+    if (!user || !db || wishesLoading || profileLoading || !profile || isUserWishesLoading) return;
+
+    // O(N) Calculation: Sum of all active individual promises
+    let realCommittedMilli = 0;
+    userWishes.forEach(w => {
+        const isActive = ['open', 'in_progress', 'review_pending'].includes(w.status);
+        if (isActive) {
+            const decayedCost = calculateDecayedValue(w.cost || 0, w.created_at);
+            realCommittedMilli += toMilli(decayedCost);
+        }
+    });
+    const realCommitted = fromMilli(realCommittedMilli);
     
-    // We compare with the real-time Truth we just calculated
-    const dbCommitted = profile.committed_lm || 0;
-    const realCommitted = committedLm;
+    // We compare DB's *current* decayed value (what we show) vs the Sum of wishes
+    // BUT we need to update the DB's *base* value if they drift.
+    // Actually, sanitization should update the DB if the *stored* value implies a different current state?
+    // Wait, the DB stores [committed_lm at last_updated].
+    // To check validity, we should decay both to NOW and compare.
     
-    // Use a small epsilon for float comparison
-    if (Math.abs(dbCommitted - realCommitted) > 0.01) {
-        console.warn(`[Sanitization] Syncing Committed Lm: DB(${dbCommitted}) -> Real(${realCommitted})`);
+    // compare: committedLm (Displayed O(1)) vs realCommitted (Calculated O(N))
+    const diff = Math.abs(committedLm - realCommitted);
+    
+    // Tolerance: 1 Lm (due to floor accumulations in O(N))
+    if (diff > 1.0) {
+        console.warn(`[Sanitization] Syncing Committed Lm: Display(${committedLm}) vs Real(${realCommitted})`);
         
         const syncDb = async () => {
             try {
@@ -83,17 +96,19 @@ export const useWallet = () => {
                     const userSnap = await transaction.get(userRef);
                     if (!userSnap.exists()) return;
                     
+                    // We overwrite with the "Real" sum (O(N) truth)
+                    // Note: We set it as the value NOW, so last_updated must be NOW.
                     transaction.update(userRef, {
-                        committed_lm: realCommitted
+                        committed_lm: realCommitted,
+                        last_updated: serverTimestamp()
                     });
                     
-                    // Log the correction
                     const logRef = doc(collection(db!, "transactions"));
                     transaction.set(logRef, {
                         type: 'SYSTEM_SYNC',
                         user_id: user.uid,
-                        amount: fromMilli(toMilli(realCommitted) - toMilli(dbCommitted)),
-                        description: `Auto-Sync: committed_lm corrected to match decayed active wishes.`,
+                        amount: fromMilli(toMilli(realCommitted) - toMilli(committedLm)),
+                        description: `Auto-Sync: committed_lm corrected to ${realCommitted} (was ${committedLm})`,
                         created_at: serverTimestamp()
                     });
                 });
@@ -103,7 +118,8 @@ export const useWallet = () => {
         };
         syncDb();
     }
-  }, [user, profile, committedLm, wishesLoading, profileLoading]);
+  }, [user, profile, userWishes, wishesLoading, profileLoading, committedLm, isUserWishesLoading]);
+ // Dependent on userWishes (O(N) trigger)
 
   // === 3. METABOLIC STATUS ===
   const status: WalletStatus = useMemo(() => {

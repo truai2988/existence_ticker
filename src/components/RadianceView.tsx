@@ -17,24 +17,22 @@ type TabType = 'active' | 'outbound' | 'past';
 type ModalState = 'none' | 'create_wish';
 
 export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUserId }) => {
-    const { wishes } = useWishes();
+    const { userWishes } = useWishes();
     
     const [activeTab, setActiveTab] = useState<TabType>('active');
     const [modalState, setModalState] = useState<ModalState>('none');
     
-    // Filter Logic
+    // Filter Logic (using Private Storage: userWishes)
     // 1. My Active Stars (My Open Requests)
-    const myActiveWishes = wishes.filter(w => 
-        w.requester_id === currentUserId && w.status === 'open'
+    const myActiveWishes = userWishes.filter(w => 
+        w.status === 'open'
     );
     // 2. Outbound Contracts (My In-Progress Requests)
-    const myOutboundWishes = wishes.filter(w => 
-        w.requester_id === currentUserId && 
+    const myOutboundWishes = userWishes.filter(w => 
         (w.status === 'in_progress' || w.status === 'review_pending')
     );
     // 3. Past Records (Fulfilled, Cancelled, Expired)
-    const myPastWishes = wishes.filter(w => 
-        w.requester_id === currentUserId && 
+    const myPastWishes = userWishes.filter(w => 
         (w.status === 'fulfilled' || w.status === 'cancelled' || w.status === 'expired')
     );
 

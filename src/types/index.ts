@@ -87,6 +87,7 @@ export interface Wish {
   cancelled_at?: unknown;
   cancel_reason?: string;
   isAnonymous?: boolean;
+  applicant_ids?: string[]; // For querying involved wishes
 }
 
 export interface CreateWishInput {

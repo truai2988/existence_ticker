@@ -133,12 +133,14 @@ export const useWishActions = () => {
         // Add to applicants array (Union)
         // Note: Firestore arrayUnion is simpler but transaction is safer for reading state first
         const currentApplicants = wishDoc.data().applicants || [];
+        const currentApplicantIds = wishDoc.data().applicant_ids || [];
         if (currentApplicants.some((a: { id: string }) => a.id === user.uid)) {
           throw "Already applied";
         }
 
         transaction.update(wishRef, {
           applicants: [...currentApplicants, applicantInfo],
+          applicant_ids: [...currentApplicantIds, user.uid],
         });
       });
       return true;
@@ -474,6 +476,10 @@ export const useWishActions = () => {
         const updatedApplicants = currentApplicants.filter(
             (a: { id: string }) => a.id !== user.uid
         );
+        const currentApplicantIds = wishData.applicant_ids || [];
+        const updatedApplicantIds = currentApplicantIds.filter(
+            (id: string) => id !== user.uid
+        );
 
         // 2. Reset Helper Stats (Purification/Penalty)
         // consecutive_completions = 0 -> Rank Deprivation
@@ -486,6 +492,7 @@ export const useWishActions = () => {
         transaction.update(wishRef, {
             status: "open",
             applicants: updatedApplicants,
+            applicant_ids: updatedApplicantIds,
             helper_id: deleteField(),
             accepted_at: deleteField(),
         });
@@ -705,9 +712,14 @@ export const useWishActions = () => {
         const updatedApplicants = currentApplicants.filter(
           (a: { id: string }) => a.id !== user.uid,
         );
+        const currentApplicantIds = wishDoc.data().applicant_ids || [];
+        const updatedApplicantIds = currentApplicantIds.filter(
+          (id: string) => id !== user.uid,
+        );
 
         transaction.update(wishRef, {
           applicants: updatedApplicants,
+          applicant_ids: updatedApplicantIds,
         });
       });
       return true;
