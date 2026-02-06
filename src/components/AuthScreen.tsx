@@ -30,6 +30,9 @@ export const AuthScreen = () => {
                 if (!name.trim()) throw new Error("名前を入力してください");
                 if (!age_group) throw new Error("年代を選択してください");
                 if (!location.prefecture) throw new Error("都道府県を選択してください");
+                if (!location.city) throw new Error("市区町村を選択してください");
+                if (!email) throw new Error("メールアドレスを入力してください");
+                if (!password) throw new Error("パスワードを入力してください");
                 await signUp(email, password, name, location, age_group);
             }
         } catch (err) {
@@ -143,7 +146,7 @@ export const AuthScreen = () => {
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold text-slate-500 ml-1">
                                         お名前 (表示名)
-                                        <span className="text-rose-500 text-xs ml-1 font-normal">(必須)</span>
+                                        <span className="text-rose-500 ml-1">*</span>
                                     </label>
                                     <input 
                                         type="text" 
@@ -157,7 +160,7 @@ export const AuthScreen = () => {
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold text-slate-500 ml-1">
                                         年代
-                                        <span className="text-rose-500 text-xs ml-1 font-normal">(必須)</span>
+                                        <span className="text-rose-500 ml-1">*</span>
                                     </label>
                                     <div className="relative">
                                         <select 
@@ -183,7 +186,7 @@ export const AuthScreen = () => {
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold text-slate-500 ml-1">
                                             都道府県
-                                            <span className="text-rose-500 text-xs ml-1 font-normal">(必須)</span>
+                                            <span className="text-rose-500 ml-1">*</span>
                                         </label>
                                         <div className="relative">
                                             <select 
@@ -203,7 +206,7 @@ export const AuthScreen = () => {
                                     <div className="space-y-2">
                                         <label className="text-xs font-bold text-slate-500 ml-1">
                                             市区町村
-                                            <span className="text-rose-500 text-xs ml-1 font-normal">(必須)</span>
+                                            <span className="text-rose-500 ml-1">*</span>
                                         </label>
                                         <div className="relative">
                                             <select 
@@ -232,7 +235,7 @@ export const AuthScreen = () => {
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-500 ml-1">
                             メールアドレス
-                            {mode === 'register' && <span className="text-rose-500 text-xs ml-1 font-normal">(必須)</span>}
+                            {mode === 'register' && <span className="text-rose-500 ml-1">*</span>}
                         </label>
                         <input 
                             type="email" 
@@ -247,7 +250,7 @@ export const AuthScreen = () => {
                     <div className="space-y-2">
                         <label className="text-xs font-bold text-slate-500 ml-1">
                             パスワード
-                            {mode === 'register' && <span className="text-rose-500 text-xs ml-1 font-normal">(必須)</span>}
+                            {mode === 'register' && <span className="text-rose-500 ml-1">*</span>}
                         </label>
                         <input 
                             type="password" 

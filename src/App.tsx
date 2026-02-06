@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 // Main App Component
 import { AuthScreen } from "./components/AuthScreen";
 import { Header } from "./components/Header";
-import { Footer } from "./components/Footer";
 
 // Lazy Load Main Logic to improve initial render speed
 const MainContent = lazy(() =>
@@ -88,20 +87,13 @@ function App() {
   const [viewMode, setViewMode] = useState<AppViewMode>("home");
   const [showAdmin, setShowAdmin] = useState(false);
 
-  // Tab state (Visual mostly, syncing with viewMode)
-  const [activeTab, setActiveTab] = useState<"home" | "history" | "profile">(
-    "home",
-  );
-
   const handleTabChange = (tab: "home" | "history" | "profile") => {
-    setActiveTab(tab);
     setViewMode(tab);
   };
 
   /* eslint-disable react-refresh/only-export-components */
   
   const handleGoHome = () => {
-    setActiveTab("home");
     setViewMode("home");
   };
 
@@ -167,13 +159,11 @@ function App() {
   return (
     <div className="bg-slate-50 h-screen font-sans selection:bg-yellow-500/30 overflow-hidden flex flex-col relative text-slate-900">
       {/* HEADER (Always visible except maybe Admin?) */}
-      <Header viewMode={viewMode} />
+      <Header viewMode={viewMode} onTabChange={handleTabChange} />
 
       {/* MAIN CONTENT */}
       <main
-        className={`flex-1 relative overflow-y-auto no-scrollbar scroll-smooth flex flex-col ${
-          viewMode === "home" ? "pb-16" : "pb-24"
-        }`}
+        className={`flex-1 relative overflow-y-auto no-scrollbar scroll-smooth flex flex-col`}
       >
         <Suspense fallback={<ScreenLoader />}>
           <MainContent
@@ -185,8 +175,7 @@ function App() {
         </Suspense>
       </main>
 
-      {/* FOOTER NAVIGATION */}
-      <Footer currentTab={activeTab} onTabChange={handleTabChange} />
+
 
       {/* Admin Quick Access */}
       <PWALogic />

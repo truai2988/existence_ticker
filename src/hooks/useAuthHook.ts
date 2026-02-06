@@ -10,7 +10,7 @@ import {
     updateEmail,
     reauthenticateWithCredential
 } from 'firebase/auth';
-import { doc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, deleteDoc, serverTimestamp, runTransaction, increment } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { useAuthContext } from '../contexts/AuthContextDefinition';
 
@@ -31,18 +31,34 @@ export const useAuth = () => {
             // 1. Update Auth Profile
             await updateProfile(cred.user, { displayName: name });
             
-            // 2. Initialize Firestore Profile immediately to ensure name is correct
-            // (Prevents race condition where useProfile sees null displayName)
+            // 2. Initialize Firestore Profile AND Stats atomically
             if (db) {
-                await setDoc(doc(db, 'users', cred.user.uid), {
-                    id: cred.user.uid,
-                    name: name,
-                    location: location,
-                    age_group: age_group,
-                    balance: 2400,
-                    xp: 0,
-                    warmth: 0,
-                    last_updated: serverTimestamp()
+                const userRef = doc(db, 'users', cred.user.uid);
+                
+                await runTransaction(db, async (transaction) => {
+                    // Check existence (rare race)
+                    const check = await transaction.get(userRef);
+                    if (check.exists()) return;
+
+                    // Create User
+                    transaction.set(userRef, {
+                        id: cred.user!.uid,
+                        name: name,
+                        location: location,
+                        age_group: age_group,
+                        balance: 2400,
+                        xp: 0,
+                        warmth: 0,
+                        last_updated: serverTimestamp(),
+                        cycle_started_at: serverTimestamp() // Set cycle start
+                    });
+
+                    // Increment Stats (Strict OnCreate Logic)
+                    if (location && location.prefecture && location.city) {
+                        const cityKey = `${location.prefecture}_${location.city}`;
+                        const statRef = doc(db!, 'location_stats', cityKey);
+                        transaction.set(statRef, { count: increment(1) }, { merge: true });
+                    }
                 });
             }
         }

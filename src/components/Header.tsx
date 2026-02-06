@@ -1,18 +1,21 @@
 import React from 'react';
 import { Sparkles, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { UNIT_LABEL, LUNAR_CONSTANTS } from '../constants';
+import { UNIT_LABEL } from '../constants';
 import { WORLD_CONSTANTS } from '../logic/worldPhysics';
 import { UserSubBar } from './UserSubBar';
 import { useWallet } from '../hooks/useWallet';
 import { useProfile } from '../hooks/useProfile';
+
+import { HeaderNavigation } from './HeaderNavigation';
 import { AppViewMode } from '../types';
 
 interface HeaderProps {
     viewMode?: AppViewMode;
+    onTabChange: (tab: "home" | "history" | "profile") => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
+export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
     const { balance, availableLm, committedLm, status } = useWallet();
     const { profile } = useProfile();
     
@@ -24,7 +27,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
 
     const shouldShowUserName = viewMode !== 'profile' && viewMode !== 'profile_edit';
 
-    // Seasonal Logic
+    // Seasonal Logic (Simplified)
     const cycleDays = profile?.scheduled_cycle_days || 10;
     const cycleStartedAt = profile?.cycle_started_at?.toMillis 
         ? profile.cycle_started_at.toMillis() 
@@ -33,10 +36,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
     const nextReset = cycleStartedAt + (cycleDays * 24 * 60 * 60 * 1000);
     const daysLeft = Math.max(0, Math.ceil((nextReset - Date.now()) / (1000 * 60 * 60 * 24)));
 
-    let seasonLabel = "通常 (秋)";
-    let seasonColor = "text-yellow-600";
-    if (cycleDays < 10) { seasonLabel = "春 (循環)"; seasonColor = "text-green-600"; }
-    if (cycleDays > 10) { seasonLabel = "冬 (停滞)"; seasonColor = "text-slate-500"; }
+
 
 
     return (
@@ -47,7 +47,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
 
                 <div className="relative w-full max-w-md mx-auto px-6 h-[90px] flex items-center justify-between">
                     
-                    {/* Left: Available (Primary) */}
+                    {/* Left: Available (Main) */}
                     <div className="flex flex-col justify-center">
                         <div className="flex items-center gap-1.5 text-slate-500 mb-0.5">
                             <Sparkles size={12} className={isFullyCommitted ? "text-slate-300" : "text-amber-400 fill-amber-400"} />
@@ -71,63 +71,48 @@ export const Header: React.FC<HeaderProps> = ({ viewMode }) => {
                         </div>
                     </div>
 
-                    {/* Season & Decay (Center) */}
-                    <div className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none">
-                        <span className={`text-[10px] font-mono font-bold uppercase tracking-widest ${seasonColor} opacity-60 mb-0.5`}>
-                            {seasonLabel}
-                        </span>
-                        <span className="text-[11px] text-slate-400 leading-none">
-                            リセットまで {daysLeft} 日
-                        </span>
-                        <span className="text-xs text-slate-500 font-bold mt-1">
-                            -{Math.floor(LUNAR_CONSTANTS.DECAY_PER_SEC * 3600).toLocaleString()} {UNIT_LABEL}/h
-                        </span>
-                    </div>
-
-
-
-                    {/* Right: Total & Gauge (Secondary) */}
-                    <div className="flex flex-col items-end gap-1.5 min-w-[120px]">
+                    {/* Right Container: Stats + Navigation */}
+                    <div className="flex items-center gap-4">
                         
-                        {/* Total Label */}
-                        <div className="flex items-center gap-1.5 text-slate-400">
-                            <Wallet size={10} strokeWidth={2.5} />
-                            <div className="text-xs font-bold tracking-wider tabular-nums">
-                                手持ち: <span className="text-slate-600 font-bold">{status === 'RITUAL_READY' ? '－' : Math.floor(balance).toLocaleString()}</span>
+                        {/* Element A: Wallet Stats (Right Aligned) */}
+                        <div className="flex flex-col items-end gap-1">
+                            {/* Row 1: Icon + Balance */}
+                            <div className="flex items-center gap-1.5 text-slate-400">
+                                <Wallet size={10} strokeWidth={2.5} />
+                                <div className="text-xs font-bold tracking-wider tabular-nums">
+                                    手持ち: <span className="text-slate-600 font-bold">{status === 'RITUAL_READY' ? '－' : Math.floor(balance).toLocaleString()}</span>
+                                </div>
+                            </div>
+
+                            {/* Row 2: Progress Gauge */}
+                            <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden relative shadow-inner">
+                                <div className="absolute inset-0 bg-slate-100" />
+                                <motion.div 
+                                    className="absolute inset-0 h-full bg-gradient-to-r from-amber-200 to-amber-300 rounded-full"
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${Math.min(100, availablePercent + committedPercent)}%` }}
+                                    transition={{ duration: 1, ease: "easeOut" }}
+                                />
+                                <motion.div 
+                                    className="absolute inset-0 h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full shadow-[0_0_8px_rgba(251,191,36,0.4)]"
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${availablePercent}%` }}
+                                    transition={{ duration: 1, ease: "easeOut", delay: 0.1 }}
+                                />
+                                <div className="absolute inset-0 h-full w-full bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
+                            </div>
+
+                            {/* Row 3: Reset Countdown */}
+                            <div className="flex items-center justify-end">
+                                <span className="text-xs text-slate-300 font-mono tracking-widest">
+                                    リセットまで{daysLeft}日
+                                </span>
                             </div>
                         </div>
 
-                        {/* Modern Rounded Gauge */}
-                        <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden relative shadow-inner">
-                            {/* Base track */}
-                            <div className="absolute inset-0 bg-slate-100" />
-                            
-                            {/* Layer 1: Committed (Total Used + Available) - Visualized as lighter/background color */}
-                            <motion.div 
-                                className="absolute inset-0 h-full bg-gradient-to-r from-amber-200 to-amber-300 rounded-full"
-                                initial={{ width: 0 }}
-                                animate={{ width: `${Math.min(100, availablePercent + committedPercent)}%` }}
-                                transition={{ duration: 1, ease: "easeOut" }}
-                            />
+                        {/* Element B: Navigation */}
+                        <HeaderNavigation currentTab={viewMode || "home"} onTabChange={onTabChange} />
 
-                            {/* Layer 2: Available (Foreground) - Visualized as deeper/active color */}
-                            <motion.div 
-                                className="absolute inset-0 h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full shadow-[0_0_8px_rgba(251,191,36,0.4)]"
-                                initial={{ width: 0 }}
-                                animate={{ width: `${availablePercent}%` }}
-                                transition={{ duration: 1, ease: "easeOut", delay: 0.1 }}
-                            />
-                            
-                            {/* Active Shine Effect */}
-                            <div className="absolute inset-0 h-full w-full bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
-                        </div>
-
-                        {/* Status / Link */}
-                        <div className="h-4 flex items-center justify-end">
-                            <span className="text-xs text-slate-300 font-mono">
-                                {Math.round(availablePercent)}%
-                            </span>
-                        </div>
                     </div>
                 </div>
             </header>

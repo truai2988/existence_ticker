@@ -216,9 +216,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       </div>
 
       <div className="flex-1 overflow-y-auto no-scrollbar w-full">
-        <div className="max-w-md mx-auto w-full pt-4 pb-24">
+        <div className="max-w-md mx-auto w-full px-6 pt-4 pb-24">
           {/* 1. Header Profile Info */}
-          <div className="flex flex-col items-center py-8 bg-white mb-4 border-b border-slate-200">
+          <div className="flex flex-col items-center py-8 bg-white mb-4 rounded-xl border border-slate-200 shadow-sm">
             <div className="relative mb-3">
               <div className="w-24 h-24 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
                 {profile?.avatarUrl ? (
@@ -369,7 +369,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           </div>
 
           {/* 2. Settings & Stats Groups */}
-          <div className="px-4 space-y-6">
+          <div className="space-y-6">
             {/* Section: Activity History (Flow) - NEW */}
             <div>
               <div className="text-xs font-bold text-slate-400 ml-2 mb-2">

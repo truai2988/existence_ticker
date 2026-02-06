@@ -8,6 +8,7 @@ import { MapPin, ChevronRight } from 'lucide-react';
 import { PresenceModal } from './PresenceModal';
 import { AccountSettingsModal } from './AccountSettingsModal';
 import { AnimatePresence } from 'framer-motion';
+import { formatLocationCount } from '../utils/formatLocation';
 
 export const UserSubBar: React.FC = () => {
     const { user } = useAuth();
@@ -30,13 +31,10 @@ export const UserSubBar: React.FC = () => {
                 const docRef = doc(db!, 'location_stats', docId);
                 const snap = await getDoc(docRef);
                 if (snap.exists()) {
-                    // Optimistic Adjustment: If this is my location, count must be at least 1.
-                    // This prevents "None yet" race condition display for the logged-in user.
-                    const rawCount = snap.data().count || 0;
-                    setStatsCount(Math.max(rawCount, 1)); 
+                    setStatsCount(snap.data().count || 0); 
                 } else {
                     // Doc doesn't exist yet -> First user in this city
-                    setStatsCount(1);
+                    setStatsCount(0);
                 }
              } catch (e) {
                  console.error("Status fetch failed", e);
@@ -48,10 +46,7 @@ export const UserSubBar: React.FC = () => {
     const getStatusText = () => {
         if (!profile?.location) return "地域未設定";
         if (statsCount === null) return "確認中...";
-        // Restore Specification: Explicit handling for 0 users (e.g., if somehow viewing a different area or system reset)
-        if (statsCount === 0) return "登録者はまだいません";
-        if (statsCount < 5) return "5名未満";
-        return `${statsCount}名`;
+        return formatLocationCount(statsCount);
     };
 
     const currentName = profile?.name || 'User';

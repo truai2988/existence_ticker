@@ -137,7 +137,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
 
             {/* List Content */}
             <div className="flex-1 overflow-y-auto no-scrollbar bg-slate-50 w-full">
-                <div className="max-w-md mx-auto p-4 pb-24 h-full">
+                <div className="max-w-md mx-auto px-6 py-4 pb-24 h-full">
                      {activeTab === 'active' ? (
                          <WishCardList 
                             wishes={myActiveWishes} 

@@ -13,6 +13,9 @@ import {
   Trash2,
   AlertTriangle,
   Archive,
+  Copy,
+  Check,
+  Mail,
 } from "lucide-react";
 import { Wish } from "../types";
 import { calculateDecayedValue, calculateHistoricalValue } from "../logic/worldPhysics";
@@ -152,6 +155,7 @@ export const WishCard: React.FC<WishCardProps> = ({
   // Approval Modal State
   const [approvalTarget, setApprovalTarget] = useState<{id: string, name: string} | null>(null);
   const [contactNote, setContactNote] = useState("");
+  const [isCopied, setIsCopied] = useState(false);
 
   // Anti-Gravity: Universal Decay Logic (静的計算)
   // Derived initial cost
@@ -344,6 +348,25 @@ export const WishCard: React.FC<WishCardProps> = ({
     : requesterProfile?.name ||
       wish.requester_name ||
       wish.requester_id.slice(0, 8);
+
+  // Contact Logic
+  const contactEmail = ((isMyWish && wish.helper_contact_email) || (!isMyWish && wish.requester_contact_email));
+  const opponentName = isMyWish 
+      ? (helperProfile?.name || wish.helper_name || "隣人") 
+      : (requesterProfile?.name || wish.requester_name || "依頼者");
+
+  const handleCopyEmail = () => {
+    if (contactEmail) {
+      navigator.clipboard.writeText(contactEmail);
+      setIsCopied(true);
+      showToast("メールアドレスをコピーしました", "success");
+      setTimeout(() => setIsCopied(false), 2000);
+    }
+  };
+
+  const mailSubject = `[Existence Ticker] ${wish.content.length > 20 ? wish.content.slice(0, 20) + "..." : wish.content} について`;
+  const mailBody = `${opponentName} 様\n\n`;
+  const mailtoLink = contactEmail ? `mailto:${contactEmail}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}` : "#";
 
   return (
     <div
@@ -696,18 +719,36 @@ export const WishCard: React.FC<WishCardProps> = ({
               
               <div className="space-y-3">
                   {/* Email Section */}
+                  {/* Email Section with Copy & Mailto */}
                   <div className="flex flex-col gap-1">
                       <span className="text-[11px] uppercase font-bold text-slate-400 tracking-wider">
                           {isMyWish ? "相手の連絡先" : "依頼主の連絡先"}
                       </span>
-                      {((isMyWish && wish.helper_contact_email) || (!isMyWish && wish.requester_contact_email)) ? (
-                          <a 
-                             href={`mailto:${isMyWish ? wish.helper_contact_email : wish.requester_contact_email}`}
-                             className="text-sm font-mono font-bold text-blue-600 hover:underline flex items-center gap-1.5"
-                          >
-                             <Pencil size={12} />
-                             {isMyWish ? wish.helper_contact_email : wish.requester_contact_email}
-                          </a>
+                      {contactEmail ? (
+                          <div className="bg-white border border-slate-200 rounded-lg p-3">
+                              {/* Top Row: Address + Copy */}
+                              <div className="flex items-center justify-between gap-2 mb-2">
+                                  <span className="text-sm font-mono font-bold text-slate-700 break-all select-all">
+                                      {contactEmail}
+                                  </span>
+                                  <button 
+                                      onClick={handleCopyEmail}
+                                      className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors shrink-0"
+                                      title="アドレスをコピー"
+                                  >
+                                      {isCopied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
+                                  </button>
+                              </div>
+                              
+                              {/* Bottom Row: Mailto Action */}
+                              <a
+                                  href={mailtoLink}
+                                  className="flex items-center justify-center gap-2 w-full py-2 text-xs font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-md transition-colors group"
+                              >
+                                  <Mail size={14} className="text-slate-400 group-hover:text-slate-600" />
+                                  メールを作成する
+                              </a>
+                          </div>
                       ) : (
                           <span className="text-xs text-slate-400 italic">連絡先は設定されていません</span>
                       )}
@@ -774,7 +815,7 @@ export const WishCard: React.FC<WishCardProps> = ({
           {/* Timestamp for My Wish (Moved to Footer) */}
           {isMyWish && (
             <span className="flex items-center gap-2">
-                <span className="flex items-center gap-1 text-[10px] text-slate-400 ml-1">
+                <span className="flex items-center gap-1 text-xs text-slate-400 ml-1">
                     <Clock className="w-3 h-3" />
                     <span>{formatDate(wish.created_at)}</span>
                 </span>

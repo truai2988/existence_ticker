@@ -6,6 +6,7 @@ import { db } from "../lib/firebase";
 import { PREFECTURES } from "../data/prefectures";
 import { useLocationData } from "../hooks/useLocationData";
 import { useProfile } from "../hooks/useProfile";
+import { formatLocationCount } from "../utils/formatLocation";
 
 interface PresenceModalProps {
   onClose: () => void;
@@ -75,12 +76,10 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
 
   // Determine display text
   const getDisplayText = () => {
+      // Logic moved to shared utility
       if (loading) return "確認中...";
       if (count === null) return "地域を選択してください";
-      
-      if (count === 0) return "登録者はまだいません";
-      if (count < 5) return "5名未満";
-      return `${count} 名が登録しています`; // Exact count for >= 5
+      return formatLocationCount(count);
   };
 
   return (

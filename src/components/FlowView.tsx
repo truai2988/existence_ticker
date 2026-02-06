@@ -204,7 +204,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
         {/* Content Container (Full Width) */}
         <div className="flex-1 overflow-y-auto no-scrollbar w-full">
             {/* Inner Content (Centered) */}
-            <div className="max-w-md mx-auto p-4 pb-24 w-full">
+            <div className="max-w-md mx-auto px-6 py-4 pb-24 w-full">
                 
                 {activeTab === 'explore' && (
                     <WishCardList 

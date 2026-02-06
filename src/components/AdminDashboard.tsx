@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, ShieldOff } from "lucide-react";
 import { useStats, MetabolismStatus } from "../hooks/useStats";
 import { db } from "../lib/firebase";
@@ -41,14 +41,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     fetchConfig();
   }, []);
 
-  // Fetch Users Logic
-  React.useEffect(() => {
-      if (activeTab === 'users') {
-          fetchUsers();
-      }
-  }, [activeTab]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
       setIsLoadingUsers(true);
       try {
           if (!db) return;
@@ -80,7 +73,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       } finally {
           setIsLoadingUsers(false);
       }
-  };
+  }, [setAdminCount]);
+
+  // Fetch Users Logic
+  React.useEffect(() => {
+      if (activeTab === 'users') {
+          fetchUsers();
+      }
+  }, [activeTab, fetchUsers]);
 
 
   const handleToggleAdmin = async (targetUser: UserProfile) => {
@@ -116,6 +116,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           alert("権限の変更に失敗しました。\nあなた自身に十分な権限がない可能性があります。\n" + String(e));
       }
   };
+
 
   const filteredUsers = userList.filter(u => 
       u.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -939,6 +940,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                          </ul>
                     </div>
                 </div>
+
 
                 <h3 className="text-xl font-bold mt-10 mb-6 font-sans">4.4 介入の書 (Intervention Matrix)</h3>
                 <div className="overflow-hidden border border-slate-200 rounded-lg">
