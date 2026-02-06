@@ -125,13 +125,6 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             where('applicant_ids', 'array-contains', user.uid)
         );
 
-        const unsubHelper = onSnapshot(qHelperActive, (snap) => {
-             updateInvolvedState(snap.docs.map(d => ({id:d.id, ...d.data()} as Wish)), 'helper');
-        });
-        const unsubApplied = onSnapshot(qApplied, (snap) => {
-             updateInvolvedState(snap.docs.map(d => ({id:d.id, ...d.data()} as Wish)), 'applicant');
-        });
-
         // Merge logic for involved
         let helperCache: Wish[] = [];
         let applicantCache: Wish[] = [];
@@ -145,6 +138,13 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             const unique = Array.from(new Map(merged.map(item => [item.id, item])).values());
             setInvolvedActiveWishes(unique.sort((a,b) => getMillis(b.created_at) - getMillis(a.created_at)));
         };
+
+        const unsubHelper = onSnapshot(qHelperActive, (snap) => {
+             updateInvolvedState(snap.docs.map(d => ({id:d.id, ...d.data()} as Wish)), 'helper');
+        });
+        const unsubApplied = onSnapshot(qApplied, (snap) => {
+             updateInvolvedState(snap.docs.map(d => ({id:d.id, ...d.data()} as Wish)), 'applicant');
+        });
 
         return () => {
             unsubUser();
