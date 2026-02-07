@@ -20,7 +20,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
     return (
         <>
             {/* Desktop Navigation (Hidden on Mobile) */}
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="hidden md:flex items-center gap-0">
                 {navItems.map((item) => (
                     <button
                         key={item.id}

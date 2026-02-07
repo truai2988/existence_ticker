@@ -46,12 +46,12 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                 {/* Background with higher blur for premium feel */}
                 <div className="absolute inset-0 bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-sm" />
 
-                <div className="relative w-full max-w-md mx-auto px-6 h-[110px] grid grid-cols-2 items-center gap-2">
+                <div className="relative w-full max-w-md mx-auto px-4 h-[110px] flex items-center justify-between gap-1 overflow-hidden">
                     
                     {/* Left Block: Resources & Location */}
-                    <div className="flex items-center justify-start gap-2 sm:gap-3 shrink-0">
+                    <div className="flex items-center gap-2 min-w-0 flex-1 justify-start">
                         {/* 1. Available LM (Shareable) */}
-                        <div className="flex flex-col items-center">
+                        <div className="flex flex-col items-center shrink-0">
                             <div className="flex items-center gap-1.5 text-slate-500 mb-0.5">
                                 <Sparkles size={11} className={isFullyCommitted ? "text-slate-300" : "text-amber-400 fill-amber-400"} />
                                 <span className="text-xs font-bold tracking-widest uppercase opacity-70 whitespace-nowrap">
@@ -77,23 +77,23 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                         {/* 2. Location Button (📍 City) */}
                         <button 
                             onClick={() => setShowPresenceModal(true)}
-                            className="h-11 px-2 flex items-center gap-1.5 text-slate-400 hover:text-slate-600 transition-all rounded-xl hover:bg-blue-50/30 active:scale-95 group relative shrink-0"
+                            className="h-11 px-2 flex items-center gap-1.5 text-slate-400 hover:text-slate-600 transition-all rounded-xl hover:bg-blue-50/30 active:scale-95 group relative min-w-0 flex-1"
                             title="エリア状況を確認"
                         >
                             <span className="absolute inset-0 rounded-xl bg-blue-400/0 group-hover:bg-blue-400/5 blur-sm transition-all" />
-                            <MapPin size={14} className="text-slate-300 group-hover:text-blue-400 transition-colors" />
-                            <span className="text-xs font-bold tracking-tight text-slate-400 group-hover:text-slate-600 transition-colors pt-0.5 whitespace-normal max-w-[80px] leading-tight text-left">
+                            <MapPin size={14} className="text-slate-300 group-hover:text-blue-400 transition-colors shrink-0" />
+                            <span className="text-xs font-bold tracking-tight text-slate-400 group-hover:text-slate-600 transition-colors pt-0.5 whitespace-normal min-w-0 max-w-[70px] leading-tight text-left">
                                 {profile?.location?.city || "エリア"}
                             </span>
                         </button>
                     </div>
 
                     {/* Right Block: Status & Navigation */}
-                    <div className="flex items-center justify-end gap-2 sm:gap-3 shrink-0">
+                    <div className="flex items-center justify-end gap-1 min-w-0 flex-1 shrink-0">
                         {/* 1. Wallet Status (Gauge) */}
-                        <div className="flex flex-col items-center gap-1.5 px-1">
+                        <div className="flex flex-col items-center gap-1 shrink-0">
                             {/* Handheld Amount */}
-                            <div className="flex items-center gap-1.5 text-slate-400">
+                            <div className="flex items-center gap-1 text-slate-400">
                                 <Wallet size={10} strokeWidth={2.5} />
                                 <div className="text-xs font-bold tracking-wider tabular-nums leading-none">
                                     <span className="text-slate-600 font-bold">{status === 'RITUAL_READY' ? '－' : Math.floor(balance).toLocaleString()}</span>
@@ -101,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                             </div>
 
                             {/* Progress Gauge */}
-                            <div className="w-16 sm:w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden relative shadow-inner">
+                            <div className="w-10 sm:w-14 h-1.5 bg-slate-100 rounded-full overflow-hidden relative shadow-inner">
                                 <div className="absolute inset-0 bg-slate-100" />
                                 <motion.div 
                                     className="absolute inset-0 h-full bg-gradient-to-r from-amber-200 to-amber-300 rounded-full"
