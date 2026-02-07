@@ -40,8 +40,6 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
     };
     
     // 1. Explore (Active Global Feed)
-    // Filter: NOT my wish, NOT applied
-    // Note: 'wishes' from context is now REAL-TIME 'open' status only.
     const exploreWishes = wishes.filter(w => {
         if (w.requester_id === currentUserId) return false;
         if (w.applicants && w.applicants.some(a => a.id === currentUserId)) return false;
@@ -76,7 +74,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
     return (
         <div className="fixed inset-0 z-[60] bg-slate-50 flex flex-col w-full h-full">
             {/* Header Container (Full Width) */}
-            <div className="w-full bg-white/80 backdrop-blur-md border-b-2 border-blue-400 shrink-0 z-10 pt-safe shadow-sm">
+            <div className="w-full bg-white/80 backdrop-blur-md border-b-2 border-amber-400 shrink-0 z-10 pt-safe shadow-sm">
                 <div className="max-w-md mx-auto px-6 h-[110px] flex flex-col justify-between">
                     {/* Header Content Row: Title Left, Actions Right */}
                     <div className="flex items-center justify-between w-full pt-3">
@@ -93,7 +91,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
                                 onClick={() => setActiveTab('explore')}
                                 className={`flex items-center justify-center gap-2 px-3.5 py-1.5 min-w-[124px] rounded-full text-xs font-bold transition-all shadow-sm active:scale-95 border focus:outline-none focus:ring-0 ${
                                     activeTab === 'explore' 
-                                        ? 'bg-blue-600 text-white border-transparent shadow-blue-100' 
+                                        ? 'bg-amber-600 text-white border-transparent shadow-amber-100' 
                                         : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                                 }`}
                             >
@@ -179,7 +177,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ onClose, currentUserId, onOp
         <UserSubBar />
         
         {/* Content Container (Full Width) */}
-        <div className="flex-1 overflow-y-auto no-scrollbar bg-blue-50/20 w-full transition-colors duration-500">
+        <div className="flex-1 overflow-y-auto no-scrollbar bg-amber-50/20 w-full transition-colors duration-500">
             {/* Inner Content (Centered) */}
             <div className="max-w-md mx-auto px-6 py-4 pb-24 w-full">
                 
