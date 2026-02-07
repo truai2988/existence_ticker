@@ -101,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                             </div>
 
                             {/* Progress Gauge */}
-                            <div className="w-10 sm:w-14 h-1.5 bg-slate-100 rounded-full overflow-hidden relative shadow-inner">
+                            <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden relative shadow-inner">
                                 <div className="absolute inset-0 bg-slate-100" />
                                 <motion.div 
                                     className="absolute inset-0 h-full bg-gradient-to-r from-amber-200 to-amber-300 rounded-full"
