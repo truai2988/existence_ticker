@@ -25,11 +25,13 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                     <button
                         key={item.id}
                         onClick={() => onTabChange(item.id)}
-                        className={`p-2 rounded-full transition-all group relative ${
-                            currentTab === item.id ? "bg-slate-100" : "hover:bg-slate-50"
+                        className={`p-2 rounded-full transition-all group relative active:scale-95 ${
+                            currentTab === item.id ? "bg-slate-100/30" : "hover:bg-blue-50/20"
                         }`}
                         title={item.label}
                     >
+                        {/* Light bleeding effect */}
+                        <span className="absolute inset-0 rounded-full bg-blue-400/0 group-hover:bg-blue-400/5 blur-md transition-all" />
                         <item.icon 
                             size={20} 
                             strokeWidth={currentTab === item.id ? 2.5 : 1.5}

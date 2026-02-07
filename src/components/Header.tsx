@@ -3,12 +3,14 @@ import { Sparkles, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { UNIT_LABEL } from '../constants';
 import { WORLD_CONSTANTS } from '../logic/worldPhysics';
-import { UserSubBar } from './UserSubBar';
 import { useWallet } from '../hooks/useWallet';
 import { useProfile } from '../hooks/useProfile';
 
 import { HeaderNavigation } from './HeaderNavigation';
 import { AppViewMode } from '../types';
+import { MapPin } from 'lucide-react';
+import { PresenceModal } from './PresenceModal';
+import { AnimatePresence } from 'framer-motion';
 
 interface HeaderProps {
     viewMode?: AppViewMode;
@@ -18,14 +20,13 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
     const { balance, availableLm, committedLm, status } = useWallet();
     const { profile } = useProfile();
+    const [showPresenceModal, setShowPresenceModal] = React.useState(false);
     
     const isFullyCommitted = availableLm <= 0;
     
     // Percentages (Based on Rebirth Max Capacity)
     const availablePercent = Math.min(100, (availableLm / WORLD_CONSTANTS.REBIRTH_AMOUNT) * 100);
     const committedPercent = Math.min(100, (committedLm / WORLD_CONSTANTS.REBIRTH_AMOUNT) * 100);
-
-    const shouldShowUserName = viewMode !== 'profile' && viewMode !== 'profile_edit';
 
     // Seasonal Logic (Simplified)
     const cycleDays = profile?.scheduled_cycle_days || 10;
@@ -46,20 +47,18 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                 <div className="absolute inset-0 bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-sm" />
 
                 <div className="relative w-full max-w-md mx-auto px-6 h-[110px] flex items-center justify-between">
-                    {/* Left padding/spacer to balance the right nav and help center the middle */}
-                    <div className="w-10 md:hidden" /> 
-
-                    {/* Center Block: All LM Stats grouped together */}
-                    <div className="flex-1 flex items-center justify-center gap-6">
-                        {/* 1. Available LM (Large) */}
+                    
+                    {/* Left Block: Resources & Location */}
+                    <div className="flex items-center gap-4">
+                        {/* 1. Available LM (Shareable) */}
                         <div className="flex flex-col items-center">
                             <div className="flex items-center gap-1.5 text-slate-500 mb-0.5">
                                 <Sparkles size={11} className={isFullyCommitted ? "text-slate-300" : "text-amber-400 fill-amber-400"} />
                                 <span className="text-xs font-bold tracking-widest uppercase opacity-70">
-                                    使える LM
+                                    分かち合える
                                 </span>
                             </div>
-                            <div className="flex items-baseline gap-1">
+                            <div className="flex items-center gap-1">
                                 <motion.span 
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
@@ -75,16 +74,32 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                             </div>
                         </div>
 
-                        {/* Thin vertical divider for visual grouping */}
-                        <div className="w-px h-8 bg-slate-100/50" />
+                        {/* 2. Location Button (📍 City) */}
+                        <button 
+                            onClick={() => setShowPresenceModal(true)}
+                            className="h-11 px-2 flex items-center gap-1.5 text-slate-400 hover:text-slate-600 transition-all rounded-xl hover:bg-blue-50/30 active:scale-95 group relative"
+                            title="エリア状況を確認"
+                        >
+                            <span className="absolute inset-0 rounded-xl bg-blue-400/0 group-hover:bg-blue-400/5 blur-sm transition-all" />
+                            <MapPin size={14} className="text-slate-300 group-hover:text-blue-400 transition-colors" />
+                            <span className="text-xs font-bold tracking-tight text-slate-400 group-hover:text-slate-600 transition-colors pt-0.5">
+                                {profile?.location?.city || "エリア"}
+                            </span>
+                        </button>
+                    </div>
 
-                        {/* 2. Wallet Stats (Compact right-side of group) */}
-                        <div className="flex flex-col gap-1.5">
+                    {/* Left: White Porcelain Margin (Empty Center) */}
+                    <div className="flex-1" />
+
+                    {/* Right Block: Status & Navigation */}
+                    <div className="flex items-center gap-4">
+                        {/* 1. Wallet Status (Gauge) */}
+                        <div className="flex flex-col items-center gap-1.5">
                             {/* Handheld Amount */}
                             <div className="flex items-center gap-1.5 text-slate-400">
                                 <Wallet size={10} strokeWidth={2.5} />
                                 <div className="text-xs font-bold tracking-wider tabular-nums leading-none">
-                                    手持ち: <span className="text-slate-600 font-bold">{status === 'RITUAL_READY' ? '－' : Math.floor(balance).toLocaleString()}</span>
+                                    <span className="text-slate-600 font-bold">{status === 'RITUAL_READY' ? '－' : Math.floor(balance).toLocaleString()}</span>
                                 </div>
                             </div>
 
@@ -107,22 +122,23 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
 
                             {/* Reset Countdown */}
                             <div className="flex items-center">
-                                <span className="text-xs text-slate-300 font-mono tracking-widest leading-none">
-                                    リセットまで{daysLeft}日
+                                <span className="text-[10px] text-slate-300 font-mono tracking-widest leading-none">
+                                    {daysLeft}d
                                 </span>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Right Block: Navigation icons moved to the edge */}
-                    <div className="shrink-0">
-                        <HeaderNavigation currentTab={viewMode || "home"} onTabChange={onTabChange} />
+                        {/* 2. Navigation */}
+                        <div className="shrink-0">
+                            <HeaderNavigation currentTab={viewMode || "home"} onTabChange={onTabChange} />
+                        </div>
                     </div>
                 </div>
             </header>
 
-            {/* User Name Sub Bar */}
-            {shouldShowUserName && <UserSubBar />}
+            <AnimatePresence>
+                {showPresenceModal && <PresenceModal onClose={() => setShowPresenceModal(false)} />}
+            </AnimatePresence>
         </>
     );
 };
