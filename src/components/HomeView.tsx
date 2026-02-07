@@ -112,13 +112,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     <feMergeNode in="SourceGraphic"/>
                   </feMerge>
                 </filter>
-                <linearGradient id="yangGradient" x1="0%" y1="100%" x2="0%" y2="0%">
-                  <stop offset="0%" stopColor="#BFDBFE" />
-                  <stop offset="100%" stopColor="#DBEAFE" />
-                </linearGradient>
-                <linearGradient id="yinGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                {/* 陽: WISH (明るい黄色) */}
+                <linearGradient id="yangGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" stopColor="#FEF3C7" />
                   <stop offset="100%" stopColor="#FDE68A" />
+                </linearGradient>
+                {/* 陰: HELP (落ち着いた青色) */}
+                <linearGradient id="yinGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+                  <stop offset="0%" stopColor="#BFDBFE" />
+                  <stop offset="100%" stopColor="#DBEAFE" />
                 </linearGradient>
                 <linearGradient id="porcelainGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                    <stop offset="0%" stopColor="#F8FAFC" />
@@ -129,13 +131,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <g transform="rotate(-45 50 50)">
                   <path
                      d="M 0 50 A 25 25 0 0 0 50 50 A 25 25 0 0 1 100 50 A 50 50 0 0 1 0 50 Z"
-                     fill={(isRitualReady || isEmpty) ? "url(#porcelainGradient)" : "url(#yinGradient)"}
+                     fill={(isRitualReady || isEmpty) ? "url(#porcelainGradient)" : "url(#yangGradient)"}
                      stroke="none"
                      className="transition-all duration-1000"
                   />
                   <path
                      d="M 0 50 A 25 25 0 0 0 50 50 A 25 25 0 0 1 100 50 A 50 50 0 0 0 0 50 Z"
-                     fill={(isRitualReady || isEmpty) ? "url(#porcelainGradient)" : "url(#yangGradient)"}
+                     fill={(isRitualReady || isEmpty) ? "url(#porcelainGradient)" : "url(#yinGradient)"}
                      stroke="none"
                      className="transition-all duration-1000"
                   />
@@ -165,7 +167,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 whileTap="tap"
               >
                 <motion.div
-                  className="text-blue-700 flex flex-col items-end group-hover:text-blue-600"
+                  className="text-blue-800 flex flex-col items-end group-hover:text-blue-700"
                   variants={{
                     initial: { y: 0, scale: 1 },
                     hover: {
@@ -193,7 +195,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 whileTap="tap"
               >
                 <motion.div
-                  className="text-amber-800 flex flex-col items-start group-hover:text-amber-700"
+                  className="text-amber-700 flex flex-col items-start group-hover:text-amber-600"
                   variants={{
                     initial: { y: 0, scale: 1 },
                     hover: {
