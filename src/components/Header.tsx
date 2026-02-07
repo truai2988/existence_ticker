@@ -46,10 +46,10 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                 {/* Background with higher blur for premium feel */}
                 <div className="absolute inset-0 bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-sm" />
 
-                <div className="relative w-full max-w-md mx-auto px-6 h-[110px] flex items-center justify-between">
+                <div className="relative w-full max-w-md mx-auto px-6 h-[110px] flex items-center justify-between gap-2">
                     
                     {/* Left Block: Resources & Location */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 sm:gap-4 shrink-0">
                         {/* 1. Available LM (Shareable) */}
                         <div className="flex flex-col items-center">
                             <div className="flex items-center gap-1.5 text-slate-500 mb-0.5">
@@ -77,7 +77,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                         {/* 2. Location Button (📍 City) */}
                         <button 
                             onClick={() => setShowPresenceModal(true)}
-                            className="h-11 px-2 flex items-center gap-1.5 text-slate-400 hover:text-slate-600 transition-all rounded-xl hover:bg-blue-50/30 active:scale-95 group relative"
+                            className="h-11 px-2 flex items-center gap-1.5 text-slate-400 hover:text-slate-600 transition-all rounded-xl hover:bg-blue-50/30 active:scale-95 group relative shrink-0"
                             title="エリア状況を確認"
                         >
                             <span className="absolute inset-0 rounded-xl bg-blue-400/0 group-hover:bg-blue-400/5 blur-sm transition-all" />
@@ -88,11 +88,8 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                         </button>
                     </div>
 
-                    {/* Left: White Porcelain Margin (Empty Center) */}
-                    <div className="flex-1" />
-
                     {/* Right Block: Status & Navigation */}
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 sm:gap-4 shrink-0">
                         {/* 1. Wallet Status (Gauge) */}
                         <div className="flex flex-col items-center gap-1.5">
                             {/* Handheld Amount */}
@@ -104,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                             </div>
 
                             {/* Progress Gauge */}
-                            <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden relative shadow-inner">
+                            <div className="w-16 sm:w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden relative shadow-inner">
                                 <div className="absolute inset-0 bg-slate-100" />
                                 <motion.div 
                                     className="absolute inset-0 h-full bg-gradient-to-r from-amber-200 to-amber-300 rounded-full"
