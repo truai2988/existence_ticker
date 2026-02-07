@@ -49,7 +49,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                 <div className="relative w-full max-w-md mx-auto px-6 h-[110px] grid grid-cols-2 items-center gap-2">
                     
                     {/* Left Block: Resources & Location */}
-                    <div className="flex items-center gap-2 sm:gap-3 justify-start shrink-0">
+                    <div className="flex items-center justify-start gap-2 sm:gap-3 shrink-0">
                         {/* 1. Available LM (Shareable) */}
                         <div className="flex flex-col items-center">
                             <div className="flex items-center gap-1.5 text-slate-500 mb-0.5">
@@ -82,7 +82,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                         >
                             <span className="absolute inset-0 rounded-xl bg-blue-400/0 group-hover:bg-blue-400/5 blur-sm transition-all" />
                             <MapPin size={14} className="text-slate-300 group-hover:text-blue-400 transition-colors" />
-                            <span className="text-xs font-bold tracking-tight text-slate-400 group-hover:text-slate-600 transition-colors pt-0.5 whitespace-nowrap">
+                            <span className="text-xs font-bold tracking-tight text-slate-400 group-hover:text-slate-600 transition-colors pt-0.5 whitespace-normal max-w-[80px] leading-tight text-left">
                                 {profile?.location?.city || "エリア"}
                             </span>
                         </button>
