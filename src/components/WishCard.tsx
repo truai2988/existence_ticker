@@ -114,6 +114,7 @@ const ApplicantItem: React.FC<{
 interface WishCardProps {
   wish: Wish;
   currentUserId: string;
+  viewType?: 'radiance' | 'flow'; // 'radiance' for my view, 'flow' for public board
   onOpenProfile?: () => void;
   onActionComplete?: (action: 'applied' | 'withdrawn' | 'approved' | 'cancelled' | 'resigned' | 'completed' | 'cleanup') => void;
 }
@@ -121,6 +122,7 @@ interface WishCardProps {
 export const WishCard: React.FC<WishCardProps> = ({
   wish,
   currentUserId,
+  viewType = 'radiance',
   onOpenProfile,
   onActionComplete,
 }) => {
@@ -210,7 +212,7 @@ export const WishCard: React.FC<WishCardProps> = ({
     if (!isProfileComplete(myProfile)) {
       if (
         confirm(
-          "プロフィールの器を完成させると、信頼されやすくなります（採用率が上がります）。\n\nプロフィールを編集しますか？",
+          "プロフィールの器を構成すると、信頼の輪が広がりやすくなります（想いがかなう機会が増えます）。\n\nプロフィールを編集しますか？",
         )
       ) {
         if (onOpenProfile) onOpenProfile();
@@ -223,7 +225,7 @@ export const WishCard: React.FC<WishCardProps> = ({
     const success = await applyForWish(wish.id);
     setIsLoading(false);
     if (success) {
-      showToast("立候補しました", "success");
+      showToast("応える意思を伝えました", "success");
 
       if (onActionComplete) onActionComplete('applied');
     }
@@ -241,7 +243,7 @@ export const WishCard: React.FC<WishCardProps> = ({
       const success = await approveWish(wish.id, approvalTarget.id, contactNote);
       setIsLoading(false);
       if (success) {
-        showToast("お願いしました", "success");
+        showToast("願いを託しました", "success");
         setShowApplicants(false);
         setApprovalTarget(null);
 
@@ -368,13 +370,27 @@ export const WishCard: React.FC<WishCardProps> = ({
   const mailtoLink = contactEmail ? `mailto:${contactEmail}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}` : "#";
 
   return (
-    <div
-      className={`relative bg-white border shadow-sm rounded-2xl px-6 py-4 ${
-        applicants.length > 0 && isMyWish && wish.status === "open"
-          ? "border-yellow-400 shadow-yellow-100 ring-1 ring-yellow-400/50"
-          : "border-slate-100"
-      }`}
+    <div className="relative bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow group overflow-hidden"
     >
+      {/* Role Badge - Perspective Indicator */}
+      <div className="flex items-center gap-2 mb-3">
+        {viewType === 'radiance' ? (
+          isMyWish ? (
+            <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100/50 uppercase tracking-tighter">
+              [ 自分が願ったこと ]
+            </span>
+          ) : wish.helper_id === currentUserId ? (
+            <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-100/50 uppercase tracking-tighter">
+              [ あなたが応えていること ]
+            </span>
+          ) : null
+        ) : (
+          <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-slate-50 text-slate-400 border border-slate-100 uppercase tracking-tighter">
+            [ 誰かの願い ]
+          </span>
+        )}
+      </div>
+
       {/* Header: User & Meta & Badge */}
       <div className="relative flex justify-between items-start mb-2 gap-4">
         {/* User Info (Left) */}
@@ -397,8 +413,8 @@ export const WishCard: React.FC<WishCardProps> = ({
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[11px] uppercase font-bold text-slate-400 tracking-wider mb-0.5">
-                    手伝ってくれる人
+                  <div className="text-xs uppercase font-bold text-slate-400 tracking-wider mb-0.5">
+                    {helperProfile?.name || wish.helper_name || "隣人"} さんが応えてくれています
                   </div>
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     <button
@@ -470,7 +486,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                     }}
                     className="block text-sm font-bold tracking-wide text-left truncate max-w-full text-slate-800 hover:underline"
                   >
-                    {displayRequesterName}
+                    {isMyWish ? "あなたの想い" : (viewType === 'flow' ? `${displayRequesterName} さんの願いに応える` : `${displayRequesterName} さんの願ったこと`)}
                   </button>
                   {/* Verified Badge */}
                   {trust.isVerified && (
@@ -550,7 +566,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                 onClick={handleCancel}
                 disabled={isLoading}
                 className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                title="お詫びを渡して取り下げ"
+                title="お詫びを渡して中断"
               >
                 <AlertTriangle size={14} />
               </button>
@@ -592,7 +608,7 @@ export const WishCard: React.FC<WishCardProps> = ({
             </div>
           </div>
         ) : (
-          <p className="text-slate-600 text-base leading-relaxed font-medium whitespace-pre-wrap">
+          <p className="text-slate-600 text-sm leading-relaxed font-normal whitespace-pre-wrap">
             {wish.content}
           </p>
         )}
@@ -626,22 +642,29 @@ export const WishCard: React.FC<WishCardProps> = ({
                                  const isRequester = wish.requester_id === currentUserId;
                                  const isHelperCancellation = wish.cancel_reason === 'helper_cancellation';
                                  const isCompensatory = wish.cancel_reason === 'compensatory_cancellation';
+                                 const compensationAmount = wish.val_at_fulfillment !== undefined 
+                                     ? Math.floor(wish.val_at_fulfillment).toLocaleString()
+                                     : Math.floor(calculateHistoricalValue(
+                                         wish.cost || 0, 
+                                         wish.created_at, 
+                                         wish.cancelled_at
+                                       )).toLocaleString();
 
                                  // Case 1: Helper Cancelled (Resignation)
                                  if (isHelperCancellation) {
                                      return isRequester 
-                                         ? "お詫びを受け取りました（相手の辞退）" 
-                                         : "お詫びを渡しました（自分の辞退）";
+                                         ? `相手が中断したため、${compensationAmount} Lm をお詫びとして受け取りました` 
+                                         : `私が中断したため、${compensationAmount} Lm をお詫びとしてお渡ししました`;
                                  }
                                  // Case 2: Requester Cancelled (Withdrawal with Compensation)
                                  else if (isCompensatory) {
                                      return isRequester 
-                                         ? "お詫びを渡しました（自分の取消）" 
-                                         : "お詫びを受け取りました（相手の取消）";
+                                         ? `私が取り下げたため、${compensationAmount} Lm をお詫びとしてお渡ししました` 
+                                         : `相手が取り下げたため、${compensationAmount} Lm をお詫びとして受け取りました`;
                                  }
                                  // Case 3: Simple Void (Open Cancel)
                                  else {
-                                     return isRequester ? "取り下げ済み" : "キャンセル済み";
+                                     return isRequester ? "取り下げ済み" : "中断済み";
                                  }
                              })()
                          ) : 
@@ -650,7 +673,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                 </div>
                 <div className="text-lg font-bold font-mono text-slate-900 tracking-tight">
                     {wish.status === "fulfilled" ? (
-                        <>{Math.floor(wish.val_at_fulfillment || 0).toLocaleString()} <span className="text-[11px] text-slate-400 ml-0.5">Lm</span></>
+                        <>{Math.floor(wish.val_at_fulfillment || 0).toLocaleString()} <span className="text-xs text-slate-400 ml-0.5">Lm</span></>
                     ) : wish.status === "cancelled" ? (
                         wish.cancel_reason === 'compensatory_cancellation' || wish.cancel_reason === 'helper_cancellation' || wish.val_at_fulfillment ? (
                              // Apology Transaction Case using generic wording
@@ -664,9 +687,9 @@ export const WishCard: React.FC<WishCardProps> = ({
                                             wish.cancelled_at
                                           )).toLocaleString()
                                     } 
-                                    <span className="text-[11px] ml-0.5">Lm</span>
+                                    <span className="text-xs ml-0.5 whitespace-nowrap">Lm</span>
                                 </span>
-                                <span className="text-[10px] text-red-300 font-bold uppercase tracking-wider">
+                                <span className="text-xs text-red-300 font-bold uppercase tracking-wider">
                                     {(() => {
                                         const isRequester = wish.requester_id === currentUserId;
                                         const isHelperCancellation = wish.cancel_reason === 'helper_cancellation';
@@ -692,11 +715,11 @@ export const WishCard: React.FC<WishCardProps> = ({
                 <div className="flex items-center gap-2 mb-1.5 opacity-80">
                     <Hourglass size={14} className={isMyWish ? "text-amber-500" : "text-orange-400"} />
                     <span className={`text-xs font-bold ${isMyWish ? "text-amber-600" : "text-slate-500"}`}>
-                        {isMyWish ? "お礼の予約額" : "今もらえるお礼"}
+                        {isMyWish ? "循環を待つ感謝" : "今わかちあえる感謝"}
                     </span>
                 </div>
                 {displayValue > 0 && (
-                    <div className="text-[11px] text-red-400 font-semibold tracking-wide">
+                    <div className="text-xs text-red-400 font-semibold tracking-wide">
                       ※時間が経つと減ってしまいます
                     </div>
                 )}
@@ -720,7 +743,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                   {/* Email Section */}
                   {/* Email Section with Copy & Mailto */}
                   <div className="flex flex-col gap-1">
-                      <span className="text-[11px] uppercase font-bold text-slate-400 tracking-wider">
+                      <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
                           {isMyWish ? "相手の連絡先" : "依頼主の連絡先"}
                       </span>
                       {contactEmail ? (
@@ -756,7 +779,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                   {/* Note Section (Only if note exists) */}
                   {wish.contact_note && (
                       <div className="flex flex-col gap-1 pt-2 border-t border-slate-100">
-                          <span className="text-[11px] uppercase font-bold text-slate-400 tracking-wider">
+                          <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
                               {isMyWish ? "承認時のメモ" : "依頼者さんより"}
                           </span>
                           <p className="text-xs text-slate-600 bg-white p-2 rounded-lg border border-slate-100 whitespace-pre-wrap">
@@ -928,7 +951,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                               wish.helper_id!,
                             );
                             if (success) {
-                              showToast("お礼を送りました", "success");
+                              showToast("感謝を届けました", "success");
 
                             }
                             setIsLoading(false);
@@ -967,7 +990,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                             const success = await withdrawApplication(wish.id);
                             setIsLoading(false);
                             if (success) {
-                              showToast("立候補を取り消しました", "success");
+                              showToast("とりやめました", "success");
 
                               if (onActionComplete) onActionComplete('withdrawn');
                             }
@@ -996,7 +1019,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                       ) : (
                         <Handshake className="w-4 h-4" />
                       )}
-                      <span>立候補する</span>
+                      <span>応える</span>
                     </button>
                   )}
                 </div>
@@ -1057,7 +1080,7 @@ export const WishCard: React.FC<WishCardProps> = ({
 
             <h4 className="text-base font-bold text-slate-800 mb-2 text-center">
               {confirmAction === "compensate"
-                ? "進行中の依頼を取り下げますか？"
+                ? "響きあっている願いを取り下げますか？"
                 : confirmAction === "resign"
                 ? "このお手伝いを辞退しますか？"
                 : "このお願いを取り下げますか？"}

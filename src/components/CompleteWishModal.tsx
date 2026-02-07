@@ -26,7 +26,7 @@ export const CompleteWishModal = ({ wishTitle, helperName, preset, cost, onConfi
           </div>
           <h2 className="text-lg font-bold text-slate-900">お手伝いの完了を確認</h2>
           <p className="text-xs text-slate-500 font-medium">
-            <span className="font-bold text-slate-700">{helperName}</span> さんにお礼を渡します
+            <span className="font-bold text-slate-700">{helperName}</span> さんに感謝を届けます
           </p>
         </div>
 
@@ -44,7 +44,7 @@ export const CompleteWishModal = ({ wishTitle, helperName, preset, cost, onConfi
           {/* Locked Reward Display */}
           <div className="flex justify-between items-center">
             <div>
-               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">お礼</span>
+               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">感謝</span>
                <span className="text-xs text-slate-600 font-medium">
                  {preset === 'light' && '軽い手助け'}
                  {preset === 'medium' && 'しっかりした仕事'}
@@ -67,7 +67,7 @@ export const CompleteWishModal = ({ wishTitle, helperName, preset, cost, onConfi
              <div className="flex items-center justify-center gap-2 py-3.5 px-6">
               <Check className="w-5 h-5 text-blue-100" />
               <span className="text-white font-bold text-sm tracking-wide">
-                お礼を渡して完了する
+                感謝を届けて完了する
               </span>
             </div>
           </button>

@@ -45,7 +45,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                 {/* Background with higher blur for premium feel */}
                 <div className="absolute inset-0 bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-sm" />
 
-                <div className="relative w-full max-w-md mx-auto px-6 h-[90px] flex items-center justify-between">
+                <div className="relative w-full max-w-md mx-auto px-6 h-[110px] flex items-center justify-between">
                     
                     {/* Left: Available (Main) */}
                     <div className="flex flex-col justify-center">

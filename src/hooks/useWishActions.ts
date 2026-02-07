@@ -692,7 +692,7 @@ export const useWishActions = () => {
     } catch (e) {
       console.error("Fulfillment failed:", e);
       const errorMessage = e instanceof Error ? e.message : String(e);
-      alert(`お礼に失敗しました: ${errorMessage}`);
+      alert(`感謝の巡りに失敗しました: ${errorMessage}`);
       return false;
     } finally {
       setIsSubmitting(false);

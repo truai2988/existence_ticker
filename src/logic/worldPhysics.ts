@@ -8,7 +8,7 @@ export const WORLD_CONSTANTS = {
   REBIRTH_AMOUNT: 2400, // 器（Vessel）の最大容量
   MAX_VESSEL_CAPACITY_MILLI: 2400000, // 2,400 Lm = 絶対的な壁
   DECAY_RATE_HOURLY: 10, // 減価レート (Lumens per Hour)
-  MAX_STREAK_FOR_REPAIR: 3, // 穢れ（Crack）を修復するために必要な連続誠実回数
+  MAX_STREAK_FOR_REPAIR: 2, // 穢れ（Crack）を修復するために必要な連続誠実回数
   GLOBAL_METABOLISM_PATH: 'stats/global_metabolism',
 };
 

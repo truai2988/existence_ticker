@@ -180,7 +180,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <span className="text-xs font-extrabold tracking-[0.2em] opacity-90">
                     HELP
                   </span>
-                  <span className="text-xl font-extrabold">手伝う</span>
+                  <span className="text-xl font-extrabold">応える</span>
                 </motion.div>
               </motion.button>
 
@@ -204,7 +204,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     tap: { scale: 0.98 },
                   }}
                 >
-                  <span className="text-xl font-extrabold">頼む</span>
+                  <span className="text-xl font-extrabold">願う</span>
                   <span className="text-xs font-extrabold tracking-[0.2em] opacity-90 mt-0.5">
                     WISH
                   </span>

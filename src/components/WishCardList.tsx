@@ -16,6 +16,7 @@ interface WishCardListProps {
     isFetchingMore?: boolean;
     onOpenProfile?: () => void;
     onActionComplete?: (action: 'applied' | 'withdrawn' | 'approved' | 'cancelled' | 'resigned' | 'completed' | 'cleanup') => void;
+    viewType?: 'radiance' | 'flow';
 }
 
 export const WishCardList: React.FC<WishCardListProps> = ({ 
@@ -28,7 +29,8 @@ export const WishCardList: React.FC<WishCardListProps> = ({
     hasMore = false,
     isFetchingMore = false,
     onOpenProfile,
-    onActionComplete
+    onActionComplete,
+    viewType = 'radiance'
 }) => {
     const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -81,6 +83,7 @@ export const WishCardList: React.FC<WishCardListProps> = ({
                     <WishCard 
                         wish={wish} 
                         currentUserId={currentUserId} 
+                        viewType={viewType}
                         onOpenProfile={onOpenProfile}
                         onActionComplete={onActionComplete}
                     />

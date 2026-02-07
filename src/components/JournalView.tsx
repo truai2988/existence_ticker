@@ -147,7 +147,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onClose }) => {
     <div className="fixed inset-0 h-[100dvh] z-[60] flex flex-col items-center bg-slate-50/95 backdrop-blur-md overflow-hidden animate-fade-in w-full">
         {/* Full width header container */}
         <div className="w-full shrink-0 border-b border-slate-200 pt-safe bg-white/80 backdrop-blur-md">
-             <div className="max-w-md mx-auto px-6 h-[90px] flex flex-col justify-start pt-3">
+             <div className="max-w-md mx-auto px-6 h-[90px] flex flex-col justify-center">
                  <div className="flex justify-between items-center w-full">
                      <div>
                         <h2 className="text-2xl font-serif text-slate-900">あなたの記録</h2>
@@ -232,7 +232,7 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
         // [期限切れ]
         icon = <CheckCircle2 size={14} className="text-slate-400 fill-slate-50" />;
         const wishTitle = log.wish_title || '依頼';
-        title = `${wishTitle}：お礼がなくなるまでに完了しませんでした`;
+        title = `${wishTitle}：感謝が巡るまえに中断されました`;
         metaColor = "bg-slate-50 border-slate-200";
         amountPrefix = "";
         amountColor = "text-slate-400";

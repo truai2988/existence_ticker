@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { X, Loader2, Send } from 'lucide-react';
+import { Loader2, Send } from 'lucide-react';
 import { useWishActions } from '../hooks/useWishActions';
 import { useProfile } from '../hooks/useProfile';
 import { useWallet } from '../hooks/useWallet';
@@ -64,36 +63,14 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
         });
 
         if (result) {
-            showToast("依頼を投稿しました", "success");
+            showToast("願いをシェアしました", "success");
             onClose();
         }
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 100 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 100 }}
-            className="fixed inset-0 bg-slate-50 z-[200] flex flex-col pt-safe w-full h-full"
-            onClick={(e) => e.stopPropagation()}
-        >
-            {/* Header */}
-            <div className="w-full bg-white/50 backdrop-blur-sm sticky top-0 z-10 border-b border-slate-200">
-                <div className="max-w-md mx-auto px-6 py-4 flex justify-between items-center">
-                    <h3 className="text-lg font-bold text-slate-800">
-                        お願いを伝える
-                    </h3>
-                    <button
-                        onClick={onClose}
-                        className="p-2 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
-                    >
-                        <X size={20} />
-                    </button>
-                </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto w-full">
-                <div className="max-w-md mx-auto px-6 py-4 space-y-8 pb-32">
+        <div className="w-full">
+            <div className="max-w-md mx-auto py-4 space-y-8">
                
                {/* Input Section */}
                <div className="space-y-3">
@@ -118,7 +95,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                <div className="space-y-3">
                    <div className="flex items-center justify-between">
                        <label className="block text-sm font-bold text-slate-700">
-                           お礼として渡す Lm (時間)
+                           感謝として渡す Lm (時間)
                        </label>
                        <span className="text-[11px] font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded-full border border-orange-100">
                            対価として支払われます
@@ -205,34 +182,29 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                        </div>
                    </label>
                </div>
-                </div>
-            </div>
 
-            {/* Footer Action */}
-            <div className="absolute bottom-0 left-0 right-0 z-20">
-                <div className="w-full bg-white border-t border-slate-100 p-6">
-                    <div className="max-w-md mx-auto">
-                        <button 
-                            onClick={handlePostWish}
-                            disabled={!newWishContent.trim() || isSubmitting || exceedsAvailable}
-                            className="w-full py-4 rounded-full bg-slate-900 text-white font-bold text-base shadow-lg hover:bg-slate-800 hover:shadow-xl active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
-                                    <span>送信中...</span>
-                                </>
-                            ) : (
-                                <>
-                                    <Send size={18} />
-                                    <span>みんなにお願いする</span>
-                                </>
-                            )}
-                        </button>
-                    </div>
-                </div>
+               {/* Action Button - Integrated into flow */}
+               <div className="pt-4">
+                    <button 
+                        onClick={handlePostWish}
+                        disabled={!newWishContent.trim() || isSubmitting || exceedsAvailable}
+                        className="w-full py-4 rounded-full bg-slate-900 text-white font-bold text-base shadow-lg hover:bg-slate-800 hover:shadow-xl active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
+                                <span>送信中...</span>
+                            </>
+                        ) : (
+                            <>
+                                <Send size={18} />
+                                <span>みんなに想いを届ける</span>
+                            </>
+                        )}
+                    </button>
+               </div>
             </div>
-        </motion.div>
+        </div>
     );
 };
 

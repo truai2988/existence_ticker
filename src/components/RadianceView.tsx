@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
 import { X, Megaphone, ChevronRight } from 'lucide-react';
 import { useWishes } from '../hooks/useWishes';
 import { WishCardList } from './WishCardList';
@@ -54,16 +53,6 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
         setIsArchiveLoading(false);
     };
 
-    const renderModals = () => {
-        return (
-            <AnimatePresence>
-                {/* Create Wish */}
-                {modalState === 'create_wish' && (
-                    <CreateWishModal onClose={() => setModalState('none')} />
-                )}
-            </AnimatePresence>
-        );
-    };
 
     const handleActionComplete = (action: 'applied' | 'withdrawn' | 'approved' | 'cancelled' | 'resigned' | 'completed' | 'cleanup') => {
         if (action === 'approved') {
@@ -74,92 +63,129 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
     };
 
     return (
-        <div className="fixed inset-0 z-[60] bg-slate-50/95 backdrop-blur-md flex flex-col w-full h-full">
+        <div className="fixed inset-0 z-[60] bg-slate-50 flex flex-col w-full h-full">
             {/* Header Container */}
-            <div className="w-full bg-white/80 backdrop-blur-md border-b border-slate-200 shrink-0 pt-safe">
-                <div className="max-w-md mx-auto px-6 h-[90px] flex flex-col justify-start pt-3">
-                    <div className="flex justify-between items-center w-full mb-2">
+            <div className="w-full bg-white/80 backdrop-blur-md border-b-2 border-amber-400 shrink-0 pt-safe shadow-sm">
+                <div className="max-w-md mx-auto px-6 h-[110px] flex flex-col justify-between">
+                    {/* Header Content Row: Title Left, Actions Right */}
+                    <div className="flex items-center justify-between w-full pt-3">
+                        {/* Left: Title Block */}
                         <div>
-                             <h2 className="text-lg font-bold font-sans text-slate-900">自分のお願い</h2>
+                            <h2 className="text-lg font-bold font-sans text-slate-900">自分の願ったこと</h2>
                         </div>
-                        <div className="flex items-center gap-3">
+
+                        {/* Right: Actions Block (Button + Close) */}
+                        <div className="flex items-center gap-4">
                             <button 
-                                onClick={() => setModalState('create_wish')}
-                                className="flex items-center gap-2 px-4 h-9 bg-amber-500 text-white rounded-full text-xs font-bold hover:bg-amber-600 transition-all shadow-sm active:scale-95 border border-transparent"
+                                onClick={() => setModalState(modalState === 'create_wish' ? 'none' : 'create_wish')}
+                                className={`flex items-center justify-center gap-2 px-3.5 py-1.5 min-w-[124px] rounded-full text-xs font-bold transition-all shadow-sm active:scale-95 border focus:outline-none focus:ring-0 ${
+                                    modalState === 'create_wish'
+                                        ? 'bg-blue-600 text-white border-transparent'
+                                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                                }`}
                             >
-                                <Megaphone size={14} className="fill-white/20" />
+                                <Megaphone size={14} className={modalState === 'create_wish' ? 'text-white/80' : 'text-slate-400'} />
                                 <span>新規作成</span>
                             </button>
-                            <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors">
-                                <X size={20} className="text-slate-400" />
+                            
+                            <button 
+                                onClick={onClose} 
+                                className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-full transition-colors text-slate-400 focus:outline-none focus:ring-0"
+                                aria-label="閉じる"
+                            >
+                                <X size={20} />
                             </button>
                         </div>
                     </div>
 
-                {/* Bottom Row: Tabs */}
-                <div className="flex items-end w-full overflow-hidden">
-                    {/* Simple Tabs */}
-                    <div className="flex gap-2 pb-0.5 w-full justify-between sm:justify-start sm:gap-6">
-                        <button
-                            onClick={() => setActiveTab('active')}
-                            className={`pb-1 text-[11px] font-bold transition-all relative ${
-                                activeTab === 'active' ? 'text-amber-600' : 'text-slate-400 hover:text-slate-600'
-                            }`}
-                        >
-                            募集中
-                            <span className="ml-1 bg-amber-100/50 text-amber-700 px-1 py-0.5 rounded-full text-[11px] tabular-nums">
-                                {myActiveWishes.length}
-                            </span>
-                            {activeTab === 'active' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500 rounded-t-full" />}
-                        </button>
-                        
-                        <div className="flex items-center pb-2">
-                            <ChevronRight size={14} className="text-slate-300" />
+                    {/* Bottom Row: Tabs */}
+                    <div className="flex items-end w-full overflow-hidden pb-2">
+                        {/* Simple Tabs */}
+                        <div className="flex gap-1.5 pb-2 w-full justify-between sm:justify-start sm:gap-4">
+                            <button
+                                onClick={() => {
+                                    setActiveTab('active');
+                                    setModalState('none');
+                                }}
+                                disabled={activeTab === 'active' && modalState !== 'create_wish'}
+                                className={`px-3 py-1.5 text-xs font-bold transition-all whitespace-nowrap rounded-full flex items-center focus:outline-none focus:ring-0 ${
+                                    activeTab === 'active' && modalState !== 'create_wish'
+                                        ? 'bg-amber-100 text-amber-700 border border-amber-200 cursor-default pointer-events-none' 
+                                        : 'text-slate-400 hover:bg-white hover:text-slate-600 cursor-pointer'
+                                }`}
+                            >
+                                募集中
+                                <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs tabular-nums ${
+                                    activeTab === 'active' && modalState !== 'create_wish' ? 'bg-white/80 text-amber-700 shadow-sm' : 'bg-slate-100 text-slate-500'
+                                }`}>
+                                    {myActiveWishes.length}
+                                </span>
+                            </button>
+                            
+                            <div className="flex items-center">
+                                <ChevronRight size={14} className="text-slate-300" />
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    setActiveTab('outbound');
+                                    setModalState('none');
+                                }}
+                                disabled={activeTab === 'outbound' && modalState !== 'create_wish'}
+                                className={`px-3 py-1.5 text-xs font-bold transition-all whitespace-nowrap rounded-full flex items-center focus:outline-none focus:ring-0 ${
+                                    activeTab === 'outbound' && modalState !== 'create_wish'
+                                        ? 'bg-amber-100 text-amber-700 border border-amber-200 cursor-default pointer-events-none' 
+                                        : 'text-slate-400 hover:bg-white hover:text-slate-600 cursor-pointer'
+                                }`}
+                            >
+                                進行中
+                                <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs tabular-nums ${
+                                    activeTab === 'outbound' && modalState !== 'create_wish' ? 'bg-white/80 text-amber-700 shadow-sm' : 'bg-slate-100 text-slate-500'
+                                }`}>
+                                    {myOutboundWishes.length}
+                                </span>
+                            </button>
+
+                            <div className="flex items-center">
+                                <ChevronRight size={14} className="text-slate-300" />
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    setActiveTab('past');
+                                    setModalState('none');
+                                }}
+                                disabled={activeTab === 'past' && modalState !== 'create_wish'}
+                                className={`px-3 py-1.5 text-xs font-bold transition-all whitespace-nowrap rounded-full flex items-center focus:outline-none focus:ring-0 ${
+                                    activeTab === 'past' && modalState !== 'create_wish'
+                                        ? 'bg-slate-200 text-slate-700 border border-slate-300 cursor-default pointer-events-none' 
+                                        : 'text-slate-400 hover:bg-white hover:text-slate-600 cursor-pointer'
+                                }`}
+                            >
+                                過去の記録
+                                <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs tabular-nums ${
+                                    activeTab === 'past' && modalState !== 'create_wish' ? 'bg-white/80 text-slate-700 shadow-sm' : 'bg-slate-100 text-slate-500'
+                                }`}>
+                                    {myPastWishes.length}
+                                </span>
+                            </button>
                         </div>
-
-                        <button
-                            onClick={() => setActiveTab('outbound')}
-                            className={`pb-1 text-[11px] font-bold transition-all relative ${
-                                activeTab === 'outbound' ? 'text-amber-600' : 'text-slate-400 hover:text-slate-600'
-                            }`}
-                        >
-                            進行中
-                            <span className="ml-1 bg-slate-100 text-slate-600 px-1 py-0.5 rounded-full text-[11px] tabular-nums">
-                                {myOutboundWishes.length}
-                            </span>
-                            {activeTab === 'outbound' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500 rounded-t-full" />}
-                        </button>
-
-                        <div className="flex items-center pb-2">
-                            <ChevronRight size={14} className="text-slate-300" />
-                        </div>
-
-                        <button
-                            onClick={() => setActiveTab('past')}
-                            className={`pb-1 text-[11px] font-bold transition-all relative ${
-                                activeTab === 'past' ? 'text-amber-600' : 'text-slate-400 hover:text-slate-600'
-                            }`}
-                        >
-                            過去の記録
-                            <span className="ml-1 bg-slate-100 text-slate-600 px-1 py-0.5 rounded-full text-[11px] tabular-nums">
-                                {myPastWishes.length}
-                            </span>
-                            {activeTab === 'past' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-amber-500 rounded-t-full" />}
-                        </button>
                     </div>
                 </div>
             </div>
-        </div>
 
         <UserSubBar />
 
-            {/* List Content */}
-            <div className="flex-1 overflow-y-auto no-scrollbar bg-slate-50 w-full">
-                <div className="max-w-md mx-auto px-6 py-4 pb-24 h-full">
-                     {activeTab === 'active' ? (
+            {/* List or Form Content */}
+            <div className="flex-1 overflow-y-auto no-scrollbar bg-amber-50/20 w-full transition-colors duration-500">
+                <div className="max-w-md mx-auto px-6 py-4 pb-24 w-full">
+                     {modalState === 'create_wish' ? (
+                         <CreateWishModal onClose={() => setModalState('none')} />
+                     ) : activeTab === 'active' ? (
                          <WishCardList 
                             wishes={myActiveWishes} 
                             currentUserId={currentUserId} 
+                            viewType="radiance"
                             emptyMessage="現在、募集中のお願いはありません。"
                             onActionComplete={handleActionComplete}
                          />
@@ -167,6 +193,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                          <WishCardList 
                             wishes={myOutboundWishes} 
                             currentUserId={currentUserId} 
+                            viewType="radiance"
                             emptyMessage="現在、誰かが手伝ってくれている案件はありません。"
                             onActionComplete={handleActionComplete}
                          />
@@ -175,6 +202,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                              <WishCardList 
                                 wishes={myPastWishes} 
                                 currentUserId={currentUserId} 
+                                viewType="radiance"
                                 emptyMessage="過去の記録はありません。"
                                 onActionComplete={handleActionComplete}
                              />
@@ -193,7 +221,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
                 </div>
             </div>
 
-            {renderModals()}
+
         </div>
     );
 };
