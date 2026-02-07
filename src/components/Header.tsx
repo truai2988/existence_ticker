@@ -46,46 +46,50 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                 <div className="absolute inset-0 bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-sm" />
 
                 <div className="relative w-full max-w-md mx-auto px-6 h-[110px] flex items-center justify-between">
-                    
-                    {/* Left: Available (Main) */}
-                    <div className="flex flex-col justify-center">
-                        <div className="flex items-center gap-1.5 text-slate-500 mb-0.5">
-                            <Sparkles size={12} className={isFullyCommitted ? "text-slate-300" : "text-amber-400 fill-amber-400"} />
-                            <span className="text-xs font-bold tracking-widest uppercase opacity-80">
-                                使える LM
-                            </span>
-                        </div>
-                        <div className="flex items-baseline gap-1.5">
-                            <motion.span 
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className={`text-4xl font-sans font-extrabold tracking-tighter tabular-nums ${
-                                    isFullyCommitted ? 'text-slate-300' : 'text-slate-800'
-                                }`}
-                            >
-                                {status === 'RITUAL_READY' ? '－' : Math.floor(availableLm).toLocaleString()}
-                            </motion.span>
-                            <span className={`text-xs font-bold ${isFullyCommitted ? 'text-slate-300' : 'text-slate-400'}`}>
-                                {UNIT_LABEL}
-                            </span>
-                        </div>
-                    </div>
+                    {/* Left padding/spacer to balance the right nav and help center the middle */}
+                    <div className="w-10 md:hidden" /> 
 
-                    {/* Right Container: Stats + Navigation */}
-                    <div className="flex items-center gap-4">
-                        
-                        {/* Element A: Wallet Stats (Right Aligned) */}
-                        <div className="flex flex-col items-end gap-1">
-                            {/* Row 1: Icon + Balance */}
+                    {/* Center Block: All LM Stats grouped together */}
+                    <div className="flex-1 flex items-center justify-center gap-6">
+                        {/* 1. Available LM (Large) */}
+                        <div className="flex flex-col items-center">
+                            <div className="flex items-center gap-1.5 text-slate-500 mb-0.5">
+                                <Sparkles size={11} className={isFullyCommitted ? "text-slate-300" : "text-amber-400 fill-amber-400"} />
+                                <span className="text-[10px] font-bold tracking-widest uppercase opacity-70">
+                                    使える LM
+                                </span>
+                            </div>
+                            <div className="flex items-baseline gap-1">
+                                <motion.span 
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className={`text-3xl font-sans font-extrabold tracking-tighter tabular-nums ${
+                                        isFullyCommitted ? 'text-slate-300' : 'text-slate-800'
+                                    }`}
+                                >
+                                    {status === 'RITUAL_READY' ? '－' : Math.floor(availableLm).toLocaleString()}
+                                </motion.span>
+                                <span className={`text-[10px] font-bold ${isFullyCommitted ? 'text-slate-300' : 'text-slate-400'}`}>
+                                    {UNIT_LABEL}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Thin vertical divider for visual grouping */}
+                        <div className="w-px h-8 bg-slate-100/50" />
+
+                        {/* 2. Wallet Stats (Compact right-side of group) */}
+                        <div className="flex flex-col gap-1.5">
+                            {/* Handheld Amount */}
                             <div className="flex items-center gap-1.5 text-slate-400">
                                 <Wallet size={10} strokeWidth={2.5} />
-                                <div className="text-xs font-bold tracking-wider tabular-nums">
+                                <div className="text-[10px] font-bold tracking-wider tabular-nums leading-none">
                                     手持ち: <span className="text-slate-600 font-bold">{status === 'RITUAL_READY' ? '－' : Math.floor(balance).toLocaleString()}</span>
                                 </div>
                             </div>
 
-                            {/* Row 2: Progress Gauge */}
-                            <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden relative shadow-inner">
+                            {/* Progress Gauge */}
+                            <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden relative shadow-inner">
                                 <div className="absolute inset-0 bg-slate-100" />
                                 <motion.div 
                                     className="absolute inset-0 h-full bg-gradient-to-r from-amber-200 to-amber-300 rounded-full"
@@ -94,25 +98,25 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                                     transition={{ duration: 1, ease: "easeOut" }}
                                 />
                                 <motion.div 
-                                    className="absolute inset-0 h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full shadow-[0_0_8px_rgba(251,191,36,0.4)]"
+                                    className="absolute inset-0 h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full"
                                     initial={{ width: 0 }}
                                     animate={{ width: `${availablePercent}%` }}
                                     transition={{ duration: 1, ease: "easeOut", delay: 0.1 }}
                                 />
-                                <div className="absolute inset-0 h-full w-full bg-gradient-to-b from-white/20 to-transparent pointer-events-none" />
                             </div>
 
-                            {/* Row 3: Reset Countdown */}
-                            <div className="flex items-center justify-end">
-                                <span className="text-xs text-slate-300 font-mono tracking-widest">
+                            {/* Reset Countdown */}
+                            <div className="flex items-center">
+                                <span className="text-[10px] text-slate-300 font-mono tracking-widest leading-none">
                                     リセットまで{daysLeft}日
                                 </span>
                             </div>
                         </div>
+                    </div>
 
-                        {/* Element B: Navigation */}
+                    {/* Right Block: Navigation icons moved to the edge */}
+                    <div className="shrink-0">
                         <HeaderNavigation currentTab={viewMode || "home"} onTabChange={onTabChange} />
-
                     </div>
                 </div>
             </header>

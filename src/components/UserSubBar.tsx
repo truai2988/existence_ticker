@@ -75,7 +75,7 @@ export const UserSubBar: React.FC = () => {
                         onClick={() => setShowSettingsModal(true)}
                         className="text-xs text-slate-300 font-mono tracking-wide flex items-center gap-1 hover:text-slate-200 transition-colors"
                     >
-                        <span>Signed in as:</span>
+                        <span>サインイン:</span>
                         <span className="text-slate-400 font-bold hover:text-blue-500 hover:underline transition-all underline-offset-2">{currentName}</span>
                     </button>
                 </div>
