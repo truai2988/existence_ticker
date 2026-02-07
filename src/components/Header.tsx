@@ -55,7 +55,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                         <div className="flex flex-col items-center">
                             <div className="flex items-center gap-1.5 text-slate-500 mb-0.5">
                                 <Sparkles size={11} className={isFullyCommitted ? "text-slate-300" : "text-amber-400 fill-amber-400"} />
-                                <span className="text-[10px] font-bold tracking-widest uppercase opacity-70">
+                                <span className="text-xs font-bold tracking-widest uppercase opacity-70">
                                     使える LM
                                 </span>
                             </div>
@@ -69,7 +69,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                                 >
                                     {status === 'RITUAL_READY' ? '－' : Math.floor(availableLm).toLocaleString()}
                                 </motion.span>
-                                <span className={`text-[10px] font-bold ${isFullyCommitted ? 'text-slate-300' : 'text-slate-400'}`}>
+                                <span className={`text-xs font-bold ${isFullyCommitted ? 'text-slate-300' : 'text-slate-400'}`}>
                                     {UNIT_LABEL}
                                 </span>
                             </div>
@@ -83,7 +83,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                             {/* Handheld Amount */}
                             <div className="flex items-center gap-1.5 text-slate-400">
                                 <Wallet size={10} strokeWidth={2.5} />
-                                <div className="text-[10px] font-bold tracking-wider tabular-nums leading-none">
+                                <div className="text-xs font-bold tracking-wider tabular-nums leading-none">
                                     手持ち: <span className="text-slate-600 font-bold">{status === 'RITUAL_READY' ? '－' : Math.floor(balance).toLocaleString()}</span>
                                 </div>
                             </div>
@@ -107,7 +107,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
 
                             {/* Reset Countdown */}
                             <div className="flex items-center">
-                                <span className="text-[10px] text-slate-300 font-mono tracking-widest leading-none">
+                                <span className="text-xs text-slate-300 font-mono tracking-widest leading-none">
                                     リセットまで{daysLeft}日
                                 </span>
                             </div>
