@@ -54,7 +54,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                         <div className="flex flex-col items-center">
                             <div className="flex items-center gap-1.5 text-slate-500 mb-0.5">
                                 <Sparkles size={11} className={isFullyCommitted ? "text-slate-300" : "text-amber-400 fill-amber-400"} />
-                                <span className="text-xs font-bold tracking-widest uppercase opacity-70">
+                                <span className="text-xs font-bold tracking-widest uppercase opacity-70 whitespace-nowrap">
                                     分かち合える
                                 </span>
                             </div>
@@ -82,7 +82,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                         >
                             <span className="absolute inset-0 rounded-xl bg-blue-400/0 group-hover:bg-blue-400/5 blur-sm transition-all" />
                             <MapPin size={14} className="text-slate-300 group-hover:text-blue-400 transition-colors" />
-                            <span className="text-xs font-bold tracking-tight text-slate-400 group-hover:text-slate-600 transition-colors pt-0.5">
+                            <span className="text-xs font-bold tracking-tight text-slate-400 group-hover:text-slate-600 transition-colors pt-0.5 whitespace-nowrap">
                                 {profile?.location?.city || "エリア"}
                             </span>
                         </button>
