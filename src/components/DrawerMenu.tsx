@@ -50,6 +50,16 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
                         transition={{ type: "spring", damping: 25, stiffness: 200 }}
                         className="fixed inset-y-0 right-0 w-[280px] bg-white z-50 shadow-2xl flex flex-col pt-safe"
                     >
+                        {/* Brand Area */}
+                        <div className="px-8 pt-8 pb-4">
+                            <h1 className="text-4xl font-serif font-light tracking-tighter text-slate-800 mb-1">
+                                ET
+                            </h1>
+                            <p className="text-[10px] text-slate-400 font-sans tracking-[0.3em] uppercase font-medium">
+                                Existence Ticker
+                            </p>
+                        </div>
+
                         {/* Custom Close Button Area */}
                         <div className="flex justify-end p-6">
                             <button 

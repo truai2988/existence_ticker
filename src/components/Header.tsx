@@ -47,6 +47,12 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                 <div className="absolute inset-0 bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-sm" />
 
                 <div className="relative w-full max-w-md mx-auto px-4 h-[110px] flex items-center justify-between gap-1 overflow-hidden">
+                    {/* Brand Label (Subtle) */}
+                    <div className="absolute top-2 left-4 z-50 pointer-events-none">
+                        <span className="text-[9px] font-sans text-slate-300 tracking-[0.2em] font-medium uppercase">
+                            Existence Ticker
+                        </span>
+                    </div>
                     
                     {/* Left Block: Resources & Location */}
                     <div className="flex items-center gap-2 min-w-0 flex-1 justify-start">
