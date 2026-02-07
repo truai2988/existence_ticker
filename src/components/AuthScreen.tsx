@@ -11,6 +11,7 @@ export const AuthScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
+    const [gender, setGender] = useState<"male" | "female" | "other" | "">('');
     const [age_group, setAgeGroup] = useState('');
     const [location, setLocation] = useState({ prefecture: '', city: '' });
     const { cities, loading: loadingCities } = useLocationData(location.prefecture);
@@ -28,12 +29,13 @@ export const AuthScreen = () => {
                 await signIn(email, password);
             } else {
                 if (!name.trim()) throw new Error("名前を入力してください");
+                if (!gender) throw new Error("性別を選択してください");
                 if (!age_group) throw new Error("年代を選択してください");
                 if (!location.prefecture) throw new Error("都道府県を選択してください");
                 if (!location.city) throw new Error("市区町村を選択してください");
                 if (!email) throw new Error("メールアドレスを入力してください");
                 if (!password) throw new Error("パスワードを入力してください");
-                await signUp(email, password, name, location, age_group);
+                await signUp(email, password, name, location, age_group, gender as "male" | "female" | "other");
             }
         } catch (err) {
             console.error(err);
@@ -156,6 +158,32 @@ export const AuthScreen = () => {
                                         className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans"
                                         required
                                     />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-slate-500 ml-1">
+                                        性別
+                                        <span className="text-rose-500 ml-1">*</span>
+                                    </label>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {[
+                                            { value: 'male', label: '男性' },
+                                            { value: 'female', label: '女性' },
+                                            { value: 'other', label: '回答しない' }
+                                        ].map((opt) => (
+                                            <button
+                                                key={opt.value}
+                                                type="button"
+                                                onClick={() => setGender(opt.value as "male" | "female" | "other")}
+                                                className={`py-2.5 rounded-xl text-xs font-bold transition-all border ${
+                                                    gender === opt.value
+                                                        ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                                                        : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
+                                                }`}
+                                            >
+                                                {opt.label}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold text-slate-500 ml-1">
