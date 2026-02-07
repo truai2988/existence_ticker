@@ -95,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                     </div>
 
                     {/* Right Block: Status & Navigation */}
-                    <div className="flex items-center justify-end gap-1 min-w-0 flex-1 shrink-0">
+                    <div className="flex items-center justify-end gap-3 min-w-0 flex-1 shrink-0">
                         {/* 1. Wallet Status (Gauge) */}
                         <div className="flex flex-col items-center gap-1 shrink-0">
                             {/* Handheld Amount */}

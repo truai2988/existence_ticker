@@ -287,26 +287,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 )}
 
               {/* Meta Info */}
-              <div className="flex items-center gap-3 text-xs text-slate-400 font-mono mt-1">
-                <div className="flex items-center gap-1">
-                  <span>ID: {profile?.id?.slice(0, 8)}...</span>
+              <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-400 font-mono mt-1 px-4">
+                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50">
+                  <span>ID: {profile?.id?.slice(0, 6)}...</span>
                 </div>
                 {(profile?.location?.prefecture || profile?.location?.city) && (
-                  <>
-                    <span className="text-slate-300">|</span>
-                    <div className="flex items-center gap-0.5">
-                      <MapPin size={12} />
-                      <span>
-                        {profile.location.prefecture} {profile.location.city}
-                      </span>
-                    </div>
-                  </>
+                  <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50 text-slate-500">
+                    <MapPin size={10} className="shrink-0 text-slate-400" />
+                    <span className="whitespace-nowrap">
+                      {profile.location.prefecture} {profile.location.city}
+                    </span>
+                  </div>
                 )}
                 {profile?.age_group && (
-                  <>
-                    <span className="text-slate-300">|</span>
-                    <span className="text-slate-500">{profile.age_group}</span>
-                  </>
+                  <div className="flex items-center px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50 text-slate-500">
+                    <span className="whitespace-nowrap">
+                        {profile.age_group}
+                        {profile.gender && profile.gender !== 'other' && ` / ${profile.gender === 'male' ? '男性' : '女性'}`}
+                    </span>
+                  </div>
                 )}
               </div>
 

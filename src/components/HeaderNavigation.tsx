@@ -11,16 +11,16 @@ interface HeaderNavigationProps {
 export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, onTabChange }) => {
     const [isdrawerOpen, setIsDrawerOpen] = useState(false);
 
-    const navItems = [
+    const navItems = ([
         { id: "home", icon: Home, label: "ホーム" },
         { id: "history", icon: History, label: "履歴" },
         { id: "profile", icon: User, label: "自分" },
-    ] as const;
+    ] as const).filter(item => item.id !== currentTab);
 
     return (
         <>
             {/* Desktop Navigation (Hidden on Mobile) */}
-            <nav className="hidden md:flex items-center gap-0">
+            <nav className="hidden md:flex items-center gap-1">
                 {navItems.map((item) => (
                     <button
                         key={item.id}

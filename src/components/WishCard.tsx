@@ -43,6 +43,14 @@ const ApplicantItem: React.FC<{
   const avatarUrl = isMasked ? null : profile?.avatarUrl;
   const trustScore = applicant.trust_score || 0;
   const rank = getTrustRank(profile, trustScore);
+  
+  const genderLabel = profile?.gender && profile.gender !== 'other' 
+    ? (profile.gender === 'male' ? '男性' : '女性') 
+    : '';
+  
+  const metadata = isMasked 
+    ? (profile?.location ? `(${profile.location.prefecture} ${profile.location.city}) ${genderLabel}` : genderLabel)
+    : (profile?.age_group ? `${profile.age_group}${genderLabel ? ` / ${genderLabel}` : ''}` : genderLabel);
 
   return (
     <div className="flex flex-col gap-3 p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-all group">
@@ -75,6 +83,11 @@ const ApplicantItem: React.FC<{
             className={`text-sm font-bold text-left truncate w-full block transition-colors ${isMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:text-blue-600 hover:underline"}`}
           >
             {displayName}
+            {metadata && (
+                <span className="ml-1.5 text-[10px] font-normal text-slate-400 opacity-80 whitespace-nowrap">
+                    {metadata}
+                </span>
+            )}
           </button>
           <div className="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
             {/* Trust/Helped Count Badge */}
@@ -344,11 +357,20 @@ export const WishCard: React.FC<WishCardProps> = ({
   };
 
   const trust = getTrustRank(requesterProfile, wish.requester_trust_score);
-  const displayRequesterName = isMasked
-    ? "匿名"
-    : requesterProfile?.name ||
+  
+  const reqGenderLabel = requesterProfile?.gender && requesterProfile.gender !== 'other' 
+    ? (requesterProfile.gender === 'male' ? '男性' : '女性') 
+    : '';
+    
+  const reqMetadata = isMasked 
+    ? (requesterProfile?.location ? `(${requesterProfile.location.prefecture} ${requesterProfile.location.city}) ${reqGenderLabel}` : reqGenderLabel)
+    : (requesterProfile?.age_group ? `${requesterProfile.age_group}${reqGenderLabel ? ` / ${reqGenderLabel}` : ''}` : reqGenderLabel);
+
+  const displayRequesterName = (isMasked && !isMyWish)
+    ? `匿名 ${reqMetadata}`.trim()
+    : (requesterProfile?.name ||
       wish.requester_name ||
-      wish.requester_id.slice(0, 8);
+      wish.requester_id.slice(0, 8));
 
   // Contact Logic
   const contactEmail = ((isMyWish && wish.helper_contact_email) || (!isMyWish && wish.requester_contact_email));
@@ -487,6 +509,11 @@ export const WishCard: React.FC<WishCardProps> = ({
                     className="block text-sm font-bold tracking-wide text-left truncate max-w-full text-slate-800 hover:underline"
                   >
                     {isMyWish ? "あなたの想い" : (viewType === 'flow' ? `${displayRequesterName} さんの願いに応える` : `${displayRequesterName} さんの願ったこと`)}
+                    {!isMasked && !isMyWish && reqMetadata && (
+                        <span className="ml-2 text-xs font-normal text-slate-400">
+                            {reqMetadata}
+                        </span>
+                    )}
                   </button>
                   {/* Verified Badge */}
                   {trust.isVerified && (
@@ -836,17 +863,17 @@ export const WishCard: React.FC<WishCardProps> = ({
 
           {/* Timestamp for My Wish (Moved to Footer) */}
           {isMyWish && (
-            <span className="flex items-center gap-2">
-                <span className="flex items-center gap-1 text-xs text-slate-400 ml-1">
-                    <Clock className="w-3 h-3" />
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 ml-1">
+                <span className="flex items-center gap-1 text-xs text-slate-400">
+                    <Clock className="w-3.5 h-3.5" />
                     <span>{formatDate(wish.created_at)}</span>
                 </span>
                 {wish.isAnonymous && (
-                    <span className="text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded border border-red-100">
+                    <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-100 uppercase tracking-tight">
                         匿名
                     </span>
                 )}
-            </span>
+            </div>
           )}
         </div>
 

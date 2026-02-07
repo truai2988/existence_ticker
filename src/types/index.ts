@@ -29,6 +29,7 @@ export interface UserProfile {
   warmth: number;
   role?: "user" | "admin";
   age_group?: string;
+  gender?: "male" | "female" | "other";
 
   is_deleted?: boolean;
   last_updated?: unknown;

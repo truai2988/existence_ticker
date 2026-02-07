@@ -96,38 +96,31 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                         </div>
                         
                         {/* Meta Row: Rank | ID | Location */}
-                        <div className="flex flex-wrap justify-center gap-2 mb-4 items-center">
-                            <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${rank.bg} ${rank.color} flex items-center gap-1`}>
+                        <div className="flex flex-wrap justify-center gap-2 mb-4 items-center px-4">
+                            <span className={`text-xs whitespace-nowrap font-bold px-2.5 py-0.5 rounded-full ${rank.bg} ${rank.color} flex items-center gap-1 shadow-sm`}>
                                 {rank.icon}
                                 {rank.label}
                             </span>
                             
                             {!isMasked && (
-                                <>
-                                    <span className="text-[11px] text-slate-300 font-light">|</span>
-                                    <span className="text-[11px] text-slate-400 font-mono">
-                                        ID: {profile.id.slice(0,6)}
-                                    </span>
-                                </>
+                                <span className="text-xs text-slate-400 font-mono px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50">
+                                    ID: {profile.id.slice(0,6)}
+                                </span>
                             )}
 
                             {age_group && (
-                                <>
-                                    <span className="text-[11px] text-slate-300 font-light">|</span>
-                                    <span className="text-[11px] text-slate-500 font-bold">
-                                        {age_group}
-                                    </span>
-                                </>
+                                <span className="text-xs text-slate-500 font-bold px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50 whitespace-nowrap">
+                                    {age_group}
+                                    {profile.gender && profile.gender !== 'other' && ` / ${profile.gender === 'male' ? '男性' : '女性'}`}
+                                </span>
                             )}
                             
                             {locationText && (
-                                <>
-                                    <span className="text-[11px] text-slate-300 font-light">|</span>
-                                    <span className="text-[11px] text-slate-500 flex items-center gap-0.5">
-                                        <MapPin size={10} />
-                                        {locationText}
-                                    </span>
-                                </>
+                                <span className="text-xs text-slate-500 flex items-center gap-1 px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50 whitespace-nowrap">
+                                    <MapPin size={10} className="shrink-0 text-slate-400" />
+                                    {locationText}
+                                    {isMasked && profile.gender && profile.gender !== 'other' && ` / ${profile.gender === 'male' ? '男性' : '女性'}`}
+                                </span>
                             )}
                         </div>
 

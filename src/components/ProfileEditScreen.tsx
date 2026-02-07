@@ -27,6 +27,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
     const [name, setName] = useState(profile?.name || '');
     const [bio, setBio] = useState(profile?.bio || '');
     const [age_group, setAgeGroup] = useState(profile?.age_group || '');
+    const [gender, setGender] = useState<"male" | "female" | "other" | "">(profile?.gender || '');
     const [location, setLocation] = useState<{ prefecture: string, city: string }>({
         prefecture: profile?.location?.prefecture || '',
         city: profile?.location?.city || ''
@@ -43,6 +44,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
             setName(curr => curr || profile.name || '');
             setBio(curr => curr || profile.bio || '');
             setAgeGroup(curr => curr || profile.age_group || '');
+            setGender(curr => curr || profile.gender || '');
             setLocation(curr => {
                 if (curr.prefecture && curr.city) return curr; // Don't overwrite if user started editing?
                 // Actually if profile loads late, we want to start with profile data.
@@ -150,6 +152,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                 location, // location is required type, assumed set
                 bio: bio || null,
                 age_group: age_group || undefined,
+                gender: gender || undefined,
                 links: links || null,
                 avatarUrl: avatarUrl || null
             };
@@ -304,6 +307,34 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                         <ChevronLeft size={16} className="-rotate-90" />
                                     </div>
                                 </div>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-slate-500 mb-1.5">性別</label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {[
+                                        { value: 'male', label: '男性' },
+                                        { value: 'female', label: '女性' },
+                                        { value: 'other', label: '回答しない' }
+                                    ].map((opt) => (
+                                        <button
+                                            key={opt.value}
+                                            type="button"
+                                            onClick={() => setGender(opt.value as "male" | "female" | "other")}
+                                            className={`py-2.5 px-2 rounded-xl text-xs font-bold transition-all border ${
+                                                gender === opt.value
+                                                    ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                                                    : "bg-slate-50 text-slate-500 border-slate-100 hover:bg-slate-100"
+                                            }`}
+                                        >
+                                            {opt.label}
+                                        </button>
+                                    ))}
+                                </div>
+                                {gender === 'other' && (
+                                    <p className="text-[10px] text-slate-400 mt-1.5 ml-1">
+                                        ※「その他・回答しない」を選択した場合、外部には非表示となります。
+                                    </p>
+                                )}
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-slate-500 mb-1.5">自己紹介 (Bio)</label>
