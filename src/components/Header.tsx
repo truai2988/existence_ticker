@@ -46,10 +46,10 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                 {/* Background with higher blur for premium feel */}
                 <div className="absolute inset-0 bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-sm" />
 
-                <div className="relative w-full max-w-md mx-auto px-6 h-[110px] flex items-center justify-between gap-2">
+                <div className="relative w-full max-w-md mx-auto px-6 h-[110px] grid grid-cols-2 items-center gap-2">
                     
                     {/* Left Block: Resources & Location */}
-                    <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+                    <div className="flex items-center gap-2 sm:gap-3 justify-start shrink-0">
                         {/* 1. Available LM (Shareable) */}
                         <div className="flex flex-col items-center">
                             <div className="flex items-center gap-1.5 text-slate-500 mb-0.5">
@@ -89,9 +89,9 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                     </div>
 
                     {/* Right Block: Status & Navigation */}
-                    <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+                    <div className="flex items-center justify-end gap-2 sm:gap-3 shrink-0">
                         {/* 1. Wallet Status (Gauge) */}
-                        <div className="flex flex-col items-center gap-1.5">
+                        <div className="flex flex-col items-center gap-1.5 px-1">
                             {/* Handheld Amount */}
                             <div className="flex items-center gap-1.5 text-slate-400">
                                 <Wallet size={10} strokeWidth={2.5} />
@@ -119,8 +119,8 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
 
                             {/* Reset Countdown */}
                             <div className="flex items-center">
-                                <span className="text-[10px] text-slate-300 font-mono tracking-widest leading-none">
-                                    {daysLeft}d
+                                <span className="text-xs text-slate-300 font-bold tracking-widest leading-none whitespace-nowrap">
+                                    リセットまで {daysLeft}日
                                 </span>
                             </div>
                         </div>
