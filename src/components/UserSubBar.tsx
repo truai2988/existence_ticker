@@ -65,7 +65,7 @@ export const UserSubBar: React.FC = () => {
                     >
                         <MapPin size={12} className="text-slate-300 group-hover:text-blue-400 transition-colors" />
                         <span className="font-mono tracking-wide">
-                            {profile?.location?.city || "エリア"}: <span className="font-bold text-slate-500 group-hover:text-slate-700">{getStatusText()}</span>
+                            {profile?.location?.prefecture}{profile?.location?.city || "エリア"}: <span className="font-bold text-slate-500 group-hover:text-slate-700">{getStatusText()}</span>
                         </span>
                         <ChevronRight size={12} className="text-slate-300 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
                     </button>

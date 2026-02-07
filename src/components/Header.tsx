@@ -83,7 +83,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                             <span className="absolute inset-0 rounded-xl bg-blue-400/0 group-hover:bg-blue-400/5 blur-sm transition-all" />
                             <MapPin size={14} className="text-slate-300 group-hover:text-blue-400 transition-colors shrink-0" />
                             <span className="text-xs font-bold tracking-tight text-slate-400 group-hover:text-slate-600 transition-colors pt-0.5 whitespace-normal min-w-0 max-w-[70px] leading-tight text-left">
-                                {profile?.location?.city || "エリア"}
+                                {profile?.location?.prefecture}{profile?.location?.city || "エリア"}
                             </span>
                         </button>
                     </div>
