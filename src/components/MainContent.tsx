@@ -46,33 +46,42 @@ export const MainContent: React.FC<MainContentProps> = ({ viewMode, setViewMode,
             case 'profile':
                 return withTransition(
                     <ProfileView 
-                        onClose={onGoHome} 
                         onOpenAdmin={() => setViewMode('admin')} 
+                        onTabChange={setViewMode}
                     />,
                     'profile'
                 );
             case 'profile_edit':
                 return withTransition(
                     <ProfileView 
-                        onClose={onGoHome} 
                         onOpenAdmin={() => setViewMode('admin')} 
                         initialEditMode={true}
+                        onTabChange={setViewMode}
                     />,
                     'profile_edit'
                 );
             case 'history':
-                return withTransition(<JournalView onClose={onGoHome} />, 'history');
+                return withTransition(
+                    <JournalView onTabChange={setViewMode} />, 
+                    'history'
+                );
             case 'flow':
                 return withTransition(
                     <FlowView 
-                        onClose={onGoHome} 
                         currentUserId={currentUserId} 
                         onOpenProfile={() => setViewMode('profile_edit')}
+                        onTabChange={setViewMode}
                     />,
                     'flow'
                 );
             case 'give':
-                 return withTransition(<RadianceView onClose={onGoHome} currentUserId={currentUserId} />, 'give');
+                 return withTransition(
+                    <RadianceView 
+                        currentUserId={currentUserId} 
+                        onTabChange={setViewMode}
+                    />, 
+                    'give'
+                );
 
             case 'admin':
                  return withTransition(<AdminDashboard onClose={onGoHome} />, 'admin');

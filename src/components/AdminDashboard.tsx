@@ -180,7 +180,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <h1 className="text-xl font-bold text-slate-200 tracking-wider">
                     管理コンソール (GOD MODE)
                 </h1>
-                <p className="text-[11px] text-slate-500 font-mono uppercase tracking-[0.2em]">
+                <p className="text-xs text-slate-500 font-mono uppercase tracking-[0.2em]">
                     互助生態系 監視モニター
                 </p>
                 </div>
@@ -277,7 +277,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                                 </div>
                                                 <div className="min-w-0 flex-1">
                                                     <div className="font-bold text-slate-200 truncate">{u.name || 'Unknown'}</div>
-                                                    <div className="font-mono text-[11px] text-slate-600 truncate">{u.id}</div>
+                                                    <div className="font-mono text-xs text-slate-600 truncate">{u.id}</div>
                                                 </div>
                                             </div>
 
@@ -302,7 +302,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                                         </span>
                                                     )}
                                                     {ADMIN_UIDS.includes(u.id?.trim()) && (
-                                                        <div className="text-[9px] text-indigo-400 font-mono opacity-50"> emergency-access </div>
+                                                        <div className="text-xs text-indigo-400 font-mono opacity-50"> emergency-access </div>
                                                     )}
                                                 </div>
                                             </div>
@@ -376,7 +376,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                     <span className="text-sm text-slate-400">
                       Souls Reborn Today
                     </span>
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-xs text-slate-500">
                       本日の再生数 (Rebirths)
                     </span>
                   </div>
@@ -395,17 +395,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                         />
                       </div>
                         <div className="flex justify-between mt-1 px-0.5">
-                        <span className="text-[10px] text-slate-600 font-mono">
+                        <span className="text-xs text-slate-600 font-mono">
                           0%
                         </span>
-                        <span className="text-[10px] text-cyan-500 font-bold font-mono">
+                        <span className="text-xs text-cyan-500 font-bold font-mono">
                           10% IDEAL
                         </span>
-                        <span className="text-[10px] text-slate-600 font-mono">
+                        <span className="text-xs text-slate-600 font-mono">
                           20%+
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-400 mt-1 leading-tight border-t border-slate-800/50 pt-1">
+                      <p className="text-xs text-slate-400 mt-1 leading-tight border-t border-slate-800/50 pt-1">
                         日次代謝率:
                         10%が理想状態。中央より右なら過剰、左なら停滞を意味します。
                       </p>
@@ -426,7 +426,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               <div>
                 <div className="text-sm text-slate-400 mb-1">
                   24時間流通量
-                  <span className="text-[11px] text-slate-600 ml-2">
+                  <span className="text-xs text-slate-600 ml-2">
                     24時間の総循環量
                   </span>
                 </div>
@@ -440,7 +440,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <div className="text-xs uppercase tracking-wider">
                   {metabolism.status}
                 </div>
-                <div className="text-[11px] opacity-70">循環効率</div>
+                <div className="text-xs opacity-70">循環効率</div>
               </div>
             </div>
 
@@ -479,7 +479,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                     <div className="mt-6 border-t border-slate-800/50 pt-4">
                         <div className="flex justify-between items-center mb-2">
                             <span className="text-xs text-slate-400 font-mono">Metabolic Composition</span>
-                            <span className="text-[11px] text-slate-600">対総資産比率</span>
+                            <span className="text-xs text-slate-600">対総資産比率</span>
                         </div>
                         
                         {/* 1. Main Bar: Flow vs Static */}
@@ -496,7 +496,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                             />
                         </div>
 
-                        <div className="flex justify-between text-[11px] mt-2 font-mono">
+                        <div className="flex justify-between text-xs mt-2 font-mono">
                             <div className="text-green-400">
                                 <span>⚡ CIRCULATION</span>
                                 <span className="ml-2 opacity-70">{flowRatio.toFixed(1)}%</span>
@@ -509,7 +509,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
                         {/* Entropy Loss Indicator (Decay + Overflow) */}
                         <div className="mt-4 flex flex-col gap-1">
-                             <div className="flex justify-between text-[11px] items-center">
+                             <div className="flex justify-between text-xs items-center">
                                  <span className="text-red-400 font-mono">🔥 ENTROPY LOSS (24h)</span>
                                  <span className="text-red-300 font-mono">-{totalEntropyLoss.toLocaleString()} Lm <span className="opacity-50">({entropyRatio.toFixed(1)}%)</span></span>
                              </div>
@@ -519,13 +519,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                  {/* Overflow (Waste) */}
                                  <div className="h-full bg-red-500" style={{ width: `${(overflowLoss / (totalEntropyLoss || 1)) * 100}%` }} />
                              </div>
-                             <div className="flex justify-between text-[10px] text-slate-600 px-0.5">
+                             <div className="flex justify-between text-xs text-slate-600 px-0.5">
                                  <span>Gravity: {decay.toLocaleString()}</span>
                                  <span>Overflow: {overflowLoss.toLocaleString()}</span>
                              </div>
                         </div>
                         
-                         <p className="text-[11px] text-slate-500 mt-2 leading-tight">
+                         <p className="text-xs text-slate-500 mt-2 leading-tight">
                             ※ 赤色の損失（Overflow含む）が緑色の循環を上回る場合、経済圏は縮小（死滅）に向かいます。<br/>
                             現在のバランス: {flowRatio > entropyRatio ? <span className="text-green-400 font-bold">EXPANDING (成長)</span> : <span className="text-red-400 font-bold">CONTRACTING (縮小)</span>}
                         </p>
@@ -546,13 +546,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-yellow-200">
                     🌕 潤沢 (Rich) (&gt;1500){" "}
-                    <span className="text-[11px] text-slate-500 ml-1">
+                    <span className="text-xs text-slate-500 ml-1">
                       saturation (Full)
                     </span>
                   </span>
                   <span className="font-mono text-slate-300">
                     {distribution.full}{" "}
-                    <span className="text-[10px] opacity-70">
+                    <span className="text-xs opacity-70">
                       ({(distRatio.full * 100).toFixed(1)}%)
                     </span>
                   </span>
@@ -569,13 +569,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-slate-300">
                     🌓 安定 (Stable){" "}
-                    <span className="text-[10px] text-slate-500 ml-1">
+                    <span className="text-xs text-slate-500 ml-1">
                       安定した魂
                     </span>
                   </span>
                   <span className="font-mono text-slate-300">
                     {distribution.quarter}{" "}
-                    <span className="text-[10px] opacity-70">
+                    <span className="text-xs opacity-70">
                       ({(distRatio.quarter * 100).toFixed(1)}%)
                     </span>
                   </span>
@@ -592,13 +592,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <div className="flex justify-between text-xs mb-1">
                   <span className="text-slate-400">
                     🌑 枯渇 (Scarce) (&lt;500){" "}
-                    <span className="text-[11px] text-slate-500 ml-1">
+                    <span className="text-xs text-slate-500 ml-1">
                       新生した魂
                     </span>
                   </span>
                   <span className="font-mono text-slate-300">
                     {distribution.new}{" "}
-                    <span className="text-[10px] opacity-70">
+                    <span className="text-xs opacity-70">
                       ({(distRatio.new * 100).toFixed(1)}%)
                     </span>
                   </span>
@@ -634,7 +634,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             <div className="mb-8 text-center">
               <div className="text-xs text-yellow-600/70 mb-2">
                 再生サイクル期間 (Cycle Duration)
-                <div className="text-[11px]">次回リセットまでの日数</div>
+                <div className="text-xs">次回リセットまでの日数</div>
               </div>
               <div className="text-5xl font-bold text-yellow-500 font-mono tracking-tighter">
                 {cycleDays}{" "}
@@ -657,7 +657,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   onChange={(e) => setCycleDays(Number(e.target.value))}
                   className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-yellow-500"
                 />
-                <div className="flex justify-between text-[11px] text-slate-500 font-mono mt-2">
+                <div className="flex justify-between text-xs text-slate-500 font-mono mt-2">
                     <span>5 Days (Fast)</span>
                     <span>10 Days (Std)</span>
                     <span>20 Days (Slow)</span>
@@ -703,7 +703,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             >
               法を公布・改定する (Publish Law)
             </button>
-            <p className="text-center text-[10px] text-slate-500 mt-2">
+            <p className="text-center text-xs text-slate-500 mt-2">
               生命贈与額 (Fixed): <span className="text-slate-300">2,400 Lm</span> (不変の理)
             </p>
           </div>
@@ -724,7 +724,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             {/* Header */}
             <div className="flex justify-between items-start mb-12 border-b-2 border-slate-900 pb-6">
               <div>
-                <div className="flex items-center gap-2 text-slate-500 mb-2 uppercase tracking-[0.2em] text-[11px] font-sans">
+                <div className="flex items-center gap-2 text-slate-500 mb-2 uppercase tracking-[0.2em] text-xs font-sans">
                   <Activity size={14} />
                   <span>Existence Ticker Protocol v2.0</span>
                 </div>

@@ -81,7 +81,7 @@ export const ExistenceTicker: React.FC<ExistenceTickerProps> = ({ balance, lastU
             </div>
             
             {/* Phase Label */}
-            <div className="mt-2 text-[11px] text-slate-500 font-serif tracking-widest uppercase flex items-center gap-2">
+            <div className="mt-2 text-xs text-slate-500 font-serif tracking-widest uppercase flex items-center gap-2">
                 <span>Phase: {ratio > 0.9 ? 'FULL MOON' : ratio > 0.4 ? 'WANING' : 'NEW MOON'}</span>
                 <span className="opacity-50">|</span>
                 <span>{((ratio) * 100).toFixed(0)}%</span>

@@ -33,7 +33,7 @@ export const CompleteWishModal = ({ wishTitle, helperName, preset, cost, onConfi
         {/* The Pact (約束の内容) */}
         <div className="bg-slate-50 rounded-xl p-5 border border-slate-100 space-y-4 shadow-inner">
           <div className="space-y-1">
-             <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">依頼内容</span>
+             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">依頼内容</span>
              <p className="text-sm text-slate-700 font-medium leading-relaxed break-words">
                  {wishTitle}
              </p>

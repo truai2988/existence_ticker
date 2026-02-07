@@ -19,9 +19,9 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
     
     // Menu Items Definition
     const menuItems = [
-        { id: "home", label: "ホーム", icon: Home },
-        { id: "history", label: "履歴", icon: History },
-        { id: "profile", label: "自分", icon: User },
+        { id: "home", label: "ホーム", icon: Home, activeModes: ["home"] },
+        { id: "history", label: "履歴", icon: History, activeModes: ["history"] },
+        { id: "profile", label: "自分", icon: User, activeModes: ["profile", "profile_edit"] },
     ] as const;
 
     const handleNavigation = (id: "home" | "history" | "profile") => {
@@ -55,7 +55,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
                             <h1 className="text-4xl font-serif font-light tracking-tighter text-slate-800 mb-1">
                                 ET
                             </h1>
-                            <p className="text-[10px] text-slate-400 font-sans tracking-[0.3em] uppercase font-medium">
+                            <p className="text-xs text-slate-400 font-sans tracking-[0.3em] uppercase font-medium">
                                 Existence Ticker
                             </p>
                         </div>
@@ -72,33 +72,32 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
 
                         {/* Menu Links */}
                         <nav className="flex-1 px-8 py-4 flex flex-col gap-8">
-                            {menuItems.map((item) => (
-                                <button
-                                    key={item.id}
-                                    onClick={() => handleNavigation(item.id)}
-                                    className={`group flex items-center gap-6 text-left transition-all ${
-                                        currentTab === item.id 
-                                            ? "text-slate-800" 
-                                            : "text-slate-400 hover:text-slate-600"
-                                    }`}
-                                >
-                                    <item.icon 
-                                        size={24} 
-                                        strokeWidth={1.5}
-                                        className={`${currentTab === item.id ? "text-amber-400 fill-amber-50" : "text-slate-300 group-hover:text-slate-400"}`} 
-                                    />
-                                    <span className={`text-xl font-serif tracking-widest ${
-                                        currentTab === item.id ? "font-bold" : "font-normal"
-                                    }`}>
-                                        {item.label}
-                                    </span>
-                                </button>
-                            ))}
+                            {menuItems.map((item) => {
+                                const isActive = (item.activeModes as readonly string[]).includes(currentTab) || item.id === currentTab;
+                                return (
+                                    <button
+                                        key={item.id}
+                                        onClick={() => handleNavigation(item.id)}
+                                        className={`group flex items-center gap-6 text-left transition-all ${
+                                            isActive ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'
+                                        }`}
+                                    >
+                                        <item.icon 
+                                            size={24} 
+                                            strokeWidth={isActive ? 2 : 1.5}
+                                            className={`${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'} transition-colors`} 
+                                        />
+                                        <span className={`text-xl font-serif tracking-widest font-normal ${isActive ? 'text-blue-600' : 'text-slate-800'}`}>
+                                            {item.label}
+                                        </span>
+                                    </button>
+                                );
+                            })}
                         </nav>
 
                         {/* Footer / Brand (Optional) */}
                         <div className="p-8 text-center">
-                            <p className="text-[10px] text-slate-300 font-mono tracking-widest uppercase opacity-50">
+                            <p className="text-xs text-slate-300 font-mono tracking-widest uppercase opacity-50">
                                 Existence Ticker
                             </p>
                         </div>

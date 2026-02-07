@@ -53,7 +53,7 @@ export class ErrorBoundary extends Component<Props, State> {
             </button>
 
             <div className="mt-6 pt-6 border-t border-slate-100">
-              <p className="text-[10px] text-slate-300 font-mono text-left overflow-auto max-h-32 p-2 bg-slate-50 rounded">
+              <p className="text-xs text-slate-300 font-mono text-left overflow-auto max-h-32 p-2 bg-slate-50 rounded">
                 {this.state.error?.message}
               </p>
             </div>

@@ -104,7 +104,7 @@ export const WishesList = ({ currentUserId }: WishesListProps) => {
                    wish={wish} 
                    currentUserId={effectiveUserId} 
                  />
-                 <p className="text-[11px] text-center text-green-500 mt-2 font-mono flex items-center justify-center gap-1">
+                 <p className="text-xs text-center text-green-500 mt-2 font-mono flex items-center justify-center gap-1">
                    {/* Loader2 removed from imports, using simple text or re-add if needed. Re-adding minimal spinner if desired but simpler is better */}
                    担当者が決定しました。作業完了を待ってください。
                  </p>
@@ -131,7 +131,7 @@ export const WishesList = ({ currentUserId }: WishesListProps) => {
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900/50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-full transition-all group"
             >
                 <MapPin size={14} className="text-slate-400 group-hover:text-blue-400 transition-colors" />
-                <span className="text-[11px] text-slate-500 group-hover:text-slate-300 font-medium">
+                <span className="text-xs text-slate-500 group-hover:text-slate-300 font-medium">
                     近くの気配を確認する
                 </span>
             </button>

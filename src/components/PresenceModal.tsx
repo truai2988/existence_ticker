@@ -220,7 +220,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
                  </div>
             </div>
 
-            <p className="text-[11px] text-slate-400 text-center leading-relaxed">
+            <p className="text-xs text-slate-400 text-center leading-relaxed">
                 ※プライバシー保護のため、5名未満は一律の表示となります
             </p>
 

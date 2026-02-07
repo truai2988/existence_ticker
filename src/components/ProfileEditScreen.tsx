@@ -331,7 +331,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     ))}
                                 </div>
                                 {gender === 'other' && (
-                                    <p className="text-[10px] text-slate-400 mt-1.5 ml-1">
+                                    <p className="text-xs text-slate-400 mt-1.5 ml-1">
                                         ※「その他・回答しない」を選択した場合、外部には非表示となります。
                                     </p>
                                 )}

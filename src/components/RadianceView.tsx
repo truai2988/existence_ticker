@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
-import { X, Megaphone, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useWishes } from '../hooks/useWishes';
 import { WishCardList } from './WishCardList';
-import { UserSubBar } from './UserSubBar';
-
-
+import { HeaderNavigation } from './HeaderNavigation';
 import { CreateWishModal } from './CreateWishModal';
+import { AppViewMode } from '../types';
 
 interface RadianceViewProps {
-    onClose: () => void;
     currentUserId: string;
+    onTabChange?: (mode: AppViewMode) => void;
 }
 
 type TabType = 'active' | 'outbound' | 'past';
 type ModalState = 'none' | 'create_wish';
 
-export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUserId }) => {
+export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTabChange }) => {
     const { 
         userActiveWishes, 
         userArchiveWishes,
@@ -24,7 +23,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
     } = useWishes();
     
     const [activeTab, setActiveTab] = useState<TabType>('active');
-    const [modalState, setModalState] = useState<ModalState>('none');
+    const [modalState, setModalState] = useState<ModalState>('create_wish');
     
     const [isArchiveLoading, setIsArchiveLoading] = useState(false);
 
@@ -51,90 +50,101 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ onClose, currentUser
     };
 
     return (
-        <div className="fixed inset-0 z-[60] bg-slate-50 flex flex-col w-full h-full">
-            {/* Header Container */}
-            <div className="w-full bg-white/80 backdrop-blur-md border-b-2 border-blue-400 shrink-0 pt-safe shadow-sm">
-                <div className="max-w-md mx-auto px-6 h-[110px] flex flex-col justify-between">
-                    <div className="flex items-center justify-between w-full pt-3">
-                        <div>
-                            <h2 className="text-lg font-bold font-sans text-slate-900">自分の願ったこと</h2>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <button 
-                                onClick={() => setModalState(modalState === 'create_wish' ? 'none' : 'create_wish')}
-                                className={`flex items-center justify-center gap-2 px-3.5 py-1.5 min-w-[124px] rounded-full text-xs font-bold transition-all shadow-sm active:scale-95 border focus:outline-none focus:ring-0 ${
-                                    modalState === 'create_wish'
-                                        ? 'bg-blue-600 text-white border-transparent'
-                                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                                }`}
-                            >
-                                <Megaphone size={14} className={modalState === 'create_wish' ? 'text-white/80' : 'text-slate-400'} />
-                                <span>新規作成</span>
-                            </button>
-                            <button onClick={onClose} className="w-10 h-10 flex items-center justify-center hover:bg-slate-100 rounded-full transition-colors text-slate-400 focus:outline-none focus:ring-0">
-                                <X size={20} />
-                            </button>
-                        </div>
+        <div className="flex-1 flex flex-col w-full h-full">
+            {/* View Title Area (Subtle) */}
+            <div className="bg-white/50 border-b border-slate-100">
+                <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
+                    <div>
+                        <h2 className="text-sm font-bold tracking-widest uppercase text-slate-400">
+                            自分の願ったこと
+                        </h2>
+                        <p className="text-xs text-slate-300 font-mono tracking-[0.2em] uppercase">My Wishes</p>
                     </div>
-
-                    <div className="flex items-end w-full overflow-hidden pb-2">
-                        <div className="flex gap-1.5 pb-2 w-full justify-between sm:justify-start sm:gap-4">
-                            <button
-                                onClick={() => { setActiveTab('active'); setModalState('none'); }}
-                                disabled={activeTab === 'active' && modalState !== 'create_wish'}
-                                className={`px-3 py-1.5 text-xs font-bold transition-all whitespace-nowrap rounded-full flex items-center focus:outline-none focus:ring-0 ${
-                                    activeTab === 'active' && modalState !== 'create_wish'
-                                        ? 'bg-blue-100 text-blue-700 border border-blue-200 cursor-default pointer-events-none' 
-                                        : 'text-slate-400 hover:bg-white hover:text-slate-600 cursor-pointer'
-                                }`}
-                            >
-                                募集中
-                                <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs tabular-nums ${
-                                    activeTab === 'active' && modalState !== 'create_wish' ? 'bg-white/80 text-blue-700 shadow-sm' : 'bg-slate-100 text-slate-500'
-                                }`}>
-                                    {myActiveWishes.length}
-                                </span>
-                            </button>
-                            <div className="flex items-center"><ChevronRight size={14} className="text-slate-300" /></div>
-                            <button
-                                onClick={() => { setActiveTab('outbound'); setModalState('none'); }}
-                                disabled={activeTab === 'outbound' && modalState !== 'create_wish'}
-                                className={`px-3 py-1.5 text-xs font-bold transition-all whitespace-nowrap rounded-full flex items-center focus:outline-none focus:ring-0 ${
-                                    activeTab === 'outbound' && modalState !== 'create_wish'
-                                        ? 'bg-blue-100 text-blue-700 border border-blue-200 cursor-default pointer-events-none' 
-                                        : 'text-slate-400 hover:bg-white hover:text-slate-600 cursor-pointer'
-                                }`}
-                            >
-                                進行中
-                                <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs tabular-nums ${
-                                    activeTab === 'outbound' && modalState !== 'create_wish' ? 'bg-white/80 text-blue-700 shadow-sm' : 'bg-slate-100 text-slate-500'
-                                }`}>
-                                    {myOutboundWishes.length}
-                                </span>
-                            </button>
-                            <div className="flex items-center"><ChevronRight size={14} className="text-slate-300" /></div>
-                            <button
-                                onClick={() => { setActiveTab('past'); setModalState('none'); }}
-                                disabled={activeTab === 'past' && modalState !== 'create_wish'}
-                                className={`px-3 py-1.5 text-xs font-bold transition-all whitespace-nowrap rounded-full flex items-center focus:outline-none focus:ring-0 ${
-                                    activeTab === 'past' && modalState !== 'create_wish'
-                                        ? 'bg-slate-200 text-slate-700 border border-slate-300 cursor-default pointer-events-none' 
-                                        : 'text-slate-400 hover:bg-white hover:text-slate-600 cursor-pointer'
-                                }`}
-                            >
-                                過去の記録
-                                <span className={`ml-1.5 px-1.5 py-0.5 rounded-full text-xs tabular-nums ${
-                                    activeTab === 'past' && modalState !== 'create_wish' ? 'bg-white/80 text-slate-700 shadow-sm' : 'bg-slate-100 text-slate-500'
-                                }`}>
-                                    {myPastWishes.length}
-                                </span>
-                            </button>
-                        </div>
+                    <div className="flex items-center gap-2">
+                        {onTabChange && (
+                            <div className="shrink-0 ml-1">
+                                <HeaderNavigation 
+                                    currentTab="give" 
+                                    onTabChange={(tab: AppViewMode) => onTabChange(tab)} 
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
 
-            <UserSubBar />
+            {/* Tab Navigation (Subtle Flat Design) */}
+            <div className="bg-blue-50/20">
+                <div className="max-w-2xl mx-auto px-6 py-2 flex items-center gap-6 overflow-x-auto no-scrollbar relative min-h-[44px]">
+                    <button 
+                        onClick={() => setModalState(modalState === 'create_wish' ? 'none' : 'create_wish')}
+                        className={`relative py-2 text-xs font-bold transition-all shrink-0 focus:outline-none ${
+                            modalState === 'create_wish'
+                                ? 'text-indigo-800' 
+                                : 'text-slate-400 hover:text-slate-500'
+                        }`}
+                    >
+                        <span>新規作成</span>
+                        {modalState === 'create_wish' && (
+                            <motion.div 
+                                layoutId="radiance-tab-underline"
+                                className="absolute -bottom-2 left-0 right-0 h-0.5 bg-indigo-500 rounded-full"
+                            />
+                        )}
+                    </button>
+
+                    <button
+                        onClick={() => { setActiveTab('active'); setModalState('none'); }}
+                        className={`relative py-2 text-xs font-bold transition-all shrink-0 focus:outline-none ${
+                            activeTab === 'active' && modalState !== 'create_wish'
+                                ? 'text-blue-800' 
+                                : myActiveWishes.length === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-slate-500'
+                        }`}
+                    >
+                        募集中 ({myActiveWishes.length})
+                        {activeTab === 'active' && modalState !== 'create_wish' && (
+                            <motion.div 
+                                layoutId="radiance-tab-underline"
+                                className="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-500 rounded-full"
+                            />
+                        )}
+                    </button>
+
+                    <button
+                        onClick={() => { setActiveTab('outbound'); setModalState('none'); }}
+                        className={`relative py-2 text-xs font-bold transition-all shrink-0 focus:outline-none ${
+                            activeTab === 'outbound' && modalState !== 'create_wish'
+                                ? 'text-emerald-800' 
+                                : myOutboundWishes.length === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-slate-500'
+                        }`}
+                    >
+                        進行中 ({myOutboundWishes.length})
+                        {activeTab === 'outbound' && modalState !== 'create_wish' && (
+                            <motion.div 
+                                layoutId="radiance-tab-underline"
+                                className="absolute -bottom-2 left-0 right-0 h-0.5 bg-emerald-500 rounded-full"
+                            />
+                        )}
+                    </button>
+                    
+                    <button
+                        onClick={() => { setActiveTab('past'); setModalState('none'); }}
+                        className={`relative py-2 text-xs font-bold transition-all shrink-0 focus:outline-none ${
+                            activeTab === 'past' && modalState !== 'create_wish'
+                                ? 'text-slate-700' 
+                                : myPastWishes.length === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-slate-500'
+                        }`}
+                    >
+                        過去の記録 ({myPastWishes.length})
+                        {activeTab === 'past' && modalState !== 'create_wish' && (
+                            <motion.div 
+                                layoutId="radiance-tab-underline"
+                                className="absolute -bottom-2 left-0 right-0 h-0.5 bg-slate-400 rounded-full"
+                            />
+                        )}
+                    </button>
+                </div>
+            </div>
 
             <div className="flex-1 overflow-y-auto no-scrollbar bg-blue-50/20 w-full transition-colors duration-500">
                 <div className="max-w-md mx-auto px-6 py-4 pb-24 w-full">

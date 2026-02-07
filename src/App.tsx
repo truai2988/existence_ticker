@@ -158,8 +158,10 @@ function App() {
 
   return (
     <div className="bg-slate-50 h-screen font-sans selection:bg-yellow-500/30 overflow-hidden flex flex-col relative text-slate-900">
-      {/* HEADER (Always visible except maybe Admin?) */}
-      <Header viewMode={viewMode} onTabChange={handleTabChange} />
+      {/* HEADER (Only visible on Top Page) */}
+      {viewMode === 'home' && (
+        <Header viewMode={viewMode} onTabChange={handleTabChange} />
+      )}
 
       {/* MAIN CONTENT */}
       <main

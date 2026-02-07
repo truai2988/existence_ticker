@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Sun, Heart, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Sun, Heart, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuthHook';
 import { db } from '../lib/firebase';
 import { collection, query, where, orderBy, limit, onSnapshot, Timestamp } from 'firebase/firestore';
-import { UserSubBar } from './UserSubBar';
+import { HeaderNavigation } from './HeaderNavigation';
+import { AppViewMode } from '../types';
 
 // Type Definition for our unified Transaction
 type TransactionLog = {
@@ -23,7 +24,7 @@ type TransactionLog = {
 };
 
 interface JournalViewProps {
-  onClose: () => void;
+  onTabChange?: (mode: AppViewMode) => void;
 }
 
 const parseDate = (val: TransactionLog['created_at']): Date => {
@@ -48,7 +49,7 @@ const formatDate = (date: Date): string => {
     return `${date.getMonth() + 1}/${date.getDate()}`;
 };
 
-export const JournalView: React.FC<JournalViewProps> = ({ onClose }) => {
+export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
   const { user } = useAuth();
   const [logs, setLogs] = useState<TransactionLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -58,108 +59,73 @@ export const JournalView: React.FC<JournalViewProps> = ({ onClose }) => {
      
      const txRef = collection(db, 'transactions');
      
-     // 1. Sent
-     // 1. Sent
      const qSent = query(txRef, where('sender_id', '==', user.uid), orderBy('created_at', 'desc'), limit(50));
-     // 2. Received
      const qReceived = query(txRef, where('recipient_id', '==', user.uid), orderBy('created_at', 'desc'), limit(50));
-
-     // Given the constraint of React useEffect hooks and async logic, let's use a simpler strategy:
-     // We will listen to BOTH and merge state.
      
      let sentData: TransactionLog[] = [];
      let receivedData: TransactionLog[] = [];
 
      const updateState = () => {
-         
-         // Filter out insignificant entries (0 Lm)
          const validData = [...sentData, ...receivedData].filter(tx => tx.amount !== 0);
-         
-         // 1. Unique by ID first
          const uniqueById = Array.from(new Map(validData.map(item => [item.id, item])).values());
-         
-         // 2. Sort by Date Desc
          const sorted = uniqueById.sort((a, b) => {
              const tA = parseDate(a.created_at).getTime();
              const tB = parseDate(b.created_at).getTime();
              return tB - tA;
          });
 
-         // 3. Deduplicate by Content (Legacy Cleanup)
-         // Rules: Same Type, Same Amount, Same Title (if any), Time diff < 2 mins -> Duplicate
          const cleanLogs: TransactionLog[] = [];
-         
          sorted.forEach((current, i) => {
              if (i === 0) {
                  cleanLogs.push(current);
                  return;
              }
-             
              const prev = cleanLogs[cleanLogs.length - 1];
              const tCurrent = parseDate(current.created_at).getTime();
-             const tPrev = parseDate(prev.created_at).getTime(); // Note: sorted desc, so tPrev >= tCurrent usually
-             
-             const isTimeClose = Math.abs(tPrev - tCurrent) < 2 * 60 * 1000; // < 2 mins difference
+             const tPrev = parseDate(prev.created_at).getTime();
+             const isTimeClose = Math.abs(tPrev - tCurrent) < 2 * 60 * 1000;
              const isSameType = current.type === prev.type;
              const isSameTitle = current.wish_title === prev.wish_title;
              const isSameAmount = current.amount === prev.amount;
-             
-             // If all match, it's a duplicate. Skip it.
-             if (isTimeClose && isSameType && isSameTitle && isSameAmount) {
-                 return;
-             }
-             
+             if (isTimeClose && isSameType && isSameTitle && isSameAmount) return;
              cleanLogs.push(current);
          });
          setLogs(cleanLogs);
          setIsLoading(false);
      };
 
-     const u1 = onSnapshot(qSent, 
-       (snap) => {
+     const u1 = onSnapshot(qSent, (snap) => {
          sentData = snap.docs.map(d => ({ id: d.id, ...d.data() } as TransactionLog));
          updateState();
-       },
-       (error) => {
-         console.error("History sync error (Sent):", error);
-         setIsLoading(false);
-       }
-     );
+     });
      
-     const u2 = onSnapshot(qReceived, 
-       (snap) => {
+     const u2 = onSnapshot(qReceived, (snap) => {
          receivedData = snap.docs.map(d => ({ id: d.id, ...d.data() } as TransactionLog));
          updateState();
-       },
-       (error) => {
-         console.error("History sync error (Received):", error);
-         setIsLoading(false);
-       }
-     );
+     });
 
-     return () => {
-         u1();
-         u2();
-     };
+     return () => { u1(); u2(); };
   }, [user]);
 
   return (
-    <div className="fixed inset-0 h-[100dvh] z-[60] flex flex-col items-center bg-slate-50/95 backdrop-blur-md overflow-hidden animate-fade-in w-full">
-        {/* Full width header container */}
-        <div className="w-full shrink-0 border-b border-slate-200 pt-safe bg-white/80 backdrop-blur-md">
-             <div className="max-w-md mx-auto px-6 h-[90px] flex flex-col justify-center">
-                 <div className="flex justify-between items-center w-full">
-                     <div>
-                        <h2 className="text-2xl font-serif text-slate-900">あなたの記録</h2>
-                        <p className="text-xs text-slate-500 font-mono tracking-widest uppercase">Journal of Light</p>
+    <div className="flex-1 flex flex-col w-full h-full">
+        {/* Subtle Section Header with Navigation */}
+        <div className="border-b border-slate-100 bg-white/50">
+            <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
+                 <div>
+                    <h2 className="text-sm font-bold tracking-widest uppercase text-slate-400">Journal</h2>
+                    <p className="text-xs text-slate-300 font-mono tracking-[0.2em] uppercase">あなたの歩みの記録</p>
+                </div>
+                {onTabChange && (
+                    <div className="shrink-0">
+                        <HeaderNavigation 
+                            currentTab="history" 
+                            onTabChange={(tab: AppViewMode) => onTabChange(tab)} 
+                        />
                     </div>
-                    <button onClick={onClose} className="p-2 rounded-full hover:bg-slate-100 transition-colors">
-                        <X className="text-slate-400" size={20} />
-                    </button>
-                 </div>
-             </div>
+                )}
+            </div>
         </div>
-        <UserSubBar />
 
         {/* Content Container */}
         <div className="w-full flex-grow overflow-y-auto no-scrollbar relative flex flex-col items-center">
@@ -191,36 +157,29 @@ export const JournalView: React.FC<JournalViewProps> = ({ onClose }) => {
   );
 };
 
-// Sub-component for each log item
 const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, userId: string }) => {
     const isSender = log.sender_id === userId;
     const date = parseDate(log.created_at);
     const dateStr = formatDate(date);
-    
-    // Use snapshot name (name saved at transaction time)
     const partnerName = (isSender ? log.recipient_name : log.sender_name) || '誰か';
 
-    // Determining Content based on rules
     let icon, title, metaColor, amountPrefix, amountColor;
 
     if (log.type === 'REBIRTH') {
-        // [再生]
         icon = <Sun size={14} className="text-amber-500 fill-amber-100" />;
         title = "太陽の光で器が満たされました（リセット）";
         metaColor = "bg-amber-50 border-amber-200";
-        amountPrefix = "+"; // Inflow
+        amountPrefix = "+";
         amountColor = "text-amber-600";
     } 
     else if (log.type === 'GIFT') {
         if (isSender) {
-            // [ギフト送付]
             icon = <Heart size={14} className="text-pink-500 fill-pink-50" />;
             title = `${partnerName}さんに光を贈りました（旧機能）`;
             metaColor = "bg-slate-50 border-slate-200 grayscale";
-            amountPrefix = ""; // No negative sign requested
-            amountColor = "text-slate-400"; // Neutral for "Sharing"
+            amountPrefix = "";
+            amountColor = "text-slate-400";
         } else {
-            // [ギフト受取]
             icon = <Sparkles size={14} className="text-cyan-500 fill-cyan-50" />;
             title = `${partnerName}さんから光を預かりました（旧機能）`;
             metaColor = "bg-slate-50 border-slate-200 grayscale";
@@ -229,7 +188,6 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
         }
     } 
     else if (log.type === 'WISH_EXPIRED') {
-        // [期限切れ]
         icon = <CheckCircle2 size={14} className="text-slate-400 fill-slate-50" />;
         const wishTitle = log.wish_title || '依頼';
         title = `${wishTitle}：感謝が巡るまえに中断されました`;
@@ -238,16 +196,13 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
         amountColor = "text-slate-400";
     }
     else if (log.type === 'COMPENSATION') {
-        // [お詫び]
         if (isSender) {
-            // [お詫び支払い]
              icon = <CheckCircle2 size={14} className="text-red-400" />;
              title = `${partnerName}さんにお詫びのしるしを渡しました`;
              metaColor = "bg-red-50 border-red-100";
              amountPrefix = ""; 
              amountColor = "text-red-500";
         } else {
-             // [お詫び受取]
              icon = <Sun size={14} className="text-orange-500 fill-orange-50" />;
              title = `${partnerName}さんからお詫びのしるしを受け取りました`;
              metaColor = "bg-orange-50 border-orange-100";
@@ -255,17 +210,14 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
              amountColor = "text-orange-600";
         }
     }
-    else { // WISH_FULFILLMENT
+    else {
         if (isSender) {
-             // [依頼支払い] (I was the requester, I paid)
              icon = <CheckCircle2 size={14} className="text-amber-600" />;
              title = `${partnerName}さんに感謝を伝えました（依頼完了）`;
              metaColor = "bg-amber-50 border-amber-200";
-             amountPrefix = ""; // No negative sign
+             amountPrefix = "";
              amountColor = "text-slate-400";
-             
         } else {
-             // [報酬受取] (I was the helper, I got paid)
              icon = <CheckCircle2 size={14} className="text-blue-600" />;
              title = `${partnerName}さんの願いを叶えました（報酬受取）`;
              metaColor = "bg-blue-50 border-blue-200";
@@ -281,41 +233,29 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
             transition={{ delay: index * 0.05 }}
             className="flex items-start gap-3 relative group"
         >
-            {/* Date Column */}
             <div className="w-12 pt-1 text-right shrink-0">
-                <span className="text-[11px] font-mono text-slate-400 block">{dateStr}</span>
-                <span className="text-[10px] font-mono text-slate-300 block">
+                <span className="text-xs font-mono text-slate-400 block">{dateStr}</span>
+                <span className="text-xs font-mono text-slate-300 block">
                     {date.getHours().toString().padStart(2, '0')}:{date.getMinutes().toString().padStart(2, '0')}
                 </span>
             </div>
-
-            {/* Icon Node */}
-            <div className={`
-                w-6 h-6 rounded-full border flex items-center justify-center shrink-0 z-10 box-content bg-white
-                ${metaColor}
-            `}>
+            <div className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 z-10 box-content bg-white ${metaColor}`}>
                 {icon}
             </div>
-
-            {/* Content */}
             <div className="flex-1 pb-6 border-b border-slate-100 last:border-0">
-                <p className="text-sm text-slate-700 font-medium leading-relaxed">
-                    {title}
-                </p>
+                <p className="text-sm text-slate-700 font-medium leading-relaxed">{title}</p>
                 {log.wish_title && (
                     <p className="text-xs text-slate-400 mt-1 pl-2 border-l-2 border-slate-100 line-clamp-1 italic">
                         "{log.wish_title}"
                     </p>
                 )}
-                
                 <div className="mt-2 flex items-center justify-end gap-1">
                     <span className={`text-sm font-mono font-bold ${amountColor}`}>
                         {amountPrefix}{Math.floor(log.amount).toLocaleString()}
                     </span>
-                    <span className="text-[11px] text-slate-400">Lm</span>
-                    {/* Specific Phrasing for Outflow */}
+                    <span className="text-xs text-slate-400">Lm</span>
                     {(isSender && log.type !== 'REBIRTH') && (
-                        <span className="text-[11px] text-slate-400 ml-1">を分かち合いました</span>
+                        <span className="text-xs text-slate-400 ml-1">を分かち合いました</span>
                     )}
                 </div>
             </div>

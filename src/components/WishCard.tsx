@@ -84,7 +84,7 @@ const ApplicantItem: React.FC<{
           >
             {displayName}
             {metadata && (
-                <span className="ml-1.5 text-[10px] font-normal text-slate-400 opacity-80 whitespace-nowrap">
+                <span className="ml-1.5 text-xs font-normal text-slate-400 opacity-80 whitespace-nowrap">
                     {metadata}
                 </span>
             )}
@@ -367,7 +367,7 @@ export const WishCard: React.FC<WishCardProps> = ({
     : (requesterProfile?.age_group ? `${requesterProfile.age_group}${reqGenderLabel ? ` / ${reqGenderLabel}` : ''}` : reqGenderLabel);
 
   const displayRequesterName = (isMasked && !isMyWish)
-    ? `匿名 ${reqMetadata}`.trim()
+    ? `匿名`
     : (requesterProfile?.name ||
       wish.requester_name ||
       wish.requester_id.slice(0, 8));
@@ -869,7 +869,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                     <span>{formatDate(wish.created_at)}</span>
                 </span>
                 {wish.isAnonymous && (
-                    <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-100 uppercase tracking-tight">
+                    <span className="text-xs font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-100 uppercase tracking-tight">
                         匿名
                     </span>
                 )}

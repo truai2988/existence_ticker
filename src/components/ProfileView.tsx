@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  X,
   ChevronRight,
   LogOut,
   Trash2,
@@ -10,7 +9,6 @@ import {
   Handshake,
   Megaphone,
   MapPin,
-  Link as LinkIcon,
   Camera,
   Edit2,
   ShieldCheck,
@@ -19,14 +17,16 @@ import {
 import { useProfile } from "../hooks/useProfile";
 import { ADMIN_UIDS } from "../constants";
 import { useAuth } from "../hooks/useAuthHook";
-import { getTrustRank } from "../logic/worldPhysics";
+import { HeaderNavigation } from "./HeaderNavigation";
+import { AppViewMode } from "../types";
+import { getTrustRank } from "../utils/trustRank";
 import { ProfileEditScreen } from "./ProfileEditScreen";
 
 interface ProfileViewProps {
-  onClose: () => void;
   onOpenAdmin?: () => void;
   userId?: string;
   initialEditMode?: boolean;
+  onTabChange?: (mode: AppViewMode) => void;
 }
 
 interface ListItemProps {
@@ -73,18 +73,15 @@ const ListItem: React.FC<ListItemProps> = ({
 );
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
-  onClose,
   onOpenAdmin,
   initialEditMode = false,
+  onTabChange,
 }) => {
   const { profile, isLoading: isProfileLoading } = useProfile();
   const { user, signOut, linkEmail, deleteAccount, updateUserPassword } =
     useAuth();
 
-  // UI States
   const [isEditingProfile, setIsEditingProfile] = useState(initialEditMode);
-
-  // Auth Flow States (Link/Password/Delete)
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [showPassModal, setShowPassModal] = useState(false);
   const [confirmMode, setConfirmMode] = useState<"logout" | "delete" | null>(
@@ -92,7 +89,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   );
   const [deleteStep, setDeleteStep] = useState(0);
 
-  // Form Inputs
   const [emailInput, setEmailInput] = useState("");
   const [passInput, setPassInput] = useState("");
   const [newPass, setNewPass] = useState("");
@@ -102,18 +98,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const [successMsg, setSuccessMsg] = useState("");
 
   const isAnonymous = user?.isAnonymous ?? false;
-
-  // Stats Logic
-
   const currentName = profile?.name || "名もなき旅人";
   const helpfulCount = profile?.completed_contracts || 0;
   const requestCount = profile?.completed_requests || 0;
-
   const rank = getTrustRank(profile);
 
-  // Visual Decay Logic - (Removed detailed block)
-
-  // Auth Handlers
   const handleLinkAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
@@ -150,20 +139,17 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
   const handleLogout = async () => {
     await signOut();
-    onClose();
   };
 
   const handleDelete = async () => {
     try {
       await deleteAccount();
       alert("退会しました");
-      onClose();
     } catch (e: unknown) {
       alert("エラー: " + (e instanceof Error ? e.message : String(e)));
     }
   };
 
-  // Sub-screen Handling
   if (isEditingProfile) {
     return (
       <ProfileEditScreen
@@ -174,45 +160,41 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-[60] bg-slate-50 flex flex-col animate-fade-in w-full h-full">
-      {/* Header / Nav */}
-      <div className="w-full bg-white border-b border-slate-200 sticky top-0 z-10 shrink-0 pt-safe">
-        <div className="max-w-md mx-auto px-6 h-[90px] flex flex-col justify-center">
-          <div className="flex justify-between items-center w-full">
-            <div>
-              <h2 className="text-2xl font-serif text-slate-900">
-                プロフィール
-              </h2>
-              <p className="text-xs text-slate-500 font-mono tracking-widest uppercase">
-                あなたの記録
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              {onOpenAdmin &&
-                (profile?.role === "admin" ||
-                  (profile?.id && ADMIN_UIDS.includes(profile.id))) && (
+    <div className="flex-1 flex flex-col w-full h-full">
+      {/* Subtle Section Header */}
+      <div className="border-b border-slate-100 bg-white/50">
+          <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
+              <div>
+                  <h2 className="text-sm font-bold tracking-widest uppercase text-slate-400">Profile</h2>
+                  <p className="text-xs text-slate-300 font-mono tracking-[0.2em] uppercase">あなたの記録</p>
+              </div>
+              <div className="flex items-center gap-2">
+                  {onOpenAdmin &&
+                    (profile?.role === "admin" ||
+                      (profile?.id && ADMIN_UIDS.includes(profile.id))) && (
+                      <button
+                        onClick={onOpenAdmin}
+                        className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
+                      >
+                        <Settings size={18} strokeWidth={1.5} />
+                      </button>
+                    )}
                   <button
-                    onClick={onOpenAdmin}
+                    onClick={() => setIsEditingProfile(true)}
                     className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
                   >
-                    <Settings size={20} />
+                    <Edit2 size={18} strokeWidth={1.5} />
                   </button>
-                )}
-              <button
-                onClick={() => setIsEditingProfile(true)}
-                className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
-              >
-                <Edit2 size={20} />
-              </button>
-              <button
-                onClick={onClose}
-                className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
-              >
-                <X size={20} />
-              </button>
-            </div>
+                  {onTabChange && (
+                    <div className="shrink-0 ml-1">
+                        <HeaderNavigation 
+                            currentTab={initialEditMode ? "profile_edit" : "profile"} 
+                            onTabChange={(tab: AppViewMode) => onTabChange(tab)} 
+                        />
+                    </div>
+                  )}
+              </div>
           </div>
-        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto no-scrollbar w-full">
@@ -251,7 +233,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </div>
 
             <div className="flex flex-col items-center gap-2">
-              {/* Profile Completion Hint */}
               {(!profile?.bio || !profile?.avatarUrl) && (
                 <button
                   onClick={() => setIsEditingProfile(true)}
@@ -261,7 +242,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 </button>
               )}
 
-              {/* Rank Badge */}
               <div
                 className={`text-xs font-bold px-3 py-1 rounded-full ${rank.bg} ${rank.color} flex items-center gap-1.5 shadow-sm`}
               >
@@ -269,7 +249,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 <span>{rank.label}</span>
               </div>
 
-              {/* Impurity Warning (The Crack) */}
               {profile?.has_cancellation_history &&
                 (profile.consecutive_completions || 0) < 2 &&
                 user?.uid === profile.id && (
@@ -286,7 +265,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   </div>
                 )}
 
-              {/* Meta Info */}
               <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-400 font-mono mt-1 px-4">
                 <div className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50">
                   <span>ID: {profile?.id?.slice(0, 6)}...</span>
@@ -309,7 +287,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 )}
               </div>
 
-              {/* Bio */}
               {profile?.bio && (
                 <div className="mt-3 max-w-xs text-center">
                   <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
@@ -318,7 +295,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 </div>
               )}
 
-              {/* Links */}
               {profile?.links &&
                 Object.values(profile.links).some((v) => v) && (
                   <div className="flex items-center gap-4 mt-3">
@@ -359,7 +335,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                         rel="noopener noreferrer"
                         className="p-2 bg-slate-100 text-slate-600 rounded-full hover:bg-slate-200 transition-colors"
                       >
-                        <LinkIcon size={16} />
+                        <ChevronRight size={16} className="rotate-270" />
                       </a>
                     )}
                   </div>
@@ -367,9 +343,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </div>
           </div>
 
-          {/* 2. Settings & Stats Groups */}
           <div className="space-y-6">
-            {/* Section: Activity History (Flow) - NEW */}
             <div>
               <div className="text-xs font-bold text-slate-400 ml-2 mb-2">
                 アクティビティ・実績
@@ -394,7 +368,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               </div>
             </div>
 
-            {/* Section: Account Settings */}
             <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm">
               {isAnonymous ? (
                 <ListItem
@@ -440,7 +413,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         </div>
       </div>
 
-      {/* Modals & Dialogs Overlay */}
       <AnimatePresence>
         {(confirmMode || showLinkModal || showPassModal) && (
           <motion.div
@@ -449,7 +421,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6"
           >
-            {/* Logout Confirm */}
             {confirmMode === "logout" && (
               <div className="bg-white p-6 rounded-2xl w-full max-w-xs text-center shadow-xl">
                 <h3 className="font-bold text-slate-800 mb-2">
@@ -477,7 +448,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               </div>
             )}
 
-            {/* Delete Confirm */}
             {confirmMode === "delete" && (
               <div className="bg-white p-6 rounded-2xl w-full max-w-xs text-center shadow-xl">
                 {deleteStep === 1 ? (
@@ -527,7 +497,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               </div>
             )}
 
-            {/* Link Account Logic (Reuse old logic but simpler UI) */}
             {showLinkModal && (
               <div className="bg-white p-6 rounded-2xl w-full max-w-xs shadow-xl">
                 <h3 className="font-bold text-slate-800 mb-4 text-center">
@@ -577,7 +546,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               </div>
             )}
 
-            {/* Password Change Logic */}
             {showPassModal && (
               <div className="bg-white p-6 rounded-2xl w-full max-w-xs shadow-xl">
                 <h3 className="font-bold text-slate-800 mb-4 text-center">

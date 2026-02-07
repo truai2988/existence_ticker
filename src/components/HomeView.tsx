@@ -12,7 +12,7 @@ export const HomeView: React.FC<{
   const isEmpty = status === "EMPTY";
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center w-full min-h-full px-6 py-4 relative max-w-md mx-auto overflow-hidden">
+    <div className="flex-1 flex flex-col items-center justify-center w-full min-h-full px-6 py-8 relative max-w-md mx-auto overflow-hidden">
       <div className="flex-1 flex items-center justify-center w-full relative">
         <div className="absolute inset-0 bg-slate-100/50 rounded-full blur-3xl opacity-40 z-0 pointer-events-none transform scale-110" />
 
@@ -105,7 +105,7 @@ export const HomeView: React.FC<{
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
                   >
                     <Inbox size={32} strokeWidth={2.5} className="mb-0.5" />
-                    <span className="text-[10px] font-extrabold tracking-[0.2em] opacity-90 leading-none">
+                    <span className="text-xs font-extrabold tracking-[0.2em] opacity-90 leading-none">
                       HELP
                     </span>
                     <span className="text-xl font-extrabold">応える</span>
@@ -127,7 +127,7 @@ export const HomeView: React.FC<{
                     transition={{ type: "spring", stiffness: 400, damping: 17 }}
                   >
                     <span className="text-xl font-extrabold">願う</span>
-                    <span className="text-[10px] font-extrabold tracking-[0.2em] opacity-90 mt-0.5 leading-none">
+                    <span className="text-xs font-extrabold tracking-[0.2em] opacity-90 mt-0.5 leading-none">
                       WISH
                     </span>
                     <Megaphone size={28} strokeWidth={2.5} className="mt-0.5" />

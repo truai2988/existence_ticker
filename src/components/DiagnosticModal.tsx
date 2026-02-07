@@ -103,7 +103,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
         {/* Header: Minimalist Serif */}
         <div className="border-b border-slate-100 p-8 pb-6 flex justify-between items-start">
           <div>
-            <div className="flex items-center gap-2 text-slate-400 mb-2 uppercase tracking-[0.2em] text-[11px] font-sans">
+            <div className="flex items-center gap-2 text-slate-400 mb-2 uppercase tracking-[0.2em] text-xs font-sans">
               <Activity size={14} />
               <span>管理者の診断 (Sage's Check)</span>
             </div>
@@ -133,19 +133,19 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
             {/* Key Metrics Grid */}
             <div className="grid grid-cols-3 gap-4 border-t border-b border-slate-100 py-6">
                 <div className="text-center">
-                    <div className="text-[11px] text-slate-400 uppercase tracking-widest mb-1">循環率 (Flow)</div>
+                    <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">循環率 (Flow)</div>
                     <div className={`font-mono text-xl ${metabolism.rate >= 10 ? 'text-green-600' : 'text-slate-700'}`}>
                         {metabolism.rate}%
                     </div>
                 </div>
                 <div className="text-center border-l border-slate-100">
-                    <div className="text-[11px] text-slate-400 uppercase tracking-widest mb-1">平均残高 (Avg)</div>
+                    <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">平均残高 (Avg)</div>
                     <div className="font-mono text-xl text-slate-700">
                         {avgBalance.toLocaleString()}
                     </div>
                 </div>
                 <div className="text-center border-l border-slate-100">
-                     <div className="text-[11px] text-slate-400 uppercase tracking-widest mb-1">崩壊係数 (Entropy)</div>
+                     <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">崩壊係数 (Entropy)</div>
                      <div className="font-mono text-xl text-red-400">
                         -{metabolism.decay24h.toLocaleString()}
                      </div>
@@ -166,7 +166,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
                         <p className="text-sm text-slate-500 leading-relaxed mb-3">
                             {content.actionDesc}
                         </p>
-                        <div className="inline-block px-2 py-1 bg-white border border-slate-200 text-[11px] font-mono text-slate-400 rounded">
+                        <div className="inline-block px-2 py-1 bg-white border border-slate-200 text-xs font-mono text-slate-400 rounded">
                             {content.targetValue}
                         </div>
                     </div>
@@ -187,7 +187,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
             </div>
 
             {/* Footer */}
-            <div className="flex justify-between items-center text-[11px] text-slate-400 uppercase tracking-widest">
+            <div className="flex justify-between items-center text-xs text-slate-400 uppercase tracking-widest">
                 <span>存在通貨 (Existence Ticker)</span>
                 <span>白い器の規約 (White Vessel Protocol)</span>
             </div>
