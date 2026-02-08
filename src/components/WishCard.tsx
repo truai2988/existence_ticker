@@ -18,7 +18,10 @@ import {
   Mail,
 } from "lucide-react";
 import { Wish } from "../types";
-import { calculateDecayedValue, calculateHistoricalValue } from "../logic/worldPhysics";
+import {
+  calculateDecayedValue,
+  calculateHistoricalValue,
+} from "../logic/worldPhysics";
 import { useWishActions } from "../hooks/useWishActions";
 import { useUserView } from "../contexts/UserViewContext";
 import { getTrustRank } from "../logic/worldPhysics";
@@ -39,24 +42,33 @@ const ApplicantItem: React.FC<{
 
   // Use fresh data if available, otherwise snapshot
   // MASKING LOGIC
-  const displayName = isMasked ? "匿名" : (profile?.name || applicant.name);
+  const displayName = isMasked ? "匿名" : profile?.name || applicant.name;
   const avatarUrl = isMasked ? null : profile?.avatarUrl;
   const trustScore = applicant.trust_score || 0;
   const rank = getTrustRank(profile, trustScore);
-  
-  const genderLabel = profile?.gender && profile.gender !== 'other' 
-    ? (profile.gender === 'male' ? '男性' : '女性') 
-    : '';
-  
-  const metadata = isMasked 
-    ? (profile?.location ? `(${profile.location.prefecture} ${profile.location.city}) ${genderLabel}` : genderLabel)
-    : (profile?.age_group ? `${profile.age_group}${genderLabel ? ` / ${genderLabel}` : ''}` : genderLabel);
+
+  const genderLabel =
+    profile?.gender && profile.gender !== "other"
+      ? profile.gender === "male"
+        ? "男性"
+        : "女性"
+      : "";
+
+  const metadata = isMasked
+    ? profile?.location
+      ? `(${profile.location.prefecture} ${profile.location.city}) ${genderLabel}`
+      : genderLabel
+    : profile?.age_group
+      ? `${profile.age_group}${genderLabel ? ` / ${genderLabel}` : ""}`
+      : genderLabel;
 
   return (
     <div className="flex flex-col gap-3 p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-all group">
       <div className="flex items-center gap-3">
         {/* Avatar with fallback */}
-        <div className={`w-10 h-10 rounded-full flex items-center justify-center border shrink-0 overflow-hidden ${isMasked ? "bg-slate-200 border-slate-300" : "bg-slate-100 border-slate-200"}`}>
+        <div
+          className={`w-10 h-10 rounded-full flex items-center justify-center border shrink-0 overflow-hidden ${isMasked ? "bg-slate-200 border-slate-300" : "bg-slate-100 border-slate-200"}`}
+        >
           {avatarUrl ? (
             <img
               src={avatarUrl}
@@ -66,11 +78,11 @@ const ApplicantItem: React.FC<{
           ) : (
             <span className="text-lg font-bold text-slate-400">
               {isMasked ? (
-                 <User className="w-5 h-5 text-slate-400" />
+                <User className="w-5 h-5 text-slate-400" />
               ) : (
-                 displayName?.charAt(0).toUpperCase() || (
-                   <User className="w-5 h-5 text-slate-300" />
-                 )
+                displayName?.charAt(0).toUpperCase() || (
+                  <User className="w-5 h-5 text-slate-300" />
+                )
               )}
             </span>
           )}
@@ -84,9 +96,9 @@ const ApplicantItem: React.FC<{
           >
             {displayName}
             {metadata && (
-                <span className="ml-1.5 text-xs font-normal text-slate-400 opacity-80 whitespace-nowrap">
-                    {metadata}
-                </span>
+              <span className="ml-1.5 text-xs font-normal text-slate-400 opacity-80 whitespace-nowrap">
+                {metadata}
+              </span>
             )}
           </button>
           <div className="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
@@ -127,15 +139,24 @@ const ApplicantItem: React.FC<{
 interface WishCardProps {
   wish: Wish;
   currentUserId: string;
-  viewType?: 'radiance' | 'flow'; // 'radiance' for my view, 'flow' for public board
+  viewType?: "radiance" | "flow"; // 'radiance' for my view, 'flow' for public board
   onOpenProfile?: () => void;
-  onActionComplete?: (action: 'applied' | 'withdrawn' | 'approved' | 'cancelled' | 'resigned' | 'completed' | 'cleanup') => void;
+  onActionComplete?: (
+    action:
+      | "applied"
+      | "withdrawn"
+      | "approved"
+      | "cancelled"
+      | "resigned"
+      | "completed"
+      | "cleanup",
+  ) => void;
 }
 
 export const WishCard: React.FC<WishCardProps> = ({
   wish,
   currentUserId,
-  viewType = 'radiance',
+  viewType = "radiance",
   onOpenProfile,
   onActionComplete,
 }) => {
@@ -165,9 +186,12 @@ export const WishCard: React.FC<WishCardProps> = ({
   const [confirmAction, setConfirmAction] = useState<
     "delete" | "compensate" | "resign" | null
   >(null);
-  
+
   // Approval Modal State
-  const [approvalTarget, setApprovalTarget] = useState<{id: string, name: string} | null>(null);
+  const [approvalTarget, setApprovalTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [contactNote, setContactNote] = useState("");
   const [isCopied, setIsCopied] = useState(false);
 
@@ -190,10 +214,10 @@ export const WishCard: React.FC<WishCardProps> = ({
   // 1-Hour Silence: Live Ticker for Decay (re-calculate periodically)
   const [tick, setTick] = useState(0);
   React.useEffect(() => {
-     // Update every 1 hour to show "Stillness"
-     // 10 Lm/h = exactly 10 Lm drop after 1 hour.
-     const timer = setInterval(() => setTick(t => t + 1), 3600000);
-     return () => clearInterval(timer);
+    // Update every 1 hour to show "Stillness"
+    // 10 Lm/h = exactly 10 Lm drop after 1 hour.
+    const timer = setInterval(() => setTick((t) => t + 1), 3600000);
+    return () => clearInterval(timer);
   }, []);
 
   // Recalculate whenever tick changes (every 10 seconds)
@@ -215,10 +239,10 @@ export const WishCard: React.FC<WishCardProps> = ({
 
   // MASKING LOGIC FOR REQUESTER
   // Hidden if anonymous AND (open OR (cancelled/expired without match))
-  const isMasked = !!wish.isAnonymous && (
-      wish.status === 'open' || 
-      (!wish.helper_id && ['cancelled', 'expired'].includes(wish.status))
-  );
+  const isMasked =
+    !!wish.isAnonymous &&
+    (wish.status === "open" ||
+      (!wish.helper_id && ["cancelled", "expired"].includes(wish.status)));
 
   // Handlers
   const handleApply = async () => {
@@ -233,14 +257,21 @@ export const WishCard: React.FC<WishCardProps> = ({
       }
     }
 
-    if (!confirm(wish.isAnonymous ? "これは「匿名の願い」です。決定されるまで、あなたも匿名として扱われます。\n\n立候補しますか？" : "この依頼に立候補しますか？")) return;
+    if (
+      !confirm(
+        wish.isAnonymous
+          ? "これは「匿名の願い」です。決定されるまで、あなたも匿名として扱われます。\n\n立候補しますか？"
+          : "この依頼に立候補しますか？",
+      )
+    )
+      return;
     setIsLoading(true);
     const success = await applyForWish(wish.id);
     setIsLoading(false);
     if (success) {
       showToast("応える意思を伝えました", "success");
 
-      if (onActionComplete) onActionComplete('applied');
+      if (onActionComplete) onActionComplete("applied");
     }
   };
 
@@ -249,19 +280,19 @@ export const WishCard: React.FC<WishCardProps> = ({
     setContactNote(""); // Reset
     setShowApplicants(false);
   };
-  
-  const executeApprove = async () => {
-      if (!approvalTarget) return;
-      setIsLoading(true);
-      const success = await approveWish(wish.id, approvalTarget.id, contactNote);
-      setIsLoading(false);
-      if (success) {
-        showToast("願いを託しました", "success");
-        setShowApplicants(false);
-        setApprovalTarget(null);
 
-        if (onActionComplete) onActionComplete('approved');
-      }
+  const executeApprove = async () => {
+    if (!approvalTarget) return;
+    setIsLoading(true);
+    const success = await approveWish(wish.id, approvalTarget.id, contactNote);
+    setIsLoading(false);
+    if (success) {
+      showToast("願いを託しました", "success");
+      setShowApplicants(false);
+      setApprovalTarget(null);
+
+      if (onActionComplete) onActionComplete("approved");
+    }
   };
 
   const handleUpdate = async () => {
@@ -271,7 +302,6 @@ export const WishCard: React.FC<WishCardProps> = ({
     if (success) {
       setIsEditing(false);
       showToast("更新しました", "success");
-
     }
     setIsLoading(false);
   };
@@ -299,11 +329,11 @@ export const WishCard: React.FC<WishCardProps> = ({
 
     setIsLoading(true);
     let success = false;
-    let actionType: 'cancelled' | 'resigned' = 'cancelled';
+    let actionType: "cancelled" | "resigned" = "cancelled";
 
     if (confirmAction === "resign") {
       success = await resignWish(wish.id);
-      actionType = 'resigned';
+      actionType = "resigned";
     } else {
       success = await cancelWish(wish.id);
     }
@@ -316,8 +346,8 @@ export const WishCard: React.FC<WishCardProps> = ({
         confirmAction === "resign"
           ? "辞退しました"
           : confirmAction === "compensate"
-          ? "お詫びを渡して取り下げました"
-          : "取り下げました",
+            ? "お詫びを渡して取り下げました"
+            : "取り下げました",
         "success",
       );
 
@@ -333,7 +363,7 @@ export const WishCard: React.FC<WishCardProps> = ({
     if (success) {
       showToast("記録を整理しました", "success");
 
-      if (onActionComplete) onActionComplete('cleanup');
+      if (onActionComplete) onActionComplete("cleanup");
     }
   };
 
@@ -346,8 +376,8 @@ export const WishCard: React.FC<WishCardProps> = ({
       typeof val === "string"
         ? new Date(val)
         : "toDate" in val && typeof val.toDate === "function"
-        ? val.toDate()
-        : null;
+          ? val.toDate()
+          : null;
     if (!date) return "不明";
     return date.toLocaleString("ja-JP", {
       year: "numeric",
@@ -357,26 +387,21 @@ export const WishCard: React.FC<WishCardProps> = ({
   };
 
   const trust = getTrustRank(requesterProfile, wish.requester_trust_score);
-  
-  const reqGenderLabel = requesterProfile?.gender && requesterProfile.gender !== 'other' 
-    ? (requesterProfile.gender === 'male' ? '男性' : '女性') 
-    : '';
-    
-  const reqMetadata = isMasked 
-    ? (requesterProfile?.location ? `(${requesterProfile.location.prefecture} ${requesterProfile.location.city}) ${reqGenderLabel}` : reqGenderLabel)
-    : (requesterProfile?.age_group ? `${requesterProfile.age_group}${reqGenderLabel ? ` / ${reqGenderLabel}` : ''}` : reqGenderLabel);
 
-  const displayRequesterName = (isMasked && !isMyWish)
-    ? `匿名`
-    : (requesterProfile?.name ||
-      wish.requester_name ||
-      wish.requester_id.slice(0, 8));
+  const displayRequesterName =
+    isMasked && !isMyWish
+      ? `匿名`
+      : requesterProfile?.name ||
+        wish.requester_name ||
+        wish.requester_id.slice(0, 8);
 
   // Contact Logic
-  const contactEmail = ((isMyWish && wish.helper_contact_email) || (!isMyWish && wish.requester_contact_email));
-  const opponentName = isMyWish 
-      ? (helperProfile?.name || wish.helper_name || "隣人") 
-      : (requesterProfile?.name || wish.requester_name || "依頼者");
+  const contactEmail =
+    (isMyWish && wish.helper_contact_email) ||
+    (!isMyWish && wish.requester_contact_email);
+  const opponentName = isMyWish
+    ? helperProfile?.name || wish.helper_name || "隣人"
+    : requesterProfile?.name || wish.requester_name || "依頼者";
 
   const handleCopyEmail = () => {
     if (contactEmail) {
@@ -389,14 +414,15 @@ export const WishCard: React.FC<WishCardProps> = ({
 
   const mailSubject = `[Existence Ticker] ${wish.content.length > 20 ? wish.content.slice(0, 20) + "..." : wish.content} について`;
   const mailBody = `${opponentName} 様\n\n`;
-  const mailtoLink = contactEmail ? `mailto:${contactEmail}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}` : "#";
+  const mailtoLink = contactEmail
+    ? `mailto:${contactEmail}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`
+    : "#";
 
   return (
-    <div className="relative bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow group overflow-hidden"
-    >
+    <div className="relative bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow group overflow-hidden">
       {/* Role Badge - Perspective Indicator */}
       <div className="flex items-center gap-2 mb-3">
-        {viewType === 'radiance' ? (
+        {viewType === "radiance" ? (
           isMyWish ? (
             <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100/50 uppercase tracking-tighter">
               [ 自分が願ったこと ]
@@ -436,13 +462,15 @@ export const WishCard: React.FC<WishCardProps> = ({
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-xs uppercase font-bold text-slate-400 tracking-wider mb-0.5">
-                    {helperProfile?.name || wish.helper_name || "隣人"} さんが応えてくれています
+                    {helperProfile?.name || wish.helper_name || "隣人"}{" "}
+                    さんが応えてくれています
                   </div>
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (wish.helper_id) openUserProfile(wish.helper_id, isMasked); // Matched, so if masked, it's mutual? Wait.
+                        if (wish.helper_id)
+                          openUserProfile(wish.helper_id, isMasked); // Matched, so if masked, it's mutual? Wait.
                         // If it's MY WISH and Matched, the HELPER is revealed to ME. So isMasked is false for me?
                         // Logic in line 352: `const isMasked = wish.isAnonymous && isMyWish && wish.status === 'open' ...`
                         // Actually, if status is 'open', there is no helper.
@@ -480,7 +508,9 @@ export const WishCard: React.FC<WishCardProps> = ({
           ) : (
             // Others View (Show Requester - Existing Logic)
             <>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center border shrink-0 overflow-hidden ${isMasked ? "bg-slate-200 border-slate-300" : "bg-slate-100 border-slate-200"}`}>
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center border shrink-0 overflow-hidden ${isMasked ? "bg-slate-200 border-slate-300" : "bg-slate-100 border-slate-200"}`}
+              >
                 {!isMasked && requesterProfile?.avatarUrl ? (
                   <img
                     src={requesterProfile.avatarUrl}
@@ -490,11 +520,11 @@ export const WishCard: React.FC<WishCardProps> = ({
                 ) : (
                   <span className="text-lg font-bold text-slate-400">
                     {isMasked ? (
-                        <User className="w-5 h-5 text-slate-400" />
-                    ) : ( 
-                        requesterProfile?.name?.charAt(0).toUpperCase() || (
-                          <User className="w-5 h-5 text-slate-300" />
-                        )
+                      <User className="w-5 h-5 text-slate-400" />
+                    ) : (
+                      requesterProfile?.name?.charAt(0).toUpperCase() || (
+                        <User className="w-5 h-5 text-slate-300" />
+                      )
                     )}
                   </span>
                 )}
@@ -508,12 +538,11 @@ export const WishCard: React.FC<WishCardProps> = ({
                     }}
                     className="block text-sm font-bold tracking-wide text-left truncate max-w-full text-slate-800 hover:underline"
                   >
-                    {isMyWish ? "あなたの想い" : (viewType === 'flow' ? `${displayRequesterName} さんの願いに応える` : `${displayRequesterName} さんの願ったこと`)}
-                    {!isMasked && !isMyWish && reqMetadata && (
-                        <span className="ml-2 text-xs font-normal text-slate-400">
-                            {reqMetadata}
-                        </span>
-                    )}
+                    {isMyWish
+                      ? "あなたの想い"
+                      : viewType === "flow"
+                        ? `${displayRequesterName} さんの願いに応える`
+                        : `${displayRequesterName} さんの願ったこと`}
                   </button>
                   {/* Verified Badge */}
                   {trust.isVerified && (
@@ -643,236 +672,279 @@ export const WishCard: React.FC<WishCardProps> = ({
 
       {/* Value / Outcome Area */}
       <div className="relative mb-3 border-t border-slate-100 pt-2">
-        {['fulfilled', 'cancelled', 'expired'].includes(wish.status) || (wish.status === 'open' && isExpired) ? (
-            <div className={`p-4 rounded-xl border flex justify-between items-center ${
-                wish.status === 'fulfilled' ? 'bg-green-50/50 border-green-100/50' : 
-                wish.status === 'cancelled' ? 'bg-red-50/30 border-red-100/50' : // Subtle Red for Cancelled
-                'bg-slate-50/50 border-slate-100/50' // Gray for Expired
-            }`}>
-                <div className="flex items-center gap-2">
-                    {wish.status === "fulfilled" ? (
-                        <CheckCircle size={16} className="text-green-500" />
-                    ) : wish.status === "cancelled" ? (
-                        <X size={16} className="text-red-400" />
-                    ) : (
-                        <Archive size={16} className="text-slate-400" />
-                    )}
-                    <span className={`text-xs font-bold ${
-                        wish.status === 'fulfilled' ? 'text-green-700' :
-                        wish.status === 'cancelled' ? 'text-red-600' :
-                        'text-slate-500'
-                    }`}>
-                        {wish.status === "fulfilled" ? "届けられた感謝 (最終値)" : 
-                         wish.status === "cancelled" ? (
-                             // Logic to determine Label
-                             (() => {
-                                 const isRequester = wish.requester_id === currentUserId;
-                                 const isHelperCancellation = wish.cancel_reason === 'helper_cancellation';
-                                 const isCompensatory = wish.cancel_reason === 'compensatory_cancellation';
-                                 const compensationAmount = wish.val_at_fulfillment !== undefined 
-                                     ? Math.floor(wish.val_at_fulfillment).toLocaleString()
-                                     : Math.floor(calculateHistoricalValue(
-                                         wish.cost || 0, 
-                                         wish.created_at, 
-                                         wish.cancelled_at
-                                       )).toLocaleString();
+        {["fulfilled", "cancelled", "expired"].includes(wish.status) ||
+        (wish.status === "open" && isExpired) ? (
+          <div
+            className={`p-4 rounded-xl border flex justify-between items-center ${
+              wish.status === "fulfilled"
+                ? "bg-green-50/50 border-green-100/50"
+                : wish.status === "cancelled"
+                  ? "bg-red-50/30 border-red-100/50" // Subtle Red for Cancelled
+                  : "bg-slate-50/50 border-slate-100/50" // Gray for Expired
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              {wish.status === "fulfilled" ? (
+                <CheckCircle size={16} className="text-green-500" />
+              ) : wish.status === "cancelled" ? (
+                <X size={16} className="text-red-400" />
+              ) : (
+                <Archive size={16} className="text-slate-400" />
+              )}
+              <span
+                className={`text-xs font-bold ${
+                  wish.status === "fulfilled"
+                    ? "text-green-700"
+                    : wish.status === "cancelled"
+                      ? "text-red-600"
+                      : "text-slate-500"
+                }`}
+              >
+                {wish.status === "fulfilled"
+                  ? "届けられた感謝 (最終値)"
+                  : wish.status === "cancelled"
+                    ? // Logic to determine Label
+                      (() => {
+                        const isRequester = wish.requester_id === currentUserId;
+                        const isHelperCancellation =
+                          wish.cancel_reason === "helper_cancellation";
+                        const isCompensatory =
+                          wish.cancel_reason === "compensatory_cancellation";
+                        const compensationAmount =
+                          wish.val_at_fulfillment !== undefined
+                            ? Math.floor(
+                                wish.val_at_fulfillment,
+                              ).toLocaleString()
+                            : Math.floor(
+                                calculateHistoricalValue(
+                                  wish.cost || 0,
+                                  wish.created_at,
+                                  wish.cancelled_at,
+                                ),
+                              ).toLocaleString();
 
-                                 // Case 1: Helper Cancelled (Resignation)
-                                 if (isHelperCancellation) {
-                                     return isRequester 
-                                         ? `相手が中断したため、${compensationAmount} Lm をお詫びとして受け取りました` 
-                                         : `私が中断したため、${compensationAmount} Lm をお詫びとしてお渡ししました`;
-                                 }
-                                 // Case 2: Requester Cancelled (Withdrawal with Compensation)
-                                 else if (isCompensatory) {
-                                     return isRequester 
-                                         ? `私が取り下げたため、${compensationAmount} Lm をお詫びとしてお渡ししました` 
-                                         : `相手が取り下げたため、${compensationAmount} Lm をお詫びとして受け取りました`;
-                                 }
-                                 // Case 3: Simple Void (Open Cancel)
-                                 else {
-                                     return isRequester ? "取り下げ済み" : "中断済み";
-                                 }
-                             })()
-                         ) : 
-                         "期限により自然消滅"}
-                    </span>
-                </div>
-                <div className="text-lg font-bold font-mono text-slate-900 tracking-tight">
-                    {wish.status === "fulfilled" ? (
-                        <>{Math.floor(wish.val_at_fulfillment || 0).toLocaleString()} <span className="text-xs text-slate-400 ml-0.5">Lm</span></>
-                    ) : wish.status === "cancelled" ? (
-                        wish.cancel_reason === 'compensatory_cancellation' || wish.cancel_reason === 'helper_cancellation' || wish.val_at_fulfillment ? (
-                             // Apology Transaction Case using generic wording
-                             <div className="flex flex-col items-end">
-                                <span className="text-base text-red-500">
-                                    {wish.val_at_fulfillment !== undefined 
-                                        ? Math.floor(wish.val_at_fulfillment).toLocaleString()
-                                        : Math.floor(calculateHistoricalValue(
-                                            wish.cost || 0, 
-                                            wish.created_at, 
-                                            wish.cancelled_at
-                                          )).toLocaleString()
-                                    } 
-                                    <span className="text-xs ml-0.5 whitespace-nowrap">Lm</span>
-                                </span>
-                                <span className="text-xs text-red-300 font-bold uppercase tracking-wider">
-                                    {(() => {
-                                        const isRequester = wish.requester_id === currentUserId;
-                                        const isHelperCancellation = wish.cancel_reason === 'helper_cancellation';
-                                        return isHelperCancellation 
-                                            ? (isRequester ? '受取済' : '送付済') 
-                                            : (isRequester ? '送付済' : '受取済');
-                                    })()}
-                                </span>
-                             </div>
-                        ) : (
-                             // Void Case
-                             null
-                        )
-                    ) : (
-                        // Expired Case
-                        null
-                    )}
-                </div>
+                        // Case 1: Helper Cancelled (Resignation)
+                        if (isHelperCancellation) {
+                          return isRequester
+                            ? `相手が中断したため、${compensationAmount} Lm をお詫びとして受け取りました`
+                            : `私が中断したため、${compensationAmount} Lm をお詫びとしてお渡ししました`;
+                        }
+                        // Case 2: Requester Cancelled (Withdrawal with Compensation)
+                        else if (isCompensatory) {
+                          return isRequester
+                            ? `私が取り下げたため、${compensationAmount} Lm をお詫びとしてお渡ししました`
+                            : `相手が取り下げたため、${compensationAmount} Lm をお詫びとして受け取りました`;
+                        }
+                        // Case 3: Simple Void (Open Cancel)
+                        else {
+                          return isRequester ? "取り下げ済み" : "中断済み";
+                        }
+                      })()
+                    : "期限により自然消滅"}
+              </span>
             </div>
+            <div className="text-lg font-bold font-mono text-slate-900 tracking-tight">
+              {wish.status === "fulfilled" ? (
+                <>
+                  {Math.floor(wish.val_at_fulfillment || 0).toLocaleString()}{" "}
+                  <span className="text-xs text-slate-400 ml-0.5">Lm</span>
+                </>
+              ) : wish.status === "cancelled" ? (
+                wish.cancel_reason === "compensatory_cancellation" ||
+                wish.cancel_reason === "helper_cancellation" ||
+                wish.val_at_fulfillment ? (
+                  // Apology Transaction Case using generic wording
+                  <div className="flex flex-col items-end">
+                    <span className="text-base text-red-500">
+                      {wish.val_at_fulfillment !== undefined
+                        ? Math.floor(wish.val_at_fulfillment).toLocaleString()
+                        : Math.floor(
+                            calculateHistoricalValue(
+                              wish.cost || 0,
+                              wish.created_at,
+                              wish.cancelled_at,
+                            ),
+                          ).toLocaleString()}
+                      <span className="text-xs ml-0.5 whitespace-nowrap">
+                        Lm
+                      </span>
+                    </span>
+                    <span className="text-xs text-red-300 font-bold uppercase tracking-wider">
+                      {(() => {
+                        const isRequester = wish.requester_id === currentUserId;
+                        const isHelperCancellation =
+                          wish.cancel_reason === "helper_cancellation";
+                        return isHelperCancellation
+                          ? isRequester
+                            ? "受取済"
+                            : "送付済"
+                          : isRequester
+                            ? "送付済"
+                            : "受取済";
+                      })()}
+                    </span>
+                  </div>
+                ) : // Void Case
+                null
+              ) : // Expired Case
+              null}
+            </div>
+          </div>
         ) : (
-            <div className="flex justify-between items-center bg-slate-50/50 p-3 rounded-xl border border-slate-100/50">
-              <div>
-                <div className="flex items-center gap-2 mb-1.5 opacity-80">
-                    <Hourglass size={14} className={isMyWish ? "text-amber-500" : "text-orange-400"} />
-                    <span className={`text-xs font-bold ${isMyWish ? "text-amber-600" : "text-slate-500"}`}>
-                        {isMyWish ? "循環を待つ感謝" : "今わかちあえる感謝"}
-                    </span>
+          <div className="flex justify-between items-center bg-slate-50/50 p-3 rounded-xl border border-slate-100/50">
+            <div>
+              <div className="flex items-center gap-2 mb-1.5 opacity-80">
+                <Hourglass
+                  size={14}
+                  className={isMyWish ? "text-amber-500" : "text-orange-400"}
+                />
+                <span
+                  className={`text-xs font-bold ${isMyWish ? "text-amber-600" : "text-slate-500"}`}
+                >
+                  {isMyWish ? "循環を待つ感謝" : "今わかちあえる感謝"}
+                </span>
+              </div>
+              {displayValue > 0 && (
+                <div className="text-xs text-red-400 font-semibold tracking-wide">
+                  ※時間が経つと減ってしまいます
                 </div>
-                {displayValue > 0 && (
-                    <div className="text-xs text-red-400 font-semibold tracking-wide">
-                      ※時間が経つと減ってしまいます
-                    </div>
-                )}
-              </div>
-              <div className="text-xl font-mono text-slate-800 font-bold tracking-tight">
-                {Math.floor(displayValue).toLocaleString()} <span className="text-sm font-normal text-slate-500 ml-0.5">Lm</span>
-              </div>
+              )}
             </div>
+            <div className="text-xl font-mono text-slate-800 font-bold tracking-tight">
+              {Math.floor(displayValue).toLocaleString()}{" "}
+              <span className="text-sm font-normal text-slate-500 ml-0.5">
+                Lm
+              </span>
+            </div>
+          </div>
         )}
       </div>
 
       {/* Contact Panel (For Active Participants) */}
-      {wish.status === 'in_progress' && (isMyWish || wish.helper_id === currentUserId) && (
+      {wish.status === "in_progress" &&
+        (isMyWish || wish.helper_id === currentUserId) && (
           <div className="relative mb-4 p-4 border border-slate-200 rounded-xl bg-slate-50/30">
-              <h5 className="text-xs font-bold text-slate-700 mb-3 flex items-center gap-2">
-                  <Megaphone size={14} className="text-slate-400" />
-                  隣人に連絡する
-              </h5>
-              
-              <div className="space-y-3">
-                  {/* Email Section */}
-                  {/* Email Section with Copy & Mailto */}
-                  <div className="flex flex-col gap-1">
-                      <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
-                          {isMyWish ? "相手の連絡先" : "依頼主の連絡先"}
-                      </span>
-                      {contactEmail ? (
-                          <div className="bg-white border border-slate-200 rounded-lg p-3">
-                              {/* Top Row: Address + Copy */}
-                              <div className="flex items-center justify-between gap-2 mb-2">
-                                  <span className="text-sm font-mono font-bold text-slate-700 break-all select-all">
-                                      {contactEmail}
-                                  </span>
-                                  <button 
-                                      onClick={handleCopyEmail}
-                                      className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors shrink-0"
-                                      title="アドレスをコピー"
-                                  >
-                                      {isCopied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
-                                  </button>
-                              </div>
-                              
-                              {/* Bottom Row: Mailto Action */}
-                              <a
-                                  href={mailtoLink}
-                                  className="flex items-center justify-center gap-2 w-full py-2 text-xs font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-md transition-colors group"
-                              >
-                                  <Mail size={14} className="text-slate-400 group-hover:text-slate-600" />
-                                  メールを作成する
-                              </a>
-                          </div>
-                      ) : (
-                          <span className="text-xs text-slate-400 italic">連絡先は設定されていません</span>
-                      )}
-                  </div>
+            <h5 className="text-xs font-bold text-slate-700 mb-3 flex items-center gap-2">
+              <Megaphone size={14} className="text-slate-400" />
+              隣人に連絡する
+            </h5>
 
-                  {/* Note Section (Only if note exists) */}
-                  {wish.contact_note && (
-                      <div className="flex flex-col gap-1 pt-2 border-t border-slate-100">
-                          <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
-                              {isMyWish ? "承認時のメモ" : "依頼者さんより"}
-                          </span>
-                          <p className="text-xs text-slate-600 bg-white p-2 rounded-lg border border-slate-100 whitespace-pre-wrap">
-                              {wish.contact_note}
-                          </p>
-                      </div>
-                  )}
+            <div className="space-y-3">
+              {/* Email Section */}
+              {/* Email Section with Copy & Mailto */}
+              <div className="flex flex-col gap-1">
+                <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
+                  {isMyWish ? "相手の連絡先" : "依頼主の連絡先"}
+                </span>
+                {contactEmail ? (
+                  <div className="bg-white border border-slate-200 rounded-lg p-3">
+                    {/* Top Row: Address + Copy */}
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-sm font-mono font-bold text-slate-700 break-all select-all">
+                        {contactEmail}
+                      </span>
+                      <button
+                        onClick={handleCopyEmail}
+                        className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors shrink-0"
+                        title="アドレスをコピー"
+                      >
+                        {isCopied ? (
+                          <Check size={16} className="text-green-500" />
+                        ) : (
+                          <Copy size={16} />
+                        )}
+                      </button>
+                    </div>
+
+                    {/* Bottom Row: Mailto Action */}
+                    <a
+                      href={mailtoLink}
+                      className="flex items-center justify-center gap-2 w-full py-2 text-xs font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-md transition-colors group"
+                    >
+                      <Mail
+                        size={14}
+                        className="text-slate-400 group-hover:text-slate-600"
+                      />
+                      メールを作成する
+                    </a>
+                  </div>
+                ) : (
+                  <span className="text-xs text-slate-400 italic">
+                    連絡先は設定されていません
+                  </span>
+                )}
               </div>
+
+              {/* Note Section (Only if note exists) */}
+              {wish.contact_note && (
+                <div className="flex flex-col gap-1 pt-2 border-t border-slate-100">
+                  <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
+                    {isMyWish ? "承認時のメモ" : "依頼者さんより"}
+                  </span>
+                  <p className="text-xs text-slate-600 bg-white p-2 rounded-lg border border-slate-100 whitespace-pre-wrap">
+                    {wish.contact_note}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
-      )}
+        )}
 
       {/* Footer: Action Area */}
       <div className="relative pt-4 border-t border-slate-100 min-h-[50px] flex items-center justify-between gap-4 flex-wrap">
         {/* Status Badge & Timestamp (Left) */}
         <div className="flex flex-col gap-1 items-start">
           <div className="">
-          {wish.status === "in_progress" && (
-            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 whitespace-nowrap shrink-0">
-              進行中
-            </span>
-          )}
-          {wish.status === "cancelled" && (
-            <span className="text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full border border-red-100 whitespace-nowrap shrink-0">
-              キャンセル済み
-            </span>
-          )}
-          {wish.status === "review_pending" && (
-            <span className="text-xs font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full border border-purple-100 animate-pulse whitespace-nowrap shrink-0">
-              確認待ち
-            </span>
-          )}
-          {wish.status === "fulfilled" && (
-            <span className="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100 whitespace-nowrap shrink-0">
-              感謝済み
-            </span>
-          )}
-          {wish.status === "expired" && (
-            <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
-              整理済み（期限切れ）
-            </span>
-          )}
-          {wish.status === "open" &&
-            (isExpired ? (
-              <span className="flex items-center gap-1 text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full border border-red-100 whitespace-nowrap shrink-0">
-                <AlertTriangle size={12} />
-                期限切れ
+            {wish.status === "in_progress" && (
+              <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 whitespace-nowrap shrink-0">
+                進行中
               </span>
-            ) : (
-              <span className="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
-                募集中
+            )}
+            {wish.status === "cancelled" && (
+              <span className="text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full border border-red-100 whitespace-nowrap shrink-0">
+                キャンセル済み
               </span>
-            ))}
+            )}
+            {wish.status === "review_pending" && (
+              <span className="text-xs font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full border border-purple-100 animate-pulse whitespace-nowrap shrink-0">
+                確認待ち
+              </span>
+            )}
+            {wish.status === "fulfilled" && (
+              <span className="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100 whitespace-nowrap shrink-0">
+                感謝済み
+              </span>
+            )}
+            {wish.status === "expired" && (
+              <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
+                整理済み（期限切れ）
+              </span>
+            )}
+            {wish.status === "open" &&
+              (isExpired ? (
+                <span className="flex items-center gap-1 text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full border border-red-100 whitespace-nowrap shrink-0">
+                  <AlertTriangle size={12} />
+                  期限切れ
+                </span>
+              ) : (
+                <span className="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
+                  募集中
+                </span>
+              ))}
           </div>
 
           {/* Timestamp for My Wish (Moved to Footer) */}
           {isMyWish && (
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 ml-1">
-                <span className="flex items-center gap-1 text-xs text-slate-400">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>{formatDate(wish.created_at)}</span>
+              <span className="flex items-center gap-1 text-xs text-slate-400">
+                <Clock className="w-3.5 h-3.5" />
+                <span>{formatDate(wish.created_at)}</span>
+              </span>
+              {wish.isAnonymous && (
+                <span className="text-xs font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-100 uppercase tracking-tight">
+                  匿名
                 </span>
-                {wish.isAnonymous && (
-                    <span className="text-xs font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-100 uppercase tracking-tight">
-                        匿名
-                    </span>
-                )}
+              )}
             </div>
           )}
         </div>
@@ -979,7 +1051,6 @@ export const WishCard: React.FC<WishCardProps> = ({
                             );
                             if (success) {
                               showToast("感謝を届けました", "success");
-
                             }
                             setIsLoading(false);
                           };
@@ -1019,7 +1090,8 @@ export const WishCard: React.FC<WishCardProps> = ({
                             if (success) {
                               showToast("とりやめました", "success");
 
-                              if (onActionComplete) onActionComplete('withdrawn');
+                              if (onActionComplete)
+                                onActionComplete("withdrawn");
                             }
                           }
                         }}
@@ -1072,7 +1144,6 @@ export const WishCard: React.FC<WishCardProps> = ({
 
           {/* 2b. Case: Expired Passive Message (Non-Requester) */}
 
-
           {/* 3. Cleanup Action for 0 Lm (My Wish) */}
           {isMyWish && isExpired && (
             <button
@@ -1094,7 +1165,10 @@ export const WishCard: React.FC<WishCardProps> = ({
       {/* Confirmation Overlay (Fixed) */}
       {confirmAction && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div
               className={`p-3 rounded-full mb-4 ${
                 confirmAction === "compensate"
@@ -1109,8 +1183,8 @@ export const WishCard: React.FC<WishCardProps> = ({
               {confirmAction === "compensate"
                 ? "響きあっている願いを取り下げますか？"
                 : confirmAction === "resign"
-                ? "このお手伝いを辞退しますか？"
-                : "このお願いを取り下げますか？"}
+                  ? "このお手伝いを辞退しますか？"
+                  : "このお願いを取り下げますか？"}
             </h4>
 
             <p className="text-xs text-slate-600 text-center mb-6 leading-relaxed whitespace-pre-wrap">
@@ -1166,44 +1240,51 @@ export const WishCard: React.FC<WishCardProps> = ({
       {/* Approval Modal (Fixed) */}
       {approvalTarget && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-sm animate-in fade-in duration-200">
-           <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
-             <div className="bg-green-100 text-green-600 p-3 rounded-full mb-4">
-               <Handshake size={24} />
-             </div>
-             
-             <h4 className="text-base font-bold text-slate-800 mb-1 text-center">
-               {approvalTarget.name}さんにお願いしますか？
-             </h4>
-             <p className="text-xs text-slate-500 mb-6 text-center">
-               承認時に相手へのメッセージ（連絡事項など）を送れます。
-             </p>
+          <div
+            className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="bg-green-100 text-green-600 p-3 rounded-full mb-4">
+              <Handshake size={24} />
+            </div>
 
-             <textarea
-               value={contactNote}
-               onChange={(e) => setContactNote(e.target.value)}
-               placeholder="例: よろしくお願いします。詳細はメールでご連絡します。"
-               className="w-full p-3 border border-slate-200 rounded-xl mb-4 text-sm focus:ring-2 focus:ring-green-100 focus:border-green-400 outline-none resize-none min-h-[80px]"
-             />
+            <h4 className="text-base font-bold text-slate-800 mb-1 text-center">
+              {approvalTarget.name}さんにお願いしますか？
+            </h4>
+            <p className="text-xs text-slate-500 mb-6 text-center">
+              承認時に相手へのメッセージ（連絡事項など）を送れます。
+            </p>
 
-             <div className="flex flex-col gap-2 w-full">
-               <button
-                 onClick={executeApprove}
-                 disabled={isLoading}
-                 className="w-full py-3 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200 transition-all active:scale-[0.98]"
-               >
-                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "承認して開始する"}
-               </button>
-               <button
-                 onClick={() => {
-                   setApprovalTarget(null);
-                   setContactNote("");
-                 }}
-                 disabled={isLoading}
-                 className="w-full py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 transition-colors"
-               >
-                 キャンセル
-               </button>
-             </div>
+            <textarea
+              value={contactNote}
+              onChange={(e) => setContactNote(e.target.value)}
+              placeholder="例: よろしくお願いします。詳細はメールでご連絡します。"
+              className="w-full p-3 border border-slate-200 rounded-xl mb-4 text-sm focus:ring-2 focus:ring-green-100 focus:border-green-400 outline-none resize-none min-h-[80px]"
+            />
+
+            <div className="flex flex-col gap-2 w-full">
+              <button
+                onClick={executeApprove}
+                disabled={isLoading}
+                className="w-full py-3 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200 transition-all active:scale-[0.98]"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                ) : (
+                  "承認して開始する"
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  setApprovalTarget(null);
+                  setContactNote("");
+                }}
+                disabled={isLoading}
+                className="w-full py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 transition-colors"
+              >
+                キャンセル
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -1,6 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import App from './App.tsx'
+import { LandingPage } from './app/page'
 import './index.css'
 import { UserViewProvider } from './contexts/UserViewContext'
 import { WishesProvider } from './contexts/WishesContext'
@@ -16,9 +18,21 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <AuthProvider>
           <UserViewProvider>
           <WishesProvider>
-            <App />
+            <BrowserRouter>
+              <Routes>
+                {/* 地平：ランディングページ */}
+                <Route path="/" element={<LandingPage />} />
+                
+                {/* 器：既存のアプリケーション機能 */}
+                {/* path="/app/*" とすることで、App内での内部ルーティングも維持します */}
+                <Route path="/app/*" element={<App />} />
+
+                {/* 救済：迷い込んだユーザーをLPへ */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </BrowserRouter>
           </WishesProvider>
-        </UserViewProvider>
+          </UserViewProvider>
         </AuthProvider>
       </ToastProvider>
     </ErrorBoundary>
