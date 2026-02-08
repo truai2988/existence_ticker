@@ -87,5 +87,16 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isSignedIn();
     }
+
+    // --- Invitation Codes (Alpha Access Keys) ---
+    match /invitation_codes/{codeId} {
+      // Allow read for verification during registration
+      allow read: if isSignedIn();
+      // Allow update ONLY to mark as used during registration transaction
+      allow update: if isSignedIn() 
+                    && resource.data.is_used == false 
+                    && request.resource.data.is_used == true
+                    && request.resource.data.used_by == request.auth.uid;
+    }
   }
 }

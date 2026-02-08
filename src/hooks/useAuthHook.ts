@@ -10,7 +10,7 @@ import {
     updateEmail,
     reauthenticateWithCredential
 } from 'firebase/auth';
-import { doc, deleteDoc, serverTimestamp, runTransaction, increment } from 'firebase/firestore';
+import { doc, deleteDoc, serverTimestamp, runTransaction, increment, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { useAuthContext } from '../contexts/AuthContextDefinition';
 
@@ -24,23 +24,49 @@ export const useAuth = () => {
         await signInWithEmailAndPassword(auth, email, pass);
     };
 
-    const signUp = async (email: string, pass: string, name: string, location: { prefecture: string, city: string }, age_group: string, gender: "male" | "female" | "other") => {
+    const signUp = async (email: string, pass: string, name: string, location: { prefecture: string, city: string }, age_group: string, gender: "male" | "female" | "other", invitationCode: string) => {
         if (!auth) throw new Error("Auth not initialized");
+        if (!db) throw new Error("Database not connected");
+
+        // Pre-validation: Check if invitation code is provided
+        if (!invitationCode.trim()) {
+            throw new Error("招待コードを入力してください");
+        }
+
+        // We do the validation INSIDE the transaction to ensure atomicity
+        const invitationRef = doc(db, 'invitation_codes', invitationCode.trim());
+
         const cred = await createUserWithEmailAndPassword(auth, email, pass);
         if (cred.user) {
-            // 1. Update Auth Profile
-            await updateProfile(cred.user, { displayName: name });
-            
-            // 2. Initialize Firestore Profile AND Stats atomically
-            if (db) {
+            try {
+                // 1. Update Auth Profile
+                await updateProfile(cred.user, { displayName: name });
+                
+                // 2. Initialize Firestore Profile AND Stats atomically
                 const userRef = doc(db, 'users', cred.user.uid);
                 
                 await runTransaction(db, async (transaction) => {
-                    // Check existence (rare race)
+                    // Check Invitation Code
+                    const invSnap = await transaction.get(invitationRef);
+                    if (!invSnap.exists()) {
+                        throw new Error("招待コードが正しくありません");
+                    }
+                    if (invSnap.data()?.is_used) {
+                        throw new Error("この招待コードは既に使用されています");
+                    }
+
+                    // Check user existence (rare race)
                     const check = await transaction.get(userRef);
                     if (check.exists()) return;
  
-                    // Create User
+                    // 1. Consume Invitation Code
+                    transaction.update(invitationRef, {
+                        is_used: true,
+                        used_by: cred.user!.uid,
+                        used_at: serverTimestamp()
+                    });
+
+                    // 2. Create User
                     transaction.set(userRef, {
                         id: cred.user!.uid,
                         name: name,
@@ -50,17 +76,24 @@ export const useAuth = () => {
                         balance: 2400,
                         xp: 0,
                         warmth: 0,
+                        used_invitation_code: invitationCode.trim(),
                         last_updated: serverTimestamp(),
-                        cycle_started_at: serverTimestamp() // Set cycle start
+                        cycle_started_at: serverTimestamp()
                     });
 
-                    // Increment Stats (Strict OnCreate Logic)
+                    // 3. Increment Stats
                     if (location && location.prefecture && location.city) {
                         const cityKey = `${location.prefecture}_${location.city}`;
                         const statRef = doc(db!, 'location_stats', cityKey);
                         transaction.set(statRef, { count: increment(1) }, { merge: true });
                     }
                 });
+            } catch (error) {
+                // If anything fails during Firestore setup, we technically have a "ghost" auth user.
+                // In a production app, we might want to delete the auth user here,
+                // but for now we'll throw and let the UI handle it.
+                console.error("Sign up transaction failed:", error);
+                throw error;
             }
         }
     };
@@ -112,18 +145,51 @@ export const useAuth = () => {
         if (!auth || !auth.currentUser || !user) throw new Error("Not authenticated");
         if (!db) throw new Error("Database not connected");
 
-        // Firebase Auth "requires-recent-login" is a common security hurdle.
-        // We try to delete Auth FIRST because it's the most likely to fail due to security.
-        // If we delete Firestore first and Auth fails, we leave an inconsistent state.
         try {
-            // 1. Hard Delete Auth (Irreversible)
-            await user.delete(); 
+            // 1. Delete all wishes created by the user
+            // We must do this BEFORE deleting the Auth user, because Firestore rules likely restrict deletion to the owner.
+            const batch = writeBatch(db);
+
+            // 0. Reset wishes where user is a HELPER
+            // If the user was helping someone, we must "resign" from that role so the wish becomes open again.
+            const helpingRef = collection(db, 'wishes');
+            const qHelping = query(helpingRef, where('helper_id', '==', user.uid));
+            const helpingSnap = await getDocs(qHelping);
             
-            // 2. If Auth Deletion succeeds, clean up Firestore
+            helpingSnap.forEach((doc) => {
+                batch.update(doc.ref, {
+                    helper_id: null,
+                    status: 'open',
+                    updated_at: serverTimestamp()
+                });
+            });
+
+            // 1. Delete all wishes created by the user (Requester)
+            const wishesRef = collection(db, 'wishes');
+            const q = query(wishesRef, where('requester_id', '==', user.uid));
+            const snapshot = await getDocs(q);
+            
+            snapshot.forEach((doc) => {
+                batch.delete(doc.ref);
+            });
+
+            // 2. Delete History Subcollection
+            const historyRef = collection(db, 'users', user.uid, 'history');
+            const historySnap = await getDocs(historyRef);
+            historySnap.forEach((doc) => {
+                batch.delete(doc.ref);
+            });
+
+            await batch.commit();
+
+            // 3. Delete Firestore User Profile
             const userRef = doc(db, 'users', user.uid);
             await deleteDoc(userRef);
             
-            console.log("Account and Profile deleted successfully.");
+            // 4. Finally, Delete Auth User (Irreversible and strips permissions)
+            await user.delete(); 
+
+            console.log("Account, Profile, History, and Wishes deleted successfully.");
         } catch (error) {
              const firebaseError = error as { code?: string };
              if (firebaseError.code === 'auth/requires-recent-login') {

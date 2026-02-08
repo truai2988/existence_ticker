@@ -67,11 +67,11 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
-                            className="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50"
+                            className="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50 min-w-[140px]"
                         >
                             <button
                                 onClick={() => handleTabChange("home")}
-                                className={`w-full px-4 py-2 text-left flex items-center gap-2 transition-colors ${
+                                className={`w-full px-4 py-2 text-left flex items-center gap-2 transition-colors whitespace-nowrap ${
                                     currentTab === "home" ? "text-slate-900 bg-slate-50" : "text-slate-600 hover:bg-slate-50"
                                 }`}
                             >

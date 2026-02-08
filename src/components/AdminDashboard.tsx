@@ -14,14 +14,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [cycleDays, setCycleDays] = useState(10);
   const [showManual, setShowManual] = useState(false);
 
-
-  // Load Cycle Config from Firestore directly
   // User Management State
-  const [activeTab, setActiveTab] = useState<'overview' | 'users'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'maintenance'>('overview');
   const [userList, setUserList] = useState<UserProfile[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [adminCount, setAdminCount] = useState(0);
+
+
 
   React.useEffect(() => {
     const fetchConfig = async () => {
@@ -229,6 +229,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <Users size={16} />
                 User Management
             </button>
+
         </div>
 
         {/* Content Stack */}
@@ -707,6 +708,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               生命贈与額 (Fixed): <span className="text-slate-300">2,400 Lm</span> (不変の理)
             </p>
           </div>
+
 
 
 

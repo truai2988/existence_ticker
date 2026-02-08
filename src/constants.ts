@@ -31,6 +31,6 @@ export const SURVIVAL_CONSTANTS = {
 // --- Security / Roles ---
 // Replace with your actual User ID from the Profile screen (or console)
 export const ADMIN_UIDS = [
-    "E87QByEYgTPciOzHbIVHjZOjmzB3",
+    // "E87QByEYgTPciOzHbIVHjZOjmzB3",
     "truai_admin_id"
 ];
