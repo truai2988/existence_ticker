@@ -119,6 +119,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* Central Lm Display (Above ripples, below buttons) */}
         {!isRitualReady && !isEmpty && (
              <div className="absolute top-[10%] flex flex-col items-center z-20 pointer-events-none">
+                {availableLm > 0 && (
+                     <motion.div 
+                        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        className="absolute bottom-[105%] flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-1.5 rounded-full border border-amber-100 shadow-sm"
+                     >
+                        <Sparkles size={12} className="text-amber-400 fill-amber-400" />
+                        <span className="text-[10px] font-bold text-slate-500 tracking-widest uppercase">
+                            分かち合える
+                        </span>
+                     </motion.div>
+                )}
+
                 <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -128,22 +141,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                        {Math.floor(availableLm).toLocaleString()}
                     </div>
                     <div className="text-xs text-slate-400 font-bold tracking-widest uppercase mt-2">
-                        Total: {Math.floor(balance).toLocaleString()}
+                        手持ち: {Math.floor(balance).toLocaleString()}
                     </div>
                 </motion.div>
-                
-                {availableLm > 0 && (
-                     <motion.div 
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="mt-4 flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-1.5 rounded-full border border-amber-100 shadow-sm"
-                     >
-                        <Sparkles size={12} className="text-amber-400 fill-amber-400" />
-                        <span className="text-[10px] font-bold text-slate-500 tracking-widest uppercase">
-                            分かち合える
-                        </span>
-                     </motion.div>
-                )}
              </div>
         )}
 
@@ -223,7 +223,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 whileTap="tap"
               >
                 <motion.div
-                  className="text-amber-800 flex flex-col items-end group-hover:text-amber-700"
+                  className="text-amber-800 flex flex-col items-center group-hover:text-amber-700"
                   variants={{
                     initial: { y: 0, scale: 1 },
                     hover: {
@@ -235,9 +235,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   }}
                 >
                   <Inbox size={32} strokeWidth={2.5} className="mb-1" />
-                  <span className="text-xs font-extrabold tracking-[0.2em] opacity-90">
-                    HELP
-                  </span>
                   <span className="text-xl font-extrabold">応える</span>
                 </motion.div>
               </motion.button>
@@ -251,7 +248,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 whileTap="tap"
               >
                 <motion.div
-                  className="text-blue-800 flex flex-col items-start group-hover:text-blue-700"
+                  className="text-blue-800 flex flex-col items-center group-hover:text-blue-700"
                   variants={{
                     initial: { y: 0, scale: 1 },
                     hover: {
@@ -263,9 +260,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   }}
                 >
                   <span className="text-xl font-extrabold">願う</span>
-                  <span className="text-xs font-extrabold tracking-[0.2em] opacity-90 mt-0.5">
-                    WISH
-                  </span>
                   <Megaphone size={28} strokeWidth={2.5} className="mt-1" />
                 </motion.div>
               </motion.button>
@@ -285,7 +279,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 >
                     <Sparkles size={32} strokeWidth={1} className="mb-2 opacity-50" />
                     <span className="text-2xl font-serif tracking-widest font-bold">ここにいます</span>
-                    <span className="text-xs tracking-[0.3em] uppercase mt-2 opacity-70">I am here</span>
                 </motion.button>
             )}
           </AnimatePresence>
@@ -302,7 +295,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   exit={{ opacity: 0 }}
                   transition={{ duration: 1 }}
               >
-                  <div className={`absolute inset-0 bg-white/90 backdrop-blur-xl transition-all duration-1000 ${ritualState === 'syncing' ? 'opacity-0' : 'opacity-100'}`} />
+                  <motion.div 
+                    className="absolute inset-0 bg-white/95 backdrop-blur-2xl"
+                    animate={{
+                        clipPath: ritualState === 'syncing' 
+                            ? 'circle(150% at center)' 
+                            : 'circle(0% at center)',
+                        opacity: ritualState === 'syncing' ? 0 : 1
+                    }}
+                    transition={{ 
+                        duration: ritualState === 'syncing' ? 2.5 : 1, 
+                        ease: ritualState === 'syncing' ? [0.4, 0, 0.2, 1] : "easeOut"
+                    }}
+                  />
                   
                   <div className="relative z-10 flex flex-col items-center justify-center text-slate-800">
                       {ritualState === 'blooming' && (
@@ -316,9 +321,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
                               <div className="text-6xl font-serif font-bold text-slate-900 tracking-tighter">
                                   2,400
                               </div>
-                              <div className="text-sm tracking-[0.5em] mt-2 text-slate-500 uppercase">
-                                  Light Restored
-                              </div>
                           </motion.div>
                       )}
 
@@ -329,10 +331,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                            exit={{ opacity: 0 }}
                            className="text-center"
                         >
-                            <CountingNumber value={targetBalance} duration={1.5} />
-                            <div className="text-sm tracking-[0.5em] mt-2 text-slate-500 uppercase">
-                                Time Synced
-                            </div>
+                            <CountingNumber value={targetBalance} duration={2} />
                         </motion.div>
                       )}
                   </div>
@@ -354,7 +353,8 @@ const CountingNumber: React.FC<{ value: number, duration: number }> = ({ value, 
         const update = () => {
             const now = Date.now();
             const progress = Math.min((now - startTime) / (duration * 1000), 1);
-            const ease = 1 - Math.pow(1 - progress, 4);
+            // easeOutQuint: 1 - (1 - x)^5
+            const ease = 1 - Math.pow(1 - progress, 5);
             const current = Math.floor(start - (start - end) * ease);
             setDisplay(current);
             if (progress < 1) {
