@@ -1,11 +1,10 @@
-import React from 'react';
-import { Sparkles, Wallet, MapPin, Users } from 'lucide-react';
+import { MapPin, Users } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { UNIT_LABEL } from '../constants';
-import { WORLD_CONSTANTS } from '../logic/worldPhysics';
+// import { UNIT_LABEL } from '../constants';
+// import { WORLD_CONSTANTS } from '../logic/worldPhysics';
 import { useWallet } from '../hooks/useWallet';
 import { useProfile } from '../hooks/useProfile';
-import { useState, useEffect } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { formatLocationCount } from '../utils/formatLocation';
@@ -21,12 +20,10 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
-    const { balance, availableLm, committedLm, status } = useWallet();
+    const { availableLm, committedLm } = useWallet();
     const { profile } = useProfile();
     const [showPresenceModal, setShowPresenceModal] = useState(false);
     const [statsCount, setStatsCount] = useState<number | null>(null);
-    
-    const isFullyCommitted = availableLm <= 0;
     
     // Fetch nearby user count
     useEffect(() => {
@@ -58,10 +55,6 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
         if (statsCount === null) return "確認中...";
         return formatLocationCount(statsCount);
     };
-    
-    // Percentages (Based on Rebirth Max Capacity)
-    const availablePercent = Math.min(100, (availableLm / WORLD_CONSTANTS.REBIRTH_AMOUNT) * 100);
-    const committedPercent = Math.min(100, (committedLm / WORLD_CONSTANTS.REBIRTH_AMOUNT) * 100);
 
     // Seasonal Logic (Simplified)
     const cycleDays = profile?.scheduled_cycle_days || 10;
@@ -72,7 +65,12 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
     const nextReset = cycleStartedAt + (cycleDays * 24 * 60 * 60 * 1000);
     const daysLeft = Math.max(0, Math.ceil((nextReset - Date.now()) / (1000 * 60 * 60 * 24)));
 
-
+    // Percentages for Water Clock (Max 2400)
+    // committed: 既に捧げた分 (底に沈殿)
+    // available: 自由に使える分 (上に乗る)
+    const maxCapacity = 2400; // WORLD_CONSTANTS.REBIRTH_AMOUNT;
+    const committedHeight = Math.min(100, (committedLm / maxCapacity) * 100);
+    const availableHeight = Math.min(100, (availableLm / maxCapacity) * 100);
 
 
     return (
@@ -90,59 +88,56 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                                         Existence Ticker
                                     </div>
                                     
-                                    {/* 中央段：Lm金額（最大・漆黒） */}
-                                    <motion.div 
-                                        initial={{ opacity: 0, y: 5 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        className={`text-4xl font-sans font-extrabold tracking-tight tabular-nums leading-none mb-1 ${
-                                            isFullyCommitted ? 'text-slate-300' : 'text-slate-900'
-                                        }`}
+                                    {/* Location Info (Moved here for better balance) */}
+                                    <button
+                                        onClick={() => setShowPresenceModal(true)}
+                                        className="flex items-center gap-1.5 text-left hover:opacity-70 transition-opacity group"
                                     >
-                                        {status === 'RITUAL_READY' ? '－' : Math.floor(availableLm).toLocaleString()}
-                                        <span className={`text-sm font-bold ml-1 ${isFullyCommitted ? 'text-slate-300' : 'text-slate-400'}`}>
-                                            {UNIT_LABEL}
+                                        <MapPin size={11} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+                                        <span className="text-xs text-slate-400 font-medium truncate group-hover:text-slate-600 transition-colors">
+                                            {getLocationText()}
                                         </span>
-                                    </motion.div>
-                                    
-                                    {/* 最下段：✨ 分かち合える */}
-                                    <div className="flex items-center gap-1">
-                                        <Sparkles size={11} className={isFullyCommitted ? "text-slate-300" : "text-amber-400 fill-amber-400"} />
-                                        <span className="text-sm font-bold tracking-wider uppercase text-slate-400 leading-none">
-                                            分かち合える
+                                        <span className="text-xs text-slate-300">|</span>
+                                        <Users size={11} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
+                                        <span className="text-xs text-slate-400 font-medium group-hover:text-slate-600 transition-colors">
+                                            {getUserCountText()}
                                         </span>
-                                    </div>
+                                    </button>
                                 </div>
 
                                 {/* 右の柱：管理と操作 */}
-                                <div className="flex items-start gap-3">
-                                    {/* 左側：残高・日数 + プログレスバー（縦並び） */}
-                                    <div className="flex flex-col items-end gap-1.5">
-                                        {/* 残高 ｜ 日数 */}
-                                        <div className="flex items-center gap-2 text-xs text-slate-400 font-bold">
-                                            <div className="flex items-center gap-1">
-                                                <Wallet size={10} strokeWidth={2.5} />
-                                                <span className="tabular-nums">
-                                                    {status === 'RITUAL_READY' ? '－' : Math.floor(balance).toLocaleString()}
-                                                </span>
-                                                <span>{UNIT_LABEL}</span>
-                                            </div>
-                                            <span className="text-slate-300">|</span>
-                                            <span>あと{daysLeft}日</span>
-                                        </div>
-                                        
-                                        {/* プログレスバー */}
-                                        <div className="w-32 h-3 bg-slate-100 rounded-full overflow-hidden relative">
+                                <div className="flex items-center gap-4">
+                                    {/* Water Clock Indicator (Lm Capacity) */}
+                                    <div className="flex flex-col items-end gap-1">
+                                        <div className="relative w-8 h-10 bg-slate-50 rounded-b-xl rounded-t-sm overflow-hidden border border-slate-200 shadow-inner">
+                                            
+                                            {/* 1. Committed Lm (Bottom Layer - Frozen/Sediment) */}
                                             <motion.div 
-                                                className="absolute inset-0 h-full bg-amber-200/40"
-                                                initial={{ width: 0 }}
-                                                animate={{ width: `${Math.min(100, availablePercent + committedPercent)}%` }}
+                                                className="absolute bottom-0 left-0 right-0 bg-slate-200/80 saturate-0"
+                                                initial={{ height: 0 }}
+                                                animate={{ height: `${committedHeight}%` }}
+                                                transition={{ duration: 1.0, ease: "easeOut" }}
                                             />
+
+                                            {/* 2. Available Lm (Top Layer - Liquid Light) */}
                                             <motion.div 
-                                                className="absolute inset-0 h-full bg-gradient-to-r from-amber-400 to-amber-500 rounded-full"
-                                                initial={{ width: 0 }}
-                                                animate={{ width: `${availablePercent}%` }}
-                                            />
+                                                className="absolute bottom-0 left-0 right-0 bg-amber-300/60 backdrop-blur-sm"
+                                                initial={{ height: 0, bottom: 0 }}
+                                                animate={{ 
+                                                    height: `${availableHeight}%`, 
+                                                    bottom: `${committedHeight}%` 
+                                                }}
+                                                transition={{ duration: 1.0, ease: "easeOut", delay: 0.2 }}
+                                            >
+                                                 <div className="absolute inset-0 bg-white/30 animate-pulse" />
+                                            </motion.div>
+                                            
+                                            {/* Glass Reflection */}
+                                            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent opacity-50 pointer-events-none" />
                                         </div>
+                                        <span className="text-[10px] font-bold text-slate-400 tracking-wider">
+                                            あと {daysLeft}日
+                                        </span>
                                     </div>
                                     
                                     {/* 右側：ナビゲーション */}
@@ -152,25 +147,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                         </div>
                     </div>
 
-                    {/* エリア情報（ページの一部として・背景色同じ） */}
-                    <div className="w-full bg-slate-50">
-                        <div className="w-full max-w-2xl mx-auto px-4 py-2">
-                            <button
-                                onClick={() => setShowPresenceModal(true)}
-                                className="flex items-center gap-1.5 text-left hover:opacity-70 transition-opacity"
-                            >
-                                <MapPin size={11} className="text-slate-400" />
-                                <span className="text-xs text-slate-400 font-medium truncate">
-                                    {getLocationText()}
-                                </span>
-                                <span className="text-xs text-slate-300">|</span>
-                                <Users size={11} className="text-slate-400" />
-                                <span className="text-xs text-slate-400 font-medium">
-                                    {getUserCountText()}
-                                </span>
-                            </button>
-                        </div>
-                    </div>
+
                 </div>
             </header>
 

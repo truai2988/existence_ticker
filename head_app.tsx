@@ -3,7 +3,6 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { motion } from "framer-motion";
 // Main App Component
 import { AuthScreen } from "./components/AuthScreen";
-import { GateScreen } from "./components/GateScreen";
 import { Header } from "./components/Header";
 
 // Lazy Load Main Logic to improve initial render speed
@@ -48,8 +47,6 @@ const ScreenLoader = () => (
     </div>
 );
 
-
-
 // Cleanup Script Import
 import { cleanupDuplicates } from './logic/cleanupDuplicates';
 import { auditGravity, auditAllGravity, analyzeShiro } from './logic/auditGravity';
@@ -58,7 +55,6 @@ import { Firestore } from 'firebase/firestore';
 
 function App() {
   const { user, loading: authLoading } = useAuth();
-
   
   // Expose Cleanup Script to Console
   useEffect(() => {
@@ -90,16 +86,6 @@ function App() {
 
   const [viewMode, setViewMode] = useState<AppViewMode>("home");
   const [showAdmin, setShowAdmin] = useState(false);
-  
-  // Gate logic: persist "opened" state in session storage
-  const [gateOpened, setGateOpened] = useState(() => {
-    return sessionStorage.getItem('gateOpened') === 'true';
-  });
-
-  const handleGateOpen = () => {
-    setGateOpened(true);
-    sessionStorage.setItem('gateOpened', 'true');
-  };
 
   const handleTabChange = (tab: "home" | "history" | "profile") => {
     setViewMode(tab);
@@ -163,9 +149,6 @@ function App() {
   }
 
   if (!user) {
-    if (!gateOpened) {
-      return <GateScreen onOpen={handleGateOpen} />;
-    }
     return (
         <ErrorBoundary>
             <AuthScreen />
@@ -174,8 +157,7 @@ function App() {
   }
 
   return (
-    <div className="bg-[#F9F8F4] h-screen font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
-
+    <div className="bg-slate-50 h-screen font-sans selection:bg-yellow-500/30 overflow-hidden flex flex-col relative text-slate-900">
       {/* HEADER (Only visible on Top Page) */}
       {viewMode === 'home' && (
         <Header viewMode={viewMode} onTabChange={handleTabChange} />

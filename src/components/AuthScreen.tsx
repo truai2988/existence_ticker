@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuthHook';
 import { useLocationData } from '../hooks/useLocationData';
-import { Loader2, ArrowRight, Heart, ChevronDown } from 'lucide-react';
+import { Loader2, ChevronDown, Sparkles } from 'lucide-react';
 import { PREFECTURES } from '../data/prefectures';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export const AuthScreen = () => {
     const { signIn, signUp, resetPassword } = useAuth();
@@ -41,13 +42,13 @@ export const AuthScreen = () => {
             console.error(err);
             if (err instanceof Error) {
                 if (err.message.includes("auth/invalid-email")) setError("メールアドレスが無効です");
-                else if (err.message.includes("auth/user-not-found")) setError("ユーザーが見つかりません");
+                else if (err.message.includes("auth/user-not-found")) setError("登録されているユーザーが見つかりません");
                 else if (err.message.includes("auth/wrong-password")) setError("パスワードが間違っています");
-                else if (err.message.includes("auth/email-already-in-use")) setError("このメールアドレスは既に使用されています");
-                else if (err.message.includes("auth/weak-password")) setError("パスワードは6文字以上で入力してください");
+                else if (err.message.includes("auth/email-already-in-use")) setError("このメールアドレスは既に登録されています");
+                else if (err.message.includes("auth/weak-password")) setError("パスワードは6文字以上で設定してください");
                 else setError(`エラー: ${err.message}`);
             } else {
-                setError("予期せぬエラーが発生しました");
+                setError("接続に失敗しました。時間をおいて再度お試しください。");
             }
         } finally {
             setIsLoading(false);
@@ -62,285 +63,265 @@ export const AuthScreen = () => {
 
         try {
             await resetPassword(email);
-            setSuccessMessage("パスワード再設定メールを送信しました。\nメールボックスをご確認ください。");
+            setSuccessMessage("パスワード再設定のメールを送信しました。\n届いたメールの内容に従って手続きを完了してください。");
         } catch (err) {
-            const message = err instanceof Error ? err.message : String(err);
             const code = (err as { code?: string }).code;
-
-            if (code === 'auth/user-not-found') setError("登録されていないメールアドレスです");
-            else if (code === 'auth/invalid-email') setError("無効なメールアドレスです");
-            else setError("送信に失敗しました: " + message);
+            if (code === 'auth/user-not-found') setError("入力されたメールアドレスは登録されていません");
+            else if (code === 'auth/invalid-email') setError("メールアドレスの形式が正しくありません");
+            else setError("メールの送信に失敗しました");
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-800 animate-fade-in relative overflow-hidden">
-            {/* Background Ambience (Subtle Light) */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white via-slate-50 to-blue-50 opacity-80" />
-            <div className="absolute top-0 right-0 p-20 opacity-10 bg-orange-200 blur-[100px] rounded-full mix-blend-multiply"></div>
-            <div className="absolute bottom-0 left-0 p-20 opacity-10 bg-blue-200 blur-[100px] rounded-full mix-blend-multiply"></div>
+        <div className="min-h-screen bg-[#F9F8F4] flex flex-col items-center justify-center p-6 text-[#2D2D2D] font-sans selection:bg-orange-100/30 relative overflow-hidden">
+            {/* Washi Texture Overlay */}
+            <div 
+                className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply" 
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
+            />
+
+            {/* Ambient Blooms */}
+            <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none" />
+            <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none" />
             
-            <div className="w-full max-w-md bg-white p-8 rounded-3xl border border-slate-100 relative z-10 shadow-xl">
-                <div className="text-center mb-8">
-                    <div className="inline-flex justify-center items-center w-12 h-12 rounded-full bg-blue-50 mb-4 border border-blue-100">
-                        <Heart className="w-6 h-6 text-blue-500 fill-blue-500/10" />
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1.2, ease: "easeOut" }}
+                className="w-full max-w-md relative z-10"
+            >
+                <div className="text-center mb-12">
+                     <div className="mb-8 flex justify-center">
+                        <motion.div 
+                            animate={{ opacity: [0.4, 0.7, 0.4] }}
+                            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                            className="p-4 rounded-full bg-white/40 shadow-sm border border-white/20"
+                        >
+                            <Sparkles className="w-5 h-5 text-orange-300" />
+                        </motion.div>
                     </div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight mb-2">Existence Ticker</h1>
-                    <p className="text-sm text-slate-500 font-medium">日々の感謝を巡らせる、<br/>あたらしい互助の習慣。</p>
+                    <h1 className="text-sm font-medium tracking-[0.4em] text-[#888888] uppercase font-serif mb-4">
+                        Existence Ticker
+                    </h1>
+                    <p className="text-lg text-[#555555] font-serif tracking-widest leading-relaxed">
+                        {isResetMode ? "パスワードの再設定" : (mode === 'login' ? "ログイン" : "新規登録")}
+                    </p>
                 </div>
 
-                {isResetMode ? (
-                     <form onSubmit={handleResetPassword} className="space-y-5">
-                        <div className="text-center mb-2">
-                            <h3 className="text-slate-800 font-bold text-sm">パスワードの再設定</h3>
-                            <p className="text-xs text-slate-500 mt-1">登録したメールアドレスを入力してください。</p>
-                        </div>
-                        
-                        <div className="space-y-2">
-                            <label className="text-xs font-bold text-slate-500 ml-1">メールアドレス</label>
-                            <input 
-                                type="email" 
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="mail@example.com"
-                                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans text-sm"
-                                required
-                            />
-                        </div>
-
-                        {error && (
-                            <p className="text-red-500 text-xs text-center bg-red-50 py-2 rounded border border-red-100 font-medium">
-                                {error}
-                            </p>
-                        )}
-                        
-                        {successMessage && (
-                            <div className="text-green-600 text-xs text-center bg-green-50 py-3 rounded border border-green-100 whitespace-pre-wrap leading-relaxed font-medium">
-                                {successMessage}
-                            </div>
-                        )}
-
-                        <button 
-                            type="submit" 
-                            disabled={isLoading}
-                            className="w-full bg-slate-900 text-white font-bold py-3.5 rounded-full flex items-center justify-center gap-2 hover:bg-slate-800 shadow-md hover:shadow-lg transition-all disabled:opacity-50 mt-2"
-                        >
-                            {isLoading ? <Loader2 className="animate-spin w-5 h-5" /> : "送信する"}
-                        </button>
-
-                        <button 
-                            type="button"
-                            onClick={() => {
-                                setIsResetMode(false);
-                                setError('');
-                            }}
-                            className="w-full text-xs text-slate-500 hover:text-slate-800 mt-2 py-2"
-                        >
-                            キャンセルして戻る
-                        </button>
-                    </form>
-                ) : (
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        {mode === 'register' && (
-                            <>
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-500 ml-1">
-                                        お名前 (表示名)
-                                        <span className="text-rose-500 ml-1">*</span>
-                                    </label>
+                <div className="bg-white/60 backdrop-blur-sm p-8 md:p-10 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.02)] border border-white/40">
+                    <AnimatePresence mode="wait">
+                        {isResetMode ? (
+                            <motion.form 
+                                key="reset"
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -10 }}
+                                onSubmit={handleResetPassword} 
+                                className="space-y-8"
+                            >
+                                <div className="space-y-4">
+                                    <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">メールアドレス</label>
                                     <input 
-                                        type="text" 
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        placeholder="山田 太郎"
-                                        className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans"
+                                        type="email" 
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="mail@example.com"
+                                        className="w-full bg-white/80 border-none shadow-[inset_0_2px_8px_rgba(0,0,0,0.04)] rounded-2xl px-6 py-4 text-lg text-[#2D2D2D] placeholder:text-[#CCCCCC] focus:outline-none focus:shadow-[inset_0_2px_12px_rgba(0,0,0,0.08)] transition-all font-serif"
                                         required
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-500 ml-1">
-                                        性別
-                                        <span className="text-rose-500 ml-1">*</span>
-                                    </label>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {[
-                                            { value: 'male', label: '男性' },
-                                            { value: 'female', label: '女性' },
-                                            { value: 'other', label: '回答しない' }
-                                        ].map((opt) => (
-                                            <button
-                                                key={opt.value}
-                                                type="button"
-                                                onClick={() => setGender(opt.value as "male" | "female" | "other")}
-                                                className={`py-2.5 rounded-xl text-xs font-bold transition-all border ${
-                                                    gender === opt.value
-                                                        ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                                                        : "bg-white text-slate-500 border-slate-200 hover:border-slate-300"
-                                                }`}
-                                            >
-                                                {opt.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs font-bold text-slate-500 ml-1">
-                                        年代
-                                        <span className="text-rose-500 ml-1">*</span>
-                                    </label>
-                                    <div className="relative">
-                                        <select 
-                                            value={age_group}
-                                            onChange={(e) => setAgeGroup(e.target.value)}
-                                            className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans text-sm appearance-none"
-                                            required
-                                        >
-                                            <option value="">未選択</option>
-                                            <option value="20歳未満">20歳未満</option>
-                                            <option value="20代">20代</option>
-                                            <option value="30代">30代</option>
-                                            <option value="40代">40代</option>
-                                            <option value="50代">50代</option>
-                                            <option value="60代">60代</option>
-                                            <option value="70代">70代</option>
-                                            <option value="80代以上">80代以上</option>
-                                        </select>
-                                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-4 h-4" />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-slate-500 ml-1">
-                                            都道府県
-                                            <span className="text-rose-500 ml-1">*</span>
-                                        </label>
-                                        <div className="relative">
-                                            <select 
-                                                value={location.prefecture}
-                                                onChange={(e) => setLocation(prev => ({ ...prev, prefecture: e.target.value }))}
-                                                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans text-sm appearance-none"
-                                                required
-                                            >
-                                                <option value="">未選択</option>
-                                                {PREFECTURES.map(pref => (
-                                                    <option key={pref} value={pref}>{pref}</option>
-                                                ))}
-                                            </select>
-                                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-4 h-4" />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-slate-500 ml-1">
-                                            市区町村
-                                            <span className="text-rose-500 ml-1">*</span>
-                                        </label>
-                                        <div className="relative">
-                                            <select 
-                                                value={location.city}
-                                                onChange={(e) => setLocation(prev => ({ ...prev, city: e.target.value }))}
-                                                className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans text-sm appearance-none disabled:bg-slate-50 disabled:text-slate-400"
-                                                required
-                                                disabled={!location.prefecture || loadingCities}
-                                            >
-                                                <option value="">{loadingCities ? '読み込み中...' : '市区町村を選択'}</option>
-                                                {cities.map(city => (
-                                                    <option key={city} value={city}>{city}</option>
-                                                ))}
-                                            </select>
-                                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none w-4 h-4" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <p className="text-xs text-slate-400 mt-2 ml-1 leading-relaxed">
-                                    ※番地やマンション名の入力は<strong className="text-slate-500 font-bold">不要</strong>です。<br/>
-                                    あなたの生活圏の隣人とつながるための情報です。
-                                </p>
-                            </>
-                    )}
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 ml-1">
-                            メールアドレス
-                            {mode === 'register' && <span className="text-rose-500 ml-1">*</span>}
-                        </label>
-                        <input 
-                            type="email" 
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="mail@example.com"
-                            className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans text-sm"
-                            required
-                        />
-                    </div>
+                                {error && <p className="text-red-400 text-xs text-center font-serif tracking-wider">{error}</p>}
+                                {successMessage && <div className="text-[#9C7C60] text-sm text-center font-serif leading-relaxed tracking-wider py-4 bg-orange-50/30 rounded-2xl">{successMessage}</div>}
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-500 ml-1">
-                            パスワード
-                            {mode === 'register' && <span className="text-rose-500 ml-1">*</span>}
-                        </label>
-                        <input 
-                            type="password" 
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="••••••"
-                            className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all font-sans"
-                            required
-                        />
-                    </div>
+                                <button 
+                                    type="submit" 
+                                    disabled={isLoading}
+                                    className="w-full bg-[#2D2D2D] text-white font-bold py-5 rounded-2xl tracking-[0.2em] hover:bg-black shadow-lg hover:shadow-xl transition-all disabled:opacity-50 text-sm"
+                                >
+                                    {isLoading ? <Loader2 className="animate-spin w-5 h-5 mx-auto" /> : "手続きメールを送信する"}
+                                </button>
 
-                    {error && (
-                        <p className="text-red-500 text-xs text-center bg-red-50 py-2 rounded border border-red-100 font-medium">
-                            {error}
-                        </p>
-                    )}
-
-                    <button 
-                        type="submit" 
-                        disabled={isLoading}
-                        className="w-full bg-slate-900 text-white font-bold py-3.5 rounded-full flex items-center justify-center gap-2 hover:bg-slate-800 shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2"
-                    >
-                        {isLoading ? (
-                            <Loader2 className="animate-spin w-5 h-5" />
+                                <button 
+                                    type="button"
+                                    onClick={() => { setIsResetMode(false); setError(''); }}
+                                    className="w-full text-xs text-[#888888] tracking-widest hover:text-[#2D2D2D] transition-colors py-2"
+                                >
+                                    戻る
+                                </button>
+                            </motion.form>
                         ) : (
-                            <>
-                                <span>{mode === 'login' ? 'ログイン' : 'はじめる'}</span>
-                                <ArrowRight className="w-4 h-4 ml-1" />
-                            </>
+                            <motion.form 
+                                key={mode}
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -10 }}
+                                onSubmit={handleSubmit} 
+                                className="space-y-8"
+                            >
+                                {mode === 'register' && (
+                                    <div className="space-y-8">
+                                        <div className="space-y-4">
+                                            <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">お名前</label>
+                                            <input 
+                                                type="text" 
+                                                value={name}
+                                                onChange={(e) => setName(e.target.value)}
+                                                placeholder="山田 太郎"
+                                                className="w-full bg-white/80 border-none shadow-[inset_0_2px_8px_rgba(0,0,0,0.04)] rounded-2xl px-6 py-4 text-lg text-[#2D2D2D] placeholder:text-[#CCCCCC] focus:outline-none focus:shadow-[inset_0_2px_12px_rgba(0,0,0,0.08)] transition-all font-serif"
+                                                required
+                                            />
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">性別</label>
+                                            <div className="grid grid-cols-3 gap-3">
+                                                {[
+                                                    { value: 'male', label: '男性' },
+                                                    { value: 'female', label: '女性' },
+                                                    { value: 'other', label: 'その他' }
+                                                ].map((opt) => (
+                                                    <button
+                                                        key={opt.value}
+                                                        type="button"
+                                                        onClick={() => setGender(opt.value as "male" | "female" | "other")}
+                                                        className={`py-4 rounded-2xl text-sm font-bold transition-all ${
+                                                            gender === opt.value
+                                                                ? "bg-[#2D2D2D] text-white shadow-lg"
+                                                                : "bg-white/50 text-[#888888] hover:bg-white/80"
+                                                        }`}
+                                                    >
+                                                        {opt.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">年代</label>
+                                            <div className="relative">
+                                                <select 
+                                                    value={age_group}
+                                                    onChange={(e) => setAgeGroup(e.target.value)}
+                                                    className="w-full bg-white/80 border-none shadow-[inset_0_2px_8px_rgba(0,0,0,0.04)] rounded-2xl px-6 py-4 text-lg text-[#2D2D2D] appearance-none focus:outline-none focus:shadow-[inset_0_2px_12px_rgba(0,0,0,0.08)] transition-all font-serif"
+                                                    required
+                                                >
+                                                    <option value="">選択してください</option>
+                                                    {["20歳未満", "20代", "30代", "40代", "50代", "60代", "70代", "80代以上"].map(age => (
+                                                        <option key={age} value={age}>{age}</option>
+                                                    ))}
+                                                </select>
+                                                <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-[#CCCCCC] pointer-events-none w-5 h-5" />
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="space-y-4">
+                                                <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">都道府県</label>
+                                                <div className="relative">
+                                                    <select 
+                                                        value={location.prefecture}
+                                                        onChange={(e) => setLocation(prev => ({ ...prev, prefecture: e.target.value }))}
+                                                        className="w-full bg-white/80 border-none shadow-[inset_0_2px_8px_rgba(0,0,0,0.04)] rounded-2xl px-6 py-4 text-sm text-[#2D2D2D] appearance-none focus:outline-none focus:shadow-[inset_0_2px_12px_rgba(0,0,0,0.08)] transition-all font-serif"
+                                                        required
+                                                    >
+                                                        <option value="">選択</option>
+                                                        {PREFECTURES.map(pref => <option key={pref} value={pref}>{pref}</option>)}
+                                                    </select>
+                                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-[#CCCCCC] pointer-events-none w-4 h-4" />
+                                                </div>
+                                            </div>
+                                            <div className="space-y-4">
+                                                <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">市区町村</label>
+                                                <div className="relative">
+                                                    <select 
+                                                        value={location.city}
+                                                        onChange={(e) => setLocation(prev => ({ ...prev, city: e.target.value }))}
+                                                        className="w-full bg-white/80 border-none shadow-[inset_0_2px_8px_rgba(0,0,0,0.04)] rounded-2xl px-6 py-4 text-sm text-[#2D2D2D] appearance-none focus:outline-none focus:shadow-[inset_0_2px_12px_rgba(0,0,0,0.08)] transition-all font-serif disabled:opacity-40"
+                                                        required
+                                                        disabled={!location.prefecture || loadingCities}
+                                                    >
+                                                        <option value="">{loadingCities ? '...' : '選択'}</option>
+                                                        {cities.map(city => <option key={city} value={city}>{city}</option>)}
+                                                    </select>
+                                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-[#CCCCCC] pointer-events-none w-4 h-4" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="space-y-8">
+                                    <div className="space-y-4">
+                                        <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">メールアドレス</label>
+                                        <input 
+                                            type="email" 
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            placeholder="mail@example.com"
+                                            className="w-full bg-white/80 border-none shadow-[inset_0_2px_8px_rgba(0,0,0,0.04)] rounded-2xl px-6 py-4 text-lg text-[#2D2D2D] placeholder:text-[#CCCCCC] focus:outline-none focus:shadow-[inset_0_2px_12px_rgba(0,0,0,0.08)] transition-all font-serif"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">パスワード</label>
+                                        <input 
+                                            type="password" 
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            placeholder="••••••"
+                                            className="w-full bg-white/80 border-none shadow-[inset_0_2px_8px_rgba(0,0,0,0.04)] rounded-2xl px-6 py-4 text-lg text-[#2D2D2D] placeholder:text-[#CCCCCC] focus:outline-none focus:shadow-[inset_0_2px_12px_rgba(0,0,0,0.08)] transition-all font-serif"
+                                            required
+                                        />
+                                    </div>
+                                </div>
+
+                                {error && <p className="text-red-400 text-xs text-center font-serif tracking-wider">{error}</p>}
+
+                                <button 
+                                    type="submit" 
+                                    disabled={isLoading}
+                                    className="w-full bg-[#2D2D2D] text-white font-bold py-5 rounded-2xl tracking-[0.2em] hover:bg-black shadow-lg hover:shadow-xl transition-all disabled:opacity-50 text-sm"
+                                >
+                                    {isLoading ? (
+                                        <Loader2 className="animate-spin w-5 h-5 mx-auto" />
+                                    ) : (
+                                        <span>{mode === 'login' ? 'ログイン' : 'アカウントを作成する'}</span>
+                                    )}
+                                </button>
+                            </motion.form>
                         )}
-                    </button>
-                </form>
-            )}
+                    </AnimatePresence>
+                </div>
 
                 {!isResetMode && (
-                    <div className="mt-8 text-center space-y-4 pt-4 border-t border-slate-100">
+                    <div className="mt-12 text-center space-y-6">
                         <button 
                             onClick={() => {
                                 setMode(mode === 'login' ? 'register' : 'login');
                                 setError('');
                             }}
-                            className="text-sm font-bold text-blue-600 hover:text-blue-700 transition-colors block w-full py-2 hover:bg-blue-50 rounded-lg"
+                            className="text-sm font-serif text-[#888888] hover:text-[#2D2D2D] tracking-widest transition-colors block w-full py-2"
                         >
-                            {mode === 'login' ? '新しくアカウントを作る' : 'ログイン画面へ戻る'}
+                            {mode === 'login' ? "新規登録はこちら" : "既にアカウントをお持ちの方"}
                         </button>
 
                         {mode === 'login' && (
                             <button 
-                                onClick={() => {
-                                    setIsResetMode(true);
-                                    setError('');
-                                }}
-                                className="text-xs text-slate-400 hover:text-slate-600 transition-colors block w-full"
+                                onClick={() => { setIsResetMode(true); setError(''); }}
+                                className="text-xs font-serif text-[#AAAAAA] hover:text-[#888888] tracking-widest transition-colors block w-full"
                             >
                                 パスワードを忘れた場合
                             </button>
                         )}
                     </div>
                 )}
-            </div>
+            </motion.div>
             
-            <p className="absolute bottom-6 text-xs text-slate-400 font-sans">
+            <p className="absolute bottom-10 text-[10px] text-[#AAAAAA] tracking-[0.4em] uppercase font-serif">
                 © 2026 Existence Ticker Project
             </p>
         </div>

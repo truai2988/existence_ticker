@@ -1,0 +1,252 @@
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900   1) import { useState, Suspense, lazy, useEffect } from "react";
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900   2) import { ErrorBoundary } from "./components/ErrorBoundary";
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900   3) import { motion, AnimatePresence } from "framer-motion";
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900   4) // Main App Component
+e179d132 (truai2988         2026-02-02 13:25:50 +0900   5) import { AuthScreen } from "./components/AuthScreen";
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900   6) import { GateScreen } from "./components/GateScreen";
+e179d132 (truai2988         2026-02-02 13:25:50 +0900   7) import { Header } from "./components/Header";
+e179d132 (truai2988         2026-02-02 13:25:50 +0900   8) 
+e179d132 (truai2988         2026-02-02 13:25:50 +0900   9) // Lazy Load Main Logic to improve initial render speed
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  10) const MainContent = lazy(() =>
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  11)   import("./components/MainContent").then((module) => ({
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  12)     default: module.MainContent,
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  13)   })),
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  14) );
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  15) const AdminDashboard = lazy(() =>
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  16)   import("./components/AdminDashboard").then((module) => ({
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  17)     default: module.AdminDashboard,
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  18)   })),
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  19) );
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  20) 
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  21) import { useAuth } from "./hooks/useAuthHook";
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  22) import { AppViewMode } from "./types";
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  23) // import { ADMIN_UIDS } from './constants';
+c9df153a (truai2988         2026-01-25 19:35:02 +0900  24) 
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  25) import { useRegisterSW } from "virtual:pwa-register/react";
+2fa2f5be (truai2988         2026-01-26 10:05:43 +0900  26) 
+2fa2f5be (truai2988         2026-01-26 10:05:43 +0900  27) const PWALogic = () => {
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  28)   useRegisterSW({
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  29)     onRegistered(r) {
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  30)       console.log("SW Registered: " + r);
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  31)     },
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  32)     onRegisterError(error) {
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  33)       console.log("SW registration error", error);
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  34)     },
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  35)   });
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  36)   return null;
+2fa2f5be (truai2988         2026-01-26 10:05:43 +0900  37) };
+2fa2f5be (truai2988         2026-01-26 10:05:43 +0900  38) 
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  39) // Loading Fallback: "White Porcelain" Aesthetic
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  40) const ScreenLoader = () => (
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  41)     <div className="flex-1 flex items-center justify-center p-8 bg-slate-50 min-h-screen">
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  42)          <div className="relative flex items-center justify-center">
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  43)             {/* Soft Pulse */}
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  44)             <div className="absolute w-12 h-12 bg-slate-200 rounded-full animate-ping opacity-20"></div>
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  45)             {/* Core Vessel */}
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  46)             <div className="w-3 h-3 bg-white border border-slate-100 rounded-full shadow-sm animate-pulse z-10"></div>
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  47)          </div>
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  48)     </div>
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  49) );
+e179d132 (truai2988         2026-02-02 13:25:50 +0900  50) 
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  51) const BlessingOverlay = ({ onComplete }: { onComplete: () => void }) => (
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  52)     <motion.div
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  53)         initial={{ opacity: 0 }}
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  54)         animate={{ opacity: 1 }}
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  55)         exit={{ opacity: 0 }}
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  56)         transition={{ duration: 2, ease: "easeInOut" }}
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  57)         onAnimationComplete={() => {
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  58)             setTimeout(onComplete, 1000);
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  59)         }}
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  60)         className="fixed inset-0 z-[200] pointer-events-none flex items-center justify-center"
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  61)     >
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  62)         <motion.div 
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  63)             initial={{ scale: 0.8, opacity: 0 }}
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  64)             animate={{ scale: 1.5, opacity: 1 }}
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  65)             transition={{ duration: 3, ease: "easeOut" }}
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  66)             className="absolute inset-0 bg-gradient-to-t from-orange-50 via-amber-100 to-white"
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  67)         />
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  68)         <motion.div 
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  69)             animate={{ 
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  70)                 opacity: [0, 1, 0],
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  71)                 scale: [1, 1.2, 1.3]
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  72)             }}
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  73)             transition={{ duration: 2.5, ease: "easeOut" }}
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  74)             className="w-full h-full bg-white blur-[120px]"
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  75)         />
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  76)     </motion.div>
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  77) );
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  78) 
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900  79) // Cleanup Script Import
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900  80) import { cleanupDuplicates } from './logic/cleanupDuplicates';
+0959f346 (truai2988         2026-02-04 10:27:57 +0900  81) import { auditGravity, auditAllGravity, analyzeShiro } from './logic/auditGravity';
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900  82) import { db } from './lib/firebase';
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900  83) import { Firestore } from 'firebase/firestore';
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900  84) 
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900  85) function App() {
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900  86)   const { user, loading: authLoading } = useAuth();
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  87)   const [showBlessing, setShowBlessing] = useState(false);
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  88)   const [hasBlessed, setHasBlessed] = useState(false);
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  89)   
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  90)   // Trigger blessing on first successful user detection in session
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  91)   useEffect(() => {
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  92)     if (!authLoading && user && !hasBlessed) {
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  93)       setShowBlessing(true);
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  94)       setHasBlessed(true);
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  95)     }
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900  96)   }, [user, authLoading, hasBlessed]);
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900  97)   
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900  98)   // Expose Cleanup Script to Console
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900  99)   useEffect(() => {
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900 100)     if (user && db) {
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900 101)         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900 102)         (window as any).cleanup = () => cleanupDuplicates(db as Firestore);
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900 103)         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900 104)         (window as any).audit = () => auditGravity(db as Firestore, user.uid);
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900 105)         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900 106)         (window as any).auditAll = () => auditAllGravity(db as Firestore);
+0959f346 (truai2988         2026-02-04 10:27:57 +0900 107)         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+0959f346 (truai2988         2026-02-04 10:27:57 +0900 108)         (window as any).shiro = () => analyzeShiro(db as Firestore);
+ce0333a3 (truai2988         2026-02-04 10:35:32 +0900 109)         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 110)         // eslint-disable-next-line @typescript-eslint/no-explicit-any
+ce0333a3 (truai2988         2026-02-04 10:35:32 +0900 111)         (window as any).shiroDebug = () => {
+ce0333a3 (truai2988         2026-02-04 10:35:32 +0900 112)              import('./logic/auditGravity').then(m => m.debugShiroRebirth(db as Firestore));
+ce0333a3 (truai2988         2026-02-04 10:35:32 +0900 113)         };
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900 114)         
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900 115)         console.log("Console Tools Ready:");
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900 116)         console.log("- cleanup(): Deduplicate transactions");
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900 117)         console.log("- audit(): Fix current user gravity leak");
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900 118)         console.log("- auditAll(): Fix GLOBAL gravity leaks");
+0959f346 (truai2988         2026-02-04 10:27:57 +0900 119)         console.log("- shiro(): Investigate SHIRO TAMAKI");
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900 120)     }
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900 121)   }, [user]);
+e5df3075 (truai2988         2026-02-04 10:06:03 +0900 122) 
+e4db278f (truai2988         2026-01-31 15:26:17 +0900 123)   // const { profile } = useProfile();
+c50232cd (truai2988         2026-01-31 15:07:29 +0900 124)   // const isAdmin = profile?.role === 'admin' || (user && ADMIN_UIDS.includes(user.uid));
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 125) 
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 126)   const [viewMode, setViewMode] = useState<AppViewMode>("home");
+ca4c7578 (truai2988         2026-01-29 15:25:04 +0900 127)   const [showAdmin, setShowAdmin] = useState(false);
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 128)   
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 129)   // Gate logic: persist "opened" state in session storage
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 130)   const [gateOpened, setGateOpened] = useState(() => {
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 131)     return sessionStorage.getItem('gateOpened') === 'true';
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 132)   });
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 133) 
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 134)   const handleGateOpen = () => {
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 135)     setGateOpened(true);
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 136)     sessionStorage.setItem('gateOpened', 'true');
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 137)   };
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 138) 
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 139)   const handleTabChange = (tab: "home" | "history" | "profile") => {
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 140)     setViewMode(tab);
+c9df153a (truai2988         2026-01-25 19:35:02 +0900 141)   };
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 142) 
+30d205fe (truai2988         2026-02-06 00:01:25 +0900 143)   /* eslint-disable react-refresh/only-export-components */
+30d205fe (truai2988         2026-02-06 00:01:25 +0900 144)   
+c9df153a (truai2988         2026-01-25 19:35:02 +0900 145)   const handleGoHome = () => {
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 146)     setViewMode("home");
+c9df153a (truai2988         2026-01-25 19:35:02 +0900 147)   };
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 148) 
+0959f346 (truai2988         2026-02-04 10:27:57 +0900 149) 
+f5e0e4a2 (truai2988         2026-01-29 14:43:03 +0900 150) 
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 151)   const [connectTimeout, setConnectTimeout] = useState(false);
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 152) 
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 153)   useEffect(() => {
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 154)     if (authLoading) {
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 155)       const timer = setTimeout(() => {
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 156)         setConnectTimeout(true);
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 157)       }, 10000); // 10 seconds timeout
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 158)       return () => clearTimeout(timer);
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 159)     } else {
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 160)       setConnectTimeout(false);
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 161)     }
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 162)   }, [authLoading]);
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 163) 
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 164)   if (authLoading) {
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 165)     return (
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 166)       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-800">
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 167)         <div className="relative mb-8">
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 168)             <div className="w-12 h-12 bg-slate-200 rounded-full animate-ping opacity-20"></div>
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 169)             <div className="absolute inset-0 flex items-center justify-center">
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 170)                 <div className="w-3 h-3 bg-slate-400 rounded-full animate-pulse"></div>
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 171)             </div>
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 172)         </div>
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 173)         
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 174)         <div className="animate-pulse tracking-widest text-xs uppercase text-slate-400 font-bold">
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 175)           Connecting to Existence...
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 176)         </div>
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 177) 
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 178)         {connectTimeout && (
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 179)             <motion.div 
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 180)                 initial={{ opacity: 0, y: 10 }}
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 181)                 animate={{ opacity: 1, y: 0 }}
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 182)                 className="mt-8 text-center"
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 183)             >
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 184)                 <p className="text-sm text-slate-400 mb-4 leading-relaxed">
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 185)                     接続に時間がかかっています。<br/>
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 186)                     通信環境を確認するか、再試行してください。
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 187)                 </p>
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 188)                 <button 
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 189)                     onClick={() => window.location.reload()}
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 190)                     className="px-6 py-2 bg-white border border-slate-200 rounded-full text-xs font-bold text-slate-600 hover:bg-slate-50 transition-all shadow-sm"
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 191)                 >
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 192)                     再読み込みする
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 193)                 </button>
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 194)             </motion.div>
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 195)         )}
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 196)       </div>
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 197)     );
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 198)   }
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 199) 
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 200)   if (!user) {
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 201)     if (!gateOpened) {
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 202)       return <GateScreen onOpen={handleGateOpen} />;
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 203)     }
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 204)     return (
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 205)         <ErrorBoundary>
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 206)             <AuthScreen />
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 207)         </ErrorBoundary>
+f4175b0b (truai2988         2026-02-05 23:10:36 +0900 208)     );
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 209)   }
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 210) 
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 211)   return (
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 212)     <div className="bg-[#F9F8F4] h-screen font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 213)       <AnimatePresence>
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 214)         {showBlessing && (
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 215)           <BlessingOverlay onComplete={() => setShowBlessing(false)} />
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 216)         )}
+00000000 (Not Committed Yet 2026-02-08 17:25:12 +0900 217)       </AnimatePresence>
+8d0e25b5 (truai2988         2026-02-07 21:45:19 +0900 218)       {/* HEADER (Only visible on Top Page) */}
+8d0e25b5 (truai2988         2026-02-07 21:45:19 +0900 219)       {viewMode === 'home' && (
+8d0e25b5 (truai2988         2026-02-07 21:45:19 +0900 220)         <Header viewMode={viewMode} onTabChange={handleTabChange} />
+8d0e25b5 (truai2988         2026-02-07 21:45:19 +0900 221)       )}
+c9df153a (truai2988         2026-01-25 19:35:02 +0900 222) 
+c9df153a (truai2988         2026-01-25 19:35:02 +0900 223)       {/* MAIN CONTENT */}
+2e0d66f8 (truai2988         2026-02-03 21:31:00 +0900 224)       <main
+d393383e (truai2988         2026-02-06 21:42:48 +0900 225)         className={`flex-1 relative overflow-y-auto no-scrollbar scroll-smooth flex flex-col`}
+2e0d66f8 (truai2988         2026-02-03 21:31:00 +0900 226)       >
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 227)         <Suspense fallback={<ScreenLoader />}>
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 228)           <MainContent
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 229)             viewMode={viewMode}
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 230)             setViewMode={setViewMode}
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 231)             currentUserId={user.uid}
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 232)             onGoHome={handleGoHome}
+02950170 (truai2988         2026-01-27 19:13:42 +0900 233)           />
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 234)         </Suspense>
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 235)       </main>
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 236) 
+d393383e (truai2988         2026-02-06 21:42:48 +0900 237) 
+c9df153a (truai2988         2026-01-25 19:35:02 +0900 238) 
+ca4c7578 (truai2988         2026-01-29 15:25:04 +0900 239)       {/* Admin Quick Access */}
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 240)       <PWALogic />
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 241) 
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 242)       {/* Dynamic Admin Loading */}
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 243)       {showAdmin && (
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 244)         <Suspense fallback={null}>
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 245)           <AdminDashboard onClose={() => setShowAdmin(false)} />
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 246)         </Suspense>
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 247)       )}
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 248)     </div>
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 249)   );
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 250) }
+^84e4753 (truai2988         2026-01-24 15:06:26 +0900 251) 
+e179d132 (truai2988         2026-02-02 13:25:50 +0900 252) export default App;

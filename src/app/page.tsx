@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
-import { motion, useScroll, useTransform, useInView, animate } from 'framer-motion';
+import { motion, useScroll, useTransform, useInView, animate, AnimatePresence } from 'framer-motion';
 import { ArrowDown, Droplets, HeartHandshake, Sparkles, Send, Sun, Heart, Smile, Users } from 'lucide-react';
 
 export const LandingPage = () => {
@@ -8,6 +8,17 @@ export const LandingPage = () => {
   const [lumens, setLumens] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
+  const [isExiting, setIsExiting] = useState(false);
+  const navigate = useNavigate();
+
+  const handleNavigate = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsExiting(true);
+    // Allow animation to finish before navigating
+    setTimeout(() => {
+        navigate('/app');
+    }, 1500);
+  };
   
   useEffect(() => {
     let timeoutId: number;
@@ -296,8 +307,8 @@ export const LandingPage = () => {
         {/* Footer */}
         <footer className="py-20 text-center border-t border-[#EAEAEA]">
             <div className="mb-12">
-                <Link 
-                  to="/app" 
+                <button 
+                  onClick={handleNavigate} 
                   className="group relative inline-block px-12 py-5 bg-white border border-[#E5E5E5] rounded-xl hover:shadow-2xl transition-all duration-700 tracking-[0.2em] text-[11px] uppercase text-[#777777] hover:text-[#2D2D2D] overflow-hidden"
                 >
                   <span className="relative z-10">ご縁を結ぶ</span>
@@ -328,7 +339,7 @@ export const LandingPage = () => {
                   
                   {/* Porcelain Sheen */}
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out"></div>
-                </Link>
+                </button>
             </div>
             <p className="text-[10px] text-[#AAAAAA] tracking-[0.2em] uppercase font-serif">
                 © 2026 Existence Ticker.
@@ -336,6 +347,18 @@ export const LandingPage = () => {
         </footer>
 
       </div>
+
+      {/* Full screen fade to Porcelain White */}
+      <AnimatePresence>
+        {isExiting && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+            className="fixed inset-0 z-[1000] bg-[#F9F8F4] pointer-events-none"
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
