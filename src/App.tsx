@@ -265,8 +265,9 @@ function App() {
   const handleTabChange = (tab: AppViewMode) => setViewMode(tab);
   const handleGoHome = () => setViewMode("home");
 
-  // 1. Loading Phase (Auth, Wallet, or Seasonal Check)
-  if (authLoading || (user && walletLoading) || isChecking) return <ScreenLoader />;
+  // 1. Loading Phase (Auth, or Seasonal Check)
+  // walletLoading is REMOVED to prevent "Flash of Reset" during ritual transactions.
+  if (authLoading || isChecking) return <ScreenLoader />;
 
   // 2. Auth Gate
   if (!user) {
