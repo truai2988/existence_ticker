@@ -38,7 +38,7 @@ export const useAuth = () => {
         const invitationRef = doc(db, 'invitation_codes', invitationCode.trim());
 
         // CRITICAL: Set isRegistering flag to prevent ghost profile purge during registration
-        const setIsRegistering = (window as any).__setIsRegistering;
+        const setIsRegistering = window.__setIsRegistering;
         if (setIsRegistering) setIsRegistering(true);
 
         try {
@@ -217,6 +217,15 @@ export const useAuth = () => {
                             used_at: null
                         });
                         console.log(`Invitation code "${usedInvitationCode}" released for reuse.`);
+                    }
+
+                    // STEP 0.5: DECREMENT LOCATION STATS
+                    // Maintain regional user count integrity
+                    if (uData.location && uData.location.prefecture && uData.location.city) {
+                        const cityKey = `${uData.location.prefecture}_${uData.location.city}`;
+                        const statRef = doc(db!, 'location_stats', cityKey);
+                        transaction.set(statRef, { count: increment(-1) }, { merge: true });
+                        console.log(`Location stats decremented for ${cityKey}`);
                     }
                 }
 

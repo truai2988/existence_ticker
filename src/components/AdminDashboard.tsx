@@ -495,10 +495,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                     )}
                 </div>
 
+                {import.meta.env.DEV && (
                 <div className="bg-slate-900/50 rounded-xl border border-slate-700 p-6 mt-6">
                     <h2 className="text-xl font-bold text-slate-200 mb-2 flex items-center gap-2">
                         <ShieldOff className="text-orange-400" size={20} />
-                        Purge Test Data
+                        Purge Test Data (DEV ONLY)
                     </h2>
                     <p className="text-sm text-slate-400 mb-6">
                         開発用ゴミデータ（自分以外の全ユーザー、ALPHA-TESTコード）を一括消去します。
@@ -523,7 +524,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                             try {
                                 if (!db) throw new Error("Database not initialized");
                                 if (!auth?.currentUser) throw new Error("Not authenticated");
-                                const { collection, getDocs, query, doc, writeBatch, updateDoc } = await import("firebase/firestore");
+                                const { collection, getDocs, query, doc, writeBatch, updateDoc, getDoc } = await import("firebase/firestore");
 
                                 log.push(`[${new Date().toLocaleTimeString()}] データパージ開始...`);
                                 setCleanupLog([...log]);
@@ -548,21 +549,90 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                 const batch = writeBatch(db);
                                 let deleteCount = 0;
                                 const currentUid = auth.currentUser.uid;
+                                const deletedUserIds: string[] = [];
 
                                 userSnap.docs.forEach((d) => {
                                     if (d.id !== currentUid && !ADMIN_UIDS.includes(d.id)) {
                                         batch.delete(d.ref);
-                                        // Also try to delete stats if possible, but user doc is main
+                                        deletedUserIds.push(d.id);
                                         deleteCount++;
                                     }
                                 });
 
-                                if (deleteCount > 0) {
+                                // 2.5 Delete Orphaned Wishes (Requests by deleted users)
+                                // Note: Firestore "in" query limits to 10 at a time.
+                                // For scale, we should read all wishes and filter, or chunk the IDs.
+                                // For this tool (Testing), we'll read all active wishes and delete matches.
+                                let wishesDeletedCount = 0;
+                                if (deletedUserIds.length > 0) {
+                                    const wishesRef = collection(db, 'wishes');
+                                    // Get all wishes to be safe and simple for this admin tool
+                                    const wishesSnap = await getDocs(query(wishesRef)); 
+                                    wishesSnap.docs.forEach((w) => {
+                                        const wData = w.data();
+                                        if (deletedUserIds.includes(wData.requester_id)) {
+                                            batch.delete(w.ref);
+                                            wishesDeletedCount++;
+                                        }
+                                    });
+                                }
+
+                                // 3. Reset Location Stats (Smart Clean)
+                                // Instead of deleting all, we must preserve the current user's location count
+                                const statsRef = collection(db, "location_stats");
+                                const statsSnap = await getDocs(query(statsRef));
+                                let statsResetCount = 0;
+                                
+                                // Get current user's location to preserve/restore it
+                                const currentUserRef = doc(db, "users", currentUid);
+                                const currentUserSnap = await getDoc(currentUserRef);
+                                let currentUserLocationKey = null;
+                                
+                                if (currentUserSnap.exists()) {
+                                    const cData = currentUserSnap.data();
+                                    if (cData.location && cData.location.prefecture && cData.location.city) {
+                                        currentUserLocationKey = `${cData.location.prefecture}_${cData.location.city}`;
+                                    }
+                                }
+
+                                statsSnap.docs.forEach((d) => {
+                                    if (d.id === currentUserLocationKey) {
+                                        // Reset count to 1 for current user's location
+                                        batch.set(d.ref, { count: 1 }, { merge: true });
+                                        log.push(`ℹ️ 現在の居住地 (${d.id}) のカウントを 1 に修正しました`);
+                                    } else {
+                                        // Delete others
+                                        batch.delete(d.ref);
+                                        statsResetCount++;
+                                    }
+                                });
+                                
+                                // If current user has a location but no stats existed for it yet (edge case), create it
+                                if (currentUserLocationKey) {
+                                    const myStatRef = doc(db, "location_stats", currentUserLocationKey);
+                                    // We use set with merge, so if it was handled in loop it's redundant but safe.
+                                    // If it wasn't in the loop (missing), this creates it.
+                                    // However, since we can't easily know if we hit it in the loop inside this batch logic without extra state,
+                                    // we can just blindly set it to 1 if we want to be sure. 
+                                    // But the loop above handled the "reset to 1" if it existed.
+                                    // If it didn't exist, we should create it.
+                                    batch.set(myStatRef, { count: 1 }, { merge: true });
+                                }
+
+                                if (deleteCount > 0 || statsResetCount > 0 || wishesDeletedCount > 0) {
                                     await batch.commit();
-                                    log.push(`✅ 他ユーザー ${deleteCount}名のプロフィールを削除しました`);
-                                    log.push(`ℹ️ 削除されたユーザーは次回アクセス時にAuthも自動消去されます`);
+                                    if (deleteCount > 0) {
+                                        log.push(`✅ 他ユーザー ${deleteCount}名のプロフィールを削除しました`);
+                                        log.push(`ℹ️ 削除されたユーザーは次回アクセス時にAuthも自動消去されます`);
+                                    }
+                                    if (wishesDeletedCount > 0) {
+                                        log.push(`✅ 孤立した願い（Wishes）${wishesDeletedCount}件を削除しました`);
+                                    }
+                                    if (statsResetCount > 0) {
+                                        log.push(`✅ 不要な地域統計データ ${statsResetCount}件を削除しました`);
+                                    }
                                 } else {
-                                    log.push(`ℹ️ 削除対象のユーザーはいませんでした`);
+                                    log.push(`ℹ️ 削除対象のデータはありませんでした`);
                                 }
 
                                 log.push(`✨ パージ完了`);
@@ -597,6 +667,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                         </div>
                     )}
                 </div>
+                )}
             </div>
         ) : (
           <>
