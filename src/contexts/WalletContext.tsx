@@ -125,12 +125,16 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   // === 3. METABOLIC STATUS ===
   const status: WalletStatus = useMemo(() => {
-    // During loading, show INITIALIZING to prevent flashes
+    // 1. Loading Phase: strict wait to prevent flashes.
     if (profileLoading) return 'INITIALIZING';
 
-    // If no profile exists yet (Registration lag), we MUST wait.
-    // Returning 'INITIALIZING' keeps the user on the ScreenLoader until the profile is created.
-    if (!profile) return 'INITIALIZING';
+    // 2. Ghost Phase: Loading done, but no profile found for authenticated user.
+    // This allows App.tsx to show a specific Recovery/SignOut screen.
+    if (user && !profile) return 'GHOST';
+
+    // 3. Guest Phase: No user, no profile.
+    // Return 'ALIVE' so we fall through to the Auth Gate in App.tsx.
+    if (!profile) return 'ALIVE';
 
     const cycleStartedAt = profile.cycle_started_at && typeof profile.cycle_started_at.toMillis === 'function'
         ? profile.cycle_started_at.toMillis()
@@ -153,7 +157,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     // Balance is irrelevant to ritual timing.
 
     return 'ALIVE';
-  }, [profile, profileLoading]);
+  }, [user, profile, profileLoading]);
 
   // === 4. THE SACRED RITUAL (Rebirth) ===
   const performRebirthReset = async (): Promise<{ success: boolean; newBalance?: number }> => {
