@@ -10,7 +10,7 @@ import {
     updateEmail,
     reauthenticateWithCredential
 } from 'firebase/auth';
-import { doc, serverTimestamp, runTransaction, increment, collection, query, where, getDocs, getDoc, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
+import { doc, serverTimestamp, runTransaction, increment, collection, query, where, getDocs, getDoc, QueryDocumentSnapshot, DocumentData, FieldValue } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { useAuthContext } from '../contexts/AuthContextDefinition';
 import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS } from '../logic/worldPhysics';
@@ -193,9 +193,9 @@ export const useAuth = () => {
             const qRequester = query(wishesRef, where('requester_id', '==', user.uid));
             const snapRequester = await getDocs(qRequester);
             
-            // Wishes helped by user
-            const qHelping = query(wishesRef, where('helper_id', '==', user.uid));
-            const snapHelping = await getDocs(qHelping);
+            // Wishes where user was involved (helper or applicant)
+            const qInvolved = query(wishesRef, where('applicant_ids', 'array-contains', user.uid));
+            const snapInvolved = await getDocs(qInvolved);
 
             // History subcollection (transaction logs)
             const historyRef = collection(db, 'users', user.uid, 'history');
@@ -262,7 +262,6 @@ export const useAuth = () => {
                 let currentPoolMilli = toMilli(decayedBalance);
 
                 // A. Process Requester Wishes (Compensation + Cleanup)
-                // Use pre-fetched helperMap
                 for (const { doc: wishDoc, data: wishData } of activeWishes) {
                     const helperId = wishData.helper_id;
                     if (helperMap.has(helperId)) {
@@ -309,14 +308,33 @@ export const useAuth = () => {
                      transaction.delete(wishDoc.ref);
                 }
 
-                // B. Process Helping Wishes (Resign)
-                for (const helpDoc of snapHelping.docs) {
-                    transaction.update(helpDoc.ref, {
-                        helper_id: null,
-                        status: 'open',
+                // B. Process Involved Wishes (Remove applicant or resign as helper)
+                for (const helpDoc of snapInvolved.docs) {
+                    const wData = helpDoc.data();
+                    const updatedApplicants = (wData.applicants || []).filter((a: { id: string }) => a.id !== user.uid);
+                    const updatedApplicantIds = (wData.applicant_ids || []).filter((id: string) => id !== user.uid);
+
+                    const updates: {
+                        applicants: { id: string; name: string; trust_score?: number }[];
+                        applicant_ids: string[];
+                        updated_at: FieldValue;
+                        helper_id?: string | null;
+                        status?: string;
+                        system_note?: string;
+                    } = {
+                        applicants: updatedApplicants,
+                        applicant_ids: updatedApplicantIds,
                         updated_at: serverTimestamp(),
-                        system_note: '（隣人が旅立ったため、再び募集を開始しました）'
-                    });
+                    };
+
+                    // Only reset status and remove helper_id if they were the active worker
+                    if (wData.helper_id === user.uid && (wData.status === 'in_progress' || wData.status === 'review_pending')) {
+                        updates.helper_id = null;
+                        updates.status = 'open';
+                        updates.system_note = '（隣人が旅立ったため、再び募集を開始しました）';
+                    }
+
+                    transaction.update(helpDoc.ref, updates);
                 }
 
                 // C. Delete History Subcollection

@@ -154,7 +154,6 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
     }, [user]);
 
-
     // --- Lazy Archive Logic (Pagination) ---
     // User Archive: requester_id == me AND status in [fulfilled, cancelled, expired]
     // Involved Archive: helper_id == me AND status in [fulfilled, cancelled, expired] OR decayed/expired logic?
@@ -191,7 +190,7 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             let q = query(
                 collection(db, 'wishes'),
                 where('requester_id', '==', user.uid),
-                where('status', 'in', ['fulfilled', 'cancelled', 'expired']),
+                where('status', 'in', ['fulfilled', 'completed', 'cancelled', 'expired']),
                 orderBy('created_at', 'desc'),
                 limit(ARCHIVE_LIMIT)
             );
@@ -227,7 +226,7 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             let q = query(
                 collection(db, 'wishes'),
                 where('helper_id', '==', user.uid),
-                where('status', 'in', ['fulfilled', 'cancelled', 'expired']),
+                where('status', 'in', ['fulfilled', 'completed', 'cancelled', 'expired']),
                 orderBy('created_at', 'desc'),
                 limit(ARCHIVE_LIMIT)
             );
@@ -253,6 +252,13 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }
     }, [user, involvedArchiveCursor, involvedArchiveHasMore]);
 
+    // --- Trigger Initial Load AFTER declarations ---
+    useEffect(() => {
+        if (user && db) {
+            loadUserArchive(true);
+            loadInvolvedArchive(true);
+        }
+    }, [user, loadUserArchive, loadInvolvedArchive]);
 
     return (
         <WishesContext.Provider value={{ 

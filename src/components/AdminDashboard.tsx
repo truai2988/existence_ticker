@@ -480,6 +480,162 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                         )}
                     </button>
 
+                    <div className="mt-8 pt-8 border-t border-slate-700/50">
+                        <h2 className="text-xl font-bold text-orange-400 mb-4 flex items-center gap-2">
+                            <Activity size={20} />
+                            修理の儀式 (History Restoration)
+                        </h2>
+                        <p className="text-sm text-slate-400 mb-6">
+                            退会バグにより「募集中」に戻ってしまったゾンビ案件を特定し、取引記録（履歴）を元に「完了」状態へ復元します。
+                            これにより、二重に確保されていたLM予約（幽霊債務）が解除され、正しい残高に戻ります。
+                        </p>
+
+                        <button
+                            onClick={async () => {
+                                if (!window.confirm("⚠️ 歴史の修復（修理の儀式）を開始しますか？\n\n「募集中」に戻ってしまった完了済み案件を取引記録から自動復元します。")) return;
+
+                                setIsCleaningUp(true);
+                                setCleanupLog([]);
+                                const log: string[] = [];
+
+                                try {
+                                    if (!db) throw new Error("Database not initialized");
+                                    const { collection, getDocs, query, where, updateDoc, serverTimestamp, limit } = await import("firebase/firestore");
+
+                                    log.push(`[${new Date().toLocaleTimeString()}] 修理の儀式 開始...`);
+                                    setCleanupLog([...log]);
+
+                                    // 1. Find potential zombie wishes
+                                    // (Those with the specific system note OR recently incorrectly restored fulfilled wishes)
+                                    const wishesRef = collection(db, "wishes");
+                                    const zombieQuery = query(wishesRef, where("system_note", "==", "（隣人が旅立ったため、再び募集を開始しました）"));
+                                    // Scan even more, including cancelled just in case
+                                    const processedQuery = query(wishesRef, where("status", "in", ["fulfilled", "completed", "cancelled"]), limit(1000)); 
+                                    
+                                    const [zombieSnap, processedSnap] = await Promise.all([
+                                        getDocs(zombieQuery),
+                                        getDocs(processedQuery)
+                                    ]);
+
+                                    const allDocs = [...zombieSnap.docs];
+                                    processedSnap.docs.forEach(d => {
+                                        if (!allDocs.find(zd => zd.id === d.id)) allDocs.push(d);
+                                    });
+
+                                    log.push(`[${new Date().toLocaleTimeString()}] 探索完了: ${allDocs.length}件の願いを検証します...`);
+                                    setCleanupLog([...log]);
+
+                                    let restoredCount = 0;
+                                    let ignoredCount = 0;
+
+                                    for (const wishDoc of allDocs) {
+                                        const wishData = wishDoc.data();
+                                        const currentStatus = wishData.status;
+                                        const title = wishData.content?.substring(0, 10) || "無題";
+                                        
+                                        // 2. Search for matching transaction in global history
+                                        const txRef = collection(db, "transactions");
+                                        const txQuery = query(txRef, where("wish_id", "==", wishDoc.id));
+                                        const txSnap = await getDocs(txQuery);
+
+                                        const allTxs = txSnap.docs.map(d => d.data());
+                                        
+                                        // PRIORITIZE COMPENSATION
+                                        let completionTx = allTxs.find(t => t.type === "COMPENSATION");
+                                        if (!completionTx) {
+                                            completionTx = allTxs.find(t => t.type === "WISH_COMPLETED" || t.type === "WISH_FULFILLMENT");
+                                        }
+
+                                        // 2.5 Aggressive Fallback
+                                        if (!completionTx) {
+                                            const txSearchQuery = query(txRef, where("wish_title", "==", wishData.content), limit(10));
+                                            const searchSnap = await getDocs(txSearchQuery);
+                                            const fallbackTxs = searchSnap.docs.map(d => d.data());
+                                            completionTx = fallbackTxs.find(t => t.type === "COMPENSATION") 
+                                                         || fallbackTxs.find(t => t.type === "WISH_COMPLETED" || t.type === "WISH_FULFILLMENT");
+                                        }
+
+                                        if (completionTx) {
+                                            const txData = completionTx;
+                                            const targetStatus = txData.type === "COMPENSATION" ? "cancelled" : "fulfilled";
+                                            
+                                            if (currentStatus === targetStatus && !wishData.system_note) {
+                                                log.push(`   維持: "${title}" (現状:${currentStatus}, 履歴:${txData.type})`);
+                                                ignoredCount++;
+                                                setCleanupLog([...log]);
+                                                continue;
+                                            }
+
+                                            log.push(`[${new Date().toLocaleTimeString()}] 修正中: "${title}" (現:${currentStatus} → 履歴:${txData.type})`);
+
+                                            if (txData.type === "COMPENSATION") {
+                                                await updateDoc(wishDoc.ref, {
+                                                    status: "cancelled",
+                                                    cancel_reason: "helper_cancellation",
+                                                    helper_id: txData.recipient_id || txData.helper_id || wishData.helper_id || null,
+                                                    helper_name: txData.recipient_name || txData.helper_name || wishData.helper_name || "Helper",
+                                                    val_at_fulfillment: txData.amount,
+                                                    cancelled_at: txData.created_at || serverTimestamp(),
+                                                    system_note: null,
+                                                    updated_at: serverTimestamp()
+                                                });
+                                                log.push(`   ✅ 補償（お詫び受領）として正常化しました`);
+                                            } else {
+                                                await updateDoc(wishDoc.ref, {
+                                                    status: "fulfilled",
+                                                    helper_id: txData.recipient_id || txData.helper_id || wishData.helper_id || null,
+                                                    helper_name: txData.recipient_name || txData.helper_name || wishData.helper_name || "Helper",
+                                                    val_at_fulfillment: txData.amount,
+                                                    fulfilled_at: txData.created_at || serverTimestamp(),
+                                                    system_note: null,
+                                                    updated_at: serverTimestamp()
+                                                });
+                                                log.push(`   ✅ 完了（感謝受領）として正常化しました`);
+                                            }
+                                            
+                                            restoredCount++;
+                                            setCleanupLog([...log]);
+                                        } else {
+                                            log.push(`   ⏭️ スキップ: "${title}" (支払い履歴が見つかりません)`);
+                                            ignoredCount++;
+                                            setCleanupLog([...log]);
+                                        }
+                                    }
+
+                                    log.push(`[${new Date().toLocaleTimeString()}] ✅ 完了: ${restoredCount}件修正 / ${ignoredCount}件スキップ・維持`);
+                                    setCleanupLog([...log]);
+                                    console.log("Cleanup Ritual complete", { restoredCount, ignoredCount });
+
+                                    log.push(`[${new Date().toLocaleTimeString()}] ✅ 修理完了: ${restoredCount}件復元 / ${ignoredCount}件スキップ`);
+                                    setCleanupLog([...log]);
+                                    alert(`✅ 歴史の修復が完了しました\n\n復元: ${restoredCount}件\nスキップ: ${ignoredCount}件`);
+
+                                } catch (error) {
+                                    console.error("Restoration failed:", error);
+                                    log.push(`[${new Date().toLocaleTimeString()}] ❌ エラー: ${error}`);
+                                    setCleanupLog([...log]);
+                                    alert(`❌ 修理失敗\n\n${error}`);
+                                } finally {
+                                    setIsCleaningUp(false);
+                                }
+                            }}
+                            disabled={isCleaningUp}
+                            className="w-full py-4 rounded-xl bg-orange-900/30 hover:bg-orange-900/50 border border-orange-900/50 hover:border-orange-500 text-orange-400 font-bold uppercase tracking-widest text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                            {isCleaningUp ? (
+                                <>
+                                    <div className="w-4 h-4 border-2 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
+                                    儀式中...
+                                </>
+                            ) : (
+                                <>
+                                    <Activity size={16} />
+                                    歴史を修復する (修理の儀式)
+                                </>
+                            )}
+                        </button>
+                    </div>
+
                     {cleanupLog.length > 0 && (
                         <div className="mt-6 bg-slate-800/50 rounded-lg p-4 border border-slate-700">
                             <h3 className="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">

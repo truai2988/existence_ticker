@@ -463,7 +463,11 @@ export const WishCard: React.FC<WishCardProps> = ({
                 <div className="min-w-0 flex-1">
                   <div className="text-xs uppercase font-bold text-slate-400 tracking-wider mb-0.5">
                     {helperProfile?.name || wish.helper_name || "隣人"}{" "}
-                    さんが応えてくれています
+                    {wish.status === "fulfilled" || wish.status === "completed" 
+                      ? "さんに感謝を届けました" 
+                      : wish.status === "cancelled" 
+                        ? "さんとの願いを中断しました"
+                        : "さんが応えてくれています"}
                   </div>
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     <button
@@ -910,8 +914,14 @@ export const WishCard: React.FC<WishCardProps> = ({
               </span>
             )}
             {wish.status === "cancelled" && (
-              <span className="text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full border border-red-100 whitespace-nowrap shrink-0">
-                キャンセル済み
+              <span className={`text-xs font-bold px-3 py-1 rounded-full border whitespace-nowrap shrink-0 ${
+                wish.cancel_reason === "helper_cancellation" || wish.cancel_reason === "compensatory_cancellation"
+                  ? "text-red-600 bg-red-50 border-red-100"
+                  : "text-slate-500 bg-slate-100 border-slate-200"
+              }`}>
+                {wish.cancel_reason === "helper_cancellation" || wish.cancel_reason === "compensatory_cancellation"
+                  ? (wish.requester_id === currentUserId ? "お詫び受領" : "お詫び送付")
+                  : "キャンセル済み"}
               </span>
             )}
             {wish.status === "review_pending" && (
@@ -919,7 +929,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                 確認待ち
               </span>
             )}
-            {wish.status === "fulfilled" && (
+            {(wish.status === "fulfilled" || wish.status === "completed") && (
               <span className="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100 whitespace-nowrap shrink-0">
                 感謝済み
               </span>
