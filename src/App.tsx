@@ -141,8 +141,11 @@ const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> 
                       {/* Glow Behind Text */}
                       <div className="absolute inset-0 bg-white/60 blur-xl rounded-full scale-150 transform -z-10" />
                       
-                      <Sparkles size={28} strokeWidth={1} className="mb-3 opacity-40 animate-pulse" />
-                      <span className="text-xl font-serif tracking-[0.2em] font-medium text-slate-400">ここにいます</span>
+                      <Sparkles size={24} strokeWidth={1} className="mb-4 opacity-30 animate-pulse text-slate-400" />
+                      <div className="flex flex-col items-center">
+                        <span className="text-2xl font-serif tracking-[0.2em] font-light text-slate-600 mb-1 drop-shadow-sm">私は、私。</span>
+                        <span className="text-xs font-serif tracking-[0.3em] font-light text-slate-400 opacity-40">I AM WHO I AM</span>
+                      </div>
                     </div>
                 </motion.button>
             )}
