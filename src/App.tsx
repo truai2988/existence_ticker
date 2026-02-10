@@ -197,7 +197,7 @@ const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> 
 
 
 // メインコンテンツの切り替えレイヤー
-const MainContent: React.FC<{ viewMode: AppViewMode; setViewMode: (mode: AppViewMode) => void; currentUserId: string; onGoHome: () => void }> = ({ viewMode, setViewMode, currentUserId, onGoHome }) => {
+const MainContent = ({ viewMode, setViewMode, currentUserId, onGoHome }: { viewMode: AppViewMode; setViewMode: (mode: AppViewMode) => void; currentUserId: string; onGoHome: () => void }) => {
     const { isChecking, eventData, completeEvent } = useSeasonalEvent();
 
     // 1. Gatekeeper: If checking, render NOTHING.
