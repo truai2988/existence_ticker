@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy, useEffect } from "react";
+import React, { useState, Suspense, lazy, useEffect } from "react";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useSeasonalEvent } from "./hooks/useSeasonalEvent";
 import { motion, AnimatePresence } from "framer-motion";
