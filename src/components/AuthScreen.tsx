@@ -59,7 +59,13 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
     } catch (err) {
       console.error(err);
       if (err instanceof Error) {
-        if (err.message.includes("auth/invalid-email"))
+        // Invitation Code errors
+        if (err.message.includes("招待コードが正しくありません"))
+          setError("招待コードが正しくありません");
+        else if (err.message.includes("この招待コードは既に使用されています"))
+          setError("この招待コードは既に使用されています");
+        // Auth errors
+        else if (err.message.includes("auth/invalid-email"))
           setError("メールアドレスが無効です");
         else if (err.message.includes("auth/user-not-found"))
           setError("登録されているユーザーが見つかりません");

@@ -14,6 +14,13 @@ import {
 import { calculateDecayedValue } from "../logic/worldPhysics";
 import { UserProfile } from "../types";
 
+// Extend Window interface for ghost profile alert flag
+declare global {
+  interface Window {
+    ghostProfileAlertShown?: boolean;
+  }
+}
+
 export const useProfile = () => {
   const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -107,15 +114,23 @@ export const useProfile = () => {
                 await auth.signOut();
               }
               
-              // Show error message
-              alert("登録が完了していませんでした。\n\nお手数ですが、最初からやり直してください。");
+              // Show error message ONCE (prevent multiple alerts from multiple useProfile instances)
+              if (!window.ghostProfileAlertShown) {
+                window.ghostProfileAlertShown = true;
+                alert("登録が完了していませんでした。\n\nお手数ですが、最初からやり直してください。");
+              }
             } catch (error) {
               console.error("Failed to purge Ghost Profile:", error);
               // If deletion fails (e.g., requires recent login), sign out anyway
               if (auth) {
                 await auth.signOut();
               }
-              alert("登録が完了していませんでした。\n\nお手数ですが、最初からやり直してください。");
+              
+              // Show error message ONCE
+              if (!window.ghostProfileAlertShown) {
+                window.ghostProfileAlertShown = true;
+                alert("登録が完了していませんでした。\n\nお手数ですが、最初からやり直してください。");
+              }
             }
           })();
           
