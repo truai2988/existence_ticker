@@ -1,6 +1,5 @@
 import React, { useState, Suspense, lazy, useEffect } from "react";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-import { useSeasonalEvent } from "./hooks/useSeasonalEvent";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthScreen } from "./components/AuthScreen";
 import { GateScreen } from "./components/GateScreen";
@@ -13,12 +12,10 @@ import { AdminDashboard as AdminComp } from './components/AdminDashboard';
 import { RadianceView } from './components/RadianceView';
 import { FlowView } from './components/FlowView';
 import { SeasonalRevelation } from './components/SeasonalRevelation';
-import { useAuth } from "./hooks/useAuthHook";
 import { AppViewMode } from "./types";
-
 import { useProfile } from "./hooks/useProfile";
+import { useStartupMachine, AppMode } from "./hooks/useStartupMachine";
 
-// カウントアップ演出
 // カウントアップ演出
 const CountingNumber: React.FC<{ value: number; duration: number }> = ({ value, duration }) => {
     const [display, setDisplay] = useState(2400);
@@ -53,21 +50,22 @@ const RitualOverlay = ({ state, targetBalance }: { state: string, targetBalance:
 );
 
 // 2. Unified HomeView (The Vessel)
-const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setTargetBalance }: { 
+const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setTargetBalance, appMode }: { 
     onOpenFlow: () => void; 
     onOpenRequest: () => void;
     ritualState: 'idle' | 'breathing' | 'blooming' | 'syncing';
     setRitualState: (state: 'idle' | 'breathing' | 'blooming' | 'syncing') => void;
     setTargetBalance: (val: number) => void;
+    appMode: AppMode;
 }) => {
-  const { status, performRebirthReset, availableLm, balance } = useWallet();
+  const { performRebirthReset, availableLm, balance } = useWallet();
   const { profile } = useProfile();
 
-  // "Metamorphosis" Logic
-  // RITUAL_READY = Monotone World (No Color)
-  // ALIVE = Color World (Full Color)
-  const isRitualReady = status === 'RITUAL_READY'; 
-  const showColor = !isRitualReady; // The "Lights" are on if we are NOT waiting for ritual
+  // "Metamorphosis" Logic driven by State Machine
+  // RITUAL mode = Monotone World (No Color)
+  // NORMAL mode = Color World (Full Color)
+  const isRitualReady = appMode === 'RITUAL'; 
+  const showColor = appMode === 'NORMAL'; 
   
   // Calculate Days
   const cycleDays = profile?.scheduled_cycle_days || 10;
@@ -77,10 +75,42 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
   const nextReset = cycleStartedAt + (cycleDays * 24 * 60 * 60 * 1000);
   const daysLeft = Math.max(0, Math.ceil((nextReset - Date.now()) / (1000 * 60 * 60 * 24)));
   
+  // Sound Effect: 528Hz Crystal Tone
+  const playCrystalSound = () => {
+      try {
+          const win = window as unknown as Window & { 
+            AudioContext?: typeof AudioContext;
+            webkitAudioContext?: typeof AudioContext; 
+          };
+          const AudioContextClass = win.AudioContext || win.webkitAudioContext;
+          if (!AudioContextClass) return;
+          const ctx = new AudioContextClass();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(528, ctx.currentTime); 
+          
+          gain.gain.setValueAtTime(0, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.5); 
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 4); 
+          
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          
+          osc.start();
+          osc.stop(ctx.currentTime + 4.5);
+      } catch (e) {
+          console.error("Audio Playback Failed", e);
+      }
+  };
+
   const handleRitual = async () => {
       if (ritualState !== 'idle') return;
       try {
-          setRitualState('breathing'); await new Promise(r => setTimeout(r, 1500));
+          setRitualState('breathing');
+          playCrystalSound(); 
+          await new Promise(r => setTimeout(r, 1500));
           const result = await performRebirthReset();
           if (result.success && result.newBalance !== undefined) {
               setTargetBalance(result.newBalance); setRitualState('blooming'); 
@@ -180,21 +210,14 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
                     </div>
                 </motion.button>
             ) : (
-                // Normal Buttons (Wrapper for grouping)
-                // Note: Using a fragment or div to group them for AnimatePresence might be tricky with absolute positioning if we want them to fade together.
-                // Let's use a fragment but applied to each button. 
-                // Actually, if we use mode="wait", they will wait for Ritual Button to leave before entering.
-                // The "Metamorphosis" asks for continuous existence.
-                // "Lights turn on".
-                // So maybe they shouldn't "wait" but just appear?
-                // User said: "フェードイン演出と共に表示" (Display with fade-in effect).
+                // Normal Buttons
                 <>
                    <motion.button 
                      key="btn-help" 
                      onClick={onOpenFlow} 
                      className="absolute top-[32.32%] left-[67.68%] -translate-x-1/2 -translate-y-[14.5px] z-20 outline-none group text-amber-800"
                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                     transition={{ duration: 0.8, delay: 0.2 }} // Slight delay to let color fill start first
+                     transition={{ duration: 0.8, delay: 0.2 }}
                    >
                        <div className="flex flex-col items-center origin-center">
                          <motion.div className="flex flex-col items-center">
@@ -227,7 +250,7 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
 
 
 // メインコンテンツの切り替えレイヤー
-const MainContent = ({ viewMode, setViewMode, currentUserId, onGoHome, ritualState, setRitualState, setTargetBalance }: { 
+const MainContent = ({ viewMode, setViewMode, currentUserId, onGoHome, ritualState, setRitualState, setTargetBalance, appMode }: { 
     viewMode: AppViewMode; 
     setViewMode: (mode: AppViewMode) => void; 
     currentUserId: string; 
@@ -235,6 +258,7 @@ const MainContent = ({ viewMode, setViewMode, currentUserId, onGoHome, ritualSta
     ritualState: 'idle' | 'breathing' | 'blooming' | 'syncing';
     setRitualState: (state: 'idle' | 'breathing' | 'blooming' | 'syncing') => void;
     setTargetBalance: (val: number) => void;
+    appMode: AppMode;
 }) => {
     // 3. Normal Mode: Fade in the main content (HomeView, etc.)
     const withTransition = (component: React.ReactNode, key: string) => (
@@ -252,6 +276,7 @@ const MainContent = ({ viewMode, setViewMode, currentUserId, onGoHome, ritualSta
                     ritualState={ritualState}
                     setRitualState={setRitualState}
                     setTargetBalance={setTargetBalance}
+                    appMode={appMode}
                 />, 'home');
             case 'profile': return withTransition(<ProfileView onOpenAdmin={() => setViewMode('admin')} onTabChange={setViewMode} />, 'profile');
             case 'profile_edit': return withTransition(<ProfileView onOpenAdmin={() => setViewMode('admin')} initialEditMode={true} onTabChange={setViewMode} />, 'profile_edit');
@@ -294,10 +319,9 @@ const ScreenLoader = () => (
 );
 
 function App() {
-  const { user, loading: authLoading, signOut } = useAuth();
-  const { status } = useWallet(); // WalletStatus now handles initialization state ('INITIALIZING')
-  const { isChecking, eventData, completeEvent } = useSeasonalEvent(); // Strict Gatekeeper Check
-  
+  // THE MACHINE (Single Source of Truth)
+  const { view, appMode, data, actions } = useStartupMachine();
+
   // Lifted Ritual State to control Global UI (Header/Background)
   const [ritualState, setRitualState] = useState<'idle' | 'breathing' | 'blooming' | 'syncing'>('idle');
   const [targetBalance, setTargetBalance] = useState(2400); // Lifted for Overlay
@@ -314,96 +338,93 @@ function App() {
   const handleTabChange = (tab: AppViewMode) => setViewMode(tab);
   const handleGoHome = () => setViewMode("home");
 
-  // 1. Loading Phase (Simplified)
-  // "Wait until we are truly ready."
-  // status === 'INITIALIZING' covers the initial data fetch.
-  if (authLoading || status === 'INITIALIZING' || isChecking) return <ScreenLoader />;
-
-  // 1.5 Ghost Protocol (Exception Handling)
-  // Profile was missing after loading completed. Force re-registration.
-  if (status === 'GHOST') {
-      return (
-          <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[#F9F8F4] min-h-screen text-slate-800">
-             <h2 className="text-2xl font-serif font-bold mb-4">魂の不在</h2>
-             <p className="mb-8 text-slate-600 text-center text-sm leading-relaxed max-w-xs">
-                 認証は確認できましたが、<br/>存在の記録が見つかりません。<br/>
-                 (Ghost Profile Detected)
-             </p>
-             <button 
-                onClick={() => signOut()}
-                className="px-8 py-3 bg-slate-900 text-white font-serif text-sm tracking-widest hover:bg-slate-800 transition-colors"
-             >
-                 無に還る
-             </button>
-          </div>
-      );
-  }
-
-  // 2. Auth Gate
-  if (!user) {
-    if (!gateOpened) return <GateScreen onOpen={handleGateOpen} />;
-    return (
-        <ErrorBoundary>
-            <AuthScreen onSuccess={() => setViewMode("home")} />
-        </ErrorBoundary>
-    );
-  }
-
-  // 3. Seasonal Event (Strict Gatekeeper)
-  // If event data exists, render ONLY the event. The main app is NOT rendered.
-  if (eventData) {
-      return <SeasonalRevelation eventData={eventData} onComplete={completeEvent} />;
-  }
-
-  // 4. Main App (Rendered only when check is complete AND no event exists)
-  const isRitual = status === 'RITUAL_READY';
-
-  return (
-    <div className="bg-[#F9F8F4] h-screen font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
-      {/* Header: Only show if NOT in Ritual Mode AND Ritual Animation is idle */}
-      <AnimatePresence>
-        {viewMode === 'home' && !isRitual && ritualState === 'idle' && (
-            <motion.div 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                exit={{ opacity: 0 }} 
-                transition={{ duration: 0.8, ease: "easeOut" }} 
-                className="absolute top-0 left-0 right-0 z-50"
-            >
-                <Header viewMode={viewMode} onTabChange={handleTabChange} />
-            </motion.div>
-        )}
-      </AnimatePresence>
-
-      <main className={`flex-1 relative overflow-y-auto no-scrollbar scroll-smooth flex flex-col`}>
-        <Suspense fallback={<ScreenLoader />}>
-          {/* Main Content: Fade In when Ritual is Complete (Alive) */}
-          <motion.div 
-            className="w-full h-full flex flex-col flex-1"
-            animate={isRitual ? { opacity: 1 } : { opacity: 1 }} 
-          >
-              <MainContent
-                viewMode={viewMode}
-                setViewMode={setViewMode}
-                currentUserId={user.uid}
-                onGoHome={handleGoHome}
-                ritualState={ritualState}
-                setRitualState={setRitualState}
-                setTargetBalance={setTargetBalance}
-              />
-          </motion.div>
-        </Suspense>
-      </main>
+  // --- THE DETERMINISTIC SWITCH ---
+  switch(view) {
+      case 'LOADING':
+          return <ScreenLoader />;
       
-      {/* Ritual Animation Overlay (Global via Portal Logic but physically here) */}
-      <RitualOverlay state={ritualState} targetBalance={targetBalance} />
+      case 'GATE':
+          if (!gateOpened) return <GateScreen onOpen={handleGateOpen} />;
+          return (
+            <ErrorBoundary>
+                <AuthScreen onSuccess={() => setViewMode("home")} />
+            </ErrorBoundary>
+          );
+      
+      case 'GHOST':
+          return (
+            <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[#F9F8F4] min-h-screen text-slate-800">
+               <h2 className="text-2xl font-serif font-bold mb-4">魂の不在</h2>
+               <p className="mb-8 text-slate-600 text-center text-sm leading-relaxed max-w-xs">
+                   認証は確認できましたが、<br/>存在の記録が見つかりません。<br/>
+                   (Ghost Profile Detected)
+               </p>
+               <button 
+                  onClick={() => actions.deleteAccount()}
+                  className="px-8 py-3 bg-slate-900 text-white font-serif text-sm tracking-widest hover:bg-slate-800 transition-colors"
+               >
+                   無に還る
+               </button>
+            </div>
+        );
 
-      {showAdmin && (
-        <Suspense fallback={null}>
-          <AdminDashboard onClose={() => setShowAdmin(false)} />
-        </Suspense>
-      )}
-    </div>
-  );
+      case 'EVENT':
+          return <SeasonalRevelation eventData={data.eventData!} onComplete={actions.completeEvent} />;
+
+      case 'APP': {
+        // The World is Open.
+        // We render the Header and MainContent based on internal routing (viewMode), 
+        // passing down the machine's "Mood" (appMode) to influence visuals.
+        
+        const isRitual = appMode === 'RITUAL';
+        return (
+            <div className="bg-[#F9F8F4] h-screen font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
+            {/* Header: Only show if NOT in Ritual Mode AND Ritual Animation is idle */}
+            <AnimatePresence>
+                {viewMode === 'home' && !isRitual && ritualState === 'idle' && (
+                    <motion.div 
+                        initial={{ opacity: 0 }} 
+                        animate={{ opacity: 1 }} 
+                        exit={{ opacity: 0 }} 
+                        transition={{ duration: 0.8, ease: "easeOut" }} 
+                        className="absolute top-0 left-0 right-0 z-50"
+                    >
+                        <Header viewMode={viewMode} onTabChange={handleTabChange} />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <main className={`flex-1 relative overflow-y-auto no-scrollbar scroll-smooth flex flex-col`}>
+                <Suspense fallback={<ScreenLoader />}>
+                <motion.div 
+                    className="w-full h-full flex flex-col flex-1"
+                    animate={{ opacity: 1 }} 
+                >
+                    <MainContent
+                        viewMode={viewMode}
+                        setViewMode={setViewMode}
+                        currentUserId={data.user!.uid}
+                        onGoHome={handleGoHome}
+                        ritualState={ritualState}
+                        setRitualState={setRitualState}
+                        setTargetBalance={setTargetBalance}
+                        appMode={appMode}
+                    />
+                </motion.div>
+                </Suspense>
+            </main>
+            
+            {/* Ritual Animation Overlay */}
+            <RitualOverlay state={ritualState} targetBalance={targetBalance} />
+
+            {showAdmin && (
+                <Suspense fallback={null}>
+                <AdminDashboard onClose={() => setShowAdmin(false)} />
+                </Suspense>
+            )}
+            </div>
+        );
+      }
+  }
 }
 export default App;
