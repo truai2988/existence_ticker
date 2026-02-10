@@ -113,8 +113,8 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
         <div className="border-b border-slate-100 bg-white/50">
             <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
                  <div>
-                    <h2 className="text-sm font-bold tracking-widest uppercase text-slate-400">Journal</h2>
-                    <p className="text-xs text-slate-300 font-mono tracking-[0.2em] uppercase">あなたの歩みの記録</p>
+                    <h2 className="text-sm font-bold tracking-widest uppercase text-slate-900">Journal</h2>
+                    <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase">あなたの歩みの記録</p>
                 </div>
                 {onTabChange && (
                     <div className="shrink-0">

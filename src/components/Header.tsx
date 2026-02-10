@@ -76,20 +76,20 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                             <div className="flex items-center justify-between">
                                 {/* Left: Title and Location */}
                                 <div>
-                                    <h1 className="text-sm font-bold tracking-widest uppercase text-slate-400 leading-none mb-1">
+                                    <h1 className="text-sm font-bold tracking-widest uppercase text-slate-900 leading-none mb-1">
                                         Existence Ticker
                                     </h1>
                                     <button
                                         onClick={() => setShowPresenceModal(true)}
                                         className="flex items-center gap-1.5 text-left hover:opacity-70 transition-opacity group"
                                     >
-                                        <MapPin size={10} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
-                                        <span className="text-xs text-slate-300 font-mono tracking-wider uppercase group-hover:text-slate-500 transition-colors truncate max-w-[120px]">
+                                        <MapPin size={10} className="text-slate-500 group-hover:text-slate-700 transition-colors" />
+                                        <span className="text-xs text-slate-600 font-mono tracking-wider uppercase group-hover:text-slate-900 transition-colors truncate max-w-[120px]">
                                             {getLocationText()}
                                         </span>
-                                        <span className="text-[10px] text-slate-300">|</span>
-                                        <Users size={10} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
-                                        <span className="text-xs text-slate-300 font-mono tracking-wider group-hover:text-slate-500 transition-colors">
+                                        <span className="text-[10px] text-slate-400">|</span>
+                                        <Users size={10} className="text-slate-500 group-hover:text-slate-700 transition-colors" />
+                                        <span className="text-xs text-slate-600 font-mono tracking-wider group-hover:text-slate-900 transition-colors">
                                             {getUserCountText()}
                                         </span>
                                     </button>

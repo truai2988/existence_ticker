@@ -133,7 +133,10 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   // === 3. METABOLIC STATUS ===
   const status: WalletStatus = useMemo(() => {
-    if (!profile || profileLoading) return 'ALIVE';
+    // During loading, show ALIVE to prevent flashes, 
+    // but if profile is null, it's a Ghost State -> RITUAL_READY
+    if (profileLoading) return 'ALIVE';
+    if (!profile || !profile.id) return 'RITUAL_READY';
 
     const cycleStartedAt = profile.cycle_started_at && typeof profile.cycle_started_at.toMillis === 'function'
         ? profile.cycle_started_at.toMillis()

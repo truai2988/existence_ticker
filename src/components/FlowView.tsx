@@ -78,10 +78,10 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
             <div className="bg-white/50 border-b border-slate-100">
                 <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-sm font-bold tracking-widest uppercase text-slate-400 flex items-center gap-2">
+                        <h2 className="text-sm font-bold tracking-widest uppercase text-slate-900 flex items-center gap-2">
                             みんなの願い
                         </h2>
-                        <p className="text-xs text-slate-300 font-mono tracking-[0.2em] uppercase">Flow of Wishes</p>
+                        <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase">Flow of Wishes</p>
                     </div>
                     <div className="flex items-center gap-2">
                         {onTabChange && (

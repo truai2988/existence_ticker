@@ -74,9 +74,9 @@ const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> 
         {!isRitualReady && !isEmpty && (
              <div className="absolute top-[8%] left-0 right-0 flex flex-col items-center z-20 pointer-events-none">
                 <motion.div initial={{ opacity: 0, scale: 0.9, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} className="absolute bottom-[105%]">
-                    <span className="text-xs font-bold text-slate-400 tracking-widest uppercase whitespace-nowrap text-shadow-sm">
+                    <span className="text-xs font-bold text-slate-600 tracking-widest uppercase whitespace-nowrap text-shadow-sm">
                         手持ち： {Math.floor(balance).toLocaleString()}
-                        <span className="ml-2 text-slate-400 opacity-80 decoration-slate-300">
+                        <span className="ml-2 text-slate-500 font-medium">
                             (あと{daysLeft}日)
                         </span>
                     </span>

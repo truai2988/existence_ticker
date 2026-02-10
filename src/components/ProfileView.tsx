@@ -88,8 +88,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     null,
   );
   const [deleteStep, setDeleteStep] = useState(0);
-
-  // Re-auth for deletion
   const [showReauth, setShowReauth] = useState(false);
   const [reauthPassword, setReauthPassword] = useState("");
 
@@ -149,13 +147,25 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     setErrorMsg("");
     setIsLoading(true);
     try {
-      if (showReauth) {
-        await reauthenticate(reauthPassword);
-        setShowReauth(false);
+      // Logic: If non-anonymous, we MUST re-authenticate before touching the database
+      if (!isAnonymous && !showReauth) {
+         // This state should be handled by the UI showing the input first,
+         // but as a safety check:
+         setShowReauth(true);
+         setErrorMsg("本人確認のためパスワードを入力してください。");
+         setIsLoading(false);
+         return;
       }
+
+      if (showReauth && !isAnonymous) {
+        await reauthenticate(reauthPassword);
+        // If it fails, it throws to catch
+      }
+
+      // NOW we can safely delete database and auth account
       await deleteAccount();
-      alert("退会しました");
-      window.location.reload();
+      alert("退会しました。またいつか、時の流れでお会いしましょう。");
+      window.location.href = "/"; // Force refresh to clean state
     } catch (e: unknown) {
       console.error("Delete failed", e);
       const firebaseError = e as { code?: string; message?: string };
@@ -187,8 +197,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       <div className="border-b border-slate-100 bg-white/50">
           <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
               <div>
-                  <h2 className="text-sm font-bold tracking-widest uppercase text-slate-400">Profile</h2>
-                  <p className="text-xs text-slate-300 font-mono tracking-[0.2em] uppercase">あなたの記録</p>
+                  <h2 className="text-sm font-bold tracking-widest uppercase text-slate-900">Profile</h2>
+                  <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase">あなたの記録</p>
               </div>
               <div className="flex items-center gap-2">
                   {onOpenAdmin &&
@@ -423,6 +433,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     onClick={() => {
                       setConfirmMode("delete");
                       setDeleteStep(1);
+                      // Pre-emptively show re-auth if they are registered
+                      if (!isAnonymous) setShowReauth(true);
+                      else setShowReauth(false);
                     }}
                   />
                 )}

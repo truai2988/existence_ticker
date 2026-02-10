@@ -10,9 +10,10 @@ import {
     updateEmail,
     reauthenticateWithCredential
 } from 'firebase/auth';
-import { doc, deleteDoc, serverTimestamp, runTransaction, increment, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
+import { doc, serverTimestamp, runTransaction, increment, collection, query, where, getDocs } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { useAuthContext } from '../contexts/AuthContextDefinition';
+import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS } from '../logic/worldPhysics';
 
 
 export const useAuth = () => {
@@ -153,57 +154,110 @@ export const useAuth = () => {
     };
 
     const deleteAccount = async () => {
-        if (!auth || !auth.currentUser || !user) throw new Error("Not authenticated");
-        if (!db) throw new Error("Database not connected");
+        if (!auth || !auth.currentUser || !db) throw new Error("Authentication or Database error");
+        const user = auth.currentUser;
 
         try {
-            // 1. Delete all wishes created by the user
-            // We must do this BEFORE deleting the Auth user, because Firestore rules likely restrict deletion to the owner.
-            const batch = writeBatch(db);
-
-            // 0. Reset wishes where user is a HELPER
-            // If the user was helping someone, we must "resign" from that role so the wish becomes open again.
-            const helpingRef = collection(db, 'wishes');
-            const qHelping = query(helpingRef, where('helper_id', '==', user.uid));
-            const helpingSnap = await getDocs(qHelping);
-            
-            helpingSnap.forEach((doc) => {
-                batch.update(doc.ref, {
-                    helper_id: null,
-                    status: 'open',
-                    updated_at: serverTimestamp()
-                });
-            });
-
-            // 1. Delete all wishes created by the user (Requester)
+            // 1. Fetch all data needed for compensation & resignation analysis
             const wishesRef = collection(db, 'wishes');
-            const q = query(wishesRef, where('requester_id', '==', user.uid));
-            const snapshot = await getDocs(q);
             
-            snapshot.forEach((doc) => {
-                batch.delete(doc.ref);
+            // Wishes created by user
+            const qRequester = query(wishesRef, where('requester_id', '==', user.uid));
+            const snapRequester = await getDocs(qRequester);
+            
+            // Wishes helped by user
+            const qHelping = query(wishesRef, where('helper_id', '==', user.uid));
+            const snapHelping = await getDocs(qHelping);
+
+            // 2. Execute Transactional Death Ritual
+            await runTransaction(db, async (transaction) => {
+                const userRef = doc(db!, 'users', user.uid);
+                const userSnap = await transaction.get(userRef);
+
+                let requesterBalance = 0;
+                let requesterName = "Anonymous";
+                let lastUpdated = serverTimestamp();
+
+                if (userSnap.exists()) {
+                    const uData = userSnap.data();
+                    requesterBalance = uData.balance || 0;
+                    requesterName = uData.name || "Anonymous";
+                    lastUpdated = uData.last_updated;
+                }
+
+                const decayedBalance = calculateDecayedValue(requesterBalance, lastUpdated);
+                let currentPoolMilli = toMilli(decayedBalance);
+
+                // A. Process Requester Wishes (Compensation + Cleanup)
+                for (const wishDoc of snapRequester.docs) {
+                    const wishData = wishDoc.data();
+
+                    if (wishData.status === 'in_progress' || wishData.status === 'review_pending') {
+                        const helperId = wishData.helper_id;
+                        if (helperId) {
+                            const helperRef = doc(db!, 'users', helperId);
+                            const helperSnap = await transaction.get(helperRef);
+
+                            if (helperSnap.exists()) {
+                                const hData = helperSnap.data();
+                                const hDecayedBalance = calculateDecayedValue(hData.balance || 0, hData.last_updated);
+                                const hName = hData.name || "Helper";
+
+                                const bounty = wishData.cost || 0;
+                                const wishDecayedValue = calculateDecayedValue(bounty, wishData.created_at);
+
+                                const actualPaymentMilli = Math.min(toMilli(wishDecayedValue), currentPoolMilli);
+                                const actualPayment = fromMilli(actualPaymentMilli);
+                                currentPoolMilli -= actualPaymentMilli;
+
+                                const hNewMilli = toMilli(hDecayedBalance) + actualPaymentMilli;
+                                const hCappedMilli = Math.min(hNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
+
+                                transaction.update(helperRef, {
+                                    balance: fromMilli(hCappedMilli),
+                                    last_updated: serverTimestamp()
+                                });
+
+                                const txPropRef = doc(collection(db!, 'transactions'));
+                                transaction.set(txPropRef, {
+                                    type: 'COMPENSATION',
+                                    amount: actualPayment,
+                                    sender_id: user.uid,
+                                    sender_name: requesterName,
+                                    recipient_id: helperId,
+                                    recipient_name: hName,
+                                    wish_title: wishData.content,
+                                    wish_id: wishDoc.id,
+                                    created_at: serverTimestamp(),
+                                    description: actualPayment < wishDecayedValue ? "account_deleted (Bankruptcy Partial Payment)" : "account_deleted"
+                                });
+                            }
+                        }
+                    }
+                    transaction.delete(wishDoc.ref);
+                }
+
+                // B. Process Helping Wishes (Resign)
+                for (const helpDoc of snapHelping.docs) {
+                    transaction.update(helpDoc.ref, {
+                        helper_id: null,
+                        status: 'open',
+                        updated_at: serverTimestamp()
+                    });
+                }
+
+                // C. Delete Profile
+                if (userSnap.exists()) {
+                    transaction.delete(userRef);
+                }
             });
 
-            // 2. Delete History Subcollection
-            const historyRef = collection(db, 'users', user.uid, 'history');
-            const historySnap = await getDocs(historyRef);
-            historySnap.forEach((doc) => {
-                batch.delete(doc.ref);
-            });
-
-            await batch.commit();
-
-            // 3. Delete Firestore User Profile
-            const userRef = doc(db, 'users', user.uid);
-            await deleteDoc(userRef);
-            
-            // 4. Finally, Delete Auth User (Irreversible and strips permissions)
-            await user.delete(); 
-
-            console.log("Account, Profile, History, and Wishes deleted successfully.");
+            // 3. Finally, Delete Auth User
+            await user.delete();
+            console.log("Account Deletion Complete: Requester wishes compensated, Helper roles resigned.");
         } catch (error) {
              console.error("Account deletion failed:", error);
-             throw error; 
+             throw error;
         }
     };
 

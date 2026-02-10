@@ -23,7 +23,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                 <button
                     onClick={() => onTabChange("home")}
                     className={`p-2 transition-colors ${
-                        currentTab === "home" ? "text-slate-800" : "text-slate-400 hover:text-slate-600"
+                        currentTab === "home" ? "text-slate-900" : "text-slate-600 hover:text-slate-800"
                     }`}
                     aria-label="ホーム"
                 >
@@ -33,7 +33,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                 <button
                     onClick={() => onTabChange("history")}
                     className={`p-2 transition-colors ${
-                        currentTab === "history" ? "text-slate-800" : "text-slate-400 hover:text-slate-600"
+                        currentTab === "history" ? "text-slate-900" : "text-slate-600 hover:text-slate-800"
                     }`}
                     aria-label="履歴"
                 >
@@ -43,7 +43,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                 <button
                     onClick={() => onTabChange("profile")}
                     className={`p-2 transition-colors ${
-                        currentTab === "profile" ? "text-slate-800" : "text-slate-400 hover:text-slate-600"
+                        currentTab === "profile" ? "text-slate-900" : "text-slate-600 hover:text-slate-800"
                     }`}
                     aria-label="プロフィール"
                 >
@@ -55,7 +55,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
             <div className="md:hidden relative">
                 <button
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    className="p-2 text-slate-400 hover:text-slate-600 transition-colors"
+                    className="p-2 text-slate-600 hover:text-slate-900 transition-colors"
                     aria-label="メニュー"
                 >
                     {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
