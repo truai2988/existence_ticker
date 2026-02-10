@@ -37,10 +37,15 @@ const CountingNumber: React.FC<{ value: number; duration: number }> = ({ value, 
 };
 
 // ホーム（Yin-Yang）ビュー
-const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> = ({ onOpenFlow, onOpenRequest }) => {
+const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState }: { 
+    onOpenFlow: () => void; 
+    onOpenRequest: () => void;
+    ritualState: 'idle' | 'breathing' | 'blooming' | 'syncing';
+    setRitualState: (state: 'idle' | 'breathing' | 'blooming' | 'syncing') => void;
+}) => {
   const { status, performRebirthReset, availableLm, balance } = useWallet();
   const { profile } = useProfile();
-  const [ritualState, setRitualState] = useState<'idle' | 'breathing' | 'blooming' | 'syncing'>('idle');
+  // Lifted State: ritualState is now a prop
   const [targetBalance, setTargetBalance] = useState(2400);
 
   // Remaining Days Calculation
@@ -66,13 +71,15 @@ const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> 
   };
 
   const isRitualReady = status === 'RITUAL_READY' && ritualState === 'idle';
+  const showRitualVisuals = isRitualReady || ritualState !== 'idle';
   const isEmpty = status === 'EMPTY';
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center w-full min-h-full px-6 pt-24 pb-4 relative max-w-md mx-auto overflow-hidden">
       <div className="flex-1 flex items-center justify-center w-full relative">
         {/* 透明な背景に浮かぶ「手持ち」残高 */}
-        {!isRitualReady && !isEmpty && (
+        {/* Only show if NOT in Ritual (Ready or Animating) AND not Empty */}
+        {!showRitualVisuals && !isEmpty && (
              <div className="absolute top-[8%] left-0 right-0 flex flex-col items-center z-20 pointer-events-none">
                 <motion.div initial={{ opacity: 0, scale: 0.9, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} className="absolute bottom-[105%]">
                     <span className="text-xs font-bold text-slate-600 tracking-widest uppercase whitespace-nowrap text-shadow-sm">
@@ -108,18 +115,18 @@ const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> 
               <g transform="rotate(-45 50 50)">
                   {/* Left Side (Yin / Warmth) */}
                   <path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 1 0 50 Z" 
-                    fill={isRitualReady ? 'url(#cocoonShadow)' : isEmpty ? 'url(#porcGrad)' : 'url(#yinGrad)'} 
+                    fill={showRitualVisuals ? 'url(#cocoonShadow)' : isEmpty ? 'url(#porcGrad)' : 'url(#yinGrad)'} 
                   />
                   {/* Right Side (Yang / Light) */}
                   <path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 0 0 50 Z" 
-                    fill={isRitualReady ? 'url(#cocoonLight)' : isEmpty ? 'url(#porcGrad)' : 'url(#yangGrad)'} 
+                    fill={showRitualVisuals ? 'url(#cocoonLight)' : isEmpty ? 'url(#porcGrad)' : 'url(#yangGrad)'} 
                   />
                   {/* Boundary Line */}
                   <path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50" 
                     fill="none" 
-                    stroke={isRitualReady ? 'rgba(255,255,255,0.8)' : isEmpty ? '#94A3B8' : 'white'} 
-                    strokeWidth={isRitualReady ? "1" : "2.5"} 
-                    style={isRitualReady ? { filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.5))' } : {}}
+                    stroke={showRitualVisuals ? 'rgba(255,255,255,0.8)' : isEmpty ? '#94A3B8' : 'white'} 
+                    strokeWidth={showRitualVisuals ? "1" : "2.5"} 
+                    style={showRitualVisuals ? { filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.5))' } : {}}
                   />
               </g>
             </svg>
@@ -197,7 +204,14 @@ const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> 
 
 
 // メインコンテンツの切り替えレイヤー
-const MainContent = ({ viewMode, setViewMode, currentUserId, onGoHome }: { viewMode: AppViewMode; setViewMode: (mode: AppViewMode) => void; currentUserId: string; onGoHome: () => void }) => {
+const MainContent = ({ viewMode, setViewMode, currentUserId, onGoHome, ritualState, setRitualState }: { 
+    viewMode: AppViewMode; 
+    setViewMode: (mode: AppViewMode) => void; 
+    currentUserId: string; 
+    onGoHome: () => void;
+    ritualState: 'idle' | 'breathing' | 'blooming' | 'syncing';
+    setRitualState: (state: 'idle' | 'breathing' | 'blooming' | 'syncing') => void;
+}) => {
     // 3. Normal Mode: Fade in the main content (HomeView, etc.)
     const withTransition = (component: React.ReactNode, key: string) => (
         <motion.div key={key} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeInOut" }} className="w-full h-full">
@@ -207,7 +221,13 @@ const MainContent = ({ viewMode, setViewMode, currentUserId, onGoHome }: { viewM
 
     const renderContent = () => {
         switch (viewMode) {
-            case 'home': return withTransition(<HomeView onOpenFlow={() => setViewMode('flow')} onOpenRequest={() => setViewMode('give')} />, 'home');
+            case 'home': return withTransition(
+                <HomeView 
+                    onOpenFlow={() => setViewMode('flow')} 
+                    onOpenRequest={() => setViewMode('give')} 
+                    ritualState={ritualState}
+                    setRitualState={setRitualState}
+                />, 'home');
             case 'profile': return withTransition(<ProfileView onOpenAdmin={() => setViewMode('admin')} onTabChange={setViewMode} />, 'profile');
             case 'profile_edit': return withTransition(<ProfileView onOpenAdmin={() => setViewMode('admin')} initialEditMode={true} onTabChange={setViewMode} />, 'profile_edit');
             case 'history': return withTransition(<JournalView onTabChange={setViewMode} />, 'history');
@@ -250,9 +270,12 @@ const ScreenLoader = () => (
 
 function App() {
   const { user, loading: authLoading } = useAuth();
-  const { status, isLoading: walletLoading } = useWallet(); // Consume Wallet Context
+  const { status } = useWallet(); // Consume Wallet Context
   const { isChecking, eventData, completeEvent } = useSeasonalEvent(); // Strict Gatekeeper Check
   
+  // Lifted Ritual State to control Global UI (Header/Background)
+  const [ritualState, setRitualState] = useState<'idle' | 'breathing' | 'blooming' | 'syncing'>('idle');
+
   const [viewMode, setViewMode] = useState<AppViewMode>("home");
   const [showAdmin, setShowAdmin] = useState(false);
   const [gateOpened, setGateOpened] = useState(() => sessionStorage.getItem('gateOpened') === 'true');
@@ -290,9 +313,9 @@ function App() {
 
   return (
     <div className="bg-[#F9F8F4] h-screen font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
-      {/* Header: Only show if NOT in Ritual Mode */}
+      {/* Header: Only show if NOT in Ritual Mode AND Ritual Animation is idle */}
       <AnimatePresence>
-        {viewMode === 'home' && !isRitual && (
+        {viewMode === 'home' && !isRitual && ritualState === 'idle' && (
             <motion.div 
                 initial={{ opacity: 0 }} 
                 animate={{ opacity: 1 }} 
@@ -321,6 +344,8 @@ function App() {
                 setViewMode={setViewMode}
                 currentUserId={user.uid}
                 onGoHome={handleGoHome}
+                ritualState={ritualState}
+                setRitualState={setRitualState}
               />
           </motion.div>
         </Suspense>
