@@ -4,9 +4,14 @@ import { useAuth } from '../hooks/useAuthHook';
 import { X, LogOut, Trash2, AlertTriangle } from 'lucide-react';
 
 export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-    const { signOut, deleteAccount } = useAuth();
+    const { signOut, deleteAccount, reauthenticate } = useAuth();
     const [isDeleting, setIsDeleting] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
+    
+    // Re-auth state
+    const [showReauth, setShowReauth] = useState(false);
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
 
     const handleSignOut = async () => {
         await signOut();
@@ -14,18 +19,32 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
     };
 
     const handleDelete = async () => {
-        if (!confirmDelete) {
-            setConfirmDelete(true);
-            return;
-        }
+        setError('');
         setIsDeleting(true);
         try {
+            if (showReauth) {
+                // If in re-auth mode, authenticate first
+                await reauthenticate(password);
+                setShowReauth(false); // Clear re-auth mode if successful
+            }
+            
             await deleteAccount();
             window.location.reload(); // Force refresh to clear state
-        } catch (e) {
-            console.error("Delete failed", e);
-            alert("退会処理に失敗しました。再ログインしてからお試しください。");
+        } catch (error: unknown) {
+            console.error("Delete failed", error);
             setIsDeleting(false);
+            
+            const e = error as { code?: string; message?: string };
+
+            // Handle "Requires Recent Login"
+            if (e.code === 'auth/requires-recent-login' || e.message?.includes('requires-recent-login')) {
+                setShowReauth(true);
+                setError("セキュリティ保護のため、パスワードの再入力が必要です。");
+            } else if (e.code === 'auth/wrong-password') {
+                setError("パスワードが間違っています。");
+            } else {
+                setError("退会処理に失敗しました。時間をおいて再試行してください。");
+            }
         }
     };
 
@@ -46,6 +65,7 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                     </div>
 
                     <div className="space-y-3">
+                         {!showReauth && !confirmDelete && (
                          <button 
                             onClick={handleSignOut}
                             className="w-full flex items-center gap-3 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors text-slate-600 font-bold"
@@ -53,6 +73,7 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                             <LogOut size={20} />
                             ログアウト
                         </button>
+                        )}
                         
                         {!confirmDelete ? (
                              <button 
@@ -74,9 +95,32 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                                         すべての記録と LM は時の流れに還り、元に戻すことはできません。よろしいですか？
                                     </p>
                                 </div>
+
+                                {showReauth && (
+                                    <div className="mb-4 space-y-2">
+                                        <p className="text-xs text-red-600 font-bold">パスワードを確認します</p>
+                                        <input 
+                                            type="password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            placeholder="パスワードを入力"
+                                            className="w-full px-3 py-2 text-sm border border-red-200 rounded-lg focus:outline-none focus:border-red-400"
+                                        />
+                                    </div>
+                                )}
+
+                                {error && (
+                                    <p className="text-xs text-red-600 mb-3 font-bold">{error}</p>
+                                )}
+
                                 <div className="flex gap-2">
                                     <button 
-                                        onClick={() => setConfirmDelete(false)}
+                                        onClick={() => {
+                                            setConfirmDelete(false);
+                                            setShowReauth(false);
+                                            setPassword('');
+                                            setError('');
+                                        }}
                                         className="flex-1 py-3 rounded-lg bg-white text-slate-600 font-bold shadow-sm border border-slate-100"
                                     >
                                         キャンセル
@@ -86,7 +130,7 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                                         disabled={isDeleting}
                                         className="flex-1 py-3 rounded-lg bg-red-500 text-white font-bold shadow-sm hover:bg-red-600"
                                     >
-                                        {isDeleting ? "処理中..." : "退会を実行"}
+                                        {isDeleting ? "処理中..." : (showReauth ? "認証して退会" : "退会を実行")}
                                     </button>
                                 </div>
                             </motion.div>

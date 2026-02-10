@@ -93,52 +93,11 @@ export const useProfile = () => {
 
           setProfile({ id: user.uid, ...data, name: finalName } as UserProfile);
         } else {
-          // Initialize if new user
-          // Attempt to create a default profile.
-          // NOTE: Only succeeds if it meets strict Firestore Rules (must have name/location).
-          // If this is a race with signUp, this might fail (Permission Denied) because location is missing in stub,
-          // which is GOOD. It lets the real signUp data win.
-          // Initialize if new user with Transaction to prevent double-increment race conditions
-          // Attempt to create a default profile AND update stats
-          const initialProfile: UserProfile = {
-            id: user.uid,
-            name: user.displayName || "Anonymous",
-            balance: 2400, 
-            committed_lm: 0,
-            xp: 0,
-            warmth: 0,
-            completed_contracts: 0,
-            created_contracts: 0,
-            is_cycle_observed: false, // New: Start unobserved
-          };
-
-          runTransaction(db!, async (transaction) => {
-              const freshSnap = await transaction.get(userRef);
-              if (freshSnap.exists()) return; // Already created by another race
-
-              // 1. Create User
-              transaction.set(userRef, { 
-                  ...initialProfile, 
-                  last_updated: serverTimestamp(),
-                  cycle_started_at: serverTimestamp() // New: Real start time
-              }, { merge: true });
-
-              // 2. Increment Stats (if location is somehow known? Usually unknown for raw init)
-              // NOTE: Raw init from Auth often lacks location. 
-              // If we strictly require location for creation (Firestore Rules), this might fail if we don't have it.
-              // But 'initialProfile' here has NO location.
-              // So this 'set' will likely fail if Rules require location.
-              // If Rules allow creation without location (legacy?), we shouldn't increment stats yet.
-              
-              // However, if we are in expected flow, user enters location LATER via Profile Modal.
-              // So 'useEffect' init usually creates a "stub" (if allowed) or effectively fails until user submits form.
-              
-              // ACTUALLY: The current flow relies on 'updateProfile' (Recovery) to do the real creation with Location.
-              // The 'useEffect' one is a fallback that might not even work if rules are strict.
-              // But IF it works (e.g. strict rules off), we assume no location -> no stats change.
-          }).catch((e) => {
-              console.log("Stub profile creation skipped/blocked (Rules or Race):", e.message);
-          });
+          // 2026-02-10: REMOVED Ghost Profile Creation.
+          // We no longer automatically create empty profiles. 
+          // Registration must be atomic. If profile is missing, it's missing.
+          console.log("[useProfile] No profile found for user:", user.uid);
+          setProfile(null);
         }
         setIsLoading(false);
       },

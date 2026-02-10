@@ -55,9 +55,11 @@ export const useAuth = () => {
                         throw new Error("この招待コードは既に使用されています");
                     }
 
-                    // Check user existence (rare race)
+                    // Check user existence
                     const check = await transaction.get(userRef);
-                    if (check.exists()) return;
+                    if (check.exists()) {
+                        throw new Error("User profile already exists. Registration aborted to prevent overwrite.");
+                    }
  
                     // 1. Consume Invitation Code
                     transaction.update(invitationRef, {
@@ -89,10 +91,19 @@ export const useAuth = () => {
                     }
                 });
             } catch (error) {
-                // If anything fails during Firestore setup, we technically have a "ghost" auth user.
-                // In a production app, we might want to delete the auth user here,
-                // but for now we'll throw and let the UI handle it.
-                console.error("Sign up transaction failed:", error);
+                // ATOMICITY ENFORCEMENT:
+                // If Firestore profile creation fails, we MUST delete the Auth user
+                // to prevent a "Zombie User" (Auth exists, Profile missing).
+                console.error("Sign up transaction failed. Rolling back Auth user.", error);
+                
+                try {
+                    await cred.user.delete();
+                    console.log("Auth user rollback successful.");
+                } catch (deleteErr) {
+                    console.error("CRITICAL: Failed to rollback Auth user after Firestore error.", deleteErr);
+                    // This is a catastrophic state (Orphaned Auth), but rare.
+                }
+
                 throw error;
             }
         }
@@ -200,6 +211,17 @@ export const useAuth = () => {
         }
     };
 
+    const reauthenticate = async (password: string) => {
+        if (!auth || !auth.currentUser) throw new Error("Not authenticated");
+        if (!auth.currentUser.email) throw new Error("No email to re-authenticate with");
+        
+        const credential = EmailAuthProvider.credential(
+            auth.currentUser.email,
+            password
+        );
+        await reauthenticateWithCredential(auth.currentUser, credential);
+    };
+
     return {
         user,
         loading,
@@ -210,6 +232,7 @@ export const useAuth = () => {
         deleteAccount,
         updateUserPassword,
         updateUserEmail,
-        resetPassword
+        resetPassword,
+        reauthenticate 
     };
 };
