@@ -122,7 +122,9 @@ export const useAuth = () => {
                         console.log("Auth user rollback successful.");
                     } catch (deleteErr) {
                         console.error("CRITICAL: Failed to rollback Auth user after Firestore error.", deleteErr);
-                        // This is a catastrophic state (Orphaned Auth), but rare.
+                        // Double Tap: If delete fails (e.g., network), force sign-out locally to preventing 'Ghost Login'.
+                        // This ensures the user returns to the 'guest' state (Nothingness).
+                        if (auth) await auth.signOut();
                     }
 
                     // Clear isRegistering flag on error
