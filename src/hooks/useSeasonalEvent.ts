@@ -35,28 +35,11 @@ export const useSeasonalEvent = () => {
 
           setCurrentCycleDays(newDays);
 
-          // Logic: Trigger if FIRST VISIT (storedDays is null) OR CHANGED
-          if (storedDays === null || storedDays !== newDays) {
-            let season = "Equinox";
-            let message = "世界が調和を取り戻しました。";
-            let color = "bg-yellow-500";
-
-            if (newDays < 10) {
-              season = "Spring";
-              message = "豊穣の季節が訪れました。恵みが増幅します。";
-              color = "bg-green-500";
-            } else if (newDays > 10) {
-              season = "Winter";
-              message = "試練の季節が始まりました。備えなさい。";
-              color = "bg-slate-600";
-            }
-
-            setEventData({
-              season,
-              days: newDays,
-              message,
-              color,
-            });
+          // Logic: 
+          // Always silently sync the new cycle days.
+          // The user found the notification screen unnecessary ("buttons show the info").
+          if (storedDays !== newDays) {
+              localStorage.setItem("seasonal_cycle_days", newDays.toString());
           }
         }
       } catch (error) {

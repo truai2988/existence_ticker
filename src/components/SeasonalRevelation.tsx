@@ -11,10 +11,10 @@ interface SeasonalRevelationProps {
 export const SeasonalRevelation: React.FC<SeasonalRevelationProps> = ({ eventData, onComplete }) => {
     useEffect(() => {
         if (eventData) {
-            // Hide after 8 seconds
+            // Hide after 4 seconds (was 8s - too long)
             const timer = setTimeout(() => {
                 onComplete();
-            }, 8000);
+            }, 4000);
             return () => clearTimeout(timer);
         }
     }, [eventData, onComplete]);
@@ -23,7 +23,10 @@ export const SeasonalRevelation: React.FC<SeasonalRevelationProps> = ({ eventDat
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 z-[9999] pointer-events-none flex items-center justify-center bg-[#F9F8F4] overflow-hidden">
+            <div 
+                onClick={onComplete}
+                className="fixed inset-0 z-[9999] cursor-pointer flex items-center justify-center bg-[#F9F8F4] overflow-hidden"
+            >
                 {/* Washi Texture Overlay */}
                 <div 
                     className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply" 
