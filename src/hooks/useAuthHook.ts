@@ -204,7 +204,28 @@ export const useAuth = () => {
             // 2. Execute Transactional Death Ritual
             await runTransaction(db, async (transaction) => {
                 const userRef = doc(db!, 'users', user.uid);
+                
+                // READ 1: User Profile
                 const userSnap = await transaction.get(userRef);
+
+                // READ 2: Pre-fetch all Helper Profiles involved in active wishes
+                // Must be done BEFORE any writes
+                const helperMap = new Map();
+                const activeWishes: any[] = [];
+                
+                for (const wishDoc of snapRequester.docs) {
+                    const wData = wishDoc.data();
+                    if ((wData.status === 'in_progress' || wData.status === 'review_pending') && wData.helper_id) {
+                        activeWishes.push({ doc: wishDoc, data: wData });
+                        if (!helperMap.has(wData.helper_id)) {
+                             const hRef = doc(db!, 'users', wData.helper_id);
+                             const hSnap = await transaction.get(hRef);
+                             helperMap.set(wData.helper_id, hSnap);
+                        }
+                    }
+                }
+
+                // --- ALL READS COMPLETE. STARTING WRITES ---
 
                 let requesterBalance = 0;
                 let requesterName = "Anonymous";
@@ -216,8 +237,7 @@ export const useAuth = () => {
                     requesterName = uData.name || "Anonymous";
                     lastUpdated = uData.last_updated;
 
-                    // STEP 0: INVITATION CODE RECYCLING (還流の理)
-                    // Release the invitation code for reuse when user departs
+                    // STEP 0: INVITATION CODE RECYCLING
                     const usedInvitationCode = uData.used_invitation_code;
                     if (usedInvitationCode) {
                         const invitationRef = doc(db!, 'invitation_codes', usedInvitationCode);
@@ -230,7 +250,6 @@ export const useAuth = () => {
                     }
 
                     // STEP 0.5: DECREMENT LOCATION STATS
-                    // Maintain regional user count integrity
                     if (uData.location && uData.location.prefecture && uData.location.city) {
                         const cityKey = `${uData.location.prefecture}_${uData.location.city}`;
                         const statRef = doc(db!, 'location_stats', cityKey);
@@ -243,52 +262,51 @@ export const useAuth = () => {
                 let currentPoolMilli = toMilli(decayedBalance);
 
                 // A. Process Requester Wishes (Compensation + Cleanup)
-                for (const wishDoc of snapRequester.docs) {
-                    const wishData = wishDoc.data();
+                // Use pre-fetched helperMap
+                for (const { doc: wishDoc, data: wishData } of activeWishes) {
+                    const helperId = wishData.helper_id;
+                    if (helperMap.has(helperId)) {
+                        const helperSnap = helperMap.get(helperId);
+                        if (helperSnap.exists()) {
+                            const hData = helperSnap.data();
+                            const hDecayedBalance = calculateDecayedValue(hData.balance || 0, hData.last_updated);
+                            const hName = hData.name || "Helper";
 
-                    if (wishData.status === 'in_progress' || wishData.status === 'review_pending') {
-                        const helperId = wishData.helper_id;
-                        if (helperId) {
-                            const helperRef = doc(db!, 'users', helperId);
-                            const helperSnap = await transaction.get(helperRef);
+                            const bounty = wishData.cost || 0;
+                            const wishDecayedValue = calculateDecayedValue(bounty, wishData.created_at);
 
-                            if (helperSnap.exists()) {
-                                const hData = helperSnap.data();
-                                const hDecayedBalance = calculateDecayedValue(hData.balance || 0, hData.last_updated);
-                                const hName = hData.name || "Helper";
+                            const actualPaymentMilli = Math.min(toMilli(wishDecayedValue), currentPoolMilli);
+                            const actualPayment = fromMilli(actualPaymentMilli);
+                            currentPoolMilli -= actualPaymentMilli;
 
-                                const bounty = wishData.cost || 0;
-                                const wishDecayedValue = calculateDecayedValue(bounty, wishData.created_at);
+                            const hNewMilli = toMilli(hDecayedBalance) + actualPaymentMilli;
+                            const hCappedMilli = Math.min(hNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
 
-                                const actualPaymentMilli = Math.min(toMilli(wishDecayedValue), currentPoolMilli);
-                                const actualPayment = fromMilli(actualPaymentMilli);
-                                currentPoolMilli -= actualPaymentMilli;
+                            transaction.update(helperSnap.ref, {
+                                balance: fromMilli(hCappedMilli),
+                                last_updated: serverTimestamp()
+                            });
 
-                                const hNewMilli = toMilli(hDecayedBalance) + actualPaymentMilli;
-                                const hCappedMilli = Math.min(hNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
-
-                                transaction.update(helperRef, {
-                                    balance: fromMilli(hCappedMilli),
-                                    last_updated: serverTimestamp()
-                                });
-
-                                const txPropRef = doc(collection(db!, 'transactions'));
-                                transaction.set(txPropRef, {
-                                    type: 'COMPENSATION',
-                                    amount: actualPayment,
-                                    sender_id: user.uid,
-                                    sender_name: requesterName,
-                                    recipient_id: helperId,
-                                    recipient_name: hName,
-                                    wish_title: wishData.content,
-                                    wish_id: wishDoc.id,
-                                    created_at: serverTimestamp(),
-                                    description: actualPayment < wishDecayedValue ? "account_deleted (Bankruptcy Partial Payment)" : "account_deleted"
-                                });
-                            }
+                            const txPropRef = doc(collection(db!, 'transactions'));
+                            transaction.set(txPropRef, {
+                                type: 'COMPENSATION',
+                                amount: actualPayment,
+                                sender_id: user.uid,
+                                sender_name: requesterName,
+                                recipient_id: helperId,
+                                recipient_name: hName,
+                                wish_title: wishData.content,
+                                wish_id: wishDoc.id,
+                                created_at: serverTimestamp(),
+                                description: actualPayment < wishDecayedValue ? "account_deleted (Bankruptcy Partial Payment)" : "account_deleted"
+                            });
                         }
                     }
-                    transaction.delete(wishDoc.ref);
+                }
+
+                // Delete ALL requester wishes (including active ones processed above)
+                for (const wishDoc of snapRequester.docs) {
+                     transaction.delete(wishDoc.ref);
                 }
 
                 // B. Process Helping Wishes (Resign)
