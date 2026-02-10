@@ -10,7 +10,7 @@ import {
     updateEmail,
     reauthenticateWithCredential
 } from 'firebase/auth';
-import { doc, serverTimestamp, runTransaction, increment, collection, query, where, getDocs, getDoc } from 'firebase/firestore';
+import { doc, serverTimestamp, runTransaction, increment, collection, query, where, getDocs, getDoc, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { useAuthContext } from '../contexts/AuthContextDefinition';
 import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS } from '../logic/worldPhysics';
@@ -211,7 +211,7 @@ export const useAuth = () => {
                 // READ 2: Pre-fetch all Helper Profiles involved in active wishes
                 // Must be done BEFORE any writes
                 const helperMap = new Map();
-                const activeWishes: any[] = [];
+                const activeWishes: { doc: QueryDocumentSnapshot<DocumentData>, data: DocumentData }[] = [];
                 
                 for (const wishDoc of snapRequester.docs) {
                     const wData = wishDoc.data();
