@@ -187,6 +187,19 @@ export const useAuth = () => {
                     requesterBalance = uData.balance || 0;
                     requesterName = uData.name || "Anonymous";
                     lastUpdated = uData.last_updated;
+
+                    // STEP 0: INVITATION CODE RECYCLING (還流の理)
+                    // Release the invitation code for reuse when user departs
+                    const usedInvitationCode = uData.used_invitation_code;
+                    if (usedInvitationCode) {
+                        const invitationRef = doc(db!, 'invitation_codes', usedInvitationCode);
+                        transaction.update(invitationRef, {
+                            is_used: false,
+                            used_by: null,
+                            used_at: null
+                        });
+                        console.log(`Invitation code "${usedInvitationCode}" released for reuse.`);
+                    }
                 }
 
                 const decayedBalance = calculateDecayedValue(requesterBalance, lastUpdated);

@@ -109,27 +109,16 @@ export const useProfile = () => {
               await user.delete();
               console.log("Ghost Profile purged successfully.");
               
-              // Sign out to clear state
+              // Sign out to clear state (silently - no alert needed)
+              // AuthScreen.tsx will display appropriate error messages
               if (auth) {
                 await auth.signOut();
-              }
-              
-              // Show error message ONCE (prevent multiple alerts from multiple useProfile instances)
-              if (!window.ghostProfileAlertShown) {
-                window.ghostProfileAlertShown = true;
-                alert("登録が完了していませんでした。\n\nお手数ですが、最初からやり直してください。");
               }
             } catch (error) {
               console.error("Failed to purge Ghost Profile:", error);
               // If deletion fails (e.g., requires recent login), sign out anyway
               if (auth) {
                 await auth.signOut();
-              }
-              
-              // Show error message ONCE
-              if (!window.ghostProfileAlertShown) {
-                window.ghostProfileAlertShown = true;
-                alert("登録が完了していませんでした。\n\nお手数ですが、最初からやり直してください。");
               }
             }
           })();
