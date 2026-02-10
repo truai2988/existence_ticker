@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "./useAuthHook";
-import { db, auth } from "../lib/firebase";
+import { db } from "../lib/firebase";
 import {
   doc,
   onSnapshot,
