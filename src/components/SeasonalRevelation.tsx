@@ -23,12 +23,18 @@ export const SeasonalRevelation: React.FC<SeasonalRevelationProps> = ({ eventDat
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 z-[9999] pointer-events-none flex items-center justify-center bg-black/20 backdrop-blur-sm">
+            <div className="fixed inset-0 z-[9999] pointer-events-none flex items-center justify-center bg-[#F9F8F4] overflow-hidden">
+                {/* Washi Texture Overlay */}
+                <div 
+                    className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply" 
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }}
+                />
+                
                 <motion.div 
                     initial={{ opacity: 0, scale: 0.8, y: 20 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.9 }}
-                    className="bg-white/90 backdrop-blur-xl p-8 rounded-2xl shadow-2xl max-w-sm text-center border overflow-hidden relative"
+                    className="relative z-10 bg-white/90 backdrop-blur-xl p-8 rounded-2xl shadow-2xl max-w-sm text-center border overflow-hidden"
                 >
                      <div className={`absolute top-0 left-0 w-full h-1 ${eventData.color}`} />
                      

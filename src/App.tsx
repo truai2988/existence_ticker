@@ -126,7 +126,7 @@ const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> 
           </motion.div>
 
           <AnimatePresence>
-            {!isRitualReady && (
+            {!isRitualReady && ritualState === 'idle' && (
              <>
               <motion.button 
                 key="btn-help" 
