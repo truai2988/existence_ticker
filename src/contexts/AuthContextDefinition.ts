@@ -4,13 +4,13 @@ import { User } from 'firebase/auth';
 export interface AuthContextType {
     user: User | null;
     loading: boolean;
-    isRegistering: boolean; // Flag to prevent ghost profile purge during registration
+    loading: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType>({
     user: null,
     loading: true,
-    isRegistering: false
+    loading: true
 });
 
 export const useAuthContext = () => useContext(AuthContext);

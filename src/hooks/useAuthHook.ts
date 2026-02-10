@@ -37,9 +37,19 @@ export const useAuth = () => {
         // We do the validation INSIDE the transaction to ensure atomicity
         const invitationRef = doc(db, 'invitation_codes', invitationCode.trim());
 
-        // CRITICAL: Set isRegistering flag to prevent ghost profile purge during registration
-        const setIsRegistering = window.__setIsRegistering;
-        if (setIsRegistering) setIsRegistering(true);
+        // PRE-CHECK: Validate Invitation Code BEFORE creating Auth User
+        // This prevents "Login Screen Flash" caused by create->rollback cycle
+        const invSnapPre = await getDoc(invitationRef);
+        if (!invSnapPre.exists()) {
+            throw new Error("招待コードが正しくありません");
+        }
+        if (invSnapPre.data()?.is_used) {
+            throw new Error("この招待コードは既に使用されています");
+        }
+
+        // CRITICAL: Set isRegistering flag DIRECTLY to prevent ghost profile purge
+        // We use window object directly to avoid React State async delays
+        window.__isRegistering = true;
 
         try {
             const cred = await createUserWithEmailAndPassword(auth, email, pass);
@@ -99,7 +109,7 @@ export const useAuth = () => {
 
                     // Registration successful - clear flag after small delay to allow Firestore sync
                     setTimeout(() => {
-                        if (setIsRegistering) setIsRegistering(false);
+                                if (window.__isRegistering !== undefined) window.__isRegistering = false;
                     }, 3000);
                 } catch (error) {
                     // ATOMICITY ENFORCEMENT:
@@ -116,14 +126,14 @@ export const useAuth = () => {
                     }
 
                     // Clear isRegistering flag on error
-                    if (setIsRegistering) setIsRegistering(false);
+                            if (window.__isRegistering !== undefined) window.__isRegistering = false;
 
                     throw error;
                 }
             }
         } catch (error) {
             // Clear isRegistering flag on any error
-            if (setIsRegistering) setIsRegistering(false);
+                    if (window.__isRegistering !== undefined) window.__isRegistering = false;
             throw error;
         }
     };

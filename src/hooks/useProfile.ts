@@ -105,7 +105,7 @@ export const useProfile = () => {
           
           // CRITICAL: Check if user is currently in registration flow
           // Do NOT purge if registration is in progress (prevents race condition)
-          if (!(window as any).__isRegistering) {
+          if (!window.__isRegistering) {
             console.warn("Ghost Profile detected (not currently registering). Purging Auth account...");
             
             (async () => {
