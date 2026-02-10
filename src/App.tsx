@@ -270,7 +270,7 @@ const ScreenLoader = () => (
 
 function App() {
   const { user, loading: authLoading } = useAuth();
-  const { status } = useWallet(); // Consume Wallet Context
+  const { status } = useWallet(); // WalletStatus now handles initialization state ('INITIALIZING')
   const { isChecking, eventData, completeEvent } = useSeasonalEvent(); // Strict Gatekeeper Check
   
   // Lifted Ritual State to control Global UI (Header/Background)
@@ -288,9 +288,11 @@ function App() {
   const handleTabChange = (tab: AppViewMode) => setViewMode(tab);
   const handleGoHome = () => setViewMode("home");
 
-  // 1. Loading Phase (Auth, or Seasonal Check)
-  // walletLoading is REMOVED to prevent "Flash of Reset" during ritual transactions.
-  if (authLoading || isChecking) return <ScreenLoader />;
+  // 1. Loading Phase (Simplified)
+  // "Wait until we are truly ready."
+  // status === 'INITIALIZING' covers the initial data fetch.
+  // walletLoading is no longer needed because 'status' handles the logic internally (returning INITIALIZING only on first load).
+  if (authLoading || status === 'INITIALIZING' || isChecking) return <ScreenLoader />;
 
   // 2. Auth Gate
   if (!user) {

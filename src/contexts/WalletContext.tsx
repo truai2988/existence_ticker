@@ -125,8 +125,8 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   // === 3. METABOLIC STATUS ===
   const status: WalletStatus = useMemo(() => {
-    // During loading, show ALIVE to prevent flashes
-    if (profileLoading) return 'ALIVE';
+    // During loading, show INITIALIZING to prevent flashes
+    if (profileLoading) return 'INITIALIZING';
 
     // If no profile exists, it means a Ghost Profile was detected and purged.
     // The user will be signed out and redirected to SignUp automatically.
