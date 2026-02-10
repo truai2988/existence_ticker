@@ -128,10 +128,9 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     // During loading, show INITIALIZING to prevent flashes
     if (profileLoading) return 'INITIALIZING';
 
-    // If no profile exists, it means a Ghost Profile was detected and purged.
-    // The user will be signed out and redirected to SignUp automatically.
-    // This should never happen in normal operation due to purge mechanism.
-    if (!profile) return 'ALIVE';
+    // If no profile exists yet (Registration lag), we MUST wait.
+    // Returning 'INITIALIZING' keeps the user on the ScreenLoader until the profile is created.
+    if (!profile) return 'INITIALIZING';
 
     const cycleStartedAt = profile.cycle_started_at && typeof profile.cycle_started_at.toMillis === 'function'
         ? profile.cycle_started_at.toMillis()
