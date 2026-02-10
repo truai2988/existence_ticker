@@ -1,5 +1,6 @@
 import { useState, Suspense, lazy, useEffect } from "react";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { useSeasonalEvent } from "./hooks/useSeasonalEvent";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthScreen } from "./components/AuthScreen";
 import { GateScreen } from "./components/GateScreen";
@@ -194,7 +195,6 @@ const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> 
   );
 };
 
-import { useSeasonalEvent } from "./hooks/useSeasonalEvent";
 
 // メインコンテンツの切り替えレイヤー
 const MainContent: React.FC<{ viewMode: AppViewMode; setViewMode: (mode: AppViewMode) => void; currentUserId: string; onGoHome: () => void }> = ({ viewMode, setViewMode, currentUserId, onGoHome }) => {
