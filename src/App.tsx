@@ -72,20 +72,40 @@ const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> 
 
         {/* Yin-Yang サークル本体 */}
         <div className="relative w-[90%] max-w-[360px] aspect-square z-10">
-          <div className="absolute inset-0 rounded-full shadow-2xl shadow-slate-200/50 border-4 border-white overflow-hidden bg-white text-slate-900">
+          <motion.div 
+            className="absolute inset-0 rounded-full shadow-2xl shadow-slate-200/50 border-4 border-white overflow-hidden bg-white text-slate-900"
+            animate={isRitualReady ? { opacity: [0.7, 1, 0.7], scale: [0.98, 1, 0.98] } : { opacity: 1, scale: 1 }}
+            transition={isRitualReady ? { duration: 6, repeat: Infinity, ease: "easeInOut" } : {}}
+          >
             <svg viewBox="0 0 100 100" className="w-full h-full">
               <defs>
                 <linearGradient id="yangGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stopColor="#FEF3C7" /><stop offset="100%" stopColor="#FDE68A" /></linearGradient>
                 <linearGradient id="yinGrad" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stopColor="#BFDBFE" /><stop offset="100%" stopColor="#DBEAFE" /></linearGradient>
+                {/* Cocoon Gradients: Pure White & Pale Silver */}
+                <linearGradient id="cocoonLight" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stopColor="#FFFFFF" /><stop offset="100%" stopColor="#F1F5F9" /></linearGradient>
+                <linearGradient id="cocoonShadow" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stopColor="#E2E8F0" /><stop offset="100%" stopColor="#F8FAFC" /></linearGradient>
+                {/* Empty State */}
                 <linearGradient id="porcGrad" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stopColor="#F8FAFC" /><stop offset="100%" stopColor="#E2E8F0" /></linearGradient>
               </defs>
               <g transform="rotate(-45 50 50)">
-                  <path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 1 0 50 Z" fill={(isRitualReady || isEmpty) ? 'url(#porcGrad)' : 'url(#yinGrad)'} />
-                  <path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 0 0 50 Z" fill={(isRitualReady || isEmpty) ? 'url(#porcGrad)' : 'url(#yangGrad)'} />
-                  <path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50" fill="none" stroke={(isRitualReady || isEmpty) ? '#94A3B8' : 'white'} strokeWidth="2.5" />
+                  {/* Left Side (Yin / Warmth) */}
+                  <path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 1 0 50 Z" 
+                    fill={isRitualReady ? 'url(#cocoonShadow)' : isEmpty ? 'url(#porcGrad)' : 'url(#yinGrad)'} 
+                  />
+                  {/* Right Side (Yang / Light) */}
+                  <path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 0 0 50 Z" 
+                    fill={isRitualReady ? 'url(#cocoonLight)' : isEmpty ? 'url(#porcGrad)' : 'url(#yangGrad)'} 
+                  />
+                  {/* Boundary Line */}
+                  <path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50" 
+                    fill="none" 
+                    stroke={isRitualReady ? 'rgba(255,255,255,0.8)' : isEmpty ? '#94A3B8' : 'white'} 
+                    strokeWidth={isRitualReady ? "1" : "2.5"} 
+                    style={isRitualReady ? { filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.5))' } : {}}
+                  />
               </g>
             </svg>
-          </div>
+          </motion.div>
 
           <AnimatePresence>
             {!isRitualReady && (
@@ -112,10 +132,17 @@ const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> 
 
           <AnimatePresence>
             {isRitualReady && (
-                <motion.button key="btn-ritual" onClick={handleRitual} className="absolute inset-0 flex flex-col items-center justify-center z-30 outline-none text-slate-400 hover:text-slate-500 transition-colors" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <div className="flex flex-col items-center">
-                      <Sparkles size={32} strokeWidth={1} className="mb-2 opacity-50" />
-                      <span className="text-2xl font-serif tracking-widest font-bold text-shadow-sm">ここにいます</span>
+                <motion.button key="btn-ritual" onClick={handleRitual} 
+                    className="absolute inset-0 flex flex-col items-center justify-center z-30 outline-none text-slate-500 hover:text-slate-600 transition-colors" 
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
+                    whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                >
+                    <div className="flex flex-col items-center relative">
+                      {/* Glow Behind Text */}
+                      <div className="absolute inset-0 bg-white/60 blur-xl rounded-full scale-150 transform -z-10" />
+                      
+                      <Sparkles size={28} strokeWidth={1} className="mb-3 opacity-40 animate-pulse" />
+                      <span className="text-xl font-serif tracking-[0.2em] font-medium text-slate-400">ここにいます</span>
                     </div>
                 </motion.button>
             )}
