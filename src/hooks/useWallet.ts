@@ -1,7 +1,7 @@
-import { useWalletContext } from "../contexts/WalletContext";
+import { useWalletContext } from "./useWalletContext";
 
 // Re-export types
-export type { WalletStatus } from "../contexts/WalletContext";
+export type { WalletStatus } from "../types/wallet";
 
 export const useWallet = () => {
     return useWalletContext();

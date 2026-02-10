@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useEffect, useState, ReactNode } from "react";
+import React, { useMemo, useEffect, useState, ReactNode } from "react";
 import { useAuth } from "../hooks/useAuthHook";
 import { db } from "../lib/firebase";
 import {
@@ -21,21 +21,13 @@ import {
 } from "../logic/worldPhysics";
 import { useWishesContext } from "./WishesContext";
 import { Wish } from "../types";
+import { WalletContext, WalletContextType } from "./WalletContext";
+import { WalletStatus } from "../types/wallet";
 
-// Types
-export type WalletStatus = 'ALIVE' | 'EMPTY' | 'RITUAL_READY';
+// Re-export WalletContext for proper module resolution (.tsx takes precedence over .ts)
+export { WalletContext };
 
-interface WalletContextType {
-    balance: number;
-    committedLm: number;
-    availableLm: number;
-    status: WalletStatus;
-    pay: (amount: number) => Promise<boolean>;
-    performRebirthReset: () => Promise<{ success: boolean; newBalance?: number }>;
-    isLoading: boolean;
-}
-
-const WalletContext = createContext<WalletContextType | undefined>(undefined);
+// WalletProvider Component
 
 export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user } = useAuth();
@@ -133,10 +125,13 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   // === 3. METABOLIC STATUS ===
   const status: WalletStatus = useMemo(() => {
-    // During loading, show ALIVE to prevent flashes, 
-    // but if profile is null, it's a Ghost State -> RITUAL_READY
+    // During loading, show ALIVE to prevent flashes
     if (profileLoading) return 'ALIVE';
-    if (!profile || !profile.id) return 'RITUAL_READY';
+
+    // If no profile exists, it means a Ghost Profile was detected and purged.
+    // The user will be signed out and redirected to SignUp automatically.
+    // This should never happen in normal operation due to purge mechanism.
+    if (!profile) return 'ALIVE';
 
     const cycleStartedAt = profile.cycle_started_at && typeof profile.cycle_started_at.toMillis === 'function'
         ? profile.cycle_started_at.toMillis()
@@ -147,19 +142,19 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const expiryDate = cycleStartedAt + cycleDurationMillis;
     const now = Date.now();
 
-    // 2026-02-10: STRICT TIME-BASED LOGIC (As per User Command)
+    // 2026-02-10: PURE TIME-BASED LOGIC - "The system reads the clock, not the balance"
     
-    // 1. First Birth (No Cycle Started)
+    // 1. First Birth (Never reset before)
     if (cycleStartedAt === 0) return 'RITUAL_READY';
 
-    // 2. Time Expiry (Natural Death) - "If even 1 second passed"
+    // 2. Rebirth (Time has passed) - "Even 1 second beyond next_reset requires ritual"
     if (now >= expiryDate) return 'RITUAL_READY';
 
-    // 3. Resource Depletion (Starvation) - Only if time is still valid
-    if (balance <= 0) return 'EMPTY';
+    // The user must perform the ritual every 10 days, REGARDLESS of Lm balance.
+    // Balance is irrelevant to ritual timing.
 
     return 'ALIVE';
-  }, [profile, profileLoading, balance]);
+  }, [profile, profileLoading]);
 
   // === 4. THE SACRED RITUAL (Rebirth) ===
   const performRebirthReset = async (): Promise<{ success: boolean; newBalance?: number }> => {
@@ -232,8 +227,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             committed_lm: fromMilli(newCommittedMilli),
             last_updated: anchorDate,
             cycle_started_at: anchorDate,
-            scheduled_cycle_days: nextCycleDays,
-            is_cycle_observed: true
+            scheduled_cycle_days: nextCycleDays
         });
 
         transaction.set(txRef, {
@@ -295,7 +289,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   };
 
-  const value = {
+  const value: WalletContextType = {
     balance,
     committedLm,
     availableLm,
@@ -306,13 +300,4 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   };
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
-};
-
-// Hook to access the context
-export const useWalletContext = () => {
-    const context = useContext(WalletContext);
-    if (!context) {
-        throw new Error("useWalletContext must be used within a WalletProvider");
-    }
-    return context;
 };

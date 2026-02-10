@@ -668,6 +668,15 @@ export const WishCard: React.FC<WishCardProps> = ({
             {wish.content}
           </p>
         )}
+
+        {/* System Note - Gentle Explanation for Status Changes */}
+        {wish.system_note && (
+          <div className="mt-3 p-3 bg-amber-50/30 border border-amber-100/50 rounded-xl">
+            <p className="text-xs text-amber-700/80 leading-relaxed font-normal">
+              {wish.system_note}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Value / Outcome Area */}

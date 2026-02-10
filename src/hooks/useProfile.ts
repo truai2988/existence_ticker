@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "./useAuthHook";
-import { db } from "../lib/firebase";
+import { db, auth } from "../lib/firebase";
 import {
   doc,
   onSnapshot,
@@ -93,10 +93,32 @@ export const useProfile = () => {
 
           setProfile({ id: user.uid, ...data, name: finalName } as UserProfile);
         } else {
-          // 2026-02-10: REMOVED Ghost Profile Creation.
-          // We no longer automatically create empty profiles. 
-          // Registration must be atomic. If profile is missing, it's missing.
-          console.log("[useProfile] No profile found for user:", user.uid);
+          // GHOST PROFILE PURGE: Auth exists but Firestore profile does NOT
+          // This is an incomplete registration. Delete Auth and force re-registration.
+          console.warn("Ghost Profile detected. Purging Auth account...");
+          
+          (async () => {
+            try {
+              await user.delete();
+              console.log("Ghost Profile purged successfully.");
+              
+              // Sign out to clear state
+              if (auth) {
+                await auth.signOut();
+              }
+              
+              // Show error message
+              alert("登録が完了していませんでした。\n\nお手数ですが、最初からやり直してください。");
+            } catch (error) {
+              console.error("Failed to purge Ghost Profile:", error);
+              // If deletion fails (e.g., requires recent login), sign out anyway
+              if (auth) {
+                await auth.signOut();
+              }
+              alert("登録が完了していませんでした。\n\nお手数ですが、最初からやり直してください。");
+            }
+          })();
+          
           setProfile(null);
         }
         setIsLoading(false);
@@ -142,7 +164,6 @@ export const useProfile = () => {
           warmth: 0,
           completed_contracts: 0,
           created_contracts: 0,
-          is_cycle_observed: false, // New: Start unobserved
           location: (updates.location as UserProfile['location']), 
           ...updates as Partial<UserProfile>
         };

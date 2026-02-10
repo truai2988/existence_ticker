@@ -16,7 +16,6 @@ export interface UserProfile {
     prefecture: string;
     city: string;
   };
-  is_cycle_observed?: boolean;
   links?: {
     x?: string;
     instagram?: string;
@@ -89,6 +88,7 @@ export interface Wish {
   cancel_reason?: string;
   isAnonymous?: boolean;
   applicant_ids?: string[]; // For querying involved wishes
+  system_note?: string; // System-generated explanatory messages (e.g., helper departure)
 }
 
 export interface CreateWishInput {

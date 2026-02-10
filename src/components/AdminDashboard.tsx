@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, ShieldOff } from "lucide-react";
+import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, ShieldOff, Trash2 } from "lucide-react";
 import { useStats, MetabolismStatus } from "../hooks/useStats";
 import { db } from "../lib/firebase";
 import { ADMIN_UIDS } from "../constants";
@@ -20,6 +20,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [adminCount, setAdminCount] = useState(0);
+  const [isCleaningUp, setIsCleaningUp] = useState(false);
+  const [cleanupLog, setCleanupLog] = useState<string[]>([]);
 
 
 
@@ -229,6 +231,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <Users size={16} />
                 User Management
             </button>
+            <button
+                onClick={() => setActiveTab('maintenance')}
+                className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 ${activeTab === 'maintenance' ? 'text-yellow-500 border-b-2 border-yellow-500' : 'text-slate-500 hover:text-slate-300'}`}
+            >
+                <Trash2 size={16} />
+                Maintenance
+            </button>
 
         </div>
 
@@ -340,6 +349,150 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                             </div>
                         )}
                     </div>
+                </div>
+            </div>
+        ) : activeTab === 'maintenance' ? (
+            <div className="animate-in fade-in duration-300">
+                <div className="bg-slate-900/50 rounded-xl border border-slate-700 p-6">
+                    <h2 className="text-xl font-bold text-slate-200 mb-2 flex items-center gap-2">
+                        <Trash2 className="text-red-400" size={20} />
+                        Ghost Data Cleanup
+                    </h2>
+                    <p className="text-sm text-slate-400 mb-6">
+                        孤立したデータ（削除されたユーザーに紐づく願い）を検出・削除します。
+                    </p>
+
+                    <div className="bg-red-900/20 border border-red-900/50 rounded-lg p-4 mb-6">
+                        <div className="flex items-start gap-3">
+                            <AlertTriangle className="text-red-400 flex-shrink-0 mt-0.5" size={18} />
+                            <div className="text-sm text-red-300">
+                                <p className="font-bold mb-1">⚠️ 注意事項</p>
+                                <ul className="list-disc list-inside space-y-1 text-xs text-red-400">
+                                    <li>この操作は管理者のみ実行可能です</li>
+                                    <li>削除対象はバッチ処理され、最大100件ずつ処理されます</li>
+                                    <li>削除前に対象件数がログに出力されます</li>
+                                    <li>実行前に必ず内容を確認してください</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button
+                        onClick={async () => {
+                            if (!window.confirm(
+                                "⚠️ ゴーストデータのクリーンアップを実行しますか？\n\n" +
+                                "この操作は以下を実行します：\n" +
+                                "1. 存在しないユーザーIDに紐づく願いを検出\n" +
+                                "2. 100件ずつバッチ処理で削除\n" +
+                                "3. 削除内容をログに記録\n\n" +
+                                "実行してもよろしいですか？"
+                            )) return;
+
+                            setIsCleaningUp(true);
+                            setCleanupLog([]);
+                            const log: string[] = [];
+
+                            try {
+                                if (!db) throw new Error("Database not initialized");
+                                const { collection, getDocs, query, limit, doc, writeBatch, getDoc } = await import("firebase/firestore");
+
+                                log.push(`[${new Date().toLocaleTimeString()}] クリーンアップ開始...`);
+                                setCleanupLog([...log]);
+
+                                // Step 1: Fetch wishes in batches
+                                const wishesRef = collection(db, "wishes");
+                                const wishQuery = query(wishesRef, limit(100));
+                                const wishSnapshot = await getDocs(wishQuery);
+
+                                log.push(`[${new Date().toLocaleTimeString()}] 願い総数: ${wishSnapshot.size}件`);
+                                setCleanupLog([...log]);
+
+                                // Step 2: Check each wish for orphaned data
+                                const orphanedWishes: { id: string; [key: string]: unknown }[] = [];
+                                const usersRef = collection(db, "users");
+
+                                for (const wishDoc of wishSnapshot.docs) {
+                                    const wish = wishDoc.data();
+                                    const requesterId = wish.requester_id;
+
+                                    if (requesterId) {
+                                        const userDoc = await getDoc(doc(usersRef, requesterId));
+                                        if (!userDoc.exists()) {
+                                            orphanedWishes.push({ id: wishDoc.id, ...wish });
+                                        }
+                                    }
+                                }
+
+                                log.push(`[${new Date().toLocaleTimeString()}] ゴーストデータ検出: ${orphanedWishes.length}件`);
+                                setCleanupLog([...log]);
+
+                                if (orphanedWishes.length === 0) {
+                                    log.push(`[${new Date().toLocaleTimeString()}] ✅ クリーンアップ不要（ゴーストデータなし）`);
+                                    setCleanupLog([...log]);
+                                    alert("✅ ゴーストデータは検出されませんでした。");
+                                    return;
+                                }
+
+                                // Step 3: Delete in batches
+                                const batchSize = 100;
+                                let deletedCount = 0;
+
+                                for (let i = 0; i < orphanedWishes.length; i += batchSize) {
+                                    const batch = writeBatch(db);
+                                    const chunk = orphanedWishes.slice(i, i + batchSize);
+
+                                    chunk.forEach(orphan => {
+                                        batch.delete(doc(wishesRef, orphan.id));
+                                    });
+
+                                    await batch.commit();
+                                    deletedCount += chunk.length;
+
+                                    log.push(`[${new Date().toLocaleTimeString()}] バッチ ${Math.floor(i / batchSize) + 1}: ${chunk.length}件削除 (累計: ${deletedCount}件)`);
+                                    setCleanupLog([...log]);
+                                }
+
+                                log.push(`[${new Date().toLocaleTimeString()}] ✅ クリーンアップ完了: 合計 ${deletedCount}件のゴーストデータを削除しました`);
+                                setCleanupLog([...log]);
+                                alert(`✅ クリーンアップ完了\n\n削除件数: ${deletedCount}件`);
+                            } catch (error) {
+                                console.error("Cleanup failed:", error);
+                                log.push(`[${new Date().toLocaleTimeString()}] ❌ エラー: ${error}`);
+                                setCleanupLog([...log]);
+                                alert(`❌ クリーンアップ失敗\n\n${error}`);
+                            } finally {
+                                setIsCleaningUp(false);
+                            }
+                        }}
+                        disabled={isCleaningUp}
+                        className="w-full py-4 rounded-xl bg-red-900/30 hover:bg-red-900/50 border border-red-900/50 hover:border-red-500 text-red-400 font-bold uppercase tracking-widest text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                        {isCleaningUp ? (
+                            <>
+                                <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin"></div>
+                                処理中...
+                            </>
+                        ) : (
+                            <>
+                                <Trash2 size={16} />
+                                ゴーストデータをクリーンアップ
+                            </>
+                        )}
+                    </button>
+
+                    {cleanupLog.length > 0 && (
+                        <div className="mt-6 bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                            <h3 className="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">
+                                <Activity size={14} />
+                                実行ログ
+                            </h3>
+                            <div className="space-y-1 max-h-60 overflow-y-auto font-mono text-xs text-slate-400">
+                                {cleanupLog.map((line, i) => (
+                                    <div key={i} className="py-0.5">{line}</div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         ) : (

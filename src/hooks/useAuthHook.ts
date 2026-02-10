@@ -169,6 +169,10 @@ export const useAuth = () => {
             const qHelping = query(wishesRef, where('helper_id', '==', user.uid));
             const snapHelping = await getDocs(qHelping);
 
+            // History subcollection (transaction logs)
+            const historyRef = collection(db, 'users', user.uid, 'history');
+            const historySnap = await getDocs(historyRef);
+
             // 2. Execute Transactional Death Ritual
             await runTransaction(db, async (transaction) => {
                 const userRef = doc(db!, 'users', user.uid);
@@ -242,11 +246,17 @@ export const useAuth = () => {
                     transaction.update(helpDoc.ref, {
                         helper_id: null,
                         status: 'open',
-                        updated_at: serverTimestamp()
+                        updated_at: serverTimestamp(),
+                        system_note: '（隣人が旅立ったため、再び募集を開始しました）'
                     });
                 }
 
-                // C. Delete Profile
+                // C. Delete History Subcollection
+                for (const historyDoc of historySnap.docs) {
+                    transaction.delete(historyDoc.ref);
+                }
+
+                // D. Delete Profile
                 if (userSnap.exists()) {
                     transaction.delete(userRef);
                 }
