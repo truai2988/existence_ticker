@@ -196,6 +196,8 @@ const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> 
 
 // メインコンテンツの切り替えレイヤー
 const MainContent: React.FC<{ viewMode: AppViewMode; setViewMode: (mode: AppViewMode) => void; currentUserId: string; onGoHome: () => void }> = ({ viewMode, setViewMode, currentUserId, onGoHome }) => {
+    const [isEventActive, setIsEventActive] = useState(false);
+
     const withTransition = (component: React.ReactNode, key: string) => (
         <motion.div key={key} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeInOut" }} className="w-full h-full">
             {component}
@@ -215,10 +217,15 @@ const MainContent: React.FC<{ viewMode: AppViewMode; setViewMode: (mode: AppView
     };
     return (
         <div className="flex flex-col w-full min-h-full">
-            <SeasonalRevelation />
-            <div className="flex-1 w-full relative">
+            <SeasonalRevelation onVisibilityChange={setIsEventActive} />
+            <motion.div 
+                className="flex-1 w-full relative"
+                animate={{ opacity: isEventActive ? 0 : 1 }}
+                transition={{ duration: 0.8, delay: isEventActive ? 0 : 0.5 }}
+                style={{ pointerEvents: isEventActive ? 'none' : 'auto' }}
+            >
                 <AnimatePresence mode="wait">{renderContent()}</AnimatePresence>
-            </div>
+            </motion.div>
         </div>
     );
 };

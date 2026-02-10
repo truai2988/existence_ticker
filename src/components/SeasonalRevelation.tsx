@@ -4,7 +4,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Sun, CloudSnow, Scale } from 'lucide-react';
 
-export const SeasonalRevelation: React.FC = () => {
+export const SeasonalRevelation: React.FC<{ onVisibilityChange?: (visible: boolean) => void }> = ({ onVisibilityChange }) => {
     const [notification, setNotification] = useState<{
         season: string;
         days: number;
@@ -37,6 +37,7 @@ export const SeasonalRevelation: React.FC = () => {
                         color = "bg-slate-600";
                     }
 
+                    if (onVisibilityChange) onVisibilityChange(true);
                     setNotification({
                         season,
                         days: newDays,
@@ -45,7 +46,10 @@ export const SeasonalRevelation: React.FC = () => {
                     });
 
                     // Hide after 8 seconds
-                    setTimeout(() => setNotification(null), 8000);
+                    setTimeout(() => {
+                        setNotification(null);
+                        if (onVisibilityChange) onVisibilityChange(false);
+                    }, 8000);
                 }
                 setPrevDays(newDays);
             }
