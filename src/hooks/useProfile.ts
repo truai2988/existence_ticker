@@ -156,8 +156,8 @@ export const useProfile = () => {
                 // 1. Create Profile
                 transaction.set(userRef, {
                     ...initialProfile,
-                    last_updated: serverTimestamp(),
-                    cycle_started_at: serverTimestamp() // New: Real start time
+                    last_updated: serverTimestamp()
+                    // cycle_started_at OMITTED to trigger First Birth
                 });
 
                 // 2. Increment Stats for the NEW location (if valid)

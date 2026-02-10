@@ -133,16 +133,22 @@ export const useWallet = () => {
         ? profile.cycle_started_at.toMillis()
         : 0;
 
-    if (profile.is_cycle_observed === false) return 'RITUAL_READY'; 
-    if (cycleStartedAt === 0) return 'RITUAL_READY';
-
     const effectiveCycleDays = profile.scheduled_cycle_days || 10;
     const cycleDurationMillis = effectiveCycleDays * 24 * 60 * 60 * 1000;
     const expiryDate = cycleStartedAt + cycleDurationMillis;
     const now = Date.now();
 
+    // 2026-02-10: STRICT TIME-BASED LOGIC (As per User Command)
+    
+    // 1. First Birth (No Cycle Started)
+    if (cycleStartedAt === 0) return 'RITUAL_READY';
+
+    // 2. Time Expiry (Natural Death) - "If even 1 second passed"
     if (now >= expiryDate) return 'RITUAL_READY';
+
+    // 3. Resource Depletion (Starvation) - Only if time is still valid
     if (balance <= 0) return 'EMPTY';
+
     return 'ALIVE';
   }, [profile, profileLoading, balance]);
 

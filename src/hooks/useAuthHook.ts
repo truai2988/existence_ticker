@@ -79,8 +79,8 @@ export const useAuth = () => {
                         xp: 0,
                         warmth: 0,
                         used_invitation_code: invitationCode.trim(),
-                        last_updated: serverTimestamp(),
-                        cycle_started_at: serverTimestamp()
+                        last_updated: serverTimestamp()
+                        // cycle_started_at is OMITTED to trigger First Birth Ritual
                     });
 
                     // 3. Increment Stats
