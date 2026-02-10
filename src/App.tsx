@@ -216,6 +216,7 @@ const ScreenLoader = () => (
 
 function App() {
   const { user, loading: authLoading } = useAuth();
+  const { status, isLoading: walletLoading } = useWallet(); // Consume Wallet Context
   const [viewMode, setViewMode] = useState<AppViewMode>("home");
   const [showAdmin, setShowAdmin] = useState(false);
   const [gateOpened, setGateOpened] = useState(() => sessionStorage.getItem('gateOpened') === 'true');
@@ -228,7 +229,9 @@ function App() {
   const handleTabChange = (tab: AppViewMode) => setViewMode(tab);
   const handleGoHome = () => setViewMode("home");
 
-  if (authLoading) return <ScreenLoader />;
+  // Prevent "Flash of Alive" by waiting for Wallet to be ready
+  if (authLoading || (user && walletLoading)) return <ScreenLoader />;
+
   if (!user) {
     if (!gateOpened) return <GateScreen onOpen={handleGateOpen} />;
     return (
@@ -238,19 +241,37 @@ function App() {
     );
   }
 
+  const isRitual = status === 'RITUAL_READY';
+
   return (
     <div className="bg-[#F9F8F4] h-screen font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
-      {viewMode === 'home' && (
-        <Header viewMode={viewMode} onTabChange={handleTabChange} />
-      )}
+      {/* Header: Only show if NOT in Ritual Mode */}
+      <AnimatePresence>
+        {viewMode === 'home' && !isRitual && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} className="z-50">
+                <Header viewMode={viewMode} onTabChange={handleTabChange} />
+            </motion.div>
+        )}
+      </AnimatePresence>
+
       <main className={`flex-1 relative overflow-y-auto no-scrollbar scroll-smooth flex flex-col`}>
         <Suspense fallback={<ScreenLoader />}>
-          <MainContent
-            viewMode={viewMode}
-            setViewMode={setViewMode}
-            currentUserId={user.uid}
-            onGoHome={handleGoHome}
-          />
+          {/* Main Content: Fade In when Ritual is Complete (Alive) */}
+          <motion.div 
+            className="w-full h-full flex flex-col"
+            animate={isRitual ? { opacity: 1 } : { opacity: 1 }} // Always 1, but we control children or overlay? 
+            // Actually, MainContent handles the specific view.
+            // When Ritual -> HomeView (Cocoon) is shown.
+            // When Alive -> HomeView (Normal) is shown.
+            // We want the *transition* to be smooth.
+          >
+              <MainContent
+                viewMode={viewMode}
+                setViewMode={setViewMode}
+                currentUserId={user.uid}
+                onGoHome={handleGoHome}
+              />
+          </motion.div>
         </Suspense>
       </main>
       {showAdmin && (

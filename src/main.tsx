@@ -7,8 +7,8 @@ import './index.css'
 import { UserViewProvider } from './contexts/UserViewContext'
 import { WishesProvider } from './contexts/WishesContext'
 import { ToastProvider } from './contexts/ToastContext'
+import { WalletProvider } from './contexts/WalletContext'
 import { AuthProvider } from './contexts/AuthContext'
-
 import { ErrorBoundary } from './components/ErrorBoundary'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -18,19 +18,21 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <AuthProvider>
           <UserViewProvider>
           <WishesProvider>
-            <BrowserRouter>
-              <Routes>
-                {/* 地平：ランディングページ */}
-                <Route path="/" element={<LandingPage />} />
-                
-                {/* 器：既存のアプリケーション機能 */}
-                {/* path="/app/*" とすることで、App内での内部ルーティングも維持します */}
-                <Route path="/app/*" element={<App />} />
+            <WalletProvider>
+              <BrowserRouter>
+                <Routes>
+                  {/* 地平：ランディングページ */}
+                  <Route path="/" element={<LandingPage />} />
+                  
+                  {/* 器：既存のアプリケーション機能 */}
+                  {/* path="/app/*" とすることで、App内での内部ルーティングも維持します */}
+                  <Route path="/app/*" element={<App />} />
 
-                {/* 救済：迷い込んだユーザーをLPへ */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </BrowserRouter>
+                  {/* 救済：迷い込んだユーザーをLPへ */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </BrowserRouter>
+            </WalletProvider>
           </WishesProvider>
           </UserViewProvider>
         </AuthProvider>
