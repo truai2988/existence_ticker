@@ -202,10 +202,6 @@ export const useAuth = () => {
 
             console.log("Account, Profile, History, and Wishes deleted successfully.");
         } catch (error) {
-             const firebaseError = error as { code?: string };
-             if (firebaseError.code === 'auth/requires-recent-login') {
-                 alert("セキュリティ保護のため、退会には再ログインが必要です。\n一度ログアウトしてから再度ログインし、すぐに退会をやり直してください。");
-             }
              console.error("Account deletion failed:", error);
              throw error; 
         }

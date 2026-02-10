@@ -78,7 +78,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onTabChange,
 }) => {
   const { profile, isLoading: isProfileLoading } = useProfile();
-  const { user, signOut, linkEmail, deleteAccount, updateUserPassword } =
+  const { user, signOut, linkEmail, deleteAccount, updateUserPassword, reauthenticate } =
     useAuth();
 
   const [isEditingProfile, setIsEditingProfile] = useState(initialEditMode);
@@ -88,6 +88,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     null,
   );
   const [deleteStep, setDeleteStep] = useState(0);
+
+  // Re-auth for deletion
+  const [showReauth, setShowReauth] = useState(false);
+  const [reauthPassword, setReauthPassword] = useState("");
 
   const [emailInput, setEmailInput] = useState("");
   const [passInput, setPassInput] = useState("");
@@ -142,11 +146,29 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   };
 
   const handleDelete = async () => {
+    setErrorMsg("");
+    setIsLoading(true);
     try {
+      if (showReauth) {
+        await reauthenticate(reauthPassword);
+        setShowReauth(false);
+      }
       await deleteAccount();
       alert("退会しました");
+      window.location.reload();
     } catch (e: unknown) {
-      alert("エラー: " + (e instanceof Error ? e.message : String(e)));
+      console.error("Delete failed", e);
+      const firebaseError = e as { code?: string; message?: string };
+      if (firebaseError.code === 'auth/requires-recent-login' || firebaseError.message?.includes('requires-recent-login')) {
+        setShowReauth(true);
+        setErrorMsg("認証が必要です。パスワードを入力してください。");
+      } else if (firebaseError.code === 'auth/wrong-password') {
+        setErrorMsg("パスワードが正しくありません。");
+      } else {
+        setErrorMsg("エラー: " + (e instanceof Error ? e.message : String(e)));
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -478,18 +500,42 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       すべての記録と LM
                       は時の流れに還り、元に戻すことはできません。よろしいですか？
                     </p>
+
+                    {showReauth && (
+                      <div className="mb-4 space-y-2 text-left">
+                        <p className="text-xs text-red-600 font-bold">パスワードを確認します</p>
+                        <input
+                          type="password"
+                          value={reauthPassword}
+                          onChange={(e) => setReauthPassword(e.target.value)}
+                          placeholder="パスワードを入力"
+                          className="w-full px-3 py-2 text-sm border border-red-200 rounded-lg focus:outline-none focus:border-red-400"
+                        />
+                      </div>
+                    )}
+
+                    {errorMsg && (
+                      <p className="text-xs text-red-600 mb-3 font-bold text-left">{errorMsg}</p>
+                    )}
+
                     <div className="flex gap-3">
                       <button
-                        onClick={() => setConfirmMode(null)}
+                        onClick={() => {
+                          setConfirmMode(null);
+                          setShowReauth(false);
+                          setReauthPassword("");
+                          setErrorMsg("");
+                        }}
                         className="flex-1 py-2.5 bg-slate-100 rounded-lg text-sm font-bold text-slate-600"
                       >
                         やめる
                       </button>
                       <button
                         onClick={handleDelete}
-                        className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-bold shadow-md"
+                        disabled={isLoading}
+                        className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-bold shadow-md disabled:opacity-50"
                       >
-                        はい、還ります
+                        {isLoading ? "処理中..." : (showReauth ? "認証して退会" : "はい、還ります")}
                       </button>
                     </div>
                   </>
