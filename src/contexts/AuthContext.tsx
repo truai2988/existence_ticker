@@ -6,6 +6,15 @@ import { AuthContext } from './AuthContextDefinition';
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isRegistering, setIsRegistering] = useState(false);
+
+    // Expose setIsRegistering globally for useAuthHook
+    useEffect(() => {
+        (window as any).__setIsRegistering = setIsRegistering;
+        return () => {
+            delete (window as any).__setIsRegistering;
+        };
+    }, []);
 
     useEffect(() => {
         if (!auth) {
@@ -27,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, loading }}>
+        <AuthContext.Provider value={{ user, loading, isRegistering }}>
             {children}
         </AuthContext.Provider>
     );

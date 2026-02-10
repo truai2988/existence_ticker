@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from "react";
 import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, ShieldOff, Trash2 } from "lucide-react";
 import { useStats, MetabolismStatus } from "../hooks/useStats";
-import { db } from "../lib/firebase";
+import { db, auth } from "../lib/firebase";
 import { ADMIN_UIDS } from "../constants";
 import { UserProfile } from "../types";
 
@@ -480,6 +480,109 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                         )}
                     </button>
 
+                    {cleanupLog.length > 0 && (
+                        <div className="mt-6 bg-slate-800/50 rounded-lg p-4 border border-slate-700">
+                            <h3 className="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">
+                                <Activity size={14} />
+                                実行ログ
+                            </h3>
+                            <div className="space-y-1 max-h-60 overflow-y-auto font-mono text-xs text-slate-400">
+                                {cleanupLog.map((line, i) => (
+                                    <div key={i} className="py-0.5">{line}</div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                <div className="bg-slate-900/50 rounded-xl border border-slate-700 p-6 mt-6">
+                    <h2 className="text-xl font-bold text-slate-200 mb-2 flex items-center gap-2">
+                        <ShieldOff className="text-orange-400" size={20} />
+                        Purge Test Data
+                    </h2>
+                    <p className="text-sm text-slate-400 mb-6">
+                        開発用ゴミデータ（自分以外の全ユーザー、ALPHA-TESTコード）を一括消去します。
+                    </p>
+
+                    <button
+                        onClick={async () => {
+                            if (!window.confirm(
+                                "⚠️ 開発用データを完全消去しますか？\n\n" +
+                                "この操作は以下を実行します：\n" +
+                                "1. ALPHA-TEST招待コードのリセット\n" +
+                                "2. 自分以外の全ユーザープロフィールの削除\n" +
+                                "3. 関連データの削除\n\n" +
+                                "実行後、他のAuthユーザーは次回ログイン時に自動的に削除されます。\n" +
+                                "本当によろしいですか？"
+                            )) return;
+
+                            setIsCleaningUp(true);
+                            setCleanupLog([]);
+                            const log: string[] = [];
+
+                            try {
+                                if (!db) throw new Error("Database not initialized");
+                                if (!auth?.currentUser) throw new Error("Not authenticated");
+                                const { collection, getDocs, query, doc, writeBatch, updateDoc } = await import("firebase/firestore");
+
+                                log.push(`[${new Date().toLocaleTimeString()}] データパージ開始...`);
+                                setCleanupLog([...log]);
+
+                                // 1. Reset ALPHA-TEST Code
+                                const alphaRef = doc(db, "invitation_codes", "ALPHA-TEST");
+                                try {
+                                    await updateDoc(alphaRef, {
+                                        is_used: false,
+                                        used_by: null,
+                                        used_at: null
+                                    });
+                                    log.push(`✅ ALPHA-TESTコードをリセットしました`);
+                                } catch (e) {
+                                    log.push(`⚠️ ALPHA-TESTリセット失敗 (存在しない可能性があります): ${e}`);
+                                }
+                                setCleanupLog([...log]);
+
+                                // 2. Delete All Other Users
+                                const usersRef = collection(db, "users");
+                                const userSnap = await getDocs(query(usersRef));
+                                const batch = writeBatch(db);
+                                let deleteCount = 0;
+                                const currentUid = auth.currentUser.uid;
+
+                                userSnap.docs.forEach((d) => {
+                                    if (d.id !== currentUid && !ADMIN_UIDS.includes(d.id)) {
+                                        batch.delete(d.ref);
+                                        // Also try to delete stats if possible, but user doc is main
+                                        deleteCount++;
+                                    }
+                                });
+
+                                if (deleteCount > 0) {
+                                    await batch.commit();
+                                    log.push(`✅ 他ユーザー ${deleteCount}名のプロフィールを削除しました`);
+                                    log.push(`ℹ️ 削除されたユーザーは次回アクセス時にAuthも自動消去されます`);
+                                } else {
+                                    log.push(`ℹ️ 削除対象のユーザーはいませんでした`);
+                                }
+
+                                log.push(`✨ パージ完了`);
+                                setCleanupLog([...log]);
+
+                            } catch (e: unknown) {
+                                console.error("Purge failed", e);
+                                const errorMessage = e instanceof Error ? e.message : String(e);
+                                log.push(`❌ エラー: ${errorMessage}`);
+                                setCleanupLog([...log]);
+                            } finally {
+                                setIsCleaningUp(false);
+                            }
+                        }}
+                        disabled={isCleaningUp}
+                        className="flex items-center gap-2 bg-orange-900/30 hover:bg-orange-900/50 text-orange-200 px-4 py-2 rounded-lg transition-colors border border-orange-900/50 disabled:opacity-50 disabled:cursor-not-allowed w-full justify-center font-bold"
+                    >
+                        {isCleaningUp ? "処理中..." : "💀 全テストデータをパージする"}
+                    </button>
+                    
                     {cleanupLog.length > 0 && (
                         <div className="mt-6 bg-slate-800/50 rounded-lg p-4 border border-slate-700">
                             <h3 className="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2">

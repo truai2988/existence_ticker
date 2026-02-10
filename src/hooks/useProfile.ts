@@ -102,26 +102,33 @@ export const useProfile = () => {
         } else {
           // GHOST PROFILE PURGE: Auth exists but Firestore profile does NOT
           // This is an incomplete registration. Delete Auth and force re-registration.
-          console.warn("Ghost Profile detected. Purging Auth account...");
           
-          (async () => {
-            try {
-              await user.delete();
-              console.log("Ghost Profile purged successfully.");
-              
-              // Sign out to clear state (silently - no alert needed)
-              // AuthScreen.tsx will display appropriate error messages
-              if (auth) {
-                await auth.signOut();
+          // CRITICAL: Check if user is currently in registration flow
+          // Do NOT purge if registration is in progress (prevents race condition)
+          if (!(window as any).__isRegistering) {
+            console.warn("Ghost Profile detected (not currently registering). Purging Auth account...");
+            
+            (async () => {
+              try {
+                await user.delete();
+                console.log("Ghost Profile purged successfully.");
+                
+                // Sign out to clear state (silently - no alert needed)
+                // AuthScreen.tsx will display appropriate error messages
+                if (auth) {
+                  await auth.signOut();
+                }
+              } catch (error) {
+                console.error("Failed to purge Ghost Profile:", error);
+                // If deletion fails (e.g., requires recent login), sign out anyway
+                if (auth) {
+                  await auth.signOut();
+                }
               }
-            } catch (error) {
-              console.error("Failed to purge Ghost Profile:", error);
-              // If deletion fails (e.g., requires recent login), sign out anyway
-              if (auth) {
-                await auth.signOut();
-              }
-            }
-          })();
+            })();
+          } else {
+            console.log("Profile not found but registration is in progress - waiting for sync...");
+          }
           
           setProfile(null);
         }

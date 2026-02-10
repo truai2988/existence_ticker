@@ -37,76 +37,94 @@ export const useAuth = () => {
         // We do the validation INSIDE the transaction to ensure atomicity
         const invitationRef = doc(db, 'invitation_codes', invitationCode.trim());
 
-        const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        if (cred.user) {
-            try {
-                // 1. Update Auth Profile
-                await updateProfile(cred.user, { displayName: name });
-                
-                // 2. Initialize Firestore Profile AND Stats atomically
-                const userRef = doc(db, 'users', cred.user.uid);
-                
-                await runTransaction(db, async (transaction) => {
-                    // Check Invitation Code
-                    const invSnap = await transaction.get(invitationRef);
-                    if (!invSnap.exists()) {
-                        throw new Error("招待コードが正しくありません");
-                    }
-                    if (invSnap.data()?.is_used) {
-                        throw new Error("この招待コードは既に使用されています");
-                    }
+        // CRITICAL: Set isRegistering flag to prevent ghost profile purge during registration
+        const setIsRegistering = (window as any).__setIsRegistering;
+        if (setIsRegistering) setIsRegistering(true);
 
-                    // Check user existence
-                    const check = await transaction.get(userRef);
-                    if (check.exists()) {
-                        throw new Error("User profile already exists. Registration aborted to prevent overwrite.");
-                    }
- 
-                    // 1. Consume Invitation Code
-                    transaction.update(invitationRef, {
-                        is_used: true,
-                        used_by: cred.user!.uid,
-                        used_at: serverTimestamp()
-                    });
-
-                    // 2. Create User
-                    transaction.set(userRef, {
-                        id: cred.user!.uid,
-                        name: name,
-                        location: location,
-                        age_group: age_group,
-                        gender: gender,
-                        balance: 2400,
-                        xp: 0,
-                        warmth: 0,
-                        used_invitation_code: invitationCode.trim(),
-                        last_updated: serverTimestamp()
-                        // cycle_started_at is OMITTED to trigger First Birth Ritual
-                    });
-
-                    // 3. Increment Stats
-                    if (location && location.prefecture && location.city) {
-                        const cityKey = `${location.prefecture}_${location.city}`;
-                        const statRef = doc(db!, 'location_stats', cityKey);
-                        transaction.set(statRef, { count: increment(1) }, { merge: true });
-                    }
-                });
-            } catch (error) {
-                // ATOMICITY ENFORCEMENT:
-                // If Firestore profile creation fails, we MUST delete the Auth user
-                // to prevent a "Zombie User" (Auth exists, Profile missing).
-                console.error("Sign up transaction failed. Rolling back Auth user.", error);
-                
+        try {
+            const cred = await createUserWithEmailAndPassword(auth, email, pass);
+            if (cred.user) {
                 try {
-                    await cred.user.delete();
-                    console.log("Auth user rollback successful.");
-                } catch (deleteErr) {
-                    console.error("CRITICAL: Failed to rollback Auth user after Firestore error.", deleteErr);
-                    // This is a catastrophic state (Orphaned Auth), but rare.
-                }
+                    // 1. Update Auth Profile
+                    await updateProfile(cred.user, { displayName: name });
+                    
+                    // 2. Initialize Firestore Profile AND Stats atomically
+                    const userRef = doc(db, 'users', cred.user.uid);
+                    
+                    await runTransaction(db, async (transaction) => {
+                        // Check Invitation Code
+                        const invSnap = await transaction.get(invitationRef);
+                        if (!invSnap.exists()) {
+                            throw new Error("招待コードが正しくありません");
+                        }
+                        if (invSnap.data()?.is_used) {
+                            throw new Error("この招待コードは既に使用されています");
+                        }
 
-                throw error;
+                        // Check user existence
+                        const check = await transaction.get(userRef);
+                        if (check.exists()) {
+                            throw new Error("User profile already exists. Registration aborted to prevent overwrite.");
+                        }
+     
+                        // 1. Consume Invitation Code
+                        transaction.update(invitationRef, {
+                            is_used: true,
+                            used_by: cred.user!.uid,
+                            used_at: serverTimestamp()
+                        });
+
+                        // 2. Create User
+                        transaction.set(userRef, {
+                            id: cred.user!.uid,
+                            name: name,
+                            location: location,
+                            age_group: age_group,
+                            gender: gender,
+                            balance: 2400,
+                            xp: 0,
+                            warmth: 0,
+                            used_invitation_code: invitationCode.trim(),
+                            last_updated: serverTimestamp()
+                            // cycle_started_at is OMITTED to trigger First Birth Ritual
+                        });
+
+                        // 3. Increment Stats
+                        if (location && location.prefecture && location.city) {
+                            const cityKey = `${location.prefecture}_${location.city}`;
+                            const statRef = doc(db!, 'location_stats', cityKey);
+                            transaction.set(statRef, { count: increment(1) }, { merge: true });
+                        }
+                    });
+
+                    // Registration successful - clear flag after small delay to allow Firestore sync
+                    setTimeout(() => {
+                        if (setIsRegistering) setIsRegistering(false);
+                    }, 3000);
+                } catch (error) {
+                    // ATOMICITY ENFORCEMENT:
+                    // If Firestore profile creation fails, we MUST delete the Auth user
+                    // to prevent a "Zombie User" (Auth exists, Profile missing).
+                    console.error("Sign up transaction failed. Rolling back Auth user.", error);
+                    
+                    try {
+                        await cred.user.delete();
+                        console.log("Auth user rollback successful.");
+                    } catch (deleteErr) {
+                        console.error("CRITICAL: Failed to rollback Auth user after Firestore error.", deleteErr);
+                        // This is a catastrophic state (Orphaned Auth), but rare.
+                    }
+
+                    // Clear isRegistering flag on error
+                    if (setIsRegistering) setIsRegistering(false);
+
+                    throw error;
+                }
             }
+        } catch (error) {
+            // Clear isRegistering flag on any error
+            if (setIsRegistering) setIsRegistering(false);
+            throw error;
         }
     };
 
