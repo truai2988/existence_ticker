@@ -198,16 +198,6 @@ const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> 
 
 // メインコンテンツの切り替えレイヤー
 const MainContent = ({ viewMode, setViewMode, currentUserId, onGoHome }: { viewMode: AppViewMode; setViewMode: (mode: AppViewMode) => void; currentUserId: string; onGoHome: () => void }) => {
-    const { isChecking, eventData, completeEvent } = useSeasonalEvent();
-
-    // 1. Gatekeeper: If checking, render NOTHING.
-    if (isChecking) return null;
-
-    // 2. Event Mode: If event exists, show ONLY the revelation.
-    if (eventData) {
-        return <SeasonalRevelation eventData={eventData} onComplete={completeEvent} />;
-    }
-
     // 3. Normal Mode: Fade in the main content (HomeView, etc.)
     const withTransition = (component: React.ReactNode, key: string) => (
         <motion.div key={key} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeInOut" }} className="w-full h-full">
@@ -261,6 +251,8 @@ const ScreenLoader = () => (
 function App() {
   const { user, loading: authLoading } = useAuth();
   const { status, isLoading: walletLoading } = useWallet(); // Consume Wallet Context
+  const { isChecking, eventData, completeEvent } = useSeasonalEvent(); // Strict Gatekeeper Check
+  
   const [viewMode, setViewMode] = useState<AppViewMode>("home");
   const [showAdmin, setShowAdmin] = useState(false);
   const [gateOpened, setGateOpened] = useState(() => sessionStorage.getItem('gateOpened') === 'true');
@@ -273,9 +265,10 @@ function App() {
   const handleTabChange = (tab: AppViewMode) => setViewMode(tab);
   const handleGoHome = () => setViewMode("home");
 
-  // Prevent "Flash of Alive" by waiting for Wallet to be ready
-  if (authLoading || (user && walletLoading)) return <ScreenLoader />;
+  // 1. Loading Phase (Auth, Wallet, or Seasonal Check)
+  if (authLoading || (user && walletLoading) || isChecking) return <ScreenLoader />;
 
+  // 2. Auth Gate
   if (!user) {
     if (!gateOpened) return <GateScreen onOpen={handleGateOpen} />;
     return (
@@ -285,6 +278,13 @@ function App() {
     );
   }
 
+  // 3. Seasonal Event (Strict Gatekeeper)
+  // If event data exists, render ONLY the event. The main app is NOT rendered.
+  if (eventData) {
+      return <SeasonalRevelation eventData={eventData} onComplete={completeEvent} />;
+  }
+
+  // 4. Main App (Rendered only when check is complete AND no event exists)
   const isRitual = status === 'RITUAL_READY';
 
   return (
