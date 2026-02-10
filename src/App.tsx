@@ -15,6 +15,8 @@ import { SeasonalRevelation } from './components/SeasonalRevelation';
 import { useAuth } from "./hooks/useAuthHook";
 import { AppViewMode } from "./types";
 
+import { useProfile } from "./hooks/useProfile";
+
 // カウントアップ演出
 const CountingNumber: React.FC<{ value: number; duration: number }> = ({ value, duration }) => {
     const [display, setDisplay] = useState(2400);
@@ -36,8 +38,18 @@ const CountingNumber: React.FC<{ value: number; duration: number }> = ({ value, 
 // ホーム（Yin-Yang）ビュー
 const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> = ({ onOpenFlow, onOpenRequest }) => {
   const { status, performRebirthReset, availableLm, balance } = useWallet();
+  const { profile } = useProfile();
   const [ritualState, setRitualState] = useState<'idle' | 'breathing' | 'blooming' | 'syncing'>('idle');
   const [targetBalance, setTargetBalance] = useState(2400);
+
+  // Remaining Days Calculation
+  const cycleDays = profile?.scheduled_cycle_days || 10;
+  const cycleStartedAt = profile?.cycle_started_at?.toMillis 
+      ? profile.cycle_started_at.toMillis() 
+      : (profile?.created_at?.toMillis ? profile.created_at.toMillis() : Date.now());
+  
+  const nextReset = cycleStartedAt + (cycleDays * 24 * 60 * 60 * 1000);
+  const daysLeft = Math.max(0, Math.ceil((nextReset - Date.now()) / (1000 * 60 * 60 * 24)));
   
   const handleRitual = async () => {
       if (ritualState !== 'idle') return;
@@ -56,13 +68,18 @@ const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> 
   const isEmpty = status === 'EMPTY';
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center w-full min-h-full px-6 py-4 relative max-w-md mx-auto overflow-hidden">
+    <div className="flex-1 flex flex-col items-center justify-center w-full min-h-full px-6 pt-24 pb-4 relative max-w-md mx-auto overflow-hidden">
       <div className="flex-1 flex items-center justify-center w-full relative">
         {/* 透明な背景に浮かぶ「手持ち」残高 */}
         {!isRitualReady && !isEmpty && (
              <div className="absolute top-[8%] left-0 right-0 flex flex-col items-center z-20 pointer-events-none">
                 <motion.div initial={{ opacity: 0, scale: 0.9, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} className="absolute bottom-[105%]">
-                    <span className="text-xs font-bold text-slate-400 tracking-widest uppercase whitespace-nowrap text-shadow-sm">手持ち： {Math.floor(balance).toLocaleString()}</span>
+                    <span className="text-xs font-bold text-slate-400 tracking-widest uppercase whitespace-nowrap text-shadow-sm">
+                        手持ち： {Math.floor(balance).toLocaleString()}
+                        <span className="ml-2 text-slate-400 opacity-80 decoration-slate-300">
+                            (あと{daysLeft}日)
+                        </span>
+                    </span>
                 </motion.div>
                 <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center">
                     <div className="text-6xl font-serif font-bold text-slate-800 tracking-tighter tabular-nums leading-none">{Math.floor(availableLm).toLocaleString()}</div>
@@ -110,17 +127,25 @@ const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> 
           <AnimatePresence>
             {!isRitualReady && (
              <>
-              <motion.button key="btn-help" onClick={onOpenFlow} className="absolute top-[32.32%] left-[67.68%] -translate-x-1/2 -translate-y-[14.5px] z-20 outline-none group text-amber-800" whileTap={{ scale: 0.98 }}>
+              <motion.button 
+                key="btn-help" 
+                onClick={onOpenFlow} 
+                className="absolute top-[32.32%] left-[67.68%] -translate-x-1/2 -translate-y-[14.5px] z-20 outline-none group text-amber-800"
+              >
                   <div className="flex flex-col items-center origin-center">
-                    <motion.div className="flex flex-col items-center" whileHover={{ y: -5 }}>
+                    <motion.div className="flex flex-col items-center">
                       <Inbox size={29} strokeWidth={2} className="mb-2 opacity-90" />
                       <span className="text-lg font-medium tracking-widest uppercase text-shadow-sm">応える</span>
                     </motion.div>
                   </div>
               </motion.button>
-              <motion.button key="btn-wish" onClick={onOpenRequest} className="absolute top-[67.68%] left-[32.32%] -translate-x-1/2 -translate-y-[calc(100%-12.5px)] z-20 outline-none group text-blue-800" whileTap={{ scale: 0.98 }}>
+              <motion.button 
+                key="btn-wish" 
+                onClick={onOpenRequest} 
+                className="absolute top-[67.68%] left-[32.32%] -translate-x-1/2 -translate-y-[calc(100%-12.5px)] z-20 outline-none group text-blue-800"
+              >
                   <div className="flex flex-col items-center origin-center">
-                    <motion.div className="flex flex-col-reverse items-center" whileHover={{ y: -5 }}>
+                    <motion.div className="flex flex-col-reverse items-center">
                       <Megaphone size={25} strokeWidth={2} className="mt-2 opacity-90" />
                       <span className="text-lg font-medium tracking-widest uppercase text-shadow-sm">お願い</span>
                     </motion.div>
@@ -248,7 +273,13 @@ function App() {
       {/* Header: Only show if NOT in Ritual Mode */}
       <AnimatePresence>
         {viewMode === 'home' && !isRitual && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} className="z-50">
+            <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: 1 }} 
+                exit={{ opacity: 0 }} 
+                transition={{ duration: 0.8, ease: "easeOut" }} 
+                className="absolute top-0 left-0 right-0 z-50"
+            >
                 <Header viewMode={viewMode} onTabChange={handleTabChange} />
             </motion.div>
         )}

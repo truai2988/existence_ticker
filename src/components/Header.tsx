@@ -56,14 +56,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
         return formatLocationCount(statsCount);
     };
 
-    // Seasonal Logic (Simplified)
-    const cycleDays = profile?.scheduled_cycle_days || 10;
-    const cycleStartedAt = profile?.cycle_started_at?.toMillis 
-        ? profile.cycle_started_at.toMillis() 
-        : (profile?.created_at?.toMillis ? profile.created_at.toMillis() : Date.now());
-    
-    const nextReset = cycleStartedAt + (cycleDays * 24 * 60 * 60 * 1000);
-    const daysLeft = Math.max(0, Math.ceil((nextReset - Date.now()) / (1000 * 60 * 60 * 24)));
+
 
     // Percentages for Water Clock (Max 2400)
     // committed: 既に捧げた分 (底に沈殿)
@@ -79,68 +72,60 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                 <div className="relative w-full">
                     {/* Two Pillars Structure - with white background spanning full width */}
                     <div className="relative w-full bg-white/95">
-                        <div className="w-full max-w-2xl mx-auto px-4 pt-2 pb-3">
+                        <div className="w-full max-w-2xl mx-auto px-6 py-4">
                             <div className="flex items-center justify-between">
-                                {/* 左の柱：あなたの「今」 */}
-                                <div className="flex flex-col items-start">
-                                    {/* 最上段：EXISTENCE TICKER */}
-                                    <div className="text-xs font-bold tracking-[0.25em] uppercase text-slate-400 leading-none mb-2">
+                                {/* Left: Title and Location */}
+                                <div>
+                                    <h1 className="text-sm font-bold tracking-widest uppercase text-slate-400 leading-none mb-1">
                                         Existence Ticker
-                                    </div>
-                                    
-                                    {/* Location Info (Moved here for better balance) */}
+                                    </h1>
                                     <button
                                         onClick={() => setShowPresenceModal(true)}
                                         className="flex items-center gap-1.5 text-left hover:opacity-70 transition-opacity group"
                                     >
-                                        <MapPin size={11} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
-                                        <span className="text-xs text-slate-400 font-medium truncate group-hover:text-slate-600 transition-colors">
+                                        <MapPin size={10} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
+                                        <span className="text-xs text-slate-300 font-mono tracking-wider uppercase group-hover:text-slate-500 transition-colors truncate max-w-[120px]">
                                             {getLocationText()}
                                         </span>
-                                        <span className="text-xs text-slate-300">|</span>
-                                        <Users size={11} className="text-slate-400 group-hover:text-slate-600 transition-colors" />
-                                        <span className="text-xs text-slate-400 font-medium group-hover:text-slate-600 transition-colors">
+                                        <span className="text-[10px] text-slate-300">|</span>
+                                        <Users size={10} className="text-slate-300 group-hover:text-slate-500 transition-colors" />
+                                        <span className="text-xs text-slate-300 font-mono tracking-wider group-hover:text-slate-500 transition-colors">
                                             {getUserCountText()}
                                         </span>
                                     </button>
                                 </div>
 
-                                {/* 右の柱：管理と操作 */}
+                                {/* Right: Water Clock & Navigation */}
                                 <div className="flex items-center gap-4">
-                                    {/* Water Clock Indicator (Lm Capacity) */}
-                                    <div className="flex flex-col items-end gap-1">
-                                        <div className="relative w-8 h-10 bg-slate-50 rounded-b-xl rounded-t-sm overflow-hidden border border-slate-200 shadow-inner">
-                                            
-                                            {/* 1. Committed Lm (Bottom Layer - Frozen/Sediment) */}
-                                            <motion.div 
-                                                className="absolute bottom-0 left-0 right-0 bg-slate-200/80 saturate-0"
-                                                initial={{ height: 0 }}
-                                                animate={{ height: `${committedHeight}%` }}
-                                                transition={{ duration: 1.0, ease: "easeOut" }}
-                                            />
+                                    {/* Water Clock Indicator (Lm Capacity) - Compact Visual Only */}
+                                    <div className="relative w-7 h-9 bg-slate-50 rounded-b-lg rounded-t-sm overflow-hidden border border-slate-200 shadow-inner shrink-0">
+                                        
+                                        {/* 1. Committed Lm (Bottom Layer - Frozen/Sediment) */}
+                                        <motion.div 
+                                            className="absolute bottom-0 left-0 right-0 bg-slate-200/80 saturate-0"
+                                            initial={{ height: 0 }}
+                                            animate={{ height: `${committedHeight}%` }}
+                                            transition={{ duration: 1.0, ease: "easeOut" }}
+                                        />
 
-                                            {/* 2. Available Lm (Top Layer - Liquid Light) */}
-                                            <motion.div 
-                                                className="absolute bottom-0 left-0 right-0 bg-amber-300/60 backdrop-blur-sm"
-                                                initial={{ height: 0, bottom: 0 }}
-                                                animate={{ 
-                                                    height: `${availableHeight}%`, 
-                                                    bottom: `${committedHeight}%` 
-                                                }}
-                                                transition={{ duration: 1.0, ease: "easeOut", delay: 0.2 }}
-                                            >
-                                                 <div className="absolute inset-0 bg-white/30 animate-pulse" />
-                                            </motion.div>
-                                            
-                                            {/* Glass Reflection */}
-                                            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent opacity-50 pointer-events-none" />
-                                        </div>
-                                        <span className="text-[10px] font-bold text-slate-400 tracking-wider">
-                                            あと {daysLeft}日
-                                        </span>
+                                        {/* 2. Available Lm (Top Layer - Liquid Light) */}
+                                        <motion.div 
+                                            className="absolute bottom-0 left-0 right-0 bg-amber-300/60 backdrop-blur-sm"
+                                            initial={{ height: 0, bottom: 0 }}
+                                            animate={{ 
+                                                height: `${availableHeight}%`, 
+                                                bottom: `${committedHeight}%` 
+                                            }}
+                                            transition={{ duration: 1.0, ease: "easeOut", delay: 0.2 }}
+                                        >
+                                                <div className="absolute inset-0 bg-white/30 animate-pulse" />
+                                        </motion.div>
+                                        
+                                        {/* Glass Reflection */}
+                                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent opacity-50 pointer-events-none" />
                                     </div>
                                     
-                                    {/* 右側：ナビゲーション */}
+                                    {/* Navigation */}
                                     <HeaderNavigation currentTab={viewMode || "home"} onTabChange={onTabChange} />
                                 </div>
                             </div>
