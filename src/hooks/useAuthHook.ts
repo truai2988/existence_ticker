@@ -10,7 +10,7 @@ import {
     updateEmail,
     reauthenticateWithCredential
 } from 'firebase/auth';
-import { doc, serverTimestamp, runTransaction, increment, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, serverTimestamp, runTransaction, increment, collection, query, where, getDocs, getDoc } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { useAuthContext } from '../contexts/AuthContextDefinition';
 import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS } from '../logic/worldPhysics';
