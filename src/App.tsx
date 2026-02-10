@@ -194,15 +194,27 @@ const HomeView: React.FC<{ onOpenFlow: () => void; onOpenRequest: () => void }> 
   );
 };
 
+import { useSeasonalEvent } from "./hooks/useSeasonalEvent";
+
 // メインコンテンツの切り替えレイヤー
 const MainContent: React.FC<{ viewMode: AppViewMode; setViewMode: (mode: AppViewMode) => void; currentUserId: string; onGoHome: () => void }> = ({ viewMode, setViewMode, currentUserId, onGoHome }) => {
-    const [isEventActive, setIsEventActive] = useState(false);
+    const { isChecking, eventData, completeEvent } = useSeasonalEvent();
 
+    // 1. Gatekeeper: If checking, render NOTHING.
+    if (isChecking) return null;
+
+    // 2. Event Mode: If event exists, show ONLY the revelation.
+    if (eventData) {
+        return <SeasonalRevelation eventData={eventData} onComplete={completeEvent} />;
+    }
+
+    // 3. Normal Mode: Fade in the main content (HomeView, etc.)
     const withTransition = (component: React.ReactNode, key: string) => (
         <motion.div key={key} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeInOut" }} className="w-full h-full">
             {component}
         </motion.div>
     );
+
     const renderContent = () => {
         switch (viewMode) {
             case 'home': return withTransition(<HomeView onOpenFlow={() => setViewMode('flow')} onOpenRequest={() => setViewMode('give')} />, 'home');
@@ -215,14 +227,14 @@ const MainContent: React.FC<{ viewMode: AppViewMode; setViewMode: (mode: AppView
             default: return null;
         }
     };
+
     return (
         <div className="flex flex-col w-full min-h-full">
-            <SeasonalRevelation onVisibilityChange={setIsEventActive} />
             <motion.div 
                 className="flex-1 w-full relative"
-                animate={{ opacity: isEventActive ? 0 : 1 }}
-                transition={{ duration: 0.8, delay: isEventActive ? 0 : 0.5 }}
-                style={{ pointerEvents: isEventActive ? 'none' : 'auto' }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
             >
                 <AnimatePresence mode="wait">{renderContent()}</AnimatePresence>
             </motion.div>
