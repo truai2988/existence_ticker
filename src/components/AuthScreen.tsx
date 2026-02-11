@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuthHook';
 import { Eye, EyeOff, ArrowRight, Loader2, AlertCircle, Mail, Lock, User, MapPin, Key, ChevronDown } from 'lucide-react';
@@ -37,6 +37,16 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [showPassword, setShowPassword] = useState(false);
+
+    // ゴースト是正後のフィードバック検知
+    useEffect(() => {
+        const feedbackNeeded = sessionStorage.getItem('ghost_pured_feedback_needed');
+        if (feedbackNeeded === 'true') {
+            setMode('signup');
+            setError('前回のアカウントは正常に作成されていませんでした。お手数ですが、再度登録をお願いします。');
+            sessionStorage.removeItem('ghost_pured_feedback_needed');
+        }
+    }, []);
 
     // Form States
     const [email, setEmail] = useState('');

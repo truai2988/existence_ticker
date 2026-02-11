@@ -6,6 +6,7 @@ import { AuthContext } from './AuthContextDefinition';
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isRegistering, setIsRegistering] = useState(false);
     // Global flag is now managed directly on window object in useAuthHook
 
     useEffect(() => {
@@ -28,7 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, loading }}>
+        <AuthContext.Provider value={{ user, loading, isRegistering, setIsRegistering }}>
             {children}
         </AuthContext.Provider>
     );

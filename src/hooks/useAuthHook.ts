@@ -14,18 +14,19 @@ import { doc, serverTimestamp, runTransaction, increment, collection, query, whe
 import { auth, db } from '../lib/firebase';
 import { useAuthContext } from '../contexts/AuthContextDefinition';
 import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS } from '../logic/worldPhysics';
+import { useCallback } from 'react';
 
 
 export const useAuth = () => {
     // Consume Singleton State
-    const { user, loading } = useAuthContext();
+    const { user, loading, isRegistering, setIsRegistering } = useAuthContext();
 
-    const signIn = async (email: string, pass: string) => {
+    const signIn = useCallback(async (email: string, pass: string) => {
         if (!auth) throw new Error("Auth not initialized");
         await signInWithEmailAndPassword(auth, email, pass);
-    };
+    }, []);
 
-    const signUp = async (email: string, pass: string, name: string, location: { prefecture: string, city: string }, age_group: string, gender: "male" | "female" | "other", invitationCode: string) => {
+    const signUp = useCallback(async (email: string, pass: string, name: string, location: { prefecture: string, city: string }, age_group: string, gender: "male" | "female" | "other", invitationCode: string) => {
         if (!auth) throw new Error("Auth not initialized");
         if (!db) throw new Error("Database not connected");
 
@@ -50,6 +51,7 @@ export const useAuth = () => {
         // CRITICAL: Set isRegistering flag DIRECTLY to prevent ghost profile purge
         // We use window object directly to avoid React State async delays
         window.__isRegistering = true;
+        setIsRegistering(true);
 
         try {
             const cred = await createUserWithEmailAndPassword(auth, email, pass);
@@ -110,6 +112,7 @@ export const useAuth = () => {
                     // Registration successful - clear flag after small delay to allow Firestore sync
                     setTimeout(() => {
                                 if (window.__isRegistering !== undefined) window.__isRegistering = false;
+                                setIsRegistering(false);
                     }, 3000);
                 } catch (error) {
                     // ATOMICITY ENFORCEMENT:
@@ -129,6 +132,7 @@ export const useAuth = () => {
 
                     // Clear isRegistering flag on error
                             if (window.__isRegistering !== undefined) window.__isRegistering = false;
+                            setIsRegistering(false);
 
                     throw error;
                 }
@@ -136,39 +140,41 @@ export const useAuth = () => {
         } catch (error) {
             // Clear isRegistering flag on any error
                     if (window.__isRegistering !== undefined) window.__isRegistering = false;
+                    setIsRegistering(false);
             throw error;
         }
-    };
+    }, [setIsRegistering]);
 
-    const linkEmail = async (email: string, pass: string) => {
+    const linkEmail = useCallback(async (email: string, pass: string) => {
         if (!auth || !auth.currentUser) throw new Error("No user to link");
         const credential = EmailAuthProvider.credential(email, pass);
         await linkWithCredential(auth.currentUser, credential);
         // User remains logged in but is no longer anonymous
-    };
+    }, []);
 
-    const signOut = async () => {
+    const signOut = useCallback(async () => {
         if (!auth) return;
         try {
             await firebaseSignOut(auth);
+            setIsRegistering(false); // Reset on logout just in case
         } catch (error) {
             console.error("Error signing out:", error);
         }
-    };
+    }, [setIsRegistering]);
 
     const updateUserPassword = async (newPassword: string) => {
         if (!auth || !auth.currentUser) throw new Error("Not authenticated");
         await updatePassword(auth.currentUser, newPassword);
     };
 
-    const resetPassword = async (email: string) => {
+    const resetPassword = useCallback(async (email: string) => {
         if (!auth) throw new Error("Auth not initialized");
         // Sends a password reset email to the given address.
         // NOTE: If the email is not found, Firebase does not throw an error for security reasons (enumeration protection).
         await sendPasswordResetEmail(auth, email);
-    };
+    }, []);
 
-    const updateUserEmail = async (newEmail: string, currentPassword: string) => {
+    const updateUserEmail = useCallback(async (newEmail: string, currentPassword: string) => {
         if (!auth || !auth.currentUser) throw new Error("Not authenticated");
         if (!auth.currentUser.email) throw new Error("No email on current user");
         
@@ -181,9 +187,9 @@ export const useAuth = () => {
         
         // Step 2: Update the email
         await updateEmail(auth.currentUser, newEmail);
-    };
+    }, []);
 
-    const deleteAccount = async () => {
+    const deleteAccount = useCallback(async () => {
         if (!auth || !auth.currentUser || !db) throw new Error("Authentication or Database error");
         const user = auth.currentUser;
 
@@ -209,6 +215,14 @@ export const useAuth = () => {
                 
                 // READ 1: User Profile
                 const userSnap = await transaction.get(userRef);
+
+                // --- GHOST OPTIMIZATION ---
+                // If the profile document doesn't even exist, we skip the complex cleanup
+                // and just proceed to Auth deletion.
+                if (!userSnap.exists()) {
+                    console.log("[deleteAccount] No profile found (Ghost). Proceeding to direct Auth deletion.");
+                    return; 
+                }
 
                 // READ 2: Pre-fetch all Helper Profiles involved in active wishes
                 // Must be done BEFORE any writes
@@ -357,9 +371,9 @@ export const useAuth = () => {
              console.error("Account deletion failed:", error);
              throw error;
         }
-    };
+    }, []);
 
-    const reauthenticate = async (password: string) => {
+    const reauthenticate = useCallback(async (password: string) => {
         if (!auth || !auth.currentUser) throw new Error("Not authenticated");
         if (!auth.currentUser.email) throw new Error("No email to re-authenticate with");
         
@@ -368,11 +382,12 @@ export const useAuth = () => {
             password
         );
         await reauthenticateWithCredential(auth.currentUser, credential);
-    };
+    }, []);
 
     return {
         user,
         loading,
+        isRegistering,
         signIn,
         signUp,
         linkEmail,

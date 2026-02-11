@@ -311,8 +311,8 @@ const AdminDashboard = lazy(() =>
 );
 
 // ローダー（白磁の美学）
-const ScreenLoader = () => (
-    <div className="flex-1 flex items-center justify-center p-8 bg-[#F9F8F4] min-h-screen relative overflow-hidden">
+const ScreenLoader = ({ message }: { message?: string }) => (
+    <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[#F9F8F4] min-h-screen relative overflow-hidden">
         {/* Washi Texture Overlay */}
         <div
             className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply"
@@ -324,9 +324,20 @@ const ScreenLoader = () => (
         <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none" />
         <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none" />
 
-         <div className="relative flex items-center justify-center z-10">
-            <div className="absolute w-12 h-12 bg-slate-200 rounded-full animate-ping opacity-20"></div>
-            <div className="w-3 h-3 bg-white border border-slate-100 rounded-full shadow-sm animate-pulse z-10"></div>
+         <div className="relative flex flex-col items-center justify-center z-10">
+            <div className="relative flex items-center justify-center mb-8">
+                <div className="absolute w-12 h-12 bg-slate-200 rounded-full animate-ping opacity-20"></div>
+                <div className="w-3 h-3 bg-white border border-slate-100 rounded-full shadow-sm animate-pulse z-10"></div>
+            </div>
+            {message && (
+                <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-slate-400 font-serif tracking-[0.2em] text-sm animate-pulse"
+                >
+                    {message}
+                </motion.div>
+            )}
          </div>
     </div>
 );
@@ -356,7 +367,7 @@ function App() {
   // --- THE DETERMINISTIC SWITCH ---
   switch(view) {
       case 'LOADING':
-          return <ScreenLoader />;
+          return <ScreenLoader message={data.message} />;
       
       case 'GATE':
           if (!gateOpened) return <GateScreen onOpen={handleGateOpen} />;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { db } from "../lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
@@ -52,12 +52,12 @@ export const useSeasonalEvent = () => {
     checkEvent();
   }, []);
 
-  const completeEvent = () => {
+  const completeEvent = useCallback(async () => {
     if (currentCycleDays !== null) {
       localStorage.setItem("seasonal_cycle_days", currentCycleDays.toString());
     }
     setEventData(null);
-  };
+  }, [currentCycleDays]);
 
   return { isChecking, eventData, completeEvent };
 };
