@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuthHook';
-import { Eye, EyeOff, ArrowRight, Loader2, AlertCircle, Mail, Lock, User, MapPin, Key } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, Loader2, AlertCircle, Mail, Lock, User, MapPin, Key, ChevronDown } from 'lucide-react';
+import { PREFECTURES } from '../data/prefectures';
+import { useLocationData } from '../hooks/useLocationData';
 
 interface AuthScreenProps {
     onSuccess: () => void;
@@ -41,6 +43,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
     // Location
     const [prefecture, setPrefecture] = useState('');
     const [city, setCity] = useState('');
+
+    // Location Data Hook
+    const { cities, loading: loadingCities } = useLocationData(prefecture);
 
     // Demographics
     const [ageGroup, setAgeGroup] = useState('');
@@ -184,23 +189,32 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
 
                                 <div className="grid grid-cols-2 gap-2">
                                     <div className="relative group">
-                                        <MapPin className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors" size={18} />
-                                        <input 
-                                            type="text" 
-                                            placeholder="都道府県" 
+                                        <MapPin className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors pointer-events-none" size={18} />
+                                        <select 
                                             value={prefecture}
                                             onChange={(e) => setPrefecture(e.target.value)}
-                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400"
-                                        />
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400 appearance-none"
+                                        >
+                                            <option value="" disabled>都道府県</option>
+                                            {PREFECTURES.map(pref => (
+                                                <option key={pref} value={pref}>{pref}</option>
+                                            ))}
+                                        </select>
+                                        <ChevronDown className="absolute right-3 top-3 text-slate-400 pointer-events-none" size={18} />
                                     </div>
                                     <div className="relative group">
-                                         <input 
-                                            type="text" 
-                                            placeholder="市区町村" 
+                                         <select 
                                             value={city}
                                             onChange={(e) => setCity(e.target.value)}
-                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400"
-                                        />
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400 appearance-none disabled:opacity-50"
+                                            disabled={!prefecture || loadingCities}
+                                        >
+                                            <option value="" disabled>{loadingCities ? '読み込み中...' : '市区町村'}</option>
+                                            {cities.map(cityName => (
+                                                <option key={cityName} value={cityName}>{cityName}</option>
+                                            ))}
+                                         </select>
+                                         <ChevronDown className="absolute right-3 top-3 text-slate-400 pointer-events-none" size={18} />
                                     </div>
                                 </div>
 
