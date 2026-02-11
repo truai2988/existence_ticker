@@ -364,18 +364,31 @@ function App() {
       
       case 'GHOST':
           return (
-            <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[#F9F8F4] min-h-screen text-slate-800">
-               <h2 className="text-2xl font-serif font-bold mb-4">魂の不在</h2>
-               <p className="mb-8 text-slate-600 text-center text-sm leading-relaxed max-w-xs">
-                   認証は確認できましたが、<br/>存在の記録が見つかりません。<br/>
-                   (Ghost Profile Detected)
-               </p>
-               <button 
-                  onClick={() => actions.deleteAccount()}
-                  className="px-8 py-3 bg-slate-900 text-white font-serif text-sm tracking-widest hover:bg-slate-800 transition-colors"
-               >
-                   無に還る
-               </button>
+            <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[#F9F8F4] min-h-screen text-slate-800 relative overflow-hidden">
+               {/* Washi Texture Overlay */}
+               <div
+                   className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply"
+                   style={{
+                       backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                   }}
+               />
+               {/* Ambient Blooms */}
+               <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none" />
+               <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none" />
+
+               <div className="relative z-10 flex flex-col items-center justify-center">
+                   <h2 className="text-2xl font-serif font-bold mb-4">魂の不在</h2>
+                   <p className="mb-8 text-slate-600 text-center text-sm leading-relaxed max-w-xs">
+                       認証は確認できましたが、<br/>存在の記録が見つかりません。<br/>
+                       (Ghost Profile Detected)
+                   </p>
+                   <button 
+                      onClick={() => actions.deleteAccount()}
+                      className="px-8 py-3 bg-slate-900 text-white font-serif text-sm tracking-widest hover:bg-slate-800 transition-colors"
+                   >
+                       無に還る
+                   </button>
+               </div>
             </div>
         );
 
