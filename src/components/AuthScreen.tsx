@@ -1,475 +1,296 @@
-import React, { useState } from "react";
-import { useAuth } from "../hooks/useAuthHook";
-import { useLocationData } from "../hooks/useLocationData";
-import { Loader2, ChevronDown, Sparkles } from "lucide-react";
-import { PREFECTURES } from "../data/prefectures";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../hooks/useAuthHook';
+import { Eye, EyeOff, ArrowRight, Loader2, AlertCircle, Mail, Lock, User, MapPin, Key } from 'lucide-react';
 
 interface AuthScreenProps {
-  onSuccess?: () => void;
+    onSuccess: () => void;
 }
 
+// 日本語エラーメッセージへの変換
+const translateError = (code: string): string => {
+    switch (code) {
+        case 'auth/invalid-email': return 'メールアドレスの形式が正しくありません。';
+        case 'auth/user-disabled': return 'このアカウントは無効化されています。';
+        case 'auth/user-not-found': return 'アカウントが見つかりません。';
+        case 'auth/wrong-password': return 'パスワードが間違っています。';
+        case 'auth/email-already-in-use': return 'このメールアドレスは既に使用されています。';
+        case 'auth/weak-password': return 'パスワードは6文字以上で入力してください。';
+        case 'auth/operation-not-allowed': return '認証エラーが発生しました。管理者にお問い合わせください。';
+        case 'auth/too-many-requests': return '試行回数が多すぎます。しばらく待ってから再度お試しください。';
+        case 'auth/network-request-failed': return 'ネットワーク接続を確認してください。';
+        case 'auth/internal-error': return '内部エラーが発生しました。';
+        case 'auth/requires-recent-login': return '再認証が必要です。一度ログアウトして再度ログインしてください。';
+        default: return 'エラーが発生しました: ' + code;
+    }
+};
+
 export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
-  const { signIn, signUp, resetPassword } = useAuth();
-  const [mode, setMode] = useState<"login" | "register">("login");
-  const [isResetMode, setIsResetMode] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [gender, setGender] = useState<"male" | "female" | "other" | "">("");
-  const [age_group, setAgeGroup] = useState("");
-  const [location, setLocation] = useState({ prefecture: "", city: "" });
-  const { cities, loading: loadingCities } = useLocationData(
-    location.prefecture,
-  );
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState('');
-  const [invitationCode, setInvitationCode] = useState('');
+    const { signIn, signUp, resetPassword } = useAuth();
+    const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [showPassword, setShowPassword] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setIsLoading(true);
+    // Form States
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
+    const [invitationCode, setInvitationCode] = useState('');
+    
+    // Location
+    const [prefecture, setPrefecture] = useState('');
+    const [city, setCity] = useState('');
 
-    try {
-      if (mode === "login") {
-        await signIn(email, password);
-      } else {
-        if (!name.trim()) throw new Error("名前を入力してください");
-        if (!gender) throw new Error("性別を選択してください");
-        if (!age_group) throw new Error("年代を選択してください");
-        if (!location.prefecture) throw new Error("都道府県を選択してください");
-        if (!location.city) throw new Error("市区町村を選択してください");
-        if (!email) throw new Error("メールアドレスを入力してください");
-        if (!password) throw new Error("パスワードを入力してください");
-        if (!invitationCode.trim()) throw new Error("招待コードを入力してください");
-        await signUp(
-          email,
-          password,
-          name,
-          location,
-          age_group,
-          gender as "male" | "female" | "other",
-          invitationCode,
-        );
-      }
-      // Call onSuccess callback if provided (e.g. to redirect to home)
-      onSuccess?.();
-    } catch (err) {
-      console.error(err);
-      if (err instanceof Error) {
-        // 1. Check for Japanese errors first (already translated in logic)
-        // If the error message ALREADY suggests it's Japanese (contains multibyte characters/non-ASCII), use it.
-        const msg = err.message;
-        const isAlreadyJapanese = /[^\u0000-\u007F]/.test(msg); // Check for non-ASCII chars
+    // Demographics
+    const [ageGroup, setAgeGroup] = useState('');
+    const [gender, setGender] = useState<'male' | 'female' | 'other'>('male');
 
-        if (isAlreadyJapanese) {
-             setError(msg);
-        } else {
-             // 2. Map Firebase / Internal English errors to Japanese
-             if (msg.includes("auth/invalid-email")) setError("メールアドレスの形式が正しくありません");
-             else if (msg.includes("auth/user-not-found")) setError("登録されているユーザーが見つかりません");
-             else if (msg.includes("auth/wrong-password")) setError("パスワードが間違っています");
-             else if (msg.includes("auth/email-already-in-use")) setError("このメールアドレスは既に登録されています");
-             else if (msg.includes("auth/weak-password")) setError("パスワードは6文字以上で設定してください");
-             else if (msg.includes("auth/too-many-requests")) setError("アクセスが集中しています。しばらくしてから再度お試しください。");
-             else if (msg.includes("auth/network-request-failed")) setError("通信エラーが発生しました。ネットワーク環境をご確認ください。");
-             else if (msg.includes("auth/operation-not-allowed")) setError("ログイン操作が許可されていません。管理者にお問い合わせください。");
-             else if (msg.includes("auth/invalid-credential")) setError("認証情報が無効です。再度ログインしてください。");
-             else if (msg.includes("Auth not initialized")) setError("認証システムの初期化に失敗しました。ページを更新してください。");
-             else if (msg.includes("Database not connected")) setError("データベースに接続できません。通信環境をご確認ください。");
-             else {
-                 // 3. Fallback for unknown errors
-                 // Ensure we NEVER show raw English error
-                 console.warn("Unknown Auth Error:", msg);
-                 setError("予期せぬエラーが発生しました。時間をおいて再度お試しください。");
-             }
+    // Validation for ASCII checks
+    const validateAscii = (text: string) => /^[\x20-\x7E]*$/.test(text);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+        setIsLoading(true);
+
+        try {
+            if (mode === 'login') {
+                if (!email || !password) throw new Error('メールアドレスとパスワードを入力してください。');
+                await signIn(email, password);
+                onSuccess();
+            } else if (mode === 'signup') {
+                if (!email || !password || !name || !invitationCode || !prefecture || !city || !ageGroup) {
+                    throw new Error('すべての項目を入力してください。');
+                }
+                if (!validateAscii(password)) {
+                    throw new Error('パスワードは半角英数字と記号のみ使用可能です。');
+                }
+                if (!validateAscii(invitationCode)) {
+                    throw new Error('招待コードは半角英数字のみ使用可能です。');
+                }
+
+                await signUp(
+                    email, 
+                    password, 
+                    name, 
+                    { prefecture, city }, 
+                    ageGroup, 
+                    gender, 
+                    invitationCode
+                );
+                onSuccess();
+            } else if (mode === 'forgot') {
+                 if (!email) throw new Error('メールアドレスを入力してください。');
+                 await resetPassword(email);
+                 setError('パスワード再設定メールを送信しました。');
+                 setIsLoading(false);
+                 return;
+            }
+        } catch (err: unknown) {
+            console.error(err);
+            const firebaseError = err as { code?: string; message?: string };
+            if (firebaseError.code) {
+                setError(translateError(firebaseError.code));
+            } else {
+                setError(firebaseError.message || '予期せぬエラーが発生しました。');
+            }
+        } finally {
+            if (mode !== 'forgot') setIsLoading(false);
         }
-      } else {
-        setError("接続に失敗しました。時間をおいて再度お試しください。");
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    };
 
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setSuccessMessage("");
-    setIsLoading(true);
-
-    try {
-      await resetPassword(email);
-      setSuccessMessage(
-        "パスワード再設定のメールを送信しました。\n届いたメールの内容に従って手続きを完了してください。",
-      );
-    } catch (err) {
-      const code = (err as { code?: string }).code;
-      if (code === "auth/user-not-found")
-        setError("入力されたメールアドレスは登録されていません");
-      else if (code === "auth/invalid-email")
-        setError("メールアドレスの形式が正しくありません");
-      else setError("メールの送信に失敗しました");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-[#F9F8F4] flex flex-col items-center justify-center py-20 px-6 text-[#2D2D2D] font-sans selection:bg-orange-100/30 relative overflow-y-auto">
-      {/* Washi Texture Overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-        }}
-      />
-
-      {/* Ambient Blooms */}
-      <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none" />
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.2, ease: "easeOut" }}
-        className="w-full max-w-md relative z-10"
-      >
-        <div className="text-center mb-12">
-          <div className="mb-8 flex justify-center">
-            <motion.div
-              animate={{ opacity: [0.4, 0.7, 0.4] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="p-4 rounded-full bg-white/40 shadow-sm border border-white/20"
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen p-4 w-full max-w-md mx-auto relative z-10">
+            <motion.div 
+                layout 
+                initial={{ opacity: 0, y: 20 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                className="w-full bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/50 p-8 overflow-hidden"
             >
-              <Sparkles className="w-5 h-5 text-orange-300" />
+                <div className="flex flex-col items-center mb-8">
+                    <h1 className="text-2xl font-serif font-bold text-slate-800 tracking-widest mb-2">
+                        {mode === 'login' && '星の扉'}
+                        {mode === 'signup' && '魂の登録'}
+                        {mode === 'forgot' && '灯火の再燃'}
+                    </h1>
+                    <div className="h-1 w-12 bg-slate-300 rounded-full" />
+                </div>
+
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                    <AnimatePresence>
+                        {error && (
+                            <motion.div 
+                                initial={{ opacity: 0, height: 0 }} 
+                                animate={{ opacity: 1, height: 'auto' }} 
+                                exit={{ opacity: 0, height: 0 }}
+                                className="bg-red-50 text-red-600 p-3 rounded-lg text-sm flex items-start gap-2 mb-2"
+                            >
+                                <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                                <span>{error}</span>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    <div className="relative group">
+                        <Mail className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors" size={18} />
+                        <input 
+                            type="email" 
+                            placeholder="メールアドレス" 
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400"
+                        />
+                    </div>
+
+                    {mode !== 'forgot' && (
+                        <div className="relative group">
+                            <Lock className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors" size={18} />
+                            <input 
+                                type={showPassword ? "text" : "password"} 
+                                placeholder="パスワード" 
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400"
+                            />
+                            <button 
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 transition-colors"
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
+                    )}
+
+                    <AnimatePresence>
+                        {mode === 'signup' && (
+                            <motion.div 
+                                initial={{ opacity: 0, height: 0 }} 
+                                animate={{ opacity: 1, height: 'auto' }} 
+                                exit={{ opacity: 0, height: 0 }}
+                                className="flex flex-col gap-4 overflow-hidden"
+                            >
+                                <div className="relative group">
+                                    <User className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors" size={18} />
+                                    <input 
+                                        type="text" 
+                                        placeholder="お名前（ニックネーム可）" 
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div className="relative group">
+                                        <MapPin className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors" size={18} />
+                                        <input 
+                                            type="text" 
+                                            placeholder="都道府県" 
+                                            value={prefecture}
+                                            onChange={(e) => setPrefecture(e.target.value)}
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400"
+                                        />
+                                    </div>
+                                    <div className="relative group">
+                                         <input 
+                                            type="text" 
+                                            placeholder="市区町村" 
+                                            value={city}
+                                            onChange={(e) => setCity(e.target.value)}
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2">
+                                     <div className="relative group">
+                                        <select 
+                                            value={ageGroup} 
+                                            onChange={(e) => setAgeGroup(e.target.value)}
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-sm appearance-none"
+                                        >
+                                            <option value="" disabled>年代</option>
+                                            <option value="10s">10代</option>
+                                            <option value="20s">20代</option>
+                                            <option value="30s">30代</option>
+                                            <option value="40s">40代</option>
+                                            <option value="50s">50代</option>
+                                            <option value="60s">60代以上</option>
+                                        </select>
+                                    </div>
+                                    <div className="relative group">
+                                        <select 
+                                            value={gender} 
+                                            onChange={(e) => setGender(e.target.value as 'male' | 'female' | 'other')}
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-sm appearance-none"
+                                        >
+                                            <option value="male">男性</option>
+                                            <option value="female">女性</option>
+                                            <option value="other">その他</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="relative group">
+                                    <Key className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors" size={18} />
+                                    <input 
+                                        type="text" 
+                                        placeholder="招待コード" 
+                                        value={invitationCode}
+                                        onChange={(e) => setInvitationCode(e.target.value)}
+                                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400 font-mono"
+                                    />
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    <button 
+                        type="submit" 
+                        disabled={isLoading}
+                        className="w-full bg-slate-800 text-white rounded-xl py-3 font-medium tracking-wide shadow-lg shadow-slate-200 hover:bg-slate-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                        {isLoading ? (
+                            <Loader2 size={20} className="animate-spin" />
+                        ) : (
+                            <>
+                                <span>
+                                    {mode === 'login' && '扉を開く'}
+                                    {mode === 'signup' && '登録を完了する'}
+                                    {mode === 'forgot' && '送信する'}
+                                </span>
+                                {mode !== 'forgot' && <ArrowRight size={18} />}
+                            </>
+                        )}
+                    </button>
+                    
+                    <div className="flex flex-col items-center gap-2 mt-4 text-sm text-slate-500">
+                        {mode === 'login' && (
+                            <>
+                                <button type="button" onClick={() => setMode('signup')} className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300">
+                                    まだアカウントをお持ちでない方はこちら
+                                </button>
+                                <button type="button" onClick={() => setMode('forgot')} className="text-xs hover:text-slate-800">
+                                    パスワードをお忘れの方
+                                </button>
+                            </>
+                        )}
+                        {mode === 'signup' && (
+                             <button type="button" onClick={() => setMode('login')} className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300">
+                                既にアカウントをお持ちの方はこちら
+                            </button>
+                        )}
+                        {mode === 'forgot' && (
+                             <button type="button" onClick={() => setMode('login')} className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300">
+                                ログイン画面に戻る
+                            </button>
+                        )}
+                    </div>
+
+                </form>
             </motion.div>
-          </div>
-          <h1 className="text-sm font-medium tracking-[0.4em] text-[#888888] uppercase font-serif mb-4">
-            Existence Ticker
-          </h1>
-          <p className="text-lg text-[#555555] font-serif tracking-widest leading-relaxed">
-            {isResetMode
-              ? "パスワードの再設定"
-              : mode === "login"
-                ? "ログイン"
-                : "新規登録"}
-          </p>
         </div>
-
-        <div className="bg-white/60 backdrop-blur-sm p-8 md:p-10 rounded-3xl shadow-[0_20px_60px_rgba(0,0,0,0.02)] border border-white/40">
-          <AnimatePresence mode="wait">
-            {isResetMode ? (
-              <motion.form
-                key="reset"
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                onSubmit={handleResetPassword}
-                className="space-y-8"
-              >
-                <div className="space-y-4">
-                  <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">
-                    メールアドレス
-                  </label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="mail@example.com"
-                    className="w-full bg-white border border-[#E8E8E8] shadow-[inset_0_2px_8px_rgba(0,0,0,0.06)] rounded-2xl px-6 py-4 text-lg text-[#2D2D2D] placeholder:text-[#CCCCCC] focus:outline-none focus:shadow-[inset_0_2px_12px_rgba(0,0,0,0.08)] transition-all font-serif"
-                    required
-                  />
-                </div>
-
-                {error && (
-                  <p className="text-red-400 text-xs text-center font-serif tracking-wider">
-                    {error}
-                  </p>
-                )}
-                {successMessage && (
-                  <div className="text-[#9C7C60] text-sm text-center font-serif leading-relaxed tracking-wider py-4 bg-orange-50/30 rounded-2xl">
-                    {successMessage}
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-[#2D2D2D] text-white font-bold py-5 rounded-2xl tracking-[0.2em] hover:bg-black shadow-lg hover:shadow-xl transition-all disabled:opacity-50 text-sm"
-                >
-                  {isLoading ? (
-                    <Loader2 className="animate-spin w-5 h-5 mx-auto" />
-                  ) : (
-                    "手続きメールを送信する"
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsResetMode(false);
-                    setError("");
-                  }}
-                  className="w-full text-xs text-[#888888] tracking-widest hover:text-[#2D2D2D] transition-colors py-2"
-                >
-                  戻る
-                </button>
-              </motion.form>
-            ) : (
-              <motion.form
-                key={mode}
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                onSubmit={handleSubmit}
-                className="space-y-8"
-              >
-                {mode === "register" && (
-                  <div className="space-y-8">
-                    <div className="space-y-4">
-                      <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">
-                        お名前
-                      </label>
-                      <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="山田 太郎"
-                        className="w-full bg-white border border-[#E8E8E8] shadow-[inset_0_2px_8px_rgba(0,0,0,0.06)] rounded-2xl px-6 py-4 text-lg text-[#2D2D2D] placeholder:text-[#CCCCCC] focus:outline-none focus:shadow-[inset_0_2px_12px_rgba(0,0,0,0.08)] transition-all font-serif"
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-4">
-                      <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">
-                        性別
-                      </label>
-                      <div className="grid grid-cols-3 gap-3">
-                        {[
-                          { value: "male", label: "男性" },
-                          { value: "female", label: "女性" },
-                          { value: "other", label: "その他" },
-                        ].map((opt) => (
-                          <button
-                            key={opt.value}
-                            type="button"
-                            onClick={() =>
-                              setGender(
-                                opt.value as "male" | "female" | "other",
-                              )
-                            }
-                            className={`py-4 rounded-2xl text-sm font-bold transition-all ${
-                              gender === opt.value
-                                ? "bg-[#2D2D2D] text-white shadow-lg"
-                                : "bg-white/50 text-[#888888] hover:bg-white/80"
-                            }`}
-                          >
-                            {opt.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">
-                        年代
-                      </label>
-                      <div className="relative">
-                        <select
-                          value={age_group}
-                          onChange={(e) => setAgeGroup(e.target.value)}
-                          className="w-full bg-white border border-[#E8E8E8] shadow-[inset_0_2px_8px_rgba(0,0,0,0.06)] rounded-2xl px-6 py-4 text-lg text-[#2D2D2D] appearance-none focus:outline-none focus:shadow-[inset_0_2px_12px_rgba(0,0,0,0.08)] transition-all font-serif"
-                          required
-                        >
-                          <option value="">選択してください</option>
-                          {[
-                            "20歳未満",
-                            "20代",
-                            "30代",
-                            "40代",
-                            "50代",
-                            "60代",
-                            "70代",
-                            "80代以上",
-                          ].map((age) => (
-                            <option key={age} value={age}>
-                              {age}
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-[#CCCCCC] pointer-events-none w-5 h-5" />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-4">
-                        <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">
-                          都道府県
-                        </label>
-                        <div className="relative">
-                          <select
-                            value={location.prefecture}
-                            onChange={(e) =>
-                              setLocation((prev) => ({
-                                ...prev,
-                                prefecture: e.target.value,
-                              }))
-                            }
-                            className="w-full bg-white border border-[#E8E8E8] shadow-[inset_0_2px_8px_rgba(0,0,0,0.06)] rounded-2xl px-6 py-4 text-sm text-[#2D2D2D] appearance-none focus:outline-none focus:shadow-[inset_0_2px_12px_rgba(0,0,0,0.08)] transition-all font-serif"
-                            required
-                          >
-                            <option value="">選択</option>
-                            {PREFECTURES.map((pref) => (
-                              <option key={pref} value={pref}>
-                                {pref}
-                              </option>
-                            ))}
-                          </select>
-                          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-[#CCCCCC] pointer-events-none w-4 h-4" />
-                        </div>
-                      </div>
-                      <div className="space-y-4">
-                        <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">
-                          市区町村
-                        </label>
-                        <div className="relative">
-                          <select
-                            value={location.city}
-                            onChange={(e) =>
-                              setLocation((prev) => ({
-                                ...prev,
-                                city: e.target.value,
-                              }))
-                            }
-                            className="w-full bg-white border border-[#E8E8E8] shadow-[inset_0_2px_8px_rgba(0,0,0,0.06)] rounded-2xl px-6 py-4 text-sm text-[#2D2D2D] appearance-none focus:outline-none focus:shadow-[inset_0_2px_12px_rgba(0,0,0,0.08)] transition-all font-serif disabled:opacity-40"
-                            required
-                            disabled={!location.prefecture || loadingCities}
-                          >
-                            <option value="">
-                              {loadingCities ? "..." : "選択"}
-                            </option>
-                            {cities.map((city) => (
-                              <option key={city} value={city}>
-                                {city}
-                              </option>
-                            ))}
-                          </select>
-                          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-[#CCCCCC] pointer-events-none w-4 h-4" />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="space-y-4 pt-4 border-t border-white/20">
-                      <div className="space-y-2">
-                        <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">
-                          招待コード
-                        </label>
-                        <p className="text-[10px] text-[#AAAAAA] ml-1 font-serif leading-tight">
-                          現在は招待制のアルファテスト中です。
-                          <br />
-                          お手元のコードを入力してください。
-                        </p>
-                      </div>
-                      <input
-                        type="text"
-                        value={invitationCode}
-                        onChange={(e) => setInvitationCode(e.target.value)}
-                        placeholder="ALPHA-XXXX"
-                        className="w-full bg-white border border-[#E8E8E8] shadow-[inset_0_2px_8px_rgba(0,0,0,0.06)] rounded-2xl px-6 py-4 text-lg text-[#2D2D2D] placeholder:text-[#CCCCCC] focus:outline-none focus:shadow-[inset_0_2px_12px_rgba(0,0,0,0.08)] transition-all font-serif"
-                        required={mode === "register"}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div className="space-y-8">
-                  <div className="space-y-4">
-                    <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">
-                      メールアドレス
-                    </label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="mail@example.com"
-                      className="w-full bg-white border border-[#E8E8E8] shadow-[inset_0_2px_8px_rgba(0,0,0,0.06)] rounded-2xl px-6 py-4 text-lg text-[#2D2D2D] placeholder:text-[#CCCCCC] focus:outline-none focus:shadow-[inset_0_2px_12px_rgba(0,0,0,0.08)] transition-all font-serif"
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-4">
-                    <label className="text-xs font-bold text-[#888888] tracking-widest ml-1 uppercase">
-                      パスワード
-                    </label>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••"
-                      className="w-full bg-white border border-[#E8E8E8] shadow-[inset_0_2px_8px_rgba(0,0,0,0.06)] rounded-2xl px-6 py-4 text-lg text-[#2D2D2D] placeholder:text-[#CCCCCC] focus:outline-none focus:shadow-[inset_0_2px_12px_rgba(0,0,0,0.08)] transition-all font-serif"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {error && (
-                  <p className="text-red-400 text-xs text-center font-serif tracking-wider">
-                    {error}
-                  </p>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-[#2D2D2D] text-white font-bold py-5 rounded-2xl tracking-[0.2em] hover:bg-black shadow-lg hover:shadow-xl transition-all disabled:opacity-50 text-sm"
-                >
-                  {isLoading ? (
-                    <Loader2 className="animate-spin w-5 h-5 mx-auto" />
-                  ) : (
-                    <span>
-                      {mode === "login" ? "ログイン" : "アカウントを作成する"}
-                    </span>
-                  )}
-                </button>
-              </motion.form>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {!isResetMode && (
-          <div className="mt-12 text-center space-y-6">
-            <button
-              onClick={() => {
-                setMode(mode === "login" ? "register" : "login");
-                setError("");
-              }}
-              className="text-sm font-serif text-[#888888] hover:text-[#2D2D2D] tracking-widest transition-colors block w-full py-2"
-            >
-              {mode === "login"
-                ? "新規登録はこちら"
-                : "既にアカウントをお持ちの方"}
-            </button>
-
-            {mode === "login" && (
-              <button
-                onClick={() => {
-                  setIsResetMode(true);
-                  setError("");
-                }}
-                className="text-xs font-serif text-[#AAAAAA] hover:text-[#888888] tracking-widest transition-colors block w-full"
-              >
-                パスワードを忘れた場合
-              </button>
-            )}
-          </div>
-        )}
-      </motion.div>
-
-      <p className="absolute bottom-10 text-[10px] text-[#AAAAAA] tracking-[0.4em] uppercase font-serif">
-        © 2026 Existence Ticker Project
-      </p>
-    </div>
-  );
+    );
 };
