@@ -455,6 +455,8 @@ export const useWishActions = () => {
           created_at: serverTimestamp(),
           sender_id: user.uid,
           sender_name: wishData.requester_name || "Anonymous",
+          recipient_id: wishData.helper_id || null,
+          recipient_name: wishData.helper_name || null,
           wish_title: wishData.content,
           wish_id: wishId,
           description: "user_cancellation"
@@ -789,6 +791,8 @@ export const useWishActions = () => {
             created_at: serverTimestamp(),
             sender_id: wishData.requester_id,
             sender_name: wishData.requester_name || "Anonymous",
+            recipient_id: wishData.helper_id || null,
+            recipient_name: wishData.helper_name || null,
             wish_title: wishData.content,
             wish_id: wishId,
             description: "system_expiration"

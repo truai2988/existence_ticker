@@ -59,6 +59,8 @@ export const useMigration = () => {
                         created_at: timestamp,
                         sender_id: wishData.requester_id,
                         sender_name: wishData.requester_name || "Anonymous",
+                        recipient_id: wishData.helper_id || null,
+                        recipient_name: wishData.helper_name || null,
                         wish_title: wishData.content,
                         wish_id: wishId,
                         description: "data_migration_backfill"
