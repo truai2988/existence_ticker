@@ -2,13 +2,12 @@ import { useAuth } from "./useAuthHook";
 import { useProfile } from "./useProfile";
 import { useWallet } from "./useWallet";
 import { useSeasonalEvent } from "./useSeasonalEvent";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
-// The 5 Discrete Views of Existence
+// The 4 Discrete Views of Existence (GHOST removed - brain handles it)
 export type StartupView = 
   | 'LOADING'   // White Void (Booting / Checking)
   | 'GATE'      // Entrance (Unauthenticated)
-  | 'GHOST'     // Error State (Authenticated but No Profile)
   | 'EVENT'     // Seasonal Revelation
   | 'APP';      // The World (Main Application)
 
@@ -16,32 +15,65 @@ export type StartupView =
 export type AppMode = 'NORMAL' | 'RITUAL';
 
 export const useStartupMachine = () => {
-    // 1. Ingest all raw signals
+    // 1. Ingest all raw signals from sensors (no judgment)
     const { user, loading: authLoading, signOut, deleteAccount } = useAuth();
     const { profile, isLoading: profileLoading } = useProfile();
     const { status: walletStatus } = useWallet(); 
-    // note: walletStatus already handles 'INITIALIZING' and 'GHOST' internally based on profile/user, 
-    // but the machine will make its own authoritative decision to be explicit.
     const { eventData, isChecking: eventChecking, completeEvent } = useSeasonalEvent();
 
-    // 2. The Deterministic State Machine
+    // 2. Brain-exclusive state: GHOST detection timer
+    const [ghostTimer, setGhostTimer] = useState<NodeJS.Timeout | null>(null);
+    const [isGhostPurging, setIsGhostPurging] = useState(false);
+
+    // 3. GHOST Detection & Purge Logic (Brain's exclusive judgment)
+    useEffect(() => {
+        // Condition: Auth loaded, Profile loaded, user exists, but profile is null
+        // This is a GHOST state - but we give 2 seconds grace period
+        if (!authLoading && !profileLoading && user && !profile && !isGhostPurging && !ghostTimer) {
+            console.warn("[StateMachine] GHOST suspected - starting 2s grace period");
+            
+            const timer = setTimeout(async () => {
+                console.error("[StateMachine] GHOST confirmed after 2s - purging Auth");
+                setIsGhostPurging(true);
+                try {
+                    await deleteAccount();
+                } catch (error) {
+                    console.error("[StateMachine] Failed to purge GHOST:", error);
+                }
+            }, 2000);  // 2 second grace period
+            
+            setGhostTimer(timer);
+        } else if (profile && ghostTimer) {
+            // Profile found during grace period - cancel purge
+            console.log("[StateMachine] Profile found - canceling GHOST purge");
+            clearTimeout(ghostTimer);
+            setGhostTimer(null);
+        }
+
+        return () => {
+            if (ghostTimer) {
+                clearTimeout(ghostTimer);
+            }
+        };
+    }, [authLoading, profileLoading, user, profile, isGhostPurging, ghostTimer, deleteAccount]);
+
+    // 4. The Deterministic State Machine
     // We derive the current visual state purely from the inputs.
     // Order of operations is CRITICAL.
     
     return useMemo(() => {
-        // STATE 1: BOOT & LOADING
-        // If any core system is loading, we show White Void.
-        // We prioritize this to prevent "FOUC" (Flash of Unstyled Content) or "FOC" (Flash of Content).
-        if (authLoading || profileLoading || eventChecking) {
+        // PHASE 1: LOADING
+        // If any core system is loading, OR we are purging a ghost, show LOADING
+        if (authLoading || profileLoading || eventChecking || isGhostPurging) {
             return {
                 view: 'LOADING' as StartupView,
-                appMode: 'NORMAL' as AppMode, // Default
+                appMode: 'NORMAL' as AppMode,
                 data: { user: null, profile: null, eventData: null },
                 actions: { signOut, completeEvent, deleteAccount }
             };
         }
 
-        // STATE 2: AUTHENTICATION CHECK
+        // PHASE 2: AUTHENTICATION CHECK
         // Loading is done. Do we have a user?
         if (!user) {
             return {
@@ -52,37 +84,43 @@ export const useStartupMachine = () => {
             };
         }
 
-        // STATE 3: PROFILE INTEGRITY CHECK (Paradox Resolution)
-        // We have a User, but do we have a Profile?
-        // Note: useProfile would have returned isLoading=true if it was still fetching.
-        // So if we are here, loading is done.
-        if (!profile) {
-            // AUTHENTICATED BUT NO PROFILE -> GHOST
+        // PHASE 3: GHOST GRACE PERIOD
+        // We have user but no profile - if timer is active, stay in LOADING
+        if (!profile && ghostTimer) {
             return {
-                view: 'GHOST' as StartupView,
+                view: 'LOADING' as StartupView,
                 appMode: 'NORMAL' as AppMode,
                 data: { user, profile: null, eventData: null },
                 actions: { signOut, completeEvent, deleteAccount }
             };
         }
 
-        // STATE 4: SEASONAL INTERVENTION
+        // PHASE 4: SEASONAL INTERVENTION
         // Profile exists. Is there a mandatory event?
-        // The events are specific revelations that override the daily routine.
-        if (eventData) {
+        if (eventData && profile) {
             return {
                 view: 'EVENT' as StartupView,
-                appMode: 'NORMAL' as AppMode, // Irrelevant for event but required for type
+                appMode: 'NORMAL' as AppMode,
                 data: { user, profile, eventData },
                 actions: { signOut, completeEvent, deleteAccount }
             };
         }
 
-        // STATE 5: EXISTENCE (The App)
+        // PHASE 5: EXISTENCE (The App)
         // All checks passed. We are ready to render the world.
-        // Determine the "Mode" of the world based on Wallet Status.
         
-        // RITUAL_READY takes precedence: The world awaits the ritual.
+        if (!profile) {
+            // Edge case: profile is null but no timer (shouldn't happen)
+            // Fall back to LOADING
+            console.warn("[StateMachine] Unexpected state: no profile, no timer");
+            return {
+                view: 'LOADING' as StartupView,
+                appMode: 'NORMAL' as AppMode,
+                data: { user, profile: null, eventData: null },
+                actions: { signOut, completeEvent, deleteAccount }
+            };
+        }
+
         const appMode: AppMode = walletStatus === 'RITUAL_READY' ? 'RITUAL' : 'NORMAL';
 
         return {
@@ -93,10 +131,11 @@ export const useStartupMachine = () => {
         };
 
     }, [
-        authLoading, profileLoading, eventChecking, // Loading flags
-        user, profile,                              // Data existence
-        eventData,                                  // Events
-        walletStatus,                               // Business Logic status
-        signOut, completeEvent, deleteAccount       // Dependencies
+        authLoading, profileLoading, eventChecking, isGhostPurging, // Loading flags
+        user, profile,                                              // Data existence
+        eventData,                                                  // Events
+        walletStatus,                                               // Business Logic status
+        ghostTimer,                                                 // Brain's timer state
+        signOut, completeEvent, deleteAccount                       // Dependencies
     ]);
 };

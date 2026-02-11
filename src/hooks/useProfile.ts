@@ -14,29 +14,10 @@ import {
 import { calculateDecayedValue } from "../logic/worldPhysics";
 import { UserProfile } from "../types";
 
-// Extend Window interface for ghost profile alert flag
-declare global {
-  interface Window {
-    ghostProfileAlertShown?: boolean;
-  }
-}
-
 export const useProfile = () => {
   const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    if (user && isLoading) {
-      const timer = setTimeout(() => {
-        if (isLoading) {
-          console.warn("[useProfile] Profile loading timed out after 10s");
-          setIsLoading(false);
-        }
-      }, 10000);
-      return () => clearTimeout(timer);
-    }
-  }, [user, isLoading]);
 
   useEffect(() => {
     if (!user || !db) {
@@ -100,36 +81,14 @@ export const useProfile = () => {
 
           setProfile({ id: user.uid, ...data, name: finalName } as UserProfile);
         } else {
-          // GHOST PROFILE PURGE DISABLED (2026-02-11)
-          // The previous logic aggressively deleted the Auth user if the Firestore profile wasn't found immediately.
-          // This caused a Race Condition during registration where the Auth was deleted before the Profile creation transaction propagated.
-          // We now rely on the 'useAuthHook' atomic rollback for failure handling.
-          
-          /* 
-          if (!window.__isRegistering) {
-            console.warn("Ghost Profile detected (not currently registering). Purging Auth account...");
-            (async () => {
-              try {
-                await user.delete();
-                console.log("Ghost Profile purged successfully.");
-                if (auth) { await auth.signOut(); }
-              } catch (error) {
-                console.error("Failed to purge Ghost Profile:", error);
-                if (auth) { await auth.signOut(); }
-              }
-            })();
-          } else {
-            console.log("Profile not found but registration is in progress - waiting for sync...");
-          }
-          */
-
-          console.warn("[useProfile] Profile document not found. Waiting for creation or manual recovery.");
+          // Profile not found - report null (sensor does not judge)
           setProfile(null);
         }
         setIsLoading(false);
       },
       (error) => {
-        console.error("Profile sync error:", error);
+        console.error("[useProfile] Profile sync error:", error);
+        setProfile(null);
         setIsLoading(false);
       },
     );
@@ -143,121 +102,115 @@ export const useProfile = () => {
         return { success: false, error: "No user or db" };
     }
     const userRef = doc(db, "users", user.uid);
-    
-    // Strategy 1: Recovery / Initialization (If profile is missing)
-    const docSnap = await getDoc(userRef);
-    
-    if (!docSnap.exists()) {
-        console.log("Profile missing. Executing Recovery (Create Mode).");
-        
-        // Ensure we have the absolute minimums for the Strict Create Rule
-        const loc = updates.location as UserProfile['location'] | undefined;
-        
-        if (!updates.name && (!user.displayName || user.displayName === 'Anonymous')) {
-             throw new Error("Recovery Failed: Name is required");
-        }
-        if (!loc || !loc.prefecture) {
-             throw new Error("Recovery Failed: Location is required");
-        }
 
-        const initialProfile: UserProfile = {
-          id: user.uid,
-          name: updates.name || user.displayName || "Anonymous",
-          balance: 2400, // Grant Initial Vessel
-          committed_lm: 0,
-          xp: 0,
-          warmth: 0,
-          completed_contracts: 0,
-          created_contracts: 0,
-          location: (updates.location as UserProfile['location']), 
-          ...updates as Partial<UserProfile>
-        };
-
-        try {
-            await runTransaction(db!, async (transaction) => {
-                // Double check existence
-                const doubleCheck = await transaction.get(userRef);
-                if (doubleCheck.exists()) throw "Profile appeared during recovery";
-
-                // 1. Create Profile
-                transaction.set(userRef, {
-                    ...initialProfile,
-                    last_updated: serverTimestamp()
-                    // cycle_started_at OMITTED to trigger First Birth
-                });
-
-                // 2. Increment Stats for the NEW location (if valid)
-                if (initialProfile.location && initialProfile.location.prefecture && initialProfile.location.city) {
-                    const cityKey = `${initialProfile.location.prefecture}_${initialProfile.location.city}`;
-                    const statRef = doc(db!, 'location_stats', cityKey);
-                    transaction.set(statRef, { count: increment(1) }, { merge: true });
-                }
-            });
-
-            return { success: true };
-        } catch (createError) {
-            console.error("Recovery Create Failed:", createError);
-            return { success: false, error: createError };
-        }
-    }
-
-    // Strategy 2: Normal Update (Transaction)
     try {
-        await runTransaction(db, async (transaction: Transaction) => { 
-            const freshSnap = await transaction.get(userRef);
-            if (!freshSnap.exists()) throw "User disappeared during transaction";
-            
-            const currentData = freshSnap.data();
-            const currentRealBalance = calculateDecayedValue(
-                currentData.balance || 0,
-                currentData.last_updated
-            );
-            
-            const safeBalance = isNaN(currentRealBalance) ? 0 : currentRealBalance;
+      await updateDoc(userRef, {
+        ...updates,
+        last_updated: serverTimestamp(),
+      });
+      console.log("Profile updated:", updates);
+      return { success: true };
+    } catch (error) {
+      console.error("Profile update error:", error);
+      return { success: false, error };
+    }
+  };
+
+  const incrementBalance = async (amount: number) => {
+    if (!user || !db) {
+        console.error("Increment balance failed: No user or db");
+        return { success: false, error: "No user or db" };
+    }
+    const userRef = doc(db, "users", user.uid);
+
+    try {
+        await runTransaction(db, async (transaction) => {
+            const userSnap = await transaction.get(userRef);
+            if (!userSnap.exists()) {
+                throw new Error("User profile not found during transaction");
+            }
+            const userData = userSnap.data();
+            const currentBalance = userData.balance || 0;
+            const decayedBalance = calculateDecayedValue(currentBalance, userData.last_updated);
+            const newBalance = decayedBalance + amount;
+            const cappedBalance = Math.min(newBalance, 100); // Example cap at 100
 
             transaction.update(userRef, {
-                ...updates,
-                balance: safeBalance, // Checkpoint
-                last_updated: serverTimestamp()
+                balance: cappedBalance,
+                last_updated: serverTimestamp(),
             });
-
-            // --- CENSUS LOGIC (Neighborly Presence) ---
-            const oldLoc = currentData.location;
-            const newLoc = updates.location ? (updates.location as UserProfile['location']) : oldLoc;
-
-            // Check if location actually changed effectively
-            const oldKey = oldLoc ? `${oldLoc.prefecture}_${oldLoc.city}` : null;
-            const newKey = newLoc ? `${newLoc.prefecture}_${newLoc.city}` : null;
-
-            if (oldKey !== newKey) {
-                // Decrement old
-                if (oldKey && oldLoc?.prefecture && oldLoc?.city) {
-                     const oldStatRef = doc(db!, 'location_stats', oldKey);
-                     transaction.set(oldStatRef, { count: increment(-1) }, { merge: true });
-                }
-                // Increment new
-                if (newKey && newLoc?.prefecture && newLoc?.city) {
-                     const newStatRef = doc(db!, 'location_stats', newKey);
-                     transaction.set(newStatRef, { count: increment(1) }, { merge: true });
-                }
-            }
         });
+        console.log("Balance incremented by", amount);
         return { success: true };
-    } catch (e) {
-        console.error("Profile Transaction Failed:", e);
-        return { success: false, error: e };
+    } catch (error) {
+        console.error("Increment balance error:", error);
+        return { success: false, error };
     }
   };
 
-  return {
-    profile,
-    // Derived for backward compatibility or direct access
-    name: profile?.name || "Anonymous",
-    xp: profile?.xp || 0,
-    warmth: profile?.warmth || 0,
-    completed_contracts: profile?.completed_contracts || 0,
-    created_contracts: profile?.created_contracts || 0,
-    updateProfile,
-    isLoading,
+  const deductBalance = async (amount: number) => {
+    if (!user || !db) {
+        console.error("Deduct balance failed: No user or db");
+        return { success: false, error: "No user or db" };
+    }
+    const userRef = doc(db, "users", user.uid);
+
+    try {
+        const result = await runTransaction(db, async (transaction: Transaction) => {
+            const userSnap = await transaction.get(userRef);
+            if (!userSnap.exists()) {
+                throw new Error("User profile not found during transaction");
+            }
+            const userData = userSnap.data();
+            const currentBalance = userData.balance || 0;
+            const decayedBalance = calculateDecayedValue(currentBalance, userData.last_updated);
+
+            if (decayedBalance < amount) {
+                console.warn("Insufficient balance for deduction:", decayedBalance, "needed:", amount);
+                return { success: false, error: "Insufficient balance" };
+            }
+
+            const newBalance = decayedBalance - amount;
+
+            transaction.update(userRef, {
+                balance: newBalance,
+                last_updated: serverTimestamp(),
+            });
+
+            return { success: true, newBalance };
+        });
+
+        console.log("Balance deducted by", amount);
+        return result;
+    } catch (error) {
+        console.error("Deduct balance error:", error);
+        return { success: false, error };
+    }
   };
+
+  const recordTransaction = async (type: string, amount: number, description: string) => {
+    if (!user || !db) {
+        console.error("Record transaction failed: No user or db");
+        return { success: false, error: "No user or db" };
+    }
+
+    try {
+        const historyRef = doc(db, "users", user.uid, "history", Date.now().toString());
+        await runTransaction(db, async (transaction) => {
+            transaction.set(historyRef, {
+                type,
+                amount,
+                description,
+                timestamp: serverTimestamp(),
+            });
+        });
+        console.log("Transaction recorded:", type, amount, description);
+        return { success: true };
+    } catch (error) {
+        console.error("Record transaction error:", error);
+        return { success: false, error };
+    }
+  };
+
+  return { profile, isLoading, updateProfile, incrementBalance, deductBalance, recordTransaction };
 };
