@@ -32,7 +32,7 @@ export { WalletContext };
 export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
-  const { userActiveWishes, userArchiveWishes, isLoading: wishesLoading } = useWishesContext();
+  const { userActiveWishes, isLoading: wishesLoading } = useWishesContext();
 
   // 1-Hour Silence: Live Ticker for live decay updates (1 hour)
   const [localTick, setLocalTick] = useState(0);
@@ -72,7 +72,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     if (!user || !db || wishesLoading || profileLoading || !profile) return;
 
     // Combine active and archive wishes for comprehensive check
-    const allUserWishes = [...userActiveWishes, ...userArchiveWishes];
+    const allUserWishes = [...userActiveWishes];
 
     // O(N) Calculation: Sum of all active individual promises
     let realCommittedMilli = 0;
@@ -120,7 +120,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         };
         syncDb();
     }
-  }, [user, profile, userActiveWishes, userArchiveWishes, wishesLoading, profileLoading, committedLm]);
+  }, [user, profile, userActiveWishes, wishesLoading, profileLoading, committedLm]);
 
 
   // === 3. METABOLIC STATUS ===

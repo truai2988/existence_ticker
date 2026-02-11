@@ -151,6 +151,7 @@ interface WishCardProps {
       | "completed"
       | "cleanup",
   ) => void;
+  isReadOnly?: boolean;
 }
 
 export const WishCard: React.FC<WishCardProps> = ({
@@ -159,6 +160,7 @@ export const WishCard: React.FC<WishCardProps> = ({
   viewType = "radiance",
   onOpenProfile,
   onActionComplete,
+  isReadOnly = false,
 }) => {
   const {
     applyForWish,
@@ -597,7 +599,7 @@ export const WishCard: React.FC<WishCardProps> = ({
         </div>
 
         {/* My Wish Badge & Actions (Right - Flex Item) */}
-        {isMyWish && (
+        {isMyWish && !isReadOnly && (
           <div className="flex items-center gap-2 shrink-0">
             {/* Edit/Delete Actions for Open Wishes - Only if NOT expired */}
             {!isExpired && wish.status === "open" && (
@@ -834,7 +836,7 @@ export const WishCard: React.FC<WishCardProps> = ({
       </div>
 
       {/* Contact Panel (For Active Participants) */}
-      {wish.status === "in_progress" &&
+      {wish.status === "in_progress" && !isReadOnly &&
         (isMyWish || wish.helper_id === currentUserId) && (
           <div className="relative mb-4 p-4 border border-slate-200 rounded-xl bg-slate-50/30">
             <h5 className="text-xs font-bold text-slate-700 mb-3 flex items-center gap-2">
@@ -1051,7 +1053,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                 </div>
               )}
 
-              {!isExpired &&
+              {!isExpired && !isReadOnly &&
                 (wish.status === "review_pending" ||
                   wish.status === "in_progress") && (
                   <button
@@ -1090,7 +1092,7 @@ export const WishCard: React.FC<WishCardProps> = ({
           )}
 
           {/* 2. Case: Helper View (Applying/Working) */}
-          {!isMyWish && !isExpired && (
+          {!isMyWish && !isExpired && !isReadOnly && (
             <>
               {wish.status === "open" && (
                 <div>
@@ -1145,7 +1147,7 @@ export const WishCard: React.FC<WishCardProps> = ({
 
               {/* Helper Views: In Progress (Status Only - No Report Button) */}
               {(wish.status === "in_progress" ||
-                wish.status === "review_pending") &&
+                wish.status === "review_pending") && !isReadOnly &&
                 wish.helper_id === currentUserId && (
                   <div className="flex items-center gap-3">
                     {/* Helper Resignation */}
@@ -1164,7 +1166,7 @@ export const WishCard: React.FC<WishCardProps> = ({
           {/* 2b. Case: Expired Passive Message (Non-Requester) */}
 
           {/* 3. Cleanup Action for 0 Lm (My Wish) */}
-          {isMyWish && isExpired && (
+          {isMyWish && isExpired && !isReadOnly && (
             <button
               onClick={handleCleanup}
               disabled={isLoading}

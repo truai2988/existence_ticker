@@ -11,42 +11,25 @@ interface RadianceViewProps {
     onTabChange?: (mode: AppViewMode) => void;
 }
 
-type TabType = 'active' | 'outbound' | 'past';
+type TabType = 'active' | 'outbound';
 type ModalState = 'none' | 'create_wish';
 
 export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTabChange }) => {
     const { 
-        userActiveWishes, 
-        userArchiveWishes,
-        loadUserArchive,
-        userArchiveHasMore
+        userActiveWishes
     } = useWishes();
     
     const [activeTab, setActiveTab] = useState<TabType>('active');
     const [modalState, setModalState] = useState<ModalState>('create_wish');
-    
-    const [isArchiveLoading, setIsArchiveLoading] = useState(false);
 
     // Filter Logic
     const myActiveWishes = userActiveWishes.filter(w => w.status === 'open');
     const myOutboundWishes = userActiveWishes.filter(w => (w.status === 'in_progress' || w.status === 'review_pending'));
-    const myPastWishes = userArchiveWishes;
 
-    React.useEffect(() => {
-        if (activeTab === 'past') {
-            loadUserArchive(true);
-        }
-    }, [activeTab, loadUserArchive]);
-
-    const handleLoadMoreArchive = async () => {
-        setIsArchiveLoading(true);
-        await loadUserArchive(false);
-        setIsArchiveLoading(false);
-    };
 
     const handleActionComplete = (action: string) => {
         if (action === 'approved') setActiveTab('outbound');
-        else if (action === 'completed' || action === 'cleanup') setActiveTab('past');
+        else if (action === 'completed' || action === 'cleanup' || action === 'withdrawn') setActiveTab('active');
     };
 
     return (
@@ -127,22 +110,6 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         )}
                     </button>
                     
-                    <button
-                        onClick={() => { setActiveTab('past'); setModalState('none'); }}
-                        className={`relative py-2 text-xs font-bold transition-all shrink-0 focus:outline-none ${
-                            activeTab === 'past' && modalState !== 'create_wish'
-                                ? 'text-slate-700' 
-                                : myPastWishes.length === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-slate-500'
-                        }`}
-                    >
-                        過去の記録 ({myPastWishes.length})
-                        {activeTab === 'past' && modalState !== 'create_wish' && (
-                            <motion.div 
-                                layoutId="radiance-tab-underline"
-                                className="absolute -bottom-2 left-0 right-0 h-0.5 bg-slate-400 rounded-full"
-                            />
-                        )}
-                    </button>
                 </div>
             </div>
 
@@ -153,17 +120,12 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                      ) : (
                          <div className="flex flex-col gap-4">
                              <WishCardList 
-                                wishes={activeTab === 'active' ? myActiveWishes : activeTab === 'outbound' ? myOutboundWishes : myPastWishes} 
+                                wishes={activeTab === 'active' ? myActiveWishes : myOutboundWishes} 
                                 currentUserId={currentUserId} 
                                 viewType="radiance"
                                 emptyMessage="活動記録はありません。"
                                 onActionComplete={handleActionComplete}
                              />
-                             {activeTab === 'past' && userArchiveHasMore && (
-                                <button onClick={handleLoadMoreArchive} disabled={isArchiveLoading} className="w-full py-3 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors disabled:opacity-50">
-                                    {isArchiveLoading ? "読み込み中..." : "さらに読み込む"}
-                                </button>
-                             )}
                          </div>
                      )}
                 </div>

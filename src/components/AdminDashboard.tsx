@@ -4,6 +4,7 @@ import { useStats, MetabolismStatus } from "../hooks/useStats";
 import { db, auth } from "../lib/firebase";
 import { ADMIN_UIDS } from "../constants";
 import { UserProfile } from "../types";
+import { useMigration } from "../hooks/useMigration";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -22,6 +23,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [adminCount, setAdminCount] = useState(0);
   const [isCleaningUp, setIsCleaningUp] = useState(false);
   const [cleanupLog, setCleanupLog] = useState<string[]>([]);
+  const { migrateJournal, isMigrating } = useMigration();
 
 
 
@@ -650,8 +652,53 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                         </div>
                     )}
                 </div>
+                    <div className="bg-slate-900 shadow-xl rounded-2xl p-6 border border-slate-700/50 mb-6 font-sans">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                                <Archive size={20} />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-100 italic">Journal Migration</h2>
+                                <p className="text-xs text-slate-500 tracking-wider">過去の記録を「日記」へ流し込みます</p>
+                            </div>
+                        </div>
 
-                {import.meta.env.DEV && (
+                        <div className="space-y-4">
+                            <p className="text-sm text-slate-400 leading-relaxed border-l-2 border-indigo-500/30 pl-4 py-1">
+                                取り下げ（cancelled）または期限切れ（expired）になった過去の願いのうち、
+                                取引記録（transactions）が存在しないものを探し、Lm=0 のログとして日記に復元します。
+                            </p>
+
+                            <button
+                                onClick={async () => {
+                                    if (!window.confirm("ジャーナルのバックフィル（データ移行）を実行しますか？")) return;
+                                    setCleanupLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] ジャーナル移行開始...`]);
+                                    const result = await migrateJournal();
+                                    if (result.success) {
+                                        setCleanupLog(prev => [...prev, `✅ 完了: ${result.createdCount}件の記録を生成しました`, `ℹ️ 処理対象: ${result.totalProcessed}件`]);
+                                    } else {
+                                        setCleanupLog(prev => [...prev, `❌ 失敗: ${result.error}`]);
+                                    }
+                                }}
+                                disabled={isMigrating}
+                                className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 group disabled:opacity-50"
+                            >
+                                {isMigrating ? (
+                                    <>
+                                        <Activity className="animate-spin" size={18} />
+                                        <span>移行処理中...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sparkles size={18} className="group-hover:rotate-12 transition-transform" />
+                                        <span>Run Journal Backfill</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+
+                    {import.meta.env.DEV && (
                 <div className="bg-slate-900/50 rounded-xl border border-slate-700 p-6 mt-6">
                     <h2 className="text-xl font-bold text-slate-200 mb-2 flex items-center gap-2">
                         <ShieldOff className="text-orange-400" size={20} />

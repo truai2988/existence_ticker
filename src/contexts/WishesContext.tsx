@@ -1,8 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { Wish } from '../types';
 import { db } from '../lib/firebase';
-import { collection, query, orderBy, getDocs, limit, startAfter, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, where, onSnapshot } from 'firebase/firestore';
 import { useAuth } from '../hooks/useAuthHook';
 
 // --- Global Helpers ---
@@ -24,16 +24,6 @@ interface WishesContextType {
     userActiveWishes: Wish[];
     involvedActiveWishes: Wish[];
     
-    // Archive Data (Lazy)
-    userArchiveWishes: Wish[];
-    involvedArchiveWishes: Wish[];
-    
-    loadUserArchive: (isInitial?: boolean) => void;
-    loadInvolvedArchive: (isInitial?: boolean) => void;
-    
-    userArchiveHasMore: boolean;
-    involvedArchiveHasMore: boolean;
-    
     isLoading: boolean;
     error: Error | null;
 }
@@ -53,7 +43,6 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
 
-    const ARCHIVE_LIMIT = 10;
 
 
     // --- Real-time Subscriptions (Active Data) ---
@@ -154,127 +143,12 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
     }, [user]);
 
-    // --- Lazy Archive Logic (Pagination) ---
-    // User Archive: requester_id == me AND status in [fulfilled, cancelled, expired]
-    // Involved Archive: helper_id == me AND status in [fulfilled, cancelled, expired] OR decayed/expired logic?
-    // For simplicity and "Rule of 10", let's define "loadArchive" to act on the *current view context*.
-    // But WishesContext is global. 
-    // Let's provide a generic "fetchUserArchive" and "fetchInvolvedArchive" or just "fetchArchive" that takes a mode.
-    // Spec says: "History tab or 'Load More'".
-    
-    // Actually, `FlowView` (Involved History) and `RadianceView` (My History) are separate.
-    // We should probably keep simpler state processing here or robust hooks.
-    // Let's implement `loadUserArchive` and `loadInvolvedArchive` separately to be safe.
-    
-    // WAIT: The previously merged "involvedWishes" contained everything.
-    // Now we split "Active" (Realtime) and "Archive" (Lazy).
-    
-    // Let's keep `archiveWishes` as a generic bucket? No, they might conflict if user switches views fast.
-    // Let's use specific buckets.
-    const [userArchiveWishes, setUserArchiveWishes] = useState<Wish[]>([]);
-    const [involvedArchiveWishes, setInvolvedArchiveWishes] = useState<Wish[]>([]);
-
-    const [userArchiveCursor, setUserArchiveCursor] = useState<unknown>(null);
-    const [involvedArchiveCursor, setInvolvedArchiveCursor] = useState<unknown>(null);
-
-    const [userArchiveHasMore, setUserArchiveHasMore] = useState(true);
-    const [involvedArchiveHasMore, setInvolvedArchiveHasMore] = useState(true);
-
-    const loadUserArchive = useCallback(async (isInitial = false) => {
-        if (!user || !db) return;
-        if (!isInitial && !userArchiveHasMore) return;
-
-        try {
-            // My Past: requester_id == me AND status IN [fulfilled, cancelled, expired]
-            // Note: 'in' query supports up to 10.
-            let q = query(
-                collection(db, 'wishes'),
-                where('requester_id', '==', user.uid),
-                where('status', 'in', ['fulfilled', 'completed', 'cancelled', 'expired']),
-                orderBy('created_at', 'desc'),
-                limit(ARCHIVE_LIMIT)
-            );
-
-            if (!isInitial && userArchiveCursor) {
-                q = query(q, startAfter(userArchiveCursor));
-            }
-
-            const snap = await getDocs(q);
-            const data = snap.docs.map(d => ({id:d.id, ...d.data()} as Wish));
-
-            if (isInitial) {
-                setUserArchiveWishes(data);
-            } else {
-                setUserArchiveWishes(prev => [...prev, ...data]);
-            }
-
-            setUserArchiveCursor(snap.docs[snap.docs.length - 1]);
-            setUserArchiveHasMore(snap.docs.length === ARCHIVE_LIMIT);
-
-        } catch (e) {
-            console.error("User Archive Load Error", e);
-        }
-    }, [user, userArchiveCursor, userArchiveHasMore]);
-
-    const loadInvolvedArchive = useCallback(async (isInitial = false) => {
-        if (!user || !db) return;
-        if (!isInitial && !involvedArchiveHasMore) return;
-
-        try {
-            // Involved Past: helper_id == me AND status IN [fulfilled, cancelled, expired]
-            // (Applicants don't see history usually per previous logic, or strictly helpers)
-            let q = query(
-                collection(db, 'wishes'),
-                where('helper_id', '==', user.uid),
-                where('status', 'in', ['fulfilled', 'completed', 'cancelled', 'expired']),
-                orderBy('created_at', 'desc'),
-                limit(ARCHIVE_LIMIT)
-            );
-
-            if (!isInitial && involvedArchiveCursor) {
-                q = query(q, startAfter(involvedArchiveCursor));
-            }
-
-            const snap = await getDocs(q);
-            const data = snap.docs.map(d => ({id:d.id, ...d.data()} as Wish));
-
-             if (isInitial) {
-                setInvolvedArchiveWishes(data);
-            } else {
-                setInvolvedArchiveWishes(prev => [...prev, ...data]);
-            }
-
-            setInvolvedArchiveCursor(snap.docs[snap.docs.length - 1]);
-            setInvolvedArchiveHasMore(snap.docs.length === ARCHIVE_LIMIT);
-
-        } catch (e) {
-             console.error("Involved Archive Load Error", e);
-        }
-    }, [user, involvedArchiveCursor, involvedArchiveHasMore]);
-
-    // --- Trigger Initial Load AFTER declarations ---
-    useEffect(() => {
-        if (user && db) {
-            loadUserArchive(true);
-            loadInvolvedArchive(true);
-        }
-    }, [user, loadUserArchive, loadInvolvedArchive]);
-
     return (
         <WishesContext.Provider value={{ 
             wishes, // Global Active
             userActiveWishes, 
             involvedActiveWishes,
             
-            userArchiveWishes,
-            involvedArchiveWishes,
-            
-            loadUserArchive,
-            loadInvolvedArchive,
-            
-            userArchiveHasMore,
-            involvedArchiveHasMore,
-
             isLoading, 
             error
         }}>

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sun, Heart, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuthHook';
 import { db } from '../lib/firebase';
-import { collection, query, where, orderBy, limit, onSnapshot, Timestamp } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit, onSnapshot, getDoc, doc, Timestamp } from 'firebase/firestore';
 import { HeaderNavigation } from './HeaderNavigation';
-import { AppViewMode } from '../types';
+import { AppViewMode, Wish } from '../types';
+import { WishCard } from './WishCard';
+import { X, Sun, Heart, Sparkles, CheckCircle2, Archive, Slash } from 'lucide-react';
 
 // Type Definition for our unified Transaction
 type TransactionLog = {
@@ -20,6 +21,7 @@ type TransactionLog = {
   recipient_id?: string;
   recipient_name?: string;
   wish_title?: string;
+  wish_id?: string;
   description?: string;
 };
 
@@ -53,6 +55,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
   const { user } = useAuth();
   const [logs, setLogs] = useState<TransactionLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedWishId, setSelectedWishId] = useState<string | null>(null);
 
   useEffect(() => {
      if (!user || !db) return;
@@ -66,7 +69,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
      let receivedData: TransactionLog[] = [];
 
      const updateState = () => {
-         const validData = [...sentData, ...receivedData].filter(tx => tx.amount !== 0);
+         const validData = [...sentData, ...receivedData];
          const uniqueById = Array.from(new Map(validData.map(item => [item.id, item])).values());
          const sorted = uniqueById.sort((a, b) => {
              const tA = parseDate(a.created_at).getTime();
@@ -107,8 +110,12 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
      return () => { u1(); u2(); };
   }, [user]);
 
-  return (
-    <div className="flex-1 flex flex-col w-full h-full">
+   return (
+    <div className="flex-1 flex flex-col w-full h-full relative">
+        {/* Wish Detail Modal Overlay */}
+        {selectedWishId && (
+            <WishViewerModal wishId={selectedWishId} onClose={() => setSelectedWishId(null)} currentUserId={user?.uid || ''} />
+        )}
         {/* Subtle Section Header with Navigation */}
         <div className="border-b border-slate-100 bg-white/50">
             <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -147,7 +154,13 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
                         </div>
                     ) : (
                         logs.map((log, index) => (
-                           <LogItem key={log.id} log={log} index={index} userId={user?.uid || ''} />
+                           <LogItem 
+                                key={log.id} 
+                                log={log} 
+                                index={index} 
+                                userId={user?.uid || ''} 
+                                onSelectWish={(id) => setSelectedWishId(id)}
+                           />
                         ))
                     )}
                 </div>
@@ -157,7 +170,17 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
   );
 };
 
-const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, userId: string }) => {
+const LogItem = ({ 
+    log, 
+    index, 
+    userId, 
+    onSelectWish 
+}: { 
+    log: TransactionLog, 
+    index: number, 
+    userId: string, 
+    onSelectWish: (id: string) => void 
+}) => {
     const isSender = log.sender_id === userId;
     const date = parseDate(log.created_at);
     const dateStr = formatDate(date);
@@ -187,11 +210,17 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
             amountColor = "text-cyan-600";
         }
     } 
+    else if (log.type === 'WISH_CANCELLED' || (log.amount === 0 && log.type === 'WISH_FULFILLMENT')) {
+        icon = <Slash size={14} className="text-slate-300" />;
+        title = log.wish_title ? `「${log.wish_title}」を取り下げました` : "願いを取り下げました";
+        metaColor = "bg-slate-50 border-slate-100";
+        amountPrefix = "";
+        amountColor = "text-slate-400";
+    }
     else if (log.type === 'WISH_EXPIRED') {
-        icon = <CheckCircle2 size={14} className="text-slate-400 fill-slate-50" />;
-        const wishTitle = log.wish_title || '依頼';
-        title = `${wishTitle}：感謝が巡るまえに中断されました`;
-        metaColor = "bg-slate-50 border-slate-200";
+        icon = <Archive size={14} className="text-slate-300" />;
+        title = log.wish_title ? `「${log.wish_title}」が期限切れになりました` : "願いが期限切れになりました";
+        metaColor = "bg-slate-50 border-slate-100";
         amountPrefix = "";
         amountColor = "text-slate-400";
     }
@@ -231,7 +260,8 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="flex items-start gap-3 relative group"
+            onClick={() => log.wish_id && onSelectWish(log.wish_id)}
+            className={`flex items-start gap-3 relative group transition-all rounded-xl p-2 -ml-2 ${log.wish_id ? 'cursor-pointer hover:bg-white/40 active:scale-[0.98]' : ''}`}
         >
             <div className="w-12 pt-1 text-right shrink-0">
                 <span className="text-xs font-mono text-slate-400 block">{dateStr}</span>
@@ -244,21 +274,100 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
             </div>
             <div className="flex-1 pb-6 border-b border-slate-100 last:border-0">
                 <p className="text-sm text-slate-700 font-medium leading-relaxed">{title}</p>
-                {log.wish_title && (
+                {log.wish_title && log.type !== 'WISH_CANCELLED' && log.type !== 'WISH_EXPIRED' && (
                     <p className="text-xs text-slate-400 mt-1 pl-2 border-l-2 border-slate-100 line-clamp-1 italic">
                         "{log.wish_title}"
                     </p>
                 )}
                 <div className="mt-2 flex items-center justify-end gap-1">
-                    <span className={`text-sm font-mono font-bold ${amountColor}`}>
-                        {amountPrefix}{Math.floor(log.amount).toLocaleString()}
-                    </span>
-                    <span className="text-xs text-slate-400">Lm</span>
-                    {(isSender && log.type !== 'REBIRTH') && (
-                        <span className="text-xs text-slate-400 ml-1">を分かち合いました</span>
+                    {log.amount === 0 ? (
+                        <span className="text-xs font-bold text-slate-300 uppercase tracking-widest pl-2">
+                           {log.type === 'WISH_EXPIRED' ? '期限切れ' : '取り下げ'}
+                        </span>
+                    ) : (
+                        <>
+                            <span className={`text-sm font-mono font-bold ${amountColor}`}>
+                                {amountPrefix}{Math.floor(log.amount).toLocaleString()}
+                            </span>
+                            <span className="text-xs text-slate-400">Lm</span>
+                            {(isSender && log.type !== 'REBIRTH') && (
+                                <span className="text-xs text-slate-400 ml-1">を分かち合いました</span>
+                            )}
+                        </>
                     )}
                 </div>
             </div>
         </motion.div>
+    );
+};
+
+// --- Wish Detail Modal (Internal) ---
+const WishViewerModal = ({ wishId, onClose, currentUserId }: { wishId: string, onClose: () => void, currentUserId: string }) => {
+    const [wish, setWish] = useState<Wish | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchWish = async () => {
+            if (!db) return;
+            try {
+                const snap = await getDoc(doc(db, 'wishes', wishId));
+                if (snap.exists()) {
+                    setWish({ id: snap.id, ...snap.data() } as Wish);
+                }
+            } catch (e) {
+                console.error("Failed to fetch wish", e);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchWish();
+    }, [wishId]);
+
+    // Lock body scroll
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => { document.body.style.overflow = 'auto'; };
+    }, []);
+
+    return (
+        <div 
+            className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
+            onClick={onClose}
+        >
+            <motion.div 
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                className="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto no-scrollbar shadow-2xl relative"
+                onClick={e => e.stopPropagation()}
+            >
+                {/* Header */}
+                <div className="sticky top-0 z-10 p-4 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-slate-50">
+                    <span className="text-xs font-bold text-slate-400 tracking-[0.2em] uppercase pl-2">
+                        追憶の欠片 (Past Fragment)
+                    </span>
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400">
+                        <X size={20} />
+                    </button>
+                </div>
+
+                <div className="p-2">
+                    {loading ? (
+                        <div className="h-40 flex items-center justify-center">
+                            <div className="w-6 h-6 border-2 border-slate-300 border-t-slate-800 rounded-full animate-spin"></div>
+                        </div>
+                    ) : wish ? (
+                        <WishCard 
+                            wish={wish} 
+                            currentUserId={currentUserId} 
+                            isReadOnly={true}
+                        />
+                    ) : (
+                        <div className="h-40 flex items-center justify-center text-slate-400 text-sm">
+                            記録が見つかりませんでした
+                        </div>
+                    )}
+                </div>
+            </motion.div>
+        </div>
     );
 };

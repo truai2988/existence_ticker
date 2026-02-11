@@ -13,32 +13,16 @@ interface FlowViewProps {
     onTabChange?: (mode: AppViewMode) => void;
 }
 
-type TabType = 'explore' | 'pending' | 'active' | 'history';
+type TabType = 'explore' | 'pending' | 'active';
 
 export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile, onTabChange }) => {
     const { 
         wishes, // active feed
         involvedActiveWishes, 
-        involvedArchiveWishes,
-        loadInvolvedArchive,
-        involvedArchiveHasMore
     } = useWishes();
     
     const [activeTab, setActiveTab] = useState<TabType>('explore');
-    const [isHistoryLoading, setIsHistoryLoading] = useState(false);
 
-    // Rule of 10: Load Archive only when tab is 'history'
-    React.useEffect(() => {
-        if (activeTab === 'history') {
-            loadInvolvedArchive(true); // Initial Load
-        }
-    }, [activeTab, loadInvolvedArchive]);
-
-    const handleLoadMoreHistory = async () => {
-        setIsHistoryLoading(true);
-        await loadInvolvedArchive(false);
-        setIsHistoryLoading(false);
-    };
     
     // 1. Explore (Active Global Feed)
     const exploreWishes = wishes.filter(w => {
@@ -59,9 +43,6 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
     const activeWishes = involvedActiveWishes.filter(w => {
         return w.helper_id === currentUserId && (w.status === 'in_progress' || w.status === 'review_pending');
     });
-
-    // 4. History -> From involvedArchiveWishes (Lazy Loaded)
-    const historyWishes = involvedArchiveWishes;
 
     // Auto-Tab Switch Handler
     const handleActionComplete = (action: 'applied' | 'withdrawn' | 'approved' | 'cancelled' | 'resigned' | 'completed' | 'cleanup') => {
@@ -150,22 +131,6 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         )}
                     </button>
 
-                    <button
-                        onClick={() => setActiveTab('history')}
-                        className={`relative py-1 text-xs font-bold transition-all shrink-0 focus:outline-none ${
-                            activeTab === 'history' 
-                                ? 'text-slate-700' 
-                                : historyWishes.length === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-slate-500'
-                        }`}
-                    >
-                        過去の記録 ({historyWishes.length})
-                        {activeTab === 'history' && (
-                            <motion.div 
-                                layoutId="flow-tab-underline"
-                                className="absolute -bottom-2 left-0 right-0 h-0.5 bg-slate-400 rounded-full"
-                            />
-                        )}
-                    </button>
                 </div>
             </div>
             
@@ -209,29 +174,6 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         />
                     )}
 
-                    {activeTab === 'history' && (
-                        <div className="flex flex-col gap-4">
-                            <WishCardList 
-                                wishes={historyWishes} 
-                                currentUserId={currentUserId}
-                                viewType="flow"
-                                emptyMessage="活動記録はありません"
-                                emptyIcon={<ClipboardList size={48} className="text-slate-300 mb-2" />}
-                                onOpenProfile={onOpenProfile}
-                                onActionComplete={handleActionComplete}
-                            />
-                            
-                            {involvedArchiveHasMore && (
-                                <button 
-                                    onClick={handleLoadMoreHistory}
-                                    disabled={isHistoryLoading}
-                                    className="w-full py-3 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 transition-colors disabled:opacity-50"
-                                >
-                                    {isHistoryLoading ? "読み込み中..." : "さらに読み込む"}
-                                </button>
-                            )}
-                        </div>
-                    )}
                 </div>
             </div>
         </div>

@@ -445,6 +445,20 @@ export const useWishActions = () => {
           cancelled_at: serverTimestamp(),
           val_at_fulfillment: 0, // No payment occurred
         });
+
+        // === 写経ロジック：Journalにamount:0で記録 ===
+        const txId = `cancel_${wishId}`;
+        const txRef = doc(collection(db!, "transactions"), txId);
+        transaction.set(txRef, {
+          type: "WISH_CANCELLED",
+          amount: 0,
+          created_at: serverTimestamp(),
+          sender_id: user.uid,
+          sender_name: wishData.requester_name || "Anonymous",
+          wish_title: wishData.content,
+          wish_id: wishId,
+          description: "user_cancellation"
+        });
       }
       });
 
@@ -754,10 +768,33 @@ export const useWishActions = () => {
       setIsSubmitting(true);
       try {
         const wishRef = doc(db, "wishes", wishId);
-        await updateDoc(wishRef, {
-          status: "expired",
-          updated_at: serverTimestamp(),
+        
+        await runTransaction(db, async (transaction) => {
+          const wishDoc = await transaction.get(wishRef);
+          if (!wishDoc.exists()) throw "Wish not found";
+          const wishData = wishDoc.data();
+
+          // 1. Update Wish Status
+          transaction.update(wishRef, {
+            status: "expired",
+            updated_at: serverTimestamp(),
+          });
+
+          // 2. Log to Journal (amount: 0)
+          const txId = `expire_${wishId}`;
+          const txRef = doc(collection(db!, "transactions"), txId);
+          transaction.set(txRef, {
+            type: "WISH_EXPIRED",
+            amount: 0,
+            created_at: serverTimestamp(),
+            sender_id: wishData.requester_id,
+            sender_name: wishData.requester_name || "Anonymous",
+            wish_title: wishData.content,
+            wish_id: wishId,
+            description: "system_expiration"
+          });
         });
+
         return true;
       } catch (e) {
         console.error("Failed to expire wish:", e);
