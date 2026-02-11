@@ -210,8 +210,9 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
                     </div>
                 </motion.button>
             ) : (
-                // Normal Buttons
-                <>
+                // Normal Buttons (Only show when showColor is true)
+                showColor && (
+                 <>
                    <motion.button 
                      key="btn-help" 
                      onClick={onOpenFlow} 
@@ -240,7 +241,8 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
                          </motion.div>
                        </div>
                    </motion.button>
-                </>
+                 </>
+                )
             )}
           </AnimatePresence>
         </div>

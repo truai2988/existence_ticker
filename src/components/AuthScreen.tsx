@@ -24,7 +24,10 @@ const translateError = (code: string): string => {
         case 'auth/network-request-failed': return '回線が不安定です。ネットワーク接続を確認してください。';
         case 'auth/internal-error': return 'システムエラーが発生しました。';
         case 'auth/requires-recent-login': return '再認証が必要です。一度ログアウトして再度ログインしてください。';
-        default: return '予期せぬエラーが発生しました (' + code + ')';
+        default: 
+            // Firebaseのコード形式（auth/xxx）でない場合はそのまま返す
+            if (code.includes('/')) return 'エラーが発生しました (' + code + ')';
+            return code;
     }
 };
 
@@ -52,37 +55,40 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
     const [ageGroup, setAgeGroup] = useState('');
     const [gender, setGender] = useState<'male' | 'female' | 'other' | ''>('');
 
-    // Validation for ASCII checks
-    const validateAscii = (text: string) => /^[\x20-\x7E]*$/.test(text);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
         setIsLoading(true);
 
+        // 標準的なバリデーション (メール形式チェック)
+        const validateEmail = (email: string) => {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        };
+
         try {
             if (mode === 'login') {
                 if (!email) throw new Error('メールアドレスを入力してください。');
+                if (!validateEmail(email)) throw new Error('メールアドレスの形式が正しくありません。');
                 if (!password) throw new Error('パスワードを入力してください。');
+                
                 await signIn(email, password);
                 onSuccess();
             } else if (mode === 'signup') {
-                // 詳細なバリデーションへの復帰
+                // バリデーション
                 if (!name.trim()) throw new Error('名前を入力してください。');
                 if (!gender) throw new Error('性別を選択してください。');
                 if (!ageGroup) throw new Error('年代を選択してください。');
                 if (!prefecture) throw new Error('都道府県を選択してください。');
                 if (!city) throw new Error('市区町村を選択してください。');
+                
                 if (!email) throw new Error('メールアドレスを入力してください。');
+                if (!validateEmail(email)) throw new Error('メールアドレスの形式が正しくありません。');
+                
                 if (!password) throw new Error('パスワードを入力してください。');
+                if (password.length < 6) throw new Error('パスワードは6文字以上で入力してください。');
+                
                 if (!invitationCode.trim()) throw new Error('招待コードを入力してください。');
-
-                if (!validateAscii(password)) {
-                    throw new Error('パスワードは半角英数字と記号のみ使用可能です。');
-                }
-                if (!validateAscii(invitationCode)) {
-                    throw new Error('招待コードは半角英数字のみ使用可能です。');
-                }
 
                 await signUp(
                     email, 
@@ -103,12 +109,10 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
             }
         } catch (err: unknown) {
             console.error(err);
-            const firebaseError = err as { code?: string; message?: string };
-            if (firebaseError.code) {
-                setError(translateError(firebaseError.code));
-            } else {
-                setError(firebaseError.message || '予期せぬエラーが発生しました。');
-            }
+            // エラーオブジェクトから最適なメッセージを抽出
+            const errorObj = err as { code?: string; message?: string };
+            const message = errorObj.code ? translateError(errorObj.code) : (errorObj.message || '予期せぬエラーが発生しました。');
+            setError(message);
         } finally {
             if (mode !== 'forgot') setIsLoading(false);
         }
@@ -132,19 +136,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                 </div>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                    <AnimatePresence>
-                        {error && (
-                            <motion.div 
-                                initial={{ opacity: 0, height: 0 }} 
-                                animate={{ opacity: 1, height: 'auto' }} 
-                                exit={{ opacity: 0, height: 0 }}
-                                className="bg-red-50 text-red-600 p-3 rounded-lg text-sm flex items-start gap-2 mb-2"
-                            >
-                                <AlertCircle size={16} className="mt-0.5 shrink-0" />
-                                <span>{error}</span>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
 
                     {/* Login & Signup common fields */}
                     <div className="flex flex-col gap-4">
@@ -231,7 +222,10 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                                                 <MapPin className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors pointer-events-none" size={18} />
                                                 <select 
                                                     value={prefecture}
-                                                    onChange={(e) => setPrefecture(e.target.value)}
+                                                    onChange={(e) => {
+                                                        setPrefecture(e.target.value);
+                                                        setCity('');
+                                                    }}
                                                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all appearance-none"
                                                 >
                                                     <option value="" disabled>都道府県</option>
@@ -273,12 +267,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                                                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-sm appearance-none"
                                                 >
                                                     <option value="" disabled>年代</option>
-                                                    <option value="10s">10代</option>
-                                                    <option value="20s">20代</option>
-                                                    <option value="30s">30代</option>
-                                                    <option value="40s">40代</option>
-                                                    <option value="50s">50代</option>
-                                                    <option value="60s">60代以上</option>
+                                                    <option value="20歳未満">20歳未満</option>
+                                                    <option value="20代">20代</option>
+                                                    <option value="30代">30代</option>
+                                                    <option value="40代">40代</option>
+                                                    <option value="50代">50代</option>
+                                                    <option value="60代">60代</option>
+                                                    <option value="70代">70代</option>
+                                                    <option value="80代以上">80代以上</option>
                                                 </select>
                                                 <ChevronDown className="absolute right-3 top-3 text-slate-400 pointer-events-none" size={18} />
                                             </div>
@@ -326,6 +322,20 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                         </AnimatePresence>
                     </div>
 
+                    <AnimatePresence>
+                        {error && (
+                            <motion.div 
+                                initial={{ opacity: 0, height: 0 }} 
+                                animate={{ opacity: 1, height: 'auto' }} 
+                                exit={{ opacity: 0, height: 0 }}
+                                className="bg-red-50 text-red-600 p-3 rounded-lg text-sm flex items-start gap-2 mb-2"
+                            >
+                                <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                                <span>{error}</span>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
                     <button 
                         type="submit" 
                         disabled={isLoading}
@@ -348,21 +358,33 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                     <div className="flex flex-col items-center gap-2 mt-4 text-sm text-slate-500">
                         {mode === 'login' && (
                             <>
-                                <button type="button" onClick={() => setMode('signup')} className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300">
+                                <button type="button" onClick={() => {
+                                    setMode('signup');
+                                    setError(null);
+                                }} className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300">
                                     新規登録はこちら
                                 </button>
-                                <button type="button" onClick={() => setMode('forgot')} className="text-xs hover:text-slate-800">
+                                <button type="button" onClick={() => {
+                                    setMode('forgot');
+                                    setError(null);
+                                }} className="text-xs hover:text-slate-800">
                                     パスワードをお忘れの方
                                 </button>
                             </>
                         )}
                         {mode === 'signup' && (
-                             <button type="button" onClick={() => setMode('login')} className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300">
+                             <button type="button" onClick={() => {
+                                setMode('login');
+                                setError(null);
+                            }} className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300">
                                 ログイン画面に戻る
                             </button>
                         )}
                         {mode === 'forgot' && (
-                             <button type="button" onClick={() => setMode('login')} className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300">
+                             <button type="button" onClick={() => {
+                                setMode('login');
+                                setError(null);
+                            }} className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300">
                                 ログイン画面に戻る
                             </button>
                         )}
