@@ -310,8 +310,19 @@ const AdminDashboard = lazy(() =>
 
 // ローダー（白磁の美学）
 const ScreenLoader = () => (
-    <div className="flex-1 flex items-center justify-center p-8 bg-slate-50 min-h-screen">
-         <div className="relative flex items-center justify-center">
+    <div className="flex-1 flex items-center justify-center p-8 bg-[#F9F8F4] min-h-screen relative overflow-hidden">
+        {/* Washi Texture Overlay */}
+        <div
+            className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply"
+            style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            }}
+        />
+        {/* Ambient Blooms */}
+        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none" />
+
+         <div className="relative flex items-center justify-center z-10">
             <div className="absolute w-12 h-12 bg-slate-200 rounded-full animate-ping opacity-20"></div>
             <div className="w-3 h-3 bg-white border border-slate-100 rounded-full shadow-sm animate-pulse z-10"></div>
          </div>
@@ -379,6 +390,17 @@ function App() {
         const isRitual = appMode === 'RITUAL';
         return (
             <div className="bg-[#F9F8F4] h-screen font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
+            {/* Washi Texture Overlay for App */}
+            <div
+                className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply z-0"
+                style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                }}
+            />
+            {/* Ambient Blooms */}
+            <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
+            <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
+
             {/* Header: Only show if NOT in Ritual Mode AND Ritual Animation is idle */}
             <AnimatePresence>
                 {viewMode === 'home' && !isRitual && ritualState === 'idle' && (
