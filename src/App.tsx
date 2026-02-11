@@ -126,17 +126,21 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
     <div className="flex-1 flex flex-col items-center justify-center w-full relative">
         {/* 1. Balance Display (Only when Alive/Color) */}
         {showColor && (
-                 <div className="absolute top-[8%] left-0 right-0 flex flex-col items-center z-20 pointer-events-none">
-                    <motion.div initial={{ opacity: 0, scale: 0.9, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} className="absolute bottom-[105%]">
-                        <span className="text-xs font-bold text-slate-600 tracking-widest uppercase whitespace-nowrap text-shadow-sm">
-                            手持ち： {Math.floor(balance).toLocaleString()}
-                            <span className="ml-2 text-slate-500 font-medium">(あと{daysLeft}日)</span>
-                        </span>
-                    </motion.div>
-                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center">
-                        <div className="text-6xl font-serif font-bold text-slate-800 tracking-tighter tabular-nums leading-none">{Math.floor(availableLm).toLocaleString()}</div>
-                    </motion.div>
-                 </div>
+          <div className="absolute top-[18%] left-0 right-0 flex flex-col items-center z-20 pointer-events-none">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              className="flex flex-col items-center gap-1"
+            >
+              <span className="text-xs font-bold text-slate-500 tracking-widest uppercase whitespace-nowrap opacity-80 mb-[-4px]">
+                手持ち： {Math.floor(balance).toLocaleString()}
+                <span className="ml-1 text-slate-400 font-medium">(あと{daysLeft}日)</span>
+              </span>
+              <div className="text-6xl font-serif font-bold text-slate-800 tracking-tighter tabular-nums leading-[0.8] pb-[0.3em]">
+                {Math.floor(availableLm).toLocaleString()}
+              </div>
+            </motion.div>
+          </div>
         )}
 
         {/* 2. The Vessel (YinYang Coin) */}
