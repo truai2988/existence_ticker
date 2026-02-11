@@ -56,7 +56,7 @@ export const UserSubBar: React.FC = () => {
     return (
         <>
             <div className="w-full bg-slate-50 border-b border-slate-100/50">
-                <div className="max-w-md mx-auto px-6 py-2 flex justify-between items-center">
+                <div className="max-w-2xl mx-auto px-6 py-2 flex justify-between items-center">
                     
                     {/* Presence Status Line */}
                     <button 

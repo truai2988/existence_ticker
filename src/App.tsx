@@ -144,7 +144,7 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
         )}
 
         {/* 2. The Vessel (YinYang Coin) */}
-        <div className="relative w-[90%] max-w-[360px] aspect-square z-10">
+        <div className="relative w-[80%] max-w-[540px] aspect-square z-10">
           <motion.div 
             className="absolute inset-0 rounded-full shadow-2xl shadow-slate-200/50 border-4 border-white overflow-hidden bg-white text-slate-900"
             // Breathing animation only when waiting for ritual
@@ -217,34 +217,34 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
                 // Normal Buttons (Only show when showColor is true)
                 showColor && (
                  <>
-                   <motion.button 
-                     key="btn-help" 
-                     onClick={onOpenFlow} 
-                     className="absolute top-[32.32%] left-[67.68%] -translate-x-1/2 -translate-y-[14.5px] z-20 outline-none group text-amber-800"
-                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                     transition={{ duration: 0.8, delay: 0.2 }}
-                   >
-                       <div className="flex flex-col items-center origin-center">
-                         <motion.div className="flex flex-col items-center">
-                           <Inbox size={29} strokeWidth={2} className="mb-2 opacity-90" />
-                           <span className="text-lg font-medium tracking-widest uppercase text-shadow-sm">応える</span>
-                         </motion.div>
-                       </div>
-                   </motion.button>
-                   <motion.button 
-                     key="btn-wish" 
-                     onClick={onOpenRequest} 
-                     className="absolute top-[67.68%] left-[32.32%] -translate-x-1/2 -translate-y-[calc(100%-12.5px)] z-20 outline-none group text-blue-800"
-                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                     transition={{ duration: 0.8, delay: 0.2 }}
-                   >
-                       <div className="flex flex-col items-center origin-center">
-                         <motion.div className="flex flex-col-reverse items-center">
-                           <Megaphone size={25} strokeWidth={2} className="mt-2 opacity-90" />
-                           <span className="text-lg font-medium tracking-widest uppercase text-shadow-sm">お願い</span>
-                         </motion.div>
-                       </div>
-                   </motion.button>
+                    <motion.button 
+                      key="btn-help" 
+                      onClick={onOpenFlow} 
+                      className="absolute top-[28%] right-[24%] -translate-y-1/2 z-20 outline-none group text-amber-800"
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      transition={{ duration: 0.8, delay: 0.2 }}
+                    >
+                        <div className="flex flex-col items-center origin-center">
+                          <motion.div className="flex flex-col items-center">
+                            <Inbox size={52} strokeWidth={2.5} className="mb-2 opacity-90" />
+                            <span className="text-3xl font-extrabold tracking-tight text-shadow-sm">応える</span>
+                          </motion.div>
+                        </div>
+                    </motion.button>
+                    <motion.button 
+                      key="btn-wish" 
+                      onClick={onOpenRequest} 
+                      className="absolute bottom-[28%] left-[24%] translate-y-1/2 z-20 outline-none group text-blue-800"
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      transition={{ duration: 0.8, delay: 0.2 }}
+                    >
+                        <div className="flex flex-col items-center origin-center">
+                          <motion.div className="flex flex-col-reverse items-center">
+                            <Megaphone size={48} strokeWidth={2.5} className="mt-2 opacity-90" />
+                            <span className="text-3xl font-extrabold tracking-tight text-shadow-sm">願う</span>
+                          </motion.div>
+                        </div>
+                    </motion.button>
                  </>
                 )
             )}

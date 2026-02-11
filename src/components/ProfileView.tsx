@@ -230,7 +230,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       </div>
 
       <div className="flex-1 overflow-y-auto no-scrollbar w-full">
-        <div className="max-w-md mx-auto w-full px-6 pt-4 pb-24">
+        <div className="max-w-2xl mx-auto w-full px-6 pt-4 pb-24">
           {/* 1. Header Profile Info */}
           <div className="flex flex-col items-center py-8 bg-white mb-4 rounded-xl border border-slate-200 shadow-sm">
             <div className="relative mb-3">

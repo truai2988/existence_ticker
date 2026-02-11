@@ -70,7 +70,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
 
     return (
         <div className="w-full">
-            <div className="max-w-md mx-auto py-4 space-y-8">
+            <div className="max-w-2xl mx-auto py-4 space-y-8">
                
                {/* Input Section */}
                <div className="space-y-3">

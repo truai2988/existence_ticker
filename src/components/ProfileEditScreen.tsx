@@ -176,7 +176,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
         <div className="fixed inset-0 z-[70] bg-slate-50 flex flex-col animate-fade-in font-sans w-full h-full">
             {/* Header */}
             <div className="w-full bg-white border-b border-slate-200 sticky top-0 z-10 shrink-0 pt-safe">
-                <div className="max-w-md mx-auto px-6 py-4">
+                <div className="max-w-2xl mx-auto px-6 py-4">
                     <div className="flex justify-between items-center w-full">
                         <div className="flex items-center gap-2">
                             <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500 -ml-2">
@@ -197,7 +197,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
             </div>
 
             <div className="flex-1 overflow-y-auto no-scrollbar w-full">
-                <div className="max-w-md mx-auto p-6 space-y-8 pb-24">
+                <div className="max-w-2xl mx-auto p-6 space-y-8 pb-24">
                     
                     {/* Avatar Selection */}
                     <div className="flex flex-col items-center">

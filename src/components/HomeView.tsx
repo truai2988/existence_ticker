@@ -89,7 +89,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   `;
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center w-full min-h-full px-6 py-4 relative max-w-md mx-auto overflow-hidden">
+    <div className="flex-1 flex flex-col items-center justify-center w-full min-h-full px-6 py-4 relative max-w-2xl mx-auto overflow-hidden">
       <style>{loadingStyle}</style>
 
       <div className="flex-1 flex items-center justify-center w-full relative">
@@ -149,7 +149,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
         <div className="absolute inset-0 bg-slate-100/50 rounded-full blur-3xl opacity-40 z-0 pointer-events-none transform scale-110" />
 
-        <div className="relative w-[90%] max-w-[360px] aspect-square z-10">
+        <div className="relative w-[80%] max-w-[540px] aspect-square z-10">
           <div
             className="absolute inset-0 rounded-full shadow-2xl shadow-slate-200/50 border-4 border-white overflow-hidden bg-white"
             style={{ animation: "breathe 8s ease-in-out infinite" }}
@@ -217,7 +217,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <motion.button
                 key="btn-help"
                 onClick={onOpenFlow}
-                className="absolute top-[22%] right-[22%] flex flex-col items-end z-20 outline-none group"
+                className="absolute top-[25%] right-[24%] flex flex-col items-end z-20 outline-none group"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 whileHover="hover"
                 whileTap="tap"
@@ -234,15 +234,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     tap: { scale: 0.98 },
                   }}
                 >
-                  <Inbox size={32} strokeWidth={2.5} className="mb-1" />
-                  <span className="text-xl font-extrabold">応える</span>
+                  <Inbox size={52} strokeWidth={2.5} className="mb-1" />
+                  <span className="text-3xl font-extrabold tracking-tight">応える</span>
                 </motion.div>
               </motion.button>
 
               <motion.button
                 key="btn-wish"
                 onClick={onOpenRequest}
-                className="absolute bottom-[22%] left-[22%] flex flex-col items-start z-20 outline-none group"
+                className="absolute bottom-[25%] left-[24%] flex flex-col items-start z-20 outline-none group"
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 whileHover="hover"
                 whileTap="tap"
@@ -259,8 +259,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     tap: { scale: 0.98 },
                   }}
                 >
-                  <span className="text-xl font-extrabold">願う</span>
-                  <Megaphone size={28} strokeWidth={2.5} className="mt-1" />
+                  <span className="text-3xl font-extrabold tracking-tight">願う</span>
+                  <Megaphone size={48} strokeWidth={2.5} className="mt-1" />
                 </motion.div>
               </motion.button>
              </>

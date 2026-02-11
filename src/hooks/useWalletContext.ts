@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { WalletContext } from "../contexts/WalletContext";
+import { WalletContext } from "../contexts/WalletContextDefinition";
 
 /**
  * Hook to access the Wallet Context

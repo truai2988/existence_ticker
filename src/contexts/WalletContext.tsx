@@ -20,23 +20,9 @@ import {
   fromMilli
 } from "../logic/worldPhysics";
 import { WalletStatus } from "../types/wallet";
-import { createContext } from "react";
 import { useWishesContext } from "./WishesContext";
 import { Wish } from "../types";
-
-// Types
-export interface WalletContextType {
-    balance: number;
-    committedLm: number;
-    availableLm: number;
-    status: WalletStatus;
-    pay: (amount: number) => Promise<boolean>;
-    performRebirthReset: () => Promise<{ success: boolean; newBalance?: number }>;
-    isLoading: boolean;
-}
-
-// Context
-export const WalletContext = createContext<WalletContextType | undefined>(undefined);
+import { WalletContext, WalletContextType } from "./WalletContextDefinition";
 
 // WalletProvider Component
 
@@ -51,6 +37,10 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const timer = setInterval(() => setLocalTick(t => t + 1), 3600000);
     return () => clearInterval(timer);
   }, []);
+  // TODO:
+  // - [x] 最終動作確認と整合性チェック（ランタイムエラー修正含む）
+  // - [x] iPad/タブレット向けのレスポンス対応（コンテンツ幅拡大 & ホーム画面の陰陽デザイン調整）
+  // - [x] ホーム画面のボタン配置とサイズ微調整（大画面向け）
 
   // === 1. PHYSICAL TRUTH (Absolute Hierarchy) ===
 

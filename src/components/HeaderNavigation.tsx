@@ -18,36 +18,36 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
 
     return (
         <>
-            {/* Desktop: Icon Navigation (md以上) */}
-            <nav className="hidden md:flex items-center gap-4">
+            {/* Desktop: Icon Navigation (md以上) - Scaled for Tablet */}
+            <nav className="hidden md:flex items-center gap-6">
                 <button
                     onClick={() => onTabChange("home")}
-                    className={`p-2 transition-colors ${
+                    className={`p-3 transition-colors ${
                         currentTab === "home" ? "text-slate-900" : "text-slate-600 hover:text-slate-800"
                     }`}
                     aria-label="ホーム"
                 >
-                    <Home size={20} strokeWidth={currentTab === "home" ? 2.5 : 2} />
+                    <Home size={28} strokeWidth={currentTab === "home" ? 2.5 : 2} />
                 </button>
 
                 <button
                     onClick={() => onTabChange("history")}
-                    className={`p-2 transition-colors ${
+                    className={`p-3 transition-colors ${
                         currentTab === "history" ? "text-slate-900" : "text-slate-600 hover:text-slate-800"
                     }`}
                     aria-label="履歴"
                 >
-                    <History size={20} strokeWidth={currentTab === "history" ? 2.5 : 2} />
+                    <History size={28} strokeWidth={currentTab === "history" ? 2.5 : 2} />
                 </button>
 
                 <button
                     onClick={() => onTabChange("profile")}
-                    className={`p-2 transition-colors ${
+                    className={`p-3 transition-colors ${
                         currentTab === "profile" ? "text-slate-900" : "text-slate-600 hover:text-slate-800"
                     }`}
                     aria-label="プロフィール"
                 >
-                    <User size={20} strokeWidth={currentTab === "profile" ? 2.5 : 2} />
+                    <User size={28} strokeWidth={currentTab === "profile" ? 2.5 : 2} />
                 </button>
             </nav>
 

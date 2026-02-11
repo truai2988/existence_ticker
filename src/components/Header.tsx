@@ -72,24 +72,24 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                 <div className="relative w-full">
                     {/* Two Pillars Structure - with white background spanning full width */}
                     <div className="relative w-full bg-white/95">
-                        <div className="w-full max-w-2xl mx-auto px-6 py-4">
+                        <div className="w-full max-w-2xl mx-auto px-6 py-6">
                             <div className="flex items-center justify-between">
                                 {/* Left: Title and Location */}
                                 <div>
-                                    <h1 className="text-sm font-bold tracking-widest uppercase text-slate-900 leading-none mb-1">
+                                    <h1 className="text-xl font-bold tracking-widest uppercase text-slate-900 leading-none mb-2">
                                         Existence Ticker
                                     </h1>
                                     <button
                                         onClick={() => setShowPresenceModal(true)}
                                         className="flex items-center gap-1.5 text-left hover:opacity-70 transition-opacity group"
                                     >
-                                        <MapPin size={10} className="text-slate-500 group-hover:text-slate-700 transition-colors" />
-                                        <span className="text-xs text-slate-600 font-mono tracking-wider uppercase group-hover:text-slate-900 transition-colors truncate max-w-[120px]">
+                                        <MapPin size={16} className="text-slate-500 group-hover:text-slate-700 transition-colors" />
+                                        <span className="text-base text-slate-600 font-mono tracking-wider uppercase group-hover:text-slate-900 transition-colors truncate max-w-[160px]">
                                             {getLocationText()}
                                         </span>
-                                        <span className="text-[10px] text-slate-400">|</span>
-                                        <Users size={10} className="text-slate-500 group-hover:text-slate-700 transition-colors" />
-                                        <span className="text-xs text-slate-600 font-mono tracking-wider group-hover:text-slate-900 transition-colors">
+                                        <span className="text-xs text-slate-400 mx-1">|</span>
+                                        <Users size={16} className="text-slate-500 group-hover:text-slate-700 transition-colors" />
+                                        <span className="text-base text-slate-600 font-mono tracking-wider group-hover:text-slate-900 transition-colors">
                                             {getUserCountText()}
                                         </span>
                                     </button>
@@ -98,7 +98,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                                 {/* Right: Water Clock & Navigation */}
                                 <div className="flex items-center gap-4">
                                     {/* Water Clock Indicator (Lm Capacity) - Compact Visual Only */}
-                                    <div className="relative w-7 h-9 bg-slate-50 rounded-b-lg rounded-t-sm overflow-hidden border border-slate-200 shadow-inner shrink-0">
+                                    <div className="relative w-10 h-12 bg-slate-50 rounded-b-xl rounded-t-md overflow-hidden border border-slate-200 shadow-inner shrink-0">
                                         
                                         {/* 1. Committed Lm (Bottom Layer - Frozen/Sediment) */}
                                         <motion.div 

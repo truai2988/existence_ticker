@@ -58,10 +58,10 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
 
             {/* Tab Navigation (Subtle Flat Design) */}
             <div className="bg-blue-50/20">
-                <div className="max-w-2xl mx-auto px-6 py-2 flex items-center gap-6 overflow-x-auto no-scrollbar relative min-h-[44px]">
+                <div className="max-w-2xl mx-auto px-6 flex items-center gap-6 overflow-x-auto no-scrollbar relative min-h-[52px]">
                     <button 
                         onClick={() => setModalState(modalState === 'create_wish' ? 'none' : 'create_wish')}
-                        className={`relative py-2 text-xs font-bold transition-all shrink-0 focus:outline-none ${
+                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
                             modalState === 'create_wish'
                                 ? 'text-indigo-800' 
                                 : 'text-slate-400 hover:text-slate-500'
@@ -71,14 +71,14 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         {modalState === 'create_wish' && (
                             <motion.div 
                                 layoutId="radiance-tab-underline"
-                                className="absolute -bottom-2 left-0 right-0 h-0.5 bg-indigo-500 rounded-full"
+                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500 rounded-full"
                             />
                         )}
                     </button>
 
                     <button
                         onClick={() => { setActiveTab('active'); setModalState('none'); }}
-                        className={`relative py-2 text-xs font-bold transition-all shrink-0 focus:outline-none ${
+                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
                             activeTab === 'active' && modalState !== 'create_wish'
                                 ? 'text-blue-800' 
                                 : myActiveWishes.length === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-slate-500'
@@ -88,14 +88,14 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         {activeTab === 'active' && modalState !== 'create_wish' && (
                             <motion.div 
                                 layoutId="radiance-tab-underline"
-                                className="absolute -bottom-2 left-0 right-0 h-0.5 bg-blue-500 rounded-full"
+                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-full"
                             />
                         )}
                     </button>
 
                     <button
                         onClick={() => { setActiveTab('outbound'); setModalState('none'); }}
-                        className={`relative py-2 text-xs font-bold transition-all shrink-0 focus:outline-none ${
+                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
                             activeTab === 'outbound' && modalState !== 'create_wish'
                                 ? 'text-emerald-800' 
                                 : myOutboundWishes.length === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-slate-500'
@@ -105,7 +105,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         {activeTab === 'outbound' && modalState !== 'create_wish' && (
                             <motion.div 
                                 layoutId="radiance-tab-underline"
-                                className="absolute -bottom-2 left-0 right-0 h-0.5 bg-emerald-500 rounded-full"
+                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500 rounded-full"
                             />
                         )}
                     </button>
@@ -114,7 +114,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
             </div>
 
             <div className="flex-1 overflow-y-auto no-scrollbar bg-blue-50/20 w-full transition-colors duration-500">
-                <div className="max-w-md mx-auto px-6 py-4 pb-24 w-full">
+                <div className="max-w-2xl mx-auto w-full px-6 py-4 pb-24 relative space-y-4">
                      {modalState === 'create_wish' ? (
                          <CreateWishModal onClose={() => setModalState('none')} />
                      ) : (

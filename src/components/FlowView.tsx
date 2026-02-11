@@ -79,10 +79,10 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
 
             {/* Sub-Tabs (Subtle Flat Design) */}
             <div className="bg-amber-50/20">
-                <div className="max-w-2xl mx-auto px-6 py-2 flex items-center gap-6 overflow-x-auto no-scrollbar relative min-h-[44px]">
+                <div className="max-w-2xl mx-auto px-6 flex items-center gap-6 overflow-x-auto no-scrollbar relative min-h-[52px]">
                     <button 
                         onClick={() => setActiveTab('explore')}
-                        className={`relative py-1 text-xs font-bold transition-all shrink-0 focus:outline-none ${
+                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
                             activeTab === 'explore' 
                                 ? 'text-amber-800' 
                                 : exploreWishes.length === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-slate-500'
@@ -92,14 +92,14 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         {activeTab === 'explore' && (
                             <motion.div 
                                 layoutId="flow-tab-underline"
-                                className="absolute -bottom-1 left-0 right-0 h-0.5 bg-amber-500 rounded-full"
+                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500 rounded-full"
                             />
                         )}
                     </button>
 
                     <button
                         onClick={() => setActiveTab('pending')}
-                        className={`relative py-1 text-xs font-bold transition-all shrink-0 focus:outline-none ${
+                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
                             activeTab === 'pending' 
                                 ? 'text-amber-700' 
                                 : pendingWishes.length === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-slate-500'
@@ -109,14 +109,14 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         {activeTab === 'pending' && (
                             <motion.div 
                                 layoutId="flow-tab-underline"
-                                className="absolute -bottom-1 left-0 right-0 h-0.5 bg-amber-400 rounded-full"
+                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-400 rounded-full"
                             />
                         )}
                     </button>
 
                     <button
                         onClick={() => setActiveTab('active')}
-                        className={`relative py-1 text-xs font-bold transition-all shrink-0 focus:outline-none ${
+                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
                             activeTab === 'active' 
                                 ? 'text-emerald-700' 
                                 : activeWishes.length === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-slate-500'
@@ -126,7 +126,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         {activeTab === 'active' && (
                             <motion.div 
                                 layoutId="flow-tab-underline"
-                                className="absolute -bottom-1 left-0 right-0 h-0.5 bg-emerald-500 rounded-full"
+                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500 rounded-full"
                             />
                         )}
                     </button>
@@ -136,7 +136,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
             
             {/* Content Container */}
             <div className="flex-1 overflow-y-auto no-scrollbar bg-amber-50/20 w-full transition-colors duration-500">
-                <div className="max-w-md mx-auto px-6 py-4 pb-24 w-full">
+                <div className="max-w-2xl mx-auto w-full px-6 py-4 pb-24 relative">
                     
                     {activeTab === 'explore' && (
                         <WishCardList 
