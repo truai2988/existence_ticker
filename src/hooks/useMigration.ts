@@ -15,7 +15,7 @@ export const useMigration = () => {
     const [migrationLog, setMigrationLog] = useState<string[]>([]);
 
     const migrateJournal = async () => {
-        if (!db) return;
+        if (!db) return { success: false, error: 'Database not initialized' };
         setIsMigrating(true);
         setMigrationLog(["[Migration] Starting Journal Backfill..."]);
 
@@ -29,7 +29,7 @@ export const useMigration = () => {
 
             if (wishSnap.empty) {
                 setMigrationLog(prev => [...prev, "No wishes found for migration."]);
-                return;
+                return { success: true, totalProcessed: 0, createdCount: 0 };
             }
 
             setMigrationLog(prev => [...prev, `Found ${wishSnap.size} wishes to analyze.`]);
@@ -77,12 +77,14 @@ export const useMigration = () => {
                 ...prev, 
                 `Migration Complete: Created ${createdCount}, Skipped ${skippedCount}.`
             ]);
-            alert(`Migration Complete!\nCreated: ${createdCount}\nSkipped: ${skippedCount}`);
+            
+            return { success: true, createdCount, totalProcessed: wishSnap.size };
 
         } catch (e) {
             console.error("Migration failed:", e);
-            setMigrationLog(prev => [...prev, `[Error] ${String(e)}`]);
-            alert(`Migration Failed: ${String(e)}`);
+            const errorMsg = String(e);
+            setMigrationLog(prev => [...prev, `[Error] ${errorMsg}`]);
+            return { success: false, error: errorMsg };
         } finally {
             setIsMigrating(false);
         }

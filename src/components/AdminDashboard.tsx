@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from "react";
-import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, ShieldOff, Trash2 } from "lucide-react";
+import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, ShieldOff, Trash2, Archive, Sparkles } from "lucide-react";
 import { useStats, MetabolismStatus } from "../hooks/useStats";
 import { db, auth } from "../lib/firebase";
 import { ADMIN_UIDS } from "../constants";

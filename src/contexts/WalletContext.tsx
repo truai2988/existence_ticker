@@ -19,13 +19,24 @@ import {
   toMilli,
   fromMilli
 } from "../logic/worldPhysics";
+import { WalletStatus } from "../types/wallet";
+import { createContext } from "react";
 import { useWishesContext } from "./WishesContext";
 import { Wish } from "../types";
-import { WalletContext, WalletContextType } from "./WalletContext";
-import { WalletStatus } from "../types/wallet";
 
-// Re-export WalletContext for proper module resolution (.tsx takes precedence over .ts)
-export { WalletContext };
+// Types
+export interface WalletContextType {
+    balance: number;
+    committedLm: number;
+    availableLm: number;
+    status: WalletStatus;
+    pay: (amount: number) => Promise<boolean>;
+    performRebirthReset: () => Promise<{ success: boolean; newBalance?: number }>;
+    isLoading: boolean;
+}
+
+// Context
+export const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 // WalletProvider Component
 
