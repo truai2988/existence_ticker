@@ -7,9 +7,7 @@ import {
   updateDoc,
   serverTimestamp,
   runTransaction,
-  getDoc,
-  Transaction,
-  increment 
+  Transaction
 } from "firebase/firestore";
 import { calculateDecayedValue } from "../logic/worldPhysics";
 import { UserProfile } from "../types";

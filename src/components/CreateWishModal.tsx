@@ -40,7 +40,7 @@ interface CreateWishModalProps {
 }
 
 export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => {
-    const { name } = useProfile();
+    const { profile } = useProfile();
     const { availableLm } = useWallet();
     const { castWish, isSubmitting } = useWishActions();
     const { showToast } = useToast();
@@ -79,7 +79,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                   </label>
                   <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 focus-within:ring-2 focus-within:ring-orange-200 transition-all">
                       <div className="mb-2 text-xs text-slate-400 font-medium">
-                          依頼者: <span className="text-slate-600">{name}</span>
+                          依頼者: <span className="text-slate-600">{profile?.name || "Anonymous"}</span>
                       </div>
                       <textarea
                         value={newWishContent}
@@ -207,4 +207,5 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
         </div>
     );
 };
+
 
