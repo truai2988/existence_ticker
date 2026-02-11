@@ -9,7 +9,7 @@ interface AuthScreenProps {
     onSuccess: () => void;
 }
 
-// 日本語エラーメッセージへの変換
+// 日本語エラーメッセージへの変換 (Firebaseのエラー用)
 const translateError = (code: string): string => {
     switch (code) {
         case 'auth/invalid-email': return 'メールアドレスの形式が正しくありません。';
@@ -49,7 +49,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
 
     // Demographics
     const [ageGroup, setAgeGroup] = useState('');
-    const [gender, setGender] = useState<'male' | 'female' | 'other'>('male');
+    const [gender, setGender] = useState<'male' | 'female' | 'other' | ''>('');
 
     // Validation for ASCII checks
     const validateAscii = (text: string) => /^[\x20-\x7E]*$/.test(text);
@@ -61,13 +61,21 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
 
         try {
             if (mode === 'login') {
-                if (!email || !password) throw new Error('メールアドレスとパスワードを入力してください。');
+                if (!email) throw new Error('メールアドレスを入力してください。');
+                if (!password) throw new Error('パスワードを入力してください。');
                 await signIn(email, password);
                 onSuccess();
             } else if (mode === 'signup') {
-                if (!email || !password || !name || !invitationCode || !prefecture || !city || !ageGroup) {
-                    throw new Error('すべての項目を入力してください。');
-                }
+                // 詳細なバリデーションへの復帰
+                if (!name.trim()) throw new Error('名前を入力してください。');
+                if (!gender) throw new Error('性別を選択してください。');
+                if (!ageGroup) throw new Error('年代を選択してください。');
+                if (!prefecture) throw new Error('都道府県を選択してください。');
+                if (!city) throw new Error('市区町村を選択してください。');
+                if (!email) throw new Error('メールアドレスを入力してください。');
+                if (!password) throw new Error('パスワードを入力してください。');
+                if (!invitationCode.trim()) throw new Error('招待コードを入力してください。');
+
                 if (!validateAscii(password)) {
                     throw new Error('パスワードは半角英数字と記号のみ使用可能です。');
                 }
@@ -81,7 +89,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                     name, 
                     { prefecture, city }, 
                     ageGroup, 
-                    gender, 
+                    gender as 'male' | 'female' | 'other', 
                     invitationCode
                 );
                 onSuccess();
@@ -115,14 +123,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
             >
                 <div className="flex flex-col items-center mb-8">
                     <h1 className="text-2xl font-serif font-bold text-slate-800 tracking-widest mb-2">
-                        {mode === 'login' && '星の扉'}
-                        {mode === 'signup' && '魂の登録'}
-                        {mode === 'forgot' && '灯火の再燃'}
+                        {mode === 'login' && 'ログイン'}
+                        {mode === 'signup' && '新規登録'}
+                        {mode === 'forgot' && 'パスワードの再設定'}
                     </h1>
                     <div className="h-1 w-12 bg-slate-300 rounded-full" />
                 </div>
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                     <AnimatePresence>
                         {error && (
                             <motion.div 
@@ -137,142 +145,198 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                         )}
                     </AnimatePresence>
 
-                    <div className="relative group">
-                        <Mail className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors" size={18} />
-                        <input 
-                            type="email" 
-                            placeholder="メールアドレス" 
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400"
-                        />
-                    </div>
+                    {/* Login & Signup common fields */}
+                    <div className="flex flex-col gap-4">
+                        <AnimatePresence mode="popLayout">
+                            {mode === 'signup' && (
+                                <motion.div 
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -10 }}
+                                    className="flex flex-col gap-1.5"
+                                >
+                                    <label className="text-xs font-bold text-slate-500 ml-1">
+                                        お名前 <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="relative group">
+                                        <User className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors" size={18} />
+                                        <input 
+                                            type="text" 
+                                            placeholder="山田 太郎" 
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400"
+                                        />
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
 
-                    {mode !== 'forgot' && (
-                        <div className="relative group">
-                            <Lock className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors" size={18} />
-                            <input 
-                                type={showPassword ? "text" : "password"} 
-                                placeholder="パスワード" 
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400"
-                            />
-                            <button 
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 transition-colors"
-                            >
-                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                            </button>
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-xs font-bold text-slate-500 ml-1">
+                                メールアドレス <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative group">
+                                <Mail className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors" size={18} />
+                                <input 
+                                    type="email" 
+                                    placeholder="mail@example.com" 
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400"
+                                />
+                            </div>
                         </div>
-                    )}
 
-                    <AnimatePresence>
-                        {mode === 'signup' && (
-                            <motion.div 
-                                initial={{ opacity: 0, height: 0 }} 
-                                animate={{ opacity: 1, height: 'auto' }} 
-                                exit={{ opacity: 0, height: 0 }}
-                                className="flex flex-col gap-4 overflow-hidden"
-                            >
+                        {mode !== 'forgot' && (
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-bold text-slate-500 ml-1">
+                                    パスワード <span className="text-red-500">*</span>
+                                </label>
                                 <div className="relative group">
-                                    <User className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors" size={18} />
+                                    <Lock className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors" size={18} />
                                     <input 
-                                        type="text" 
-                                        placeholder="お名前（ニックネーム可）" 
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
+                                        type={showPassword ? "text" : "password"} 
+                                        placeholder="••••••" 
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
                                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400"
                                     />
+                                    <button 
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 transition-colors"
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
                                 </div>
-
-                                <div className="grid grid-cols-2 gap-2">
-                                    <div className="relative group">
-                                        <MapPin className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors pointer-events-none" size={18} />
-                                        <select 
-                                            value={prefecture}
-                                            onChange={(e) => setPrefecture(e.target.value)}
-                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400 appearance-none"
-                                        >
-                                            <option value="" disabled>都道府県</option>
-                                            {PREFECTURES.map(pref => (
-                                                <option key={pref} value={pref}>{pref}</option>
-                                            ))}
-                                        </select>
-                                        <ChevronDown className="absolute right-3 top-3 text-slate-400 pointer-events-none" size={18} />
-                                    </div>
-                                    <div className="relative group">
-                                         <select 
-                                            value={city}
-                                            onChange={(e) => setCity(e.target.value)}
-                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400 appearance-none disabled:opacity-50"
-                                            disabled={!prefecture || loadingCities}
-                                        >
-                                            <option value="" disabled>{loadingCities ? '読み込み中...' : '市区町村'}</option>
-                                            {cities.map(cityName => (
-                                                <option key={cityName} value={cityName}>{cityName}</option>
-                                            ))}
-                                         </select>
-                                         <ChevronDown className="absolute right-3 top-3 text-slate-400 pointer-events-none" size={18} />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-2">
-                                     <div className="relative group">
-                                        <select 
-                                            value={ageGroup} 
-                                            onChange={(e) => setAgeGroup(e.target.value)}
-                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-sm appearance-none"
-                                        >
-                                            <option value="" disabled>年代</option>
-                                            <option value="10s">10代</option>
-                                            <option value="20s">20代</option>
-                                            <option value="30s">30代</option>
-                                            <option value="40s">40代</option>
-                                            <option value="50s">50代</option>
-                                            <option value="60s">60代以上</option>
-                                        </select>
-                                    </div>
-                                    <div className="relative group">
-                                        <select 
-                                            value={gender} 
-                                            onChange={(e) => setGender(e.target.value as 'male' | 'female' | 'other')}
-                                            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-sm appearance-none"
-                                        >
-                                            <option value="male">男性</option>
-                                            <option value="female">女性</option>
-                                            <option value="other">その他</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div className="relative group">
-                                    <Key className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors" size={18} />
-                                    <input 
-                                        type="text" 
-                                        placeholder="招待コード" 
-                                        value={invitationCode}
-                                        onChange={(e) => setInvitationCode(e.target.value)}
-                                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-400 font-mono"
-                                    />
-                                </div>
-                            </motion.div>
+                            </div>
                         )}
-                    </AnimatePresence>
+
+                        <AnimatePresence>
+                            {mode === 'signup' && (
+                                <motion.div 
+                                    initial={{ opacity: 0, height: 0 }} 
+                                    animate={{ opacity: 1, height: 'auto' }} 
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="flex flex-col gap-4 overflow-hidden pt-2"
+                                >
+                                    <div className="flex flex-col gap-1.5">
+                                        <label className="text-xs font-bold text-slate-500 ml-1">
+                                            居住地 <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div className="relative group">
+                                                <MapPin className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors pointer-events-none" size={18} />
+                                                <select 
+                                                    value={prefecture}
+                                                    onChange={(e) => setPrefecture(e.target.value)}
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all appearance-none"
+                                                >
+                                                    <option value="" disabled>都道府県</option>
+                                                    {PREFECTURES.map(pref => (
+                                                        <option key={pref} value={pref}>{pref}</option>
+                                                    ))}
+                                                </select>
+                                                <ChevronDown className="absolute right-3 top-3 text-slate-400 pointer-events-none" size={18} />
+                                            </div>
+                                            <div className="relative group">
+                                                <select 
+                                                    value={city}
+                                                    onChange={(e) => setCity(e.target.value)}
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all appearance-none disabled:opacity-50"
+                                                    disabled={!prefecture || loadingCities}
+                                                >
+                                                    <option value="" disabled>{loadingCities ? '...' : '市区町村'}</option>
+                                                    {cities.map(cityName => (
+                                                        <option key={cityName} value={cityName}>{cityName}</option>
+                                                    ))}
+                                                </select>
+                                                <ChevronDown className="absolute right-3 top-3 text-slate-400 pointer-events-none" size={18} />
+                                            </div>
+                                        </div>
+                                        <p className="text-[10px] text-slate-400 ml-1 mt-1 leading-tight">
+                                            ※番地やマンション名の入力は不要です。
+                                        </p>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-xs font-bold text-slate-500 ml-1">
+                                                年代 <span className="text-red-500">*</span>
+                                            </label>
+                                            <div className="relative group">
+                                                <select 
+                                                    value={ageGroup} 
+                                                    onChange={(e) => setAgeGroup(e.target.value)}
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-sm appearance-none"
+                                                >
+                                                    <option value="" disabled>年代</option>
+                                                    <option value="10s">10代</option>
+                                                    <option value="20s">20代</option>
+                                                    <option value="30s">30代</option>
+                                                    <option value="40s">40代</option>
+                                                    <option value="50s">50代</option>
+                                                    <option value="60s">60代以上</option>
+                                                </select>
+                                                <ChevronDown className="absolute right-3 top-3 text-slate-400 pointer-events-none" size={18} />
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-xs font-bold text-slate-500 ml-1">
+                                                性別 <span className="text-red-500">*</span>
+                                            </label>
+                                            <div className="relative group">
+                                                <select 
+                                                    value={gender} 
+                                                    onChange={(e) => setGender(e.target.value as 'male' | 'female' | 'other')}
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-sm appearance-none"
+                                                >
+                                                    <option value="" disabled>性別</option>
+                                                    <option value="male">男性</option>
+                                                    <option value="female">女性</option>
+                                                    <option value="other">その他</option>
+                                                </select>
+                                                <ChevronDown className="absolute right-3 top-3 text-slate-400 pointer-events-none" size={18} />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-100 mt-2">
+                                        <label className="text-xs font-bold text-slate-500 ml-1">
+                                            招待コード <span className="text-red-500">*</span>
+                                        </label>
+                                        <div className="relative group">
+                                            <Key className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors" size={18} />
+                                            <input 
+                                                type="text" 
+                                                placeholder="ALPHA-XXXX" 
+                                                value={invitationCode}
+                                                onChange={(e) => setInvitationCode(e.target.value)}
+                                                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all font-mono"
+                                            />
+                                        </div>
+                                        <p className="text-[10px] text-slate-400 ml-1 mt-1 leading-tight">
+                                            現在は招待制のアルファテスト中です。お手元のコードを入力してください。
+                                        </p>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
 
                     <button 
                         type="submit" 
                         disabled={isLoading}
-                        className="w-full bg-slate-800 text-white rounded-xl py-3 font-medium tracking-wide shadow-lg shadow-slate-200 hover:bg-slate-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                        className="w-full bg-slate-800 text-white rounded-xl py-3.5 font-bold tracking-wide shadow-lg shadow-slate-200 hover:bg-slate-700 active:scale-[0.98] transition-all flex items-center justify-center gap-2 mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
                         {isLoading ? (
                             <Loader2 size={20} className="animate-spin" />
                         ) : (
                             <>
                                 <span>
-                                    {mode === 'login' && '扉を開く'}
-                                    {mode === 'signup' && '登録を完了する'}
+                                    {mode === 'login' && 'ログイン'}
+                                    {mode === 'signup' && '新規登録'}
                                     {mode === 'forgot' && '送信する'}
                                 </span>
                                 {mode !== 'forgot' && <ArrowRight size={18} />}
@@ -284,7 +348,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                         {mode === 'login' && (
                             <>
                                 <button type="button" onClick={() => setMode('signup')} className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300">
-                                    まだアカウントをお持ちでない方はこちら
+                                    新規登録はこちら
                                 </button>
                                 <button type="button" onClick={() => setMode('forgot')} className="text-xs hover:text-slate-800">
                                     パスワードをお忘れの方
@@ -293,7 +357,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                         )}
                         {mode === 'signup' && (
                              <button type="button" onClick={() => setMode('login')} className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300">
-                                既にアカウントをお持ちの方はこちら
+                                ログイン画面に戻る
                             </button>
                         )}
                         {mode === 'forgot' && (
