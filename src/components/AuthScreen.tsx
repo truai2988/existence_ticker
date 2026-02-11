@@ -14,16 +14,17 @@ const translateError = (code: string): string => {
     switch (code) {
         case 'auth/invalid-email': return 'メールアドレスの形式が正しくありません。';
         case 'auth/user-disabled': return 'このアカウントは無効化されています。';
-        case 'auth/user-not-found': return 'アカウントが見つかりません。';
-        case 'auth/wrong-password': return 'パスワードが間違っています。';
-        case 'auth/email-already-in-use': return 'このメールアドレスは既に使用されています。';
+        case 'auth/user-not-found': return 'メールアドレスまたはパスワードが正しくありません。';
+        case 'auth/wrong-password': return 'メールアドレスまたはパスワードが正しくありません。';
+        case 'auth/invalid-credential': return 'メールアドレスまたはパスワードが正しくありません。';
+        case 'auth/email-already-in-use': return 'このメールアドレスは既に登録されています。';
         case 'auth/weak-password': return 'パスワードは6文字以上で入力してください。';
         case 'auth/operation-not-allowed': return '認証エラーが発生しました。管理者にお問い合わせください。';
-        case 'auth/too-many-requests': return '試行回数が多すぎます。しばらく待ってから再度お試しください。';
-        case 'auth/network-request-failed': return 'ネットワーク接続を確認してください。';
-        case 'auth/internal-error': return '内部エラーが発生しました。';
+        case 'auth/too-many-requests': return 'アクセスが集中しています。しばらく待ってから再度お試しください。';
+        case 'auth/network-request-failed': return '回線が不安定です。ネットワーク接続を確認してください。';
+        case 'auth/internal-error': return 'システムエラーが発生しました。';
         case 'auth/requires-recent-login': return '再認証が必要です。一度ログアウトして再度ログインしてください。';
-        default: return 'エラーが発生しました: ' + code;
+        default: return '予期せぬエラーが発生しました (' + code + ')';
     }
 };
 
