@@ -59,23 +59,33 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
     } catch (err) {
       console.error(err);
       if (err instanceof Error) {
-        // Invitation Code errors
-        if (err.message.includes("招待コードが正しくありません"))
-          setError("招待コードが正しくありません");
-        else if (err.message.includes("この招待コードは既に使用されています"))
-          setError("この招待コードは既に使用されています");
-        // Auth errors
-        else if (err.message.includes("auth/invalid-email"))
-          setError("メールアドレスが無効です");
-        else if (err.message.includes("auth/user-not-found"))
-          setError("登録されているユーザーが見つかりません");
-        else if (err.message.includes("auth/wrong-password"))
-          setError("パスワードが間違っています");
-        else if (err.message.includes("auth/email-already-in-use"))
-          setError("このメールアドレスは既に登録されています");
-        else if (err.message.includes("auth/weak-password"))
-          setError("パスワードは6文字以上で設定してください");
-        else setError(`エラー: ${err.message}`);
+        // 1. Check for Japanese errors first (already translated in logic)
+        // If the error message ALREADY suggests it's Japanese (contains multibyte characters/non-ASCII), use it.
+        const msg = err.message;
+        const isAlreadyJapanese = /[^\u0000-\u007F]/.test(msg); // Check for non-ASCII chars
+
+        if (isAlreadyJapanese) {
+             setError(msg);
+        } else {
+             // 2. Map Firebase / Internal English errors to Japanese
+             if (msg.includes("auth/invalid-email")) setError("メールアドレスの形式が正しくありません");
+             else if (msg.includes("auth/user-not-found")) setError("登録されているユーザーが見つかりません");
+             else if (msg.includes("auth/wrong-password")) setError("パスワードが間違っています");
+             else if (msg.includes("auth/email-already-in-use")) setError("このメールアドレスは既に登録されています");
+             else if (msg.includes("auth/weak-password")) setError("パスワードは6文字以上で設定してください");
+             else if (msg.includes("auth/too-many-requests")) setError("アクセスが集中しています。しばらくしてから再度お試しください。");
+             else if (msg.includes("auth/network-request-failed")) setError("通信エラーが発生しました。ネットワーク環境をご確認ください。");
+             else if (msg.includes("auth/operation-not-allowed")) setError("ログイン操作が許可されていません。管理者にお問い合わせください。");
+             else if (msg.includes("auth/invalid-credential")) setError("認証情報が無効です。再度ログインしてください。");
+             else if (msg.includes("Auth not initialized")) setError("認証システムの初期化に失敗しました。ページを更新してください。");
+             else if (msg.includes("Database not connected")) setError("データベースに接続できません。通信環境をご確認ください。");
+             else {
+                 // 3. Fallback for unknown errors
+                 // Ensure we NEVER show raw English error
+                 console.warn("Unknown Auth Error:", msg);
+                 setError("予期せぬエラーが発生しました。時間をおいて再度お試しください。");
+             }
+        }
       } else {
         setError("接続に失敗しました。時間をおいて再度お試しください。");
       }
