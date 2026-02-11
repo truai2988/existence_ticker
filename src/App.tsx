@@ -64,8 +64,10 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
   // "Metamorphosis" Logic driven by State Machine
   // RITUAL mode = Monotone World (No Color)
   // NORMAL mode = Color World (Full Color)
+  // CRITICAL: We also hide color (and balance) if a ritual animation is Playing (ritualState !== 'idle')
+  // This prevents the "Double 2400" overlap during the First Birth or Rebirth animations.
   const isRitualReady = appMode === 'RITUAL'; 
-  const showColor = appMode === 'NORMAL'; 
+  const showColor = appMode === 'NORMAL' && ritualState === 'idle'; 
   
   // Calculate Days
   const cycleDays = profile?.scheduled_cycle_days || 10;
@@ -123,21 +125,19 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
   return (
     <div className="flex-1 flex flex-col items-center justify-center w-full relative">
         {/* 1. Balance Display (Only when Alive/Color) */}
-        <AnimatePresence>
-            {showColor && (
+        {showColor && (
                  <div className="absolute top-[8%] left-0 right-0 flex flex-col items-center z-20 pointer-events-none">
-                    <motion.div initial={{ opacity: 0, scale: 0.9, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute bottom-[105%]">
+                    <motion.div initial={{ opacity: 0, scale: 0.9, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} className="absolute bottom-[105%]">
                         <span className="text-xs font-bold text-slate-600 tracking-widest uppercase whitespace-nowrap text-shadow-sm">
                             手持ち： {Math.floor(balance).toLocaleString()}
                             <span className="ml-2 text-slate-500 font-medium">(あと{daysLeft}日)</span>
                         </span>
                     </motion.div>
-                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="text-center">
+                    <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="text-center">
                         <div className="text-6xl font-serif font-bold text-slate-800 tracking-tighter tabular-nums leading-none">{Math.floor(availableLm).toLocaleString()}</div>
                     </motion.div>
                  </div>
-            )}
-        </AnimatePresence>
+        )}
 
         {/* 2. The Vessel (YinYang Coin) */}
         <div className="relative w-[90%] max-w-[360px] aspect-square z-10">
@@ -333,6 +333,9 @@ function App() {
   // THE MACHINE (Single Source of Truth)
   const { view, appMode, data, actions } = useStartupMachine();
 
+  // Local UI State for Ghost Deletion (Transient)
+  const [isDeleting, setIsDeleting] = useState(false);
+
   // Lifted Ritual State to control Global UI (Header/Background)
   const [ritualState, setRitualState] = useState<'idle' | 'breathing' | 'blooming' | 'syncing'>('idle');
   const [targetBalance, setTargetBalance] = useState(2400); // Lifted for Overlay
@@ -376,19 +379,24 @@ function App() {
                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none" />
                <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none" />
 
-               <div className="relative z-10 flex flex-col items-center justify-center">
-                   <h2 className="text-2xl font-serif font-bold mb-4">魂の不在</h2>
-                   <p className="mb-8 text-slate-600 text-center text-sm leading-relaxed max-w-xs">
-                       認証は確認できましたが、<br/>存在の記録が見つかりません。<br/>
-                       (Ghost Profile Detected)
-                   </p>
-                   <button 
-                      onClick={() => actions.deleteAccount()}
-                      className="px-8 py-3 bg-slate-900 text-white font-serif text-sm tracking-widest hover:bg-slate-800 transition-colors"
-                   >
-                       無に還る
-                   </button>
-               </div>
+               {!isDeleting && (
+                   <div className="relative z-10 flex flex-col items-center justify-center">
+                       <h2 className="text-2xl font-serif font-bold mb-4">魂の不在</h2>
+                       <p className="mb-8 text-slate-600 text-center text-sm leading-relaxed max-w-xs">
+                           認証は確認できましたが、<br/>存在の記録が見つかりません。<br/>
+                           (Ghost Profile Detected)
+                       </p>
+                       <button 
+                          onClick={async () => {
+                              setIsDeleting(true);
+                              await actions.deleteAccount();
+                          }}
+                          className="px-8 py-3 bg-slate-900 text-white font-serif text-sm tracking-widest hover:bg-slate-800 transition-colors"
+                       >
+                           無に還る
+                       </button>
+                   </div>
+               )}
             </div>
         );
 
