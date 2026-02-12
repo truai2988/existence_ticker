@@ -67,34 +67,44 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
-                            className="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-50 min-w-[140px]"
+                            className="absolute right-0 top-full mt-2 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-100 p-2 z-50 min-w-[200px] overflow-hidden"
                         >
+                            {/* Brand Area in Popover */}
+                            <div className="px-5 pt-5 pb-4 mb-2 border-b border-slate-50">
+                                <div className="text-3xl font-light tracking-tighter text-slate-800 leading-none mb-1 font-['Inter']">
+                                    ET
+                                </div>
+                                <div className="text-[8px] text-slate-400 font-light tracking-[0.4em] uppercase">
+                                    Existence Ticker
+                                </div>
+                            </div>
+
                             <button
                                 onClick={() => handleTabChange("home")}
-                                className={`w-full px-4 py-2 text-left flex items-center gap-2 transition-colors whitespace-nowrap ${
-                                    currentTab === "home" ? "text-slate-900 bg-slate-50" : "text-slate-600 hover:bg-slate-50"
+                                className={`w-full px-5 py-3 text-left flex items-center gap-3 transition-colors rounded-xl ${
+                                    currentTab === "home" ? "text-slate-900 bg-slate-50" : "text-slate-500 hover:bg-slate-50/50"
                                 }`}
                             >
-                                <Home size={18} strokeWidth={currentTab === "home" ? 2.5 : 2} />
-                                <span className="text-sm font-medium">ホーム</span>
+                                <Home size={20} strokeWidth={currentTab === "home" ? 2 : 1.5} />
+                                <span className="text-sm tracking-[0.1em] font-light">ホーム</span>
                             </button>
                             <button
                                 onClick={() => handleTabChange("history")}
-                                className={`w-full px-4 py-2 text-left flex items-center gap-2 transition-colors ${
-                                    currentTab === "history" ? "text-slate-900 bg-slate-50" : "text-slate-600 hover:bg-slate-50"
+                                className={`w-full px-5 py-3 text-left flex items-center gap-3 transition-colors rounded-xl ${
+                                    currentTab === "history" ? "text-slate-900 bg-slate-50" : "text-slate-500 hover:bg-slate-50/50"
                                 }`}
                             >
-                                <History size={18} strokeWidth={currentTab === "history" ? 2.5 : 2} />
-                                <span className="text-sm font-medium">履歴</span>
+                                <History size={20} strokeWidth={currentTab === "history" ? 2 : 1.5} />
+                                <span className="text-sm tracking-[0.1em] font-light">履歴</span>
                             </button>
                             <button
                                 onClick={() => handleTabChange("profile")}
-                                className={`w-full px-4 py-2 text-left flex items-center gap-2 transition-colors ${
-                                    currentTab === "profile" ? "text-slate-900 bg-slate-50" : "text-slate-600 hover:bg-slate-50"
+                                className={`w-full px-5 py-3 text-left flex items-center gap-3 transition-colors rounded-xl ${
+                                    currentTab === "profile" ? "text-slate-900 bg-slate-50" : "text-slate-500 hover:bg-slate-50/50"
                                 }`}
                             >
-                                <User size={18} strokeWidth={currentTab === "profile" ? 2.5 : 2} />
-                                <span className="text-sm font-medium">プロフィール</span>
+                                <User size={20} strokeWidth={currentTab === "profile" ? 2 : 1.5} />
+                                <span className="text-sm tracking-[0.1em] font-light">プロフィール</span>
                             </button>
                         </motion.div>
                     )}
