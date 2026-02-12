@@ -209,14 +209,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       (profile?.id && ADMIN_UIDS.includes(profile.id))) && (
                       <button
                         onClick={onOpenAdmin}
-                        className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
+                        className="p-2 pb-0 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
                       >
                          <Settings size={28} strokeWidth={1.5} />
                       </button>
                     )}
                   <button
                     onClick={() => setIsEditingProfile(true)}
-                    className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
+                    className="p-2 pb-0 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
                   >
                      <Edit2 size={28} strokeWidth={1.5} />
                   </button>

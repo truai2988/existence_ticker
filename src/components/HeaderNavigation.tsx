@@ -19,10 +19,10 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
     return (
         <>
             {/* Desktop: Icon Navigation (md以上) - Scaled for Tablet */}
-            <nav className="hidden md:flex items-center gap-6">
+            <nav className="hidden md:flex items-end gap-6 h-12">
                 <button
                     onClick={() => onTabChange("home")}
-                    className={`p-3 transition-colors ${
+                    className={`px-2 pt-5 pb-0 transition-colors ${
                         currentTab === "home" ? "text-slate-900" : "text-slate-600 hover:text-slate-800"
                     }`}
                     aria-label="ホーム"
@@ -32,7 +32,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
 
                 <button
                     onClick={() => onTabChange("history")}
-                    className={`p-3 transition-colors ${
+                    className={`px-2 pt-5 pb-0 transition-colors ${
                         currentTab === "history" ? "text-slate-900" : "text-slate-600 hover:text-slate-800"
                     }`}
                     aria-label="履歴"
@@ -42,7 +42,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
 
                 <button
                     onClick={() => onTabChange("profile")}
-                    className={`p-3 transition-colors ${
+                    className={`px-2 pt-5 pb-0 transition-colors ${
                         currentTab === "profile" ? "text-slate-900" : "text-slate-600 hover:text-slate-800"
                     }`}
                     aria-label="プロフィール"
@@ -52,13 +52,13 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
             </nav>
 
             {/* Mobile: Hamburger Menu */}
-            <div className="md:hidden relative">
+            <div className="md:hidden flex h-12 items-end">
                 <button
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    className="p-2 text-slate-600 hover:text-slate-900 transition-colors"
+                    className="p-2 -mb-1 text-slate-600 hover:text-slate-900 transition-colors"
                     aria-label="メニュー"
                 >
-                    {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                    {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
 
                 <AnimatePresence>
