@@ -22,8 +22,8 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
     } = useWishes();
     
     const [activeTab, setActiveTab] = useState<TabType>('explore');
+    const [hasInitialized, setHasInitialized] = useState(false);
 
-    
     // 1. Explore (Active Global Feed)
     const exploreWishes = wishes.filter(w => {
         if (w.requester_id === currentUserId) return false;
@@ -43,6 +43,20 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
     const activeWishes = involvedActiveWishes.filter(w => {
         return w.helper_id === currentUserId && (w.status === 'in_progress' || w.status === 'review_pending');
     });
+
+    // Auto-select leftmost non-empty tab
+    React.useEffect(() => {
+        if (!hasInitialized && (exploreWishes.length > 0 || pendingWishes.length > 0 || activeWishes.length > 0)) {
+            if (exploreWishes.length > 0) {
+                setActiveTab('explore');
+            } else if (pendingWishes.length > 0) {
+                setActiveTab('pending');
+            } else if (activeWishes.length > 0) {
+                setActiveTab('active');
+            }
+            setHasInitialized(true);
+        }
+    }, [exploreWishes, pendingWishes, activeWishes, hasInitialized]);
 
     // Auto-Tab Switch Handler
     const handleActionComplete = (action: 'applied' | 'withdrawn' | 'approved' | 'cancelled' | 'resigned' | 'completed' | 'cleanup') => {

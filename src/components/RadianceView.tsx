@@ -20,11 +20,30 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
     } = useWishes();
     
     const [activeTab, setActiveTab] = useState<TabType>('active');
-    const [modalState, setModalState] = useState<ModalState>('create_wish');
+    const [modalState, setModalState] = useState<ModalState>('none');
+    const [hasInitialized, setHasInitialized] = useState(false);
 
     // Filter Logic
     const myActiveWishes = userActiveWishes.filter(w => w.status === 'open');
     const myOutboundWishes = userActiveWishes.filter(w => (w.status === 'in_progress' || w.status === 'review_pending'));
+
+    // Auto-select leftmost non-empty tab
+    React.useEffect(() => {
+        if (!hasInitialized && userActiveWishes.length > 0) {
+            if (myActiveWishes.length > 0) {
+                setActiveTab('active');
+                setModalState('none');
+            } else if (myOutboundWishes.length > 0) {
+                setActiveTab('outbound');
+                setModalState('none');
+            }
+            setHasInitialized(true);
+        } else if (!hasInitialized && userActiveWishes.length === 0) {
+            // Default to 'create_wish' if everything is empty
+            setModalState('create_wish');
+            setHasInitialized(true);
+        }
+    }, [userActiveWishes, myActiveWishes, myOutboundWishes, hasInitialized]);
 
 
     const handleActionComplete = (action: string) => {
