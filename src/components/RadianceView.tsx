@@ -67,7 +67,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                     </div>
                     <div className="flex items-center gap-2 mt-6">
                         {onTabChange && (
-                            <div className="shrink-0 mt-1">
+                            <div className="shrink-0">
                                 <HeaderNavigation 
                                     currentTab="give" 
                                     onTabChange={(tab: AppViewMode) => onTabChange(tab)} 
