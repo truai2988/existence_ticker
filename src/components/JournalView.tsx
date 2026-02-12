@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuthHook';
 import { db } from '../lib/firebase';
-import { collection, query, where, orderBy, limit, onSnapshot, getDoc, doc, Timestamp } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit, onSnapshot, Timestamp } from 'firebase/firestore';
 import { HeaderNavigation } from './HeaderNavigation';
-import { AppViewMode, Wish } from '../types';
-import { WishCard } from './WishCard';
-import { X, Sun, Heart, Sparkles, CheckCircle2, Archive, Slash } from 'lucide-react';
+import { AppViewMode } from '../types';
+import { Sun, Heart, Sparkles, CheckCircle2, Archive, Slash } from 'lucide-react';
 
 // Type Definition for our unified Transaction
 type TransactionLog = {
@@ -55,7 +54,6 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
   const { user } = useAuth();
   const [logs, setLogs] = useState<TransactionLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedWishId, setSelectedWishId] = useState<string | null>(null);
 
   useEffect(() => {
      if (!user || !db) return;
@@ -112,10 +110,6 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
 
    return (
     <div className="flex-1 flex flex-col w-full h-full relative">
-        {/* Wish Detail Modal Overlay */}
-        {selectedWishId && (
-            <WishViewerModal wishId={selectedWishId} onClose={() => setSelectedWishId(null)} currentUserId={user?.uid || ''} />
-        )}
         {/* Subtle Section Header with Navigation */}
         <div className="border-b border-slate-100/50">
             <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between flex-nowrap gap-2">
@@ -164,7 +158,6 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
                                 log={log} 
                                 index={index} 
                                 userId={user?.uid || ''} 
-                                onSelectWish={(id) => setSelectedWishId(id)}
                            />
                         ))
                     )}
@@ -178,13 +171,11 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
 const LogItem = ({ 
     log, 
     index, 
-    userId, 
-    onSelectWish 
+    userId 
 }: { 
     log: TransactionLog, 
     index: number, 
-    userId: string, 
-    onSelectWish: (id: string) => void 
+    userId: string 
 }) => {
     const isSender = log.sender_id === userId;
     const date = parseDate(log.created_at);
@@ -265,8 +256,7 @@ const LogItem = ({
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
-            onClick={() => log.wish_id && onSelectWish(log.wish_id)}
-            className={`flex items-start gap-3 relative group transition-all rounded-xl p-2 -ml-2 ${log.wish_id ? 'cursor-pointer hover:bg-white/40 active:scale-[0.98]' : ''}`}
+            className={`flex items-start gap-3 relative group transition-all rounded-xl p-2 -ml-2`}
         >
             <div className="w-12 pt-1 text-right shrink-0">
                 <span className="text-xs font-mono text-slate-400 block">{dateStr}</span>
@@ -306,73 +296,3 @@ const LogItem = ({
     );
 };
 
-// --- Wish Detail Modal (Internal) ---
-const WishViewerModal = ({ wishId, onClose, currentUserId }: { wishId: string, onClose: () => void, currentUserId: string }) => {
-    const [wish, setWish] = useState<Wish | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchWish = async () => {
-            if (!db) return;
-            try {
-                const snap = await getDoc(doc(db, 'wishes', wishId));
-                if (snap.exists()) {
-                    setWish({ id: snap.id, ...snap.data() } as Wish);
-                }
-            } catch (e) {
-                console.error("Failed to fetch wish", e);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchWish();
-    }, [wishId]);
-
-    // Lock body scroll
-    useEffect(() => {
-        document.body.style.overflow = 'hidden';
-        return () => { document.body.style.overflow = 'auto'; };
-    }, []);
-
-    return (
-        <div 
-            className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
-            onClick={onClose}
-        >
-            <motion.div 
-                initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                className="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto no-scrollbar shadow-2xl relative"
-                onClick={e => e.stopPropagation()}
-            >
-                {/* Header */}
-                <div className="sticky top-0 z-10 p-4 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-slate-50">
-                    <motion.span layoutId="modal-header-title" className="text-xs font-bold text-slate-400 tracking-[0.2em] uppercase pl-2">
-                        追憶の欠片 (Past Fragment)
-                    </motion.span>
-                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400">
-                        <X size={20} />
-                    </button>
-                </div>
-
-                <div className="p-2">
-                    {loading ? (
-                        <div className="h-40 flex items-center justify-center">
-                            <div className="w-6 h-6 border-2 border-slate-300 border-t-slate-800 rounded-full animate-spin"></div>
-                        </div>
-                    ) : wish ? (
-                        <WishCard 
-                            wish={wish} 
-                            currentUserId={currentUserId} 
-                            isReadOnly={true}
-                        />
-                    ) : (
-                        <div className="h-40 flex items-center justify-center text-slate-400 text-sm">
-                            記録が見つかりませんでした
-                        </div>
-                    )}
-                </div>
-            </motion.div>
-        </div>
-    );
-};
