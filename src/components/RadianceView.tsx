@@ -36,7 +36,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
         <div className="flex-1 flex flex-col w-full h-full">
             {/* View Title Area (Subtle) */}
             <div className="bg-white/50 border-b border-slate-100">
-                <div className="max-w-2xl mx-auto px-6 py-6 flex items-center justify-between">
+                <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between">
                     <div>
                         <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">
                             自分の願ったこと

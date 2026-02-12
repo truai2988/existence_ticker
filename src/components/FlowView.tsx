@@ -57,7 +57,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
         <div className="flex-1 flex flex-col w-full h-full animate-fade-in group/flow">
             {/* Subtle Section Header with Navigation */}
             <div className="bg-white/50 border-b border-slate-100">
-                <div className="max-w-2xl mx-auto px-6 py-6 flex items-center justify-between">
+                <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between">
                     <div>
                         <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900 flex items-center gap-2">
                             みんなの願い

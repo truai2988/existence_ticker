@@ -144,7 +144,7 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
         )}
 
         {/* 2. The Vessel (YinYang Coin) */}
-        <div className="relative w-[80%] max-w-[540px] aspect-square z-10">
+        <div className="relative w-[80%] md:w-[70%] lg:w-[45%] max-w-[540px] lg:max-w-[480px] max-h-[70vh] aspect-square z-10">
           <motion.div 
             className="absolute inset-0 rounded-full shadow-2xl shadow-slate-200/50 border-4 border-white overflow-hidden bg-white text-slate-900"
             // Breathing animation only when waiting for ritual
