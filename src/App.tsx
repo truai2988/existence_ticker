@@ -249,7 +249,7 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
                         <div className="flex flex-col items-center origin-center">
                           <motion.div className="flex flex-col-reverse items-center">
                             <Megaphone size={48} strokeWidth={2.5} className="mt-2 opacity-90" />
-                            <span className="text-3xl font-extrabold tracking-tight text-shadow-sm">願う</span>
+                            <span className="text-3xl font-extrabold tracking-tight text-shadow-sm">お願い</span>
                           </motion.div>
                         </div>
                     </motion.button>

@@ -259,7 +259,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     tap: { scale: 0.98 },
                   }}
                 >
-                  <span className="text-3xl font-extrabold tracking-tight">願う</span>
+                  <span className="text-3xl font-extrabold tracking-tight">お願い</span>
                   <Megaphone size={48} strokeWidth={2.5} className="mt-1" />
                 </motion.div>
               </motion.button>
