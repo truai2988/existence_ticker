@@ -100,7 +100,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                 </div>
 
                 {/* Right: Water Clock & Navigation */}
-                <div className="flex items-center gap-4 mt-6">
+                <div className="flex items-start gap-4">
                   {/* Water Clock Indicator (Lm Capacity) - Compact Visual Only */}
                   <div className="relative w-10 h-12 bg-slate-50 rounded-b-xl rounded-t-md overflow-hidden border border-slate-200 shadow-inner shrink-0">
                     {/* 1. Committed Lm (Bottom Layer - Frozen/Sediment) */}
@@ -132,11 +132,13 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                     <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent opacity-50 pointer-events-none" />
                   </div>
 
-                  {/* Navigation */}
-                  <HeaderNavigation
-                    currentTab={viewMode || "home"}
-                    onTabChange={onTabChange}
-                  />
+                  {/* Navigation - Pushed down to align with Location Baseline */}
+                  <div className="mt-6">
+                    <HeaderNavigation
+                      currentTab={viewMode || "home"}
+                      onTabChange={onTabChange}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
