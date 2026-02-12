@@ -1,10 +1,11 @@
 import React, { useState, useCallback } from "react";
-import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, ShieldOff, Trash2, Archive, Sparkles } from "lucide-react";
+import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, ShieldOff, Trash2, Archive, Sparkles, Droplets, Zap } from "lucide-react";
 import { useStats, MetabolismStatus } from "../hooks/useStats";
 import { db, auth } from "../lib/firebase";
 import { ADMIN_UIDS } from "../constants";
 import { UserProfile } from "../types";
 import { useMigration } from "../hooks/useMigration";
+import { calculateDecayedValue, toMilli, fromMilli } from "../logic/worldPhysics";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -746,6 +747,236 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                     <>
                                         <Sparkles size={18} className="group-hover:rotate-12 transition-transform" />
                                         <span>Run Journal Backfill</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="bg-slate-900 shadow-xl rounded-2xl p-6 border border-indigo-500/20 mb-6 font-sans mt-8">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                                <Archive size={20} />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-100 italic">Wish Crystallization</h2>
+                                <p className="text-xs text-slate-500 tracking-wider">完了した願いを「結晶化」して物理削除します</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <p className="text-sm text-slate-400 leading-relaxed border-l-2 border-indigo-500/30 pl-4 py-1">
+                                ステータスが「完了 (fulfilled/completed)」になっている願いをスキャンし、
+                                取引記録（メタデータ込み）が存在することを確認した上で、願いのカードを物理削除します。
+                            </p>
+
+                            <button
+                                onClick={async () => {
+                                    if (!window.confirm("結晶化クリーンアップ（物理削除）を実行しますか？\n\n完了済みの願いを取引記録へ完全移行し、カードを消去します。")) return;
+                                    
+                                    setIsCleaningUp(true);
+                                    setCleanupLog(prev => [...prev, `[${new Date().toLocaleTimeString()}] 結晶化クリーンアップ開始...`]);
+                                    
+                                    try {
+                                        if (!db) throw new Error("Database error");
+                                        const { collection, getDocs, query, where, doc, writeBatch, Timestamp, deleteField, getDoc } = await import("firebase/firestore");
+                                        
+                                        const wishesRef = collection(db, "wishes");
+                                        const q = query(wishesRef, where("status", "in", ["fulfilled", "completed", "cancelled", "expired", "interrupted"]));
+                                        const snap = await getDocs(q);
+                                        
+                                        if (snap.empty) {
+                                            setCleanupLog(prev => [...prev, "ℹ️ 処理対象の願いは見つかりませんでした。"]);
+                                            return;
+                                        }
+
+                                        setCleanupLog(prev => [...prev, `🔍 ${snap.size}件の終了済み願い（完了/取消/中断/期限切）を検出しました。`]);
+                                        
+                                        let successCount = 0;
+                                        const batchSize = 100;
+                                        
+                                        for (let i = 0; i < snap.docs.length; i += batchSize) {
+                                            const batch = writeBatch(db);
+                                            const chunk = snap.docs.slice(i, i + batchSize);
+                                            
+                                            for (const wishDoc of chunk) {
+                                                const wishData = wishDoc.data();
+                                                const wishId = wishDoc.id;
+                                                const status = wishData.status;
+                                                const requesterId = wishData.requester_id;
+                                                
+                                                const masterRef = doc(db, "users", requesterId);
+                                                const masterSnap = await getDoc(masterRef);
+                                                const isMasterMissing = !masterSnap.exists();
+
+                                                if (isMasterMissing || status === "fulfilled" || status === "completed" || status === "expired") {
+                                                    const txRef = collection(db, "transactions");
+                                                    const txQ = query(txRef, where("wish_id", "==", wishId));
+                                                    const actualTxSnap = await getDocs(txQ);
+
+                                                    if (actualTxSnap.empty) {
+                                                        const txId = `crystallize_${wishId}`;
+                                                        const newTxRef = doc(db, "transactions", txId);
+                                                        batch.set(newTxRef, {
+                                                            amount: wishData.val_at_fulfillment || wishData.cost || 0,
+                                                            timestamp: Timestamp.now(),
+                                                            created_at: wishData.cancelled_at || wishData.fulfilled_at || wishData.created_at || Timestamp.now(),
+                                                            type: isMasterMissing ? "WISH_CANCELLED" : (status === "expired" ? "WISH_EXPIRED" : "WISH_FULFILLMENT"),
+                                                            sub_type: "CRYSTALLIZED_BY_ADMIN",
+                                                            wish_id: wishId,
+                                                            wish_title: wishData.content,
+                                                            sender_id: requesterId,
+                                                            sender_name: wishData.requester_name || "Anonymous",
+                                                            description: isMasterMissing ? "master_absent" : "finalized_cleanup"
+                                                        });
+                                                    }
+                                                    batch.delete(wishDoc.ref);
+                                                    successCount++;
+                                                    setCleanupLog(prev => [...prev, `💎 結晶化: ${isMasterMissing ? '主不在のため' : '完了済のため'} 「${wishData.content.slice(0,10)}...」を昇華しました。`]);
+                                                } else if (status === "interrupted" || status === "cancelled") {
+                                                    const isHelperExit = wishData.cancel_reason === "helper_deleted" || 
+                                                                        wishData.cancel_reason === "helper_interruption" ||
+                                                                        !wishData.cancel_reason; 
+
+                                                    if (isHelperExit) {
+                                                        batch.update(wishDoc.ref, {
+                                                            status: "open",
+                                                            helper_id: deleteField(),
+                                                            helper_name: deleteField(),
+                                                            helper_contact_email: deleteField(),
+                                                            accepted_at: deleteField(),
+                                                            system_note: "お相手の退会に伴い、この願いは再び世界に放流されました。"
+                                                        });
+                                                        successCount++;
+                                                        setCleanupLog(prev => [...prev, `♻️ 再放流: 助け手不在のため願い「${wishData.content.slice(0,10)}...」を掲示板に戻しました。`]);
+                                                    } else {
+                                                        batch.delete(wishDoc.ref);
+                                                        successCount++;
+                                                        setCleanupLog(prev => [...prev, `💎 結晶化: 撤回された願い 「${wishData.content.slice(0,10)}...」を整理しました。`]);
+                                                    }
+                                                }
+                                            }
+                                            await batch.commit();
+                                        }
+
+                                        setCleanupLog(prev => [...prev, `✅ 完了: ${successCount}件の願いを整理しました。`]);
+                                        alert(`✅ 結晶化完了: ${successCount}件のデータを最適化しました。`);
+                                    } catch (e: unknown) {
+                                        console.error(e);
+                                        setCleanupLog(prev => [...prev, `❌ エラー: ${e instanceof Error ? e.message : String(e)}`]);
+                                    } finally {
+                                        setIsCleaningUp(false);
+                                    }
+                                }}
+                                disabled={isCleaningUp}
+                                className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 group disabled:opacity-50"
+                            >
+                                {isCleaningUp ? (
+                                    <Activity className="animate-spin" size={18} />
+                                ) : (
+                                    <>
+                                        <Sparkles size={18} />
+                                        <span>Run Crystallization Cleanup</span>
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* --- SANITY CHECK: VESSEL PURIFICATION --- */}
+                    <div className="bg-slate-900 shadow-xl rounded-2xl p-6 border border-cyan-500/20 mb-6 font-sans mt-8">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-400">
+                                <Droplets size={20} />
+                            </div>
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-100 italic">Vessel Purification</h2>
+                                <p className="text-xs text-slate-500 tracking-wider">予約額（committed_lm）の整合性を監査・修復します</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <p className="text-sm text-slate-400 leading-relaxed border-l-2 border-cyan-500/30 pl-4 py-1">
+                                全ユーザーの committed_lm と、実在するアクティブな「願い」の合計額を照合します。
+                                1 mLm 以上の乖離がある場合、最新の減価状態に基づいて器の予約状況を正常化します。
+                            </p>
+
+                            <button
+                                onClick={async () => {
+                                    if (!db) return;
+                                    if (!window.confirm("全データの整合性をチェックし、不均衡があれば修復します。よろしいですか？")) return;
+                                    
+                                    setIsCleaningUp(true);
+                                    setCleanupLog(["🚿 器の洗浄を開始します..."]);
+                                    
+                                    try {
+                                        const { collection, getDocs, writeBatch, serverTimestamp } = await import("firebase/firestore");
+                                        
+                                        // 1. Get all active wishes
+                                        const wishesSnap = await getDocs(collection(db, "wishes"));
+                                        const activeStatuses = ["open", "in_progress", "review_pending"];
+                                        const activeWishes = wishesSnap.docs.filter(d => activeStatuses.includes(d.data().status));
+
+                                        // 2. Sum up by requester
+                                        const userReservationMap = new Map<string, number>(); // milli-Lm
+                                        for (const wDoc of activeWishes) {
+                                            const wData = wDoc.data();
+                                            const rId = wData.requester_id;
+                                            const decayedWishMilli = toMilli(calculateDecayedValue(wData.cost || 0, wData.created_at));
+                                            userReservationMap.set(rId, (userReservationMap.get(rId) || 0) + decayedWishMilli);
+                                        }
+
+                                        // 3. Check all users
+                                        const usersSnap = await getDocs(collection(db, "users"));
+                                        let fixCount = 0;
+                                        const batchSplitLimit = 100;
+                                        
+                                        for (let i = 0; i < usersSnap.docs.length; i += batchSplitLimit) {
+                                            const batch = writeBatch(db);
+                                            const slice = usersSnap.docs.slice(i, i + batchSplitLimit);
+                                            
+                                            for (const uDoc of slice) {
+                                                const uData = uDoc.data();
+                                                const uId = uDoc.id;
+                                                
+                                                const expectedMilli = userReservationMap.get(uId) || 0;
+                                                const currentCommittedMilli = toMilli(calculateDecayedValue(uData.committed_lm || 0, uData.last_updated));
+
+                                                if (Math.abs(expectedMilli - currentCommittedMilli) > 1) {
+                                                    const currentBalanceMilli = toMilli(calculateDecayedValue(uData.balance || 0, uData.last_updated));
+                                                    
+                                                    batch.update(uDoc.ref, {
+                                                        balance: fromMilli(currentBalanceMilli),
+                                                        committed_lm: fromMilli(expectedMilli),
+                                                        last_updated: serverTimestamp(),
+                                                        system_note: "器の整合性が自動修復されました。"
+                                                    });
+                                                    fixCount++;
+                                                    setCleanupLog(prev => [...prev, `🔧 修復: ${uData.name || uId} (${fromMilli(currentCommittedMilli)} → ${fromMilli(expectedMilli)} Lm)`]);
+                                                }
+                                            }
+                                            await batch.commit();
+                                        }
+
+                                        setCleanupLog(prev => [...prev, `✅ 完了: ${fixCount}名の器を浄化しました。`]);
+                                        alert(`✅ 整合性チェック完了: ${fixCount}名の不一致を修復しました。`);
+
+                                    } catch (e: unknown) {
+                                        console.error(e);
+                                        setCleanupLog(prev => [...prev, `❌ エラー: ${e instanceof Error ? e.message : String(e)}`]);
+                                    } finally {
+                                        setIsCleaningUp(false);
+                                    }
+                                }}
+                                disabled={isCleaningUp}
+                                className="w-full py-4 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 group disabled:opacity-50"
+                            >
+                                {isCleaningUp ? (
+                                    <Activity className="animate-spin" size={18} />
+                                ) : (
+                                    <>
+                                        <Zap size={18} />
+                                        <span>Run Sanity Check & Fix</span>
                                     </>
                                 )}
                             </button>

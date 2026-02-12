@@ -10,7 +10,7 @@ import {
     updateEmail,
     reauthenticateWithCredential
 } from 'firebase/auth';
-import { doc, serverTimestamp, runTransaction, increment, collection, query, where, getDocs, getDoc, QueryDocumentSnapshot, DocumentData, FieldValue } from 'firebase/firestore';
+import { doc, serverTimestamp, runTransaction, increment, collection, query, where, getDocs, getDoc, QueryDocumentSnapshot, DocumentData, deleteField } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { useAuthContext } from '../contexts/AuthContextDefinition';
 import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS } from '../logic/worldPhysics';
@@ -256,13 +256,8 @@ export const useAuth = () => {
 
                 // --- ALL READS COMPLETE. STARTING WRITES ---
 
-                let requesterBalance = 0;
-                let lastUpdated = serverTimestamp();
-
                 if (userSnap.exists()) {
                     const uData = userSnap.data();
-                    requesterBalance = uData.balance || 0;
-                    lastUpdated = uData.last_updated;
 
                     // STEP 0: INVITATION CODE RECYCLING
                     const usedInvitationCode = uData.used_invitation_code;
@@ -273,7 +268,6 @@ export const useAuth = () => {
                             used_by: null,
                             used_at: null
                         });
-                        console.log(`Invitation code "${usedInvitationCode}" released for reuse.`);
                     }
 
                     // STEP 0.5: DECREMENT LOCATION STATS
@@ -281,139 +275,136 @@ export const useAuth = () => {
                         const cityKey = `${uData.location.prefecture}_${uData.location.city}`;
                         const statRef = doc(db!, 'location_stats', cityKey);
                         transaction.set(statRef, { count: increment(-1) }, { merge: true });
-                        console.log(`Location stats decremented for ${cityKey}`);
                     }
                 }
 
-                const decayedBalance = calculateDecayedValue(requesterBalance, lastUpdated);
-                let currentPoolMilli = toMilli(decayedBalance);
+                // === LAW 1: MASTER'S ABSENCE (Requester Deletes Account) ===
+                // If the owner is gone, the wish is CRYSTALIZED (Deleted).
+                let totalDecayMilli = 0;
 
-                // A. Process Requester Wishes (Interruption + Atomic Lm Transfer to Helper)
-                for (const { doc: wishDoc, data: wishData } of activeWishes) {
-                    const helperId = wishData.helper_id;
-                    if (helperMap.has(helperId)) {
-                        const helperSnap = helperMap.get(helperId);
-                        if (helperSnap.exists()) {
-                            const hData = helperSnap.data();
-                            const hDecayedBalance = calculateDecayedValue(hData.balance || 0, hData.last_updated);
-                            const hName = hData.name || "Helper";
+                // User profile decay
+                if (userSnap.exists()) {
+                    const uData = userSnap.data();
+                    const uBalance = uData.balance || 0;
+                    const uCommitted = uData.committed_lm || 0;
+                    const uLastUpdated = uData.last_updated;
 
-                            const bounty = wishData.cost || 0;
-                            const wishDecayedValue = calculateDecayedValue(bounty, wishData.created_at);
-
-                            const actualPaymentMilli = Math.min(toMilli(wishDecayedValue), currentPoolMilli);
-                            const actualPayment = fromMilli(actualPaymentMilli);
-                            currentPoolMilli -= actualPaymentMilli;
-
-                            const hNewMilli = toMilli(hDecayedBalance) + actualPaymentMilli;
-                            const hCappedMilli = Math.min(hNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
-
-                            transaction.update(helperSnap.ref, {
-                                balance: fromMilli(hCappedMilli),
-                                last_updated: serverTimestamp()
-                            });
-
-                            const txPropRef = doc(collection(db!, 'transactions'));
-                            transaction.set(txPropRef, {
-                                type: 'COMPENSATION',
-                                amount: actualPayment,
-                                sender_id: user.uid,
-                                sender_name: "退会された方", // Masked in log for Scenario B
-                                recipient_id: helperId,
-                                recipient_name: hName,
-                                wish_title: wishData.content,
-                                wish_id: wishDoc.id,
-                                created_at: serverTimestamp(),
-                                description: "account_deleted"
-                            });
-
-                            // Scenario B: Requester deletion
-                            transaction.update(wishDoc.ref, {
-                                status: "interrupted",
-                                requester_name: "退会された方",
-                                cancel_reason: "account_deleted",
-                                cancelled_at: serverTimestamp(),
-                                val_at_fulfillment: actualPayment // Record the compensation
-                            });
-                        }
-                    }
+                    const uBalanceDecayedMilli = toMilli(calculateDecayedValue(uBalance, uLastUpdated));
+                    const uCommittedDecayedMilli = toMilli(calculateDecayedValue(uCommitted, uLastUpdated));
+                    
+                    totalDecayMilli += (toMilli(uBalance) - uBalanceDecayedMilli);
+                    totalDecayMilli += (toMilli(uCommitted) - uCommittedDecayedMilli);
                 }
 
-                // Process OTHER requester wishes (Open/Expired/etc.) - Status to interrupted or just mask?
-                // For simplicity and historical record, let's mark all as interrupted and mask.
                 for (const wishDoc of snapRequester.docs) {
-                     const wishData = wishDoc.data();
-                     // Only update if not already processed in activeWishes loop
-                     if (!activeWishes.some(aw => aw.doc.id === wishDoc.id)) {
-                         transaction.update(wishDoc.ref, {
-                             status: wishData.status === 'open' ? 'interrupted' : wishData.status,
-                             requester_name: "退会された方",
-                             requester_id: user.uid, // Keep ID for indexing but UI hides it
-                             cancelled_at: serverTimestamp()
-                         });
-                     }
+                    const wishData = wishDoc.data();
+                    const wishInitialCost = wishData.cost || 0;
+                    const wishDecayedMilli = toMilli(calculateDecayedValue(wishInitialCost, wishData.created_at));
+                    totalDecayMilli += (toMilli(wishInitialCost) - wishDecayedMilli);
+                    
+                    // Compensation if helper was in progress
+                    if ((wishData.status === 'in_progress' || wishData.status === 'review_pending') && wishData.helper_id) {
+                         const helperSnap = helperMap.get(wishData.helper_id);
+                         if (helperSnap && helperSnap.exists()) {
+                             const hData = helperSnap.data();
+                             const hBalance = hData.balance || 0;
+                             const hLastUpdated = hData.last_updated;
+                             const hDecayedBalanceMilli = toMilli(calculateDecayedValue(hBalance, hLastUpdated));
+                             totalDecayMilli += (toMilli(hBalance) - hDecayedBalanceMilli);
+                             
+                             const uData = userSnap.data();
+                             const uDecayedBalanceMilli = toMilli(calculateDecayedValue(uData?.balance || 0, uData?.last_updated));
+                             
+                             const actualPaymentMilli = Math.min(wishDecayedMilli, uDecayedBalanceMilli);
+                             const actualPayment = fromMilli(actualPaymentMilli);
+
+                             // Overflow handling for helper
+                             const hRawNewMilli = hDecayedBalanceMilli + actualPaymentMilli;
+                             const hCappedMilli = Math.min(hRawNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
+                             const hOverflowMilli = Math.max(0, hRawNewMilli - WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
+                             totalDecayMilli += hOverflowMilli;
+
+                             transaction.update(helperSnap.ref, {
+                                 balance: fromMilli(hCappedMilli),
+                                 pending_interruption_notification: "依頼主様がアプリを離れられたため（退会）、感謝のLmが補償として送り届けられました。",
+                                 last_updated: serverTimestamp()
+                             });
+
+                             // Log compensation before deletion (Crystallized names)
+                             const txPropRef = doc(collection(db!, 'transactions'));
+                             const currentUData = userSnap.data();
+                             const currentUName = currentUData?.name || "退会した奏者";
+
+                             transaction.set(txPropRef, {
+                                 type: 'COMPENSATION',
+                                 amount: actualPayment,
+                                 sender_id: user.uid,
+                                 sender_name: currentUName, 
+                                 recipient_id: wishData.helper_id,
+                                 recipient_name: hData.name || "助け手",
+                                 wish_title: wishData.content,
+                                 wish_id: wishDoc.id,
+                                 created_at: serverTimestamp(),
+                                 description: "依頼主が退会されたため、これまでの感謝としてLmが届けられました。"
+                             });
+                         }
+                    }
+
+                    // PHYSICAL DELETION (Crystallyzation)
+                    transaction.delete(wishDoc.ref);
                 }
 
-                // B. Process Involved Wishes (Helper deletion Scenario)
+                // Global Stats Update
+                if (totalDecayMilli > 0) {
+                    const globalStatsRef = doc(db!, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
+                    transaction.set(globalStatsRef, {
+                        total_decayed_stats: increment(fromMilli(totalDecayMilli)),
+                        updated_at: serverTimestamp()
+                    }, { merge: true });
+                }
+
+                // === LAW 2: WISH VALIDITY (Helper Deletes Account) ===
+                // If the requester is still here but the helper leaves, the wish is RECAST (Open).
                 for (const helpDoc of snapInvolved.docs) {
                     const wData = helpDoc.data();
                     
-                    // Always remove from applicant list
+                    // Remove from applicants
                     const updatedApplicants = (wData.applicants || []).filter((a: { id: string }) => a.id !== user.uid);
                     const updatedApplicantIds = (wData.applicant_ids || []).filter((id: string) => id !== user.uid);
 
-                    const updates: {
-                        applicants: { id: string; name: string; trust_score?: number }[];
-                        applicant_ids: string[];
-                        updated_at: FieldValue;
-                        status?: string;
-                        helper_name?: string;
-                        cancel_reason?: string;
-                        cancelled_at?: FieldValue;
-                    } = {
+                    const updates: Record<string, unknown> = {
                         applicants: updatedApplicants,
                         applicant_ids: updatedApplicantIds,
                         updated_at: serverTimestamp(),
                     };
 
-                    // Scenario B: Helper deletion (If active worker)
-                    if (wData.helper_id === user.uid && (wData.status === 'in_progress' || wData.status === 'review_pending')) {
-                        updates.status = 'interrupted';
-                        updates.helper_name = "退会された方";
-                        updates.cancel_reason = "helper_deleted";
-                        updates.cancelled_at = serverTimestamp();
-                        
-                        // Atomically release requester's committed_lm
-                        const requesterSnap = originalRequesterMap.get(wData.requester_id);
-                        if (requesterSnap && requesterSnap.exists()) {
-                            const rData = requesterSnap.data();
-                            const rLastUpdated = rData.last_updated;
-                            const rCommittedLm = rData.committed_lm || 0;
-                            const wishCost = wData.cost || 0;
+                    // If user was the active helper, reset wish to open
+                    if (wData.helper_id === user.uid) {
+                        updates.status = 'open';
+                        updates.helper_id = deleteField();
+                        updates.helper_name = deleteField();
+                        updates.accepted_at = deleteField();
+                        updates.system_note = "お相手の退会に伴い、この願いは再び募集へ戻りました。";
 
-                            transaction.update(requesterSnap.ref, {
-                                committed_lm: Math.max(0, calculateDecayedValue(rCommittedLm, rLastUpdated) - wishCost),
-                                last_updated: serverTimestamp()
-                            });
-
-                            // Log Transaction for Scenario B (Helper deletion)
-                            const txRef = doc(collection(db!, 'transactions'));
-                            transaction.set(txRef, {
-                                type: 'WISH_INTERRUPTED',
-                                amount: 0,
-                                sender_id: user.uid,
-                                sender_name: "退会された方",
-                                recipient_id: wData.requester_id,
-                                recipient_name: rData.name || "Requester",
-                                wish_title: wData.content,
-                                wish_id: helpDoc.id,
-                                created_at: serverTimestamp(),
-                                description: "お相手が退会されたため、願いは終了となりました。予約していたLmは、あなたの手元に戻りました。"
-                            });
-                        }
+                        // Notify Requester
+                        const rRef = doc(db!, 'users', wData.requester_id);
+                        transaction.update(rRef, {
+                            pending_interruption_notification: "助け手様がアプリを離れられたため（退会）、願いが再び募集に戻りました。Lmは安全です。",
+                            last_updated: serverTimestamp()
+                        });
                     }
 
                     transaction.update(helpDoc.ref, updates);
+                }
+
+                // C. Delete History Subcollection
+                for (const historyDoc of historySnap.docs) {
+                    transaction.delete(historyDoc.ref);
+                }
+
+                // D. Delete Profile
+                if (userSnap.exists()) {
+                    transaction.delete(userRef);
                 }
 
                 // C. Delete History Subcollection

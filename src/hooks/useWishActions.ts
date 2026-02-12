@@ -88,6 +88,11 @@ export const useWishActions = () => {
         
         const availableLm = decayedBalance - decayedCommittedLm;
 
+        // Gravity Stats: Sum up lost Lm
+        const balanceDecayMilli = toMilli(currentBalance) - toMilli(decayedBalance);
+        const committedDecayMilli = toMilli(currentCommittedLm) - toMilli(decayedCommittedLm);
+        const totalDecayMilli = Math.max(0, balanceDecayMilli + committedDecayMilli);
+
         if (availableLm < bounty) {
           throw new Error(
             `手持ちが不足しています (Available: ${Math.floor(availableLm)}, Required: ${bounty}) - 約束中の光を考慮済み`,
@@ -101,6 +106,15 @@ export const useWishActions = () => {
           created_contracts: increment(1),
           last_updated: serverTimestamp(),
         });
+
+        // Log Global Stats
+        if (totalDecayMilli > 0) {
+            const globalStatsRef = doc(db!, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
+            transaction.set(globalStatsRef, {
+                total_decayed_stats: increment(fromMilli(totalDecayMilli)),
+                updated_at: serverTimestamp()
+            }, { merge: true });
+        }
 
         // 3. Create Wish
         transaction.set(wishRef, {
@@ -293,23 +307,24 @@ export const useWishActions = () => {
 
           if (isRequesterCanceling) {
             // === REQUESTER CANCELS: Requester pays helper ===
-            // === Phase 2: Use explicit committed_lm ===
-            // Available = Balance - Committed (簡潔！)
-            const availableForThisPayment = Math.max(0, requesterCurrentReal - rCommittedLm + wishDecayedValue);
-            // Note: +wishDecayedValue because this wish is still in committed, but we're about to cancel it
+            // mLM Precision arithmetic
+            const rRealMilli = toMilli(requesterCurrentReal);
+            const rCommittedMilli = toMilli(calculateDecayedValue(rCommittedLm, rLastUpdated));
+            const wishDecayedMilli = toMilli(wishDecayedValue);
 
-            // 5. Determine Actual Payment (NO INFLATION RULE)
-            // "You cannot give what you do not have (after honoring other promises)."
-            const actualPayment = Math.min(availableForThisPayment, wishDecayedValue);
-
+            const availableForThisPaymentMilli = Math.max(0, rRealMilli - rCommittedMilli + wishDecayedMilli);
+            const actualPaymentMilli = Math.min(availableForThisPaymentMilli, wishDecayedMilli);
+            
+            // Gravity Calculation (Naturally decayed Lm)
+            const rDecayMilli = toMilli(rBalance) - rRealMilli;
+            const cDecayMilli = toMilli(rCommittedLm) - rCommittedMilli;
+            
             // === ATOMIC UPDATE: Balance - Payment, Committed - Reservation ===
-            // 保存則: Available = Balance - Committed
-            // Available は変わらない（両方同じ額減らす）
             transaction.update(requesterRef, {
-              balance: requesterCurrentReal - actualPayment,
-              committed_lm: Math.max(0, calculateDecayedValue(rCommittedLm, rLastUpdated) - (wishData.cost || 0)), // 減価後の予約額から解放
-              consecutive_completions: 0, // Reset Streak
-              has_cancellation_history: true, // Mark of Impurity
+              balance: fromMilli(rRealMilli - actualPaymentMilli),
+              committed_lm: fromMilli(Math.max(0, rCommittedMilli - wishDecayedMilli)), 
+              consecutive_completions: 0, 
+              has_cancellation_history: true, 
               last_updated: serverTimestamp(),
             });
 
@@ -320,119 +335,122 @@ export const useWishActions = () => {
             const hCurrentDecayedLm = calculateDecayedValue(hBalanceLm, hLastUpdated);
 
             const hCurrentDecayedMilli = toMilli(hCurrentDecayedLm);
-            const actualPaymentMilli = toMilli(actualPayment);
             const hRawNewMilli = hCurrentDecayedMilli + actualPaymentMilli;
 
             const hCappedMilli = Math.min(hRawNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
             const hOverflowMilli = Math.max(0, hRawNewMilli - WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
+            const hDecayMilli = toMilli(hBalanceLm) - hCurrentDecayedMilli;
 
             transaction.update(helperRef, {
               balance: fromMilli(hCappedMilli),
               last_updated: serverTimestamp(),
             });
 
-            // Solar Return: Add overflow to global pool
-            if (hOverflowMilli > 0) {
-              const globalStatsRef = doc(db!, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
-              transaction.set(globalStatsRef, {
-                  total_overflow_pool: increment(hOverflowMilli),
-                  updated_at: serverTimestamp()
-              }, { merge: true });
-              console.log(`[Solar Return] Compensation Overflow detected: ${fromMilli(hOverflowMilli)} Lm returned to the Sun.`);
+            // Log Global Stats: Naturally decayed Lm + Overflow to global metabolism
+            const totalDecayMilli = Math.max(0, rDecayMilli + cDecayMilli + hDecayMilli + hOverflowMilli);
+            const globalStatsRef = doc(db!, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
+            transaction.set(globalStatsRef, {
+                total_decayed_stats: increment(fromMilli(totalDecayMilli)),
+                updated_at: serverTimestamp()
+            }, { merge: true });
+
+            // 5. Enforce Social Constraints (The Crack)
+            if (isRequesterCanceling) {
+                transaction.update(requesterRef, {
+                    consecutive_completions: 0,
+                    has_cancellation_history: true,
+                    last_updated: serverTimestamp(),
+                });
+            } else {
+                transaction.update(helperRef, {
+                    consecutive_completions: 0,
+                    has_cancellation_history: true,
+                    last_updated: serverTimestamp(),
+                });
             }
 
-            // 6. Log Global Transaction
+            // 6. Care for the Left-Behind: Set Notification
+            const partnerRef = isRequesterCanceling ? helperRef : requesterRef;
+            const notificationMsg = isRequesterCanceling 
+                ? "依頼主様のご都合により願いが中断されました。しるしとしてLmが補償されています。" 
+                : "助け手様のご都合により願いが中断されました。預けていたLmが返還されています。";
+            
+            transaction.update(partnerRef, {
+                pending_interruption_notification: notificationMsg,
+                last_updated: serverTimestamp()
+            });
+
+            // 7. Log Global Transaction (Crystallization)
             if (!txCheck.exists()) {
                 transaction.set(txRef, {
                   type: "COMPENSATION",
-                  amount: actualPayment, // Log actual transfer
+                  amount: fromMilli(actualPaymentMilli), 
                   created_at: serverTimestamp(),
                   
-                  // Context
+                  // Crystallized Names (No dynamic lookup)
                   sender_id: wishData.requester_id,
-                  sender_name: isRequesterCanceling ? "私" : rName,
+                  sender_name: isRequesterCanceling ? rName : rName, 
                   recipient_id: wishData.helper_id,
-                  recipient_name: !isRequesterCanceling ? "私" : hName,
+                  recipient_name: hName,
+                  
                   wish_title: wishData.content,
                   wish_id: wishId,
                   description: isRequesterCanceling 
-                      ? "私が中断したため、誠実のしるしをお渡ししました" 
-                      : "相手が中断したため、誠実のしるしを受け取りました"
+                      ? "依頼主が中断したため、誠実のしるしをお渡ししました" 
+                      : "助け手が中断したため、誠実のしるしを受け取りました"
                 });
             }
 
-            // 7. Update Wish Status
-            transaction.update(wishRef, {
-              status: "cancelled",
-              cancel_reason: "compensatory_cancellation",
-              cancelled_at: serverTimestamp(),
-              val_at_fulfillment: actualPayment, // Record what was ACTUALLY paid
-            });
+            // 8. CRYSTALLIZE Wish (Physical Deletion)
+            transaction.delete(wishRef);
           } else {
-            // === HELPER CANCELS: Helper pays requester ===
+            // === HELPER CANCELS: Purification (No Penalty, Just Recast) ===
             const hData = helperDoc.data();
             const hBalance = hData?.balance || 0;
             const hLastUpdated = hData?.last_updated;
-            const helperCurrentReal = calculateDecayedValue(hBalance, hLastUpdated);
-
-            // Helper has no reservation for this wish, so available = balance
-            const availableForThisPayment = Math.max(0, helperCurrentReal);
-            const actualPayment = Math.min(availableForThisPayment, wishDecayedValue);
-
-            // Update helper: pay compensation
+            const hCurrentDecayedMilli = toMilli(calculateDecayedValue(hBalance, hLastUpdated));
+            
+            // 1. Maintain Helper (No Lateral Penalty)
             transaction.update(helperRef, {
-              balance: helperCurrentReal - actualPayment,
+              balance: fromMilli(hCurrentDecayedMilli),
+              consecutive_completions: 0, // Reputation penalty only
               last_updated: serverTimestamp(),
             });
 
-            // Update requester: receive compensation + release reservation (with Overflow/Solar Return logic)
-            const rCurrentDecayedMilli = toMilli(requesterCurrentReal);
-            const actualPaymentMilli = toMilli(actualPayment);
-            const rRawNewMilli = rCurrentDecayedMilli + actualPaymentMilli;
-
-            const rCappedMilli = Math.min(rRawNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
-            const rOverflowMilli = Math.max(0, rRawNewMilli - WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
-
+            // 2. Maintain Requester (Reservations stay for Re-broadcast)
+            const rRealMilli = toMilli(requesterCurrentReal);
+            const rCommittedMilli = toMilli(calculateDecayedValue(rCommittedLm, rLastUpdated));
+            
             transaction.update(requesterRef, {
-              balance: fromMilli(rCappedMilli),
-              committed_lm: Math.max(0, calculateDecayedValue(rCommittedLm, rLastUpdated) - (wishData.cost || 0)), // 減価後の予約額から解放
+              balance: fromMilli(rRealMilli),
+              committed_lm: fromMilli(rCommittedMilli),
               last_updated: serverTimestamp(),
             });
 
-            // Solar Return: Add overflow to global pool
-            if (rOverflowMilli > 0) {
-              const globalStatsRef = doc(db!, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
-              transaction.set(globalStatsRef, {
-                  total_overflow_pool: increment(rOverflowMilli),
-                  updated_at: serverTimestamp()
-              }, { merge: true });
-              console.log(`[Solar Return] Compensation Overflow detected: ${fromMilli(rOverflowMilli)} Lm returned to the Sun.`);
-            }
+            // 3. Log Gravity (Naturally decayed Lm)
+            const rDecayMilli = toMilli(rBalance) - rRealMilli;
+            const cDecayMilli = toMilli(rCommittedLm) - rCommittedMilli;
+            const hDecayMilli = toMilli(hBalance) - hCurrentDecayedMilli;
+            const totalDecayMilli = Math.max(0, rDecayMilli + cDecayMilli + hDecayMilli);
 
-            // Log transaction: helper → requester
-            if (!txCheck.exists()) {
-                transaction.set(txRef, {
-                  type: "COMPENSATION",
-                  amount: actualPayment,
-                  created_at: serverTimestamp(),
-                  sender_id: wishData.helper_id,
-                  sender_name: !isRequesterCanceling ? "私" : hName,
-                  recipient_id: wishData.requester_id,
-                  recipient_name: isRequesterCanceling ? "私" : rName,
-                  wish_title: wishData.content,
-                  wish_id: wishId,
-                  description: !isRequesterCanceling
-                      ? "私が辞退したため、願いから離れました"
-                      : "相手が辞退したため、予約分が手元に戻りました"
-                });
-            }
+            const globalStatsRef = doc(db!, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
+            transaction.set(globalStatsRef, {
+                total_decayed_stats: increment(fromMilli(totalDecayMilli)),
+                updated_at: serverTimestamp()
+            }, { merge: true });
 
-            // Update Wish Status
+            // 4. No COMPENSATION log here per "Personal Logic Purification"
+            
+            // === HELPER CANCELS: RECAST Wish (Re-broadcast) ===
             transaction.update(wishRef, {
-              status: "cancelled",
-              cancel_reason: "helper_cancellation",
+              status: "open",
+              cancel_reason: "helper_interruption",
               cancelled_at: serverTimestamp(),
-              val_at_fulfillment: actualPayment,
+              helper_id: deleteField(),
+              helper_name: deleteField(),
+              helper_contact_email: deleteField(),
+              accepted_at: deleteField(),
+              system_note: "お相手の事情により、願いが再度募集されています。"
             });
           }
         } else {
@@ -453,22 +471,19 @@ export const useWishActions = () => {
           const currentReal = calculateDecayedValue(rBalance, rLastUpdated);
           
           // === ATOMIC UPDATE: Committed - Reservation ===
-          // Balance は変わらない（支払いなし）
-          // Committed を減らすことで、Available が増える
+          const rBalanceMilli = toMilli(currentReal);
+          const rCommittedMilli = toMilli(calculateDecayedValue(rCommittedLm, rLastUpdated));
+          const wishDecayedMilli = toMilli(calculateDecayedValue(wishData.cost || 0, wishData.created_at));
+
           transaction.update(requesterRef, {
-            balance: currentReal, // 減価適用後の値をセット
-            committed_lm: Math.max(0, calculateDecayedValue(rCommittedLm, rLastUpdated) - (wishData.cost || 0)), // 減価後の予約額から解放
-            last_updated: serverTimestamp(), // タイムスタンプ更新
+            balance: fromMilli(rBalanceMilli), 
+            committed_lm: fromMilli(Math.max(0, rCommittedMilli - wishDecayedMilli)), 
+            last_updated: serverTimestamp(),
           });
         }
 
-        // 願いを削除ではなく、cancelled に変更（履歴保持）
-        transaction.update(wishRef, {
-          status: "cancelled",
-          cancel_reason: "user_cancellation",
-          cancelled_at: serverTimestamp(),
-          val_at_fulfillment: 0, // No payment occurred
-        });
+        // CRYSTALLIZE Wish (Physical Deletion)
+        transaction.delete(wishRef);
 
         // === 写経ロジック：Journalにamount:0で記録 ===
         const txId = `cancel_${wishId}`;
@@ -521,10 +536,17 @@ export const useWishActions = () => {
             (id: string) => id !== user.uid
         );
 
-        // 2. Reset Helper Stats (Purification/Penalty)
-        // consecutive_completions = 0 -> Rank Deprivation
+        // 2. Reset Helper Stats (Social Constraint / The Crack)
         transaction.update(userRef, {
             consecutive_completions: 0,
+            has_cancellation_history: true,
+            last_updated: serverTimestamp()
+        });
+
+        // Notify Requester
+        const rRef = doc(db!, 'users', wishData.requester_id);
+        transaction.update(rRef, {
+            pending_interruption_notification: "助け手様が辞退されたため、願いが再び募集に戻りました。Lmは安全に守られています。",
             last_updated: serverTimestamp()
         });
 
@@ -535,6 +557,7 @@ export const useWishActions = () => {
             applicant_ids: updatedApplicantIds,
             helper_id: deleteField(),
             accepted_at: deleteField(),
+            system_note: "お相手の事情により、願いが再度募集されています。"
         });
       });
 
@@ -645,6 +668,9 @@ export const useWishActions = () => {
         
         const isBankruptcy = paymentAmount < promisedValue;
 
+        // Initialize metabolic sink for this transaction
+        let totalDecayMilli = 0;
+
         // Reward Fulfiller
         if (fulfillerDoc.exists()) {
           const fData = fulfillerDoc.data();
@@ -657,50 +683,60 @@ export const useWishActions = () => {
           const cappedMilli = Math.min(rawNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
           const overflowMilli = Math.max(0, rawNewMilli - WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
 
+          // Gravity Calculation for Fulfiller
+          const fDecayMilli = toMilli(fData.balance || 0) - currentDecayedMilli;
+          totalDecayMilli += fDecayMilli + overflowMilli;
+
           transaction.update(fulfillerRef, {
             balance: fromMilli(cappedMilli),
             completed_contracts: increment(1),
             last_updated: serverTimestamp(),
           });
-
-          if (overflowMilli > 0) {
-            const globalStatsRef = doc(database, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
-            transaction.set(globalStatsRef, {
-                total_overflow_pool: increment(overflowMilli),
-                updated_at: serverTimestamp()
-            }, { merge: true });
-          }
         }
 
         // Salvation for Issuer
         if (issuerDoc.exists()) {
           const iData = issuerDoc.data() as UserProfile;
-          const iCurrentRealLm = calculateDecayedValue(iData.balance || 0, iData.last_updated);
-          const iCommittedLm = iData.committed_lm || 0;
+          const iCurrentRealMilli = toMilli(calculateDecayedValue(iData.balance || 0, iData.last_updated));
+          const iCommittedMilli = toMilli(calculateDecayedValue(iData.committed_lm || 0, iData.last_updated));
+          const wishDecayedMilli = toMilli(promisedValue);
+          const paymentMilli = toMilli(paymentAmount);
 
-          const iNewBalanceLm = iCurrentRealLm - paymentAmount;
-          const iDecayedCommittedLm = calculateDecayedValue(iCommittedLm, iData.last_updated);
-          const iNewCommittedLm = Math.max(0, iDecayedCommittedLm - (wishData.cost || 0));
+          // Gravity Calculation for Issuer & Wish
+          const iBalanceDecayMilli = toMilli(iData.balance || 0) - iCurrentRealMilli;
+          const iCommittedDecayMilli = toMilli(iData.committed_lm || 0) - iCommittedMilli;
+          const wishDecayMilli = toMilli(wishData.cost || 0) - wishDecayedMilli;
+          totalDecayMilli += iBalanceDecayMilli + iCommittedDecayMilli + wishDecayMilli;
+
+          const iNewBalanceMilli = iCurrentRealMilli - paymentMilli;
+          const iNewCommittedMilli = Math.max(0, iCommittedMilli - wishDecayedMilli);
           const newStreak = (iData.consecutive_completions || 0) + 1;
 
           transaction.update(issuerRef, {
-            balance: iNewBalanceLm,
-            committed_lm: iNewCommittedLm,
+            balance: fromMilli(iNewBalanceMilli),
+            committed_lm: fromMilli(iNewCommittedMilli),
             completed_requests: increment(1),
             consecutive_completions: newStreak,
             last_updated: serverTimestamp(),
           });
         }
 
-        // Mark Wish Fulfilled
-        transaction.update(wishRef, {
-          status: "fulfilled",
-          helper_id: fulfillerId,
-          val_at_fulfillment: paymentAmount,
-          fulfilled_at: serverTimestamp(),
-        });
+        // Log Global Metabolic Stats (The Sun)
+        if (totalDecayMilli > 0) {
+            const globalStatsRef = doc(database, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
+            transaction.set(globalStatsRef, {
+                total_decayed_stats: increment(fromMilli(totalDecayMilli)),
+                updated_at: serverTimestamp()
+            }, { merge: true });
+        }
 
-        // Log Transaction
+        // Mark Wish Fulfilled by CRYSTALLIZING it (Physical Deletion)
+        // Before deleting, ensure we have everything for the log
+        const tags = wishData.tags || [];
+
+        transaction.delete(wishRef);
+
+        // Log Transaction with FULL metadata
         let txType = "SPARK";
         if (paymentAmount >= 900) txType = "BONFIRE";
         else if (paymentAmount >= 400) txType = "CANDLE";
@@ -713,11 +749,15 @@ export const useWishActions = () => {
           sub_type: txType,
           wish_id: wishId,
           wish_title: wishData.content,
+          
+          // Crystallized Names
           sender_id: wishData.requester_id,
-          sender_name: wishData.requester_name || "Anonymous",
+          sender_name: issuerDoc.data()?.name || wishData.requester_name || "Anonymous Soul",
           recipient_id: fulfillerId,
-          recipient_name: fulfillerDoc.data()?.name || "Anonymous",
-          description: isBankruptcy ? "wish_fulfilled (Bankruptcy Partial Payment)" : "wish_fulfilled"
+          recipient_name: fulfillerDoc.data()?.name || "Anonymous Helper",
+          
+          tags: tags,
+          description: isBankruptcy ? "wish_fulfilled (Bankruptcy Partial Payment) [Crystallized]" : "wish_fulfilled [Crystallized]"
         });
 
         const today = new Date().toISOString().split("T")[0];
@@ -802,10 +842,13 @@ export const useWishActions = () => {
           if (!wishDoc.exists()) throw "Wish not found";
           const wishData = wishDoc.data();
 
-          // 1. Update Wish Status
+          // EXPIRE Wish (Keep in vessel or specific handling)
+          // 今回の「勝手に消さない」方針に基づき、一旦 status のみに留めるか、
+          // 削除制限に従い delete は行わない。
           transaction.update(wishRef, {
             status: "expired",
             updated_at: serverTimestamp(),
+            system_note: "期限を迎えましたが、再募集されるのを待っています。"
           });
 
           // 2. Log to Journal (amount: 0)

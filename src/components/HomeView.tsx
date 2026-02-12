@@ -2,6 +2,8 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Inbox, Megaphone, Sparkles } from "lucide-react";
 import { useWallet } from "../hooks/useWallet";
+import { useProfile } from "../hooks/useProfile";
+import { AlertCircle } from "lucide-react";
 
 interface HomeViewProps {
   onOpenFlow: () => void; // "Help" (Inflow)
@@ -13,8 +15,24 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onOpenRequest,
 }) => {
   const { status, performRebirthReset, availableLm, balance } = useWallet();
+  const { profile, updateProfile } = useProfile();
   const [ritualState, setRitualState] = React.useState<'idle' | 'breathing' | 'blooming' | 'syncing'>('idle');
   const [targetBalance, setTargetBalance] = React.useState(2400);
+  const [notification, setNotification] = React.useState<string | null>(null);
+
+  // Monitor for interruption notifications
+  React.useEffect(() => {
+    if (profile?.pending_interruption_notification) {
+      setNotification(profile.pending_interruption_notification);
+    }
+  }, [profile?.pending_interruption_notification]);
+
+  const clearNotification = async () => {
+    if (!profile) return;
+    setNotification(null);
+    // [Purification]: Clear the field from the user's profile immediately after acknowledgment
+    await updateProfile({ pending_interruption_notification: null });
+  };
 
   // Sound Effect: 528Hz Crystal Tone
   const playCrystalSound = () => {
@@ -337,6 +355,32 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   </div>
               </motion.div>
           )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {notification && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="fixed inset-x-6 top-10 z-[60] flex justify-center pointer-events-none"
+          >
+            <div className="bg-white/90 backdrop-blur-md border border-amber-100 p-6 rounded-2xl shadow-xl max-w-sm w-full pointer-events-auto flex flex-col items-center text-center">
+              <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-4">
+                <AlertCircle className="text-amber-500" size={24} />
+              </div>
+              <p className="text-sm text-slate-700 font-medium leading-relaxed mb-6 whitespace-pre-wrap">
+                {notification}
+              </p>
+              <button
+                onClick={clearNotification}
+                className="w-full py-3 bg-amber-400 hover:bg-amber-500 text-white rounded-xl text-sm font-bold tracking-widest transition-colors shadow-sm active:scale-[0.98]"
+              >
+                了解しました
+              </button>
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   );

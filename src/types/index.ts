@@ -38,6 +38,7 @@ export interface UserProfile {
 
   consecutive_completions?: number;
   has_cancellation_history?: boolean;
+  pending_interruption_notification?: string | null;
 
   scheduled_cycle_days?: number;
   cycle_started_at?: FirestoreTimestamp;
