@@ -72,6 +72,7 @@ export interface Wish {
     | "fulfilled"
     | "completed"
     | "cancelled"
+    | "interrupted"
     | "expired";
   created_at: string;
   tags?: string[];

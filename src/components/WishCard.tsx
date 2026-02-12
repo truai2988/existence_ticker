@@ -245,10 +245,17 @@ export const WishCard: React.FC<WishCardProps> = ({
 
   // MASKING LOGIC FOR REQUESTER
   // Hidden if anonymous AND (open OR (cancelled/expired without match))
+  // OR IF INTERRUPTED (Scenario B: account deletion)
+  const isRequesterInterrupted = wish.status === "interrupted" && wish.cancel_reason === "account_deleted";
+  const isHelperInterrupted = wish.status === "interrupted" && wish.cancel_reason === "helper_deleted";
+
   const isMasked =
-    !!wish.isAnonymous &&
+    (!!wish.isAnonymous &&
     (wish.status === "open" ||
-      (!wish.helper_id && ["cancelled", "expired"].includes(wish.status)));
+      (!wish.helper_id && ["cancelled", "expired"].includes(wish.status)))) || 
+    isRequesterInterrupted;
+    
+  const isHelperMasked = isHelperInterrupted;
 
   // Handlers
   const handleApply = async () => {
@@ -395,11 +402,13 @@ export const WishCard: React.FC<WishCardProps> = ({
   const trust = getTrustRank(requesterProfile, wish.requester_trust_score);
 
   const displayRequesterName =
-    isMasked && !isMyWish
-      ? `匿名`
-      : requesterProfile?.name ||
-        wish.requester_name ||
-        wish.requester_id.slice(0, 8);
+    isRequesterInterrupted
+      ? "退会された方"
+      : isMasked && !isMyWish
+        ? `匿名`
+        : requesterProfile?.name ||
+          wish.requester_name ||
+          wish.requester_id.slice(0, 8);
 
   // Contact Logic
   const contactEmail =
@@ -517,34 +526,32 @@ export const WishCard: React.FC<WishCardProps> = ({
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="text-xs uppercase font-bold text-slate-400 tracking-wider mb-0.5">
-                    {helperProfile?.name || wish.helper_name || "隣人"}{" "}
+                    {isHelperMasked ? "退会された方" : (helperProfile?.name || wish.helper_name || "隣人")}{" "}
                     {wish.status === "fulfilled" || wish.status === "completed" 
                       ? "さんに感謝を届けました" 
-                      : wish.status === "cancelled" 
-                        ? "さんとの願いを中断しました"
-                        : "さんが応えてくれています"}
+                      : wish.status === "interrupted"
+                        ? "さんの事情により終了しました"
+                        : wish.status === "cancelled" 
+                          ? "さんとの願いを中断しました"
+                          : "さんが応えてくれています"}
                   </div>
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (wish.helper_id)
-                          openUserProfile(wish.helper_id, isMasked); // Matched, so if masked, it's mutual? Wait.
-                        // If it's MY WISH and Matched, the HELPER is revealed to ME. So isMasked is false for me?
-                        // Logic in line 352: `const isMasked = wish.isAnonymous && isMyWish && wish.status === 'open' ...`
-                        // Actually, if status is 'open', there is no helper.
-                        // If helper_id exists, status is NOT 'open' usually.
-                        // So `isMasked` would be false if matched?
-                        // Let's rely on the button logic.
+                        if (wish.helper_id && !isHelperMasked)
+                          openUserProfile(wish.helper_id, isMasked); 
                       }}
-                      className="block text-sm font-bold text-slate-800 tracking-wide hover:underline text-left truncate max-w-full"
+                      className={`block text-sm font-bold tracking-wide text-left truncate max-w-full transition-colors ${isHelperMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:text-blue-600 hover:underline"}`}
                     >
-                      {helperProfile?.name ||
-                        wish.helper_name ||
-                        wish.applicants?.find((a) => a.id === wish.helper_id)
-                          ?.name ||
-                        wish.helper_id?.slice(0, 8) ||
-                        "隣人"}
+                      {isHelperMasked 
+                        ? "退会された方"
+                        : (helperProfile?.name ||
+                          wish.helper_name ||
+                          wish.applicants?.find((a) => a.id === wish.helper_id)
+                            ?.name ||
+                          wish.helper_id?.slice(0, 8) ||
+                          "隣人")}
                     </button>
                   </div>
                 </div>
@@ -593,9 +600,9 @@ export const WishCard: React.FC<WishCardProps> = ({
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      openUserProfile(wish.requester_id, isMasked);
+                      if (!isMasked) openUserProfile(wish.requester_id, isMasked);
                     }}
-                    className="block text-sm font-bold tracking-wide text-left truncate max-w-full text-slate-800 hover:underline"
+                    className={`block text-sm font-bold tracking-wide text-left truncate max-w-full transition-colors ${isMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:underline"}`}
                   >
                     {isMyWish
                       ? "あなたの想い"
@@ -748,7 +755,9 @@ export const WishCard: React.FC<WishCardProps> = ({
                 ? "bg-green-50/50 border-green-100/50"
                 : wish.status === "cancelled"
                   ? "bg-red-50/30 border-red-100/50" // Subtle Red for Cancelled
-                  : "bg-slate-50/50 border-slate-100/50" // Gray for Expired
+                  : wish.status === "interrupted"
+                    ? "bg-slate-100/50 border-slate-200/50" // Neutral for Interrupted
+                    : "bg-slate-50/50 border-slate-100/50" // Gray for Expired
             }`}
           >
             <div className="flex items-center gap-2">
@@ -756,6 +765,8 @@ export const WishCard: React.FC<WishCardProps> = ({
                 <CheckCircle size={16} className="text-green-500" />
               ) : wish.status === "cancelled" ? (
                 <X size={16} className="text-red-400" />
+              ) : wish.status === "interrupted" ? (
+                <X size={16} className="text-slate-400" />
               ) : (
                 <Archive size={16} className="text-slate-400" />
               )}
@@ -768,9 +779,11 @@ export const WishCard: React.FC<WishCardProps> = ({
                       : "text-slate-500"
                 }`}
               >
-                {wish.status === "fulfilled"
+                  {wish.status === "fulfilled"
                   ? "届けられた感謝 (最終値)"
-                  : wish.status === "cancelled"
+                  : wish.status === "interrupted"
+                    ? "退会により終了"
+                    : wish.status === "cancelled"
                     ? // Logic to determine Label
                       (() => {
                         const isRequester = wish.requester_id === currentUserId;
@@ -778,30 +791,18 @@ export const WishCard: React.FC<WishCardProps> = ({
                           wish.cancel_reason === "helper_cancellation";
                         const isCompensatory =
                           wish.cancel_reason === "compensatory_cancellation";
-                        const compensationAmount =
-                          wish.val_at_fulfillment !== undefined
-                            ? Math.floor(
-                                wish.val_at_fulfillment,
-                              ).toLocaleString()
-                            : Math.floor(
-                                calculateHistoricalValue(
-                                  wish.cost || 0,
-                                  wish.created_at,
-                                  wish.cancelled_at,
-                                ),
-                              ).toLocaleString();
 
                         // Case 1: Helper Cancelled (Resignation)
                         if (isHelperCancellation) {
                           return isRequester
-                            ? `相手が中断したため、${compensationAmount} Lm を誠実のしるしとして受け取りました`
-                            : `私が中断したため、${compensationAmount} Lm を誠実のしるしとしてお渡ししました`;
+                            ? `相手が辞退したため、予約分が手元に戻りました`
+                            : `私が辞退したため、願いから離れました`;
                         }
                         // Case 2: Requester Cancelled (Withdrawal with Compensation)
                         else if (isCompensatory) {
                           return isRequester
-                            ? `私が取り下げたため、${compensationAmount} Lm を誠実のしるしとしてお渡ししました`
-                            : `相手が取り下げたため、${compensationAmount} Lm を誠実のしるしとして受け取りました`;
+                            ? `私が中断したため、誠実のしるしをお渡ししました`
+                            : `相手が中断したため、誠実のしるしを受け取りました`;
                         }
                         // Case 3: Simple Void (Open Cancel)
                         else {

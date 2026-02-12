@@ -301,7 +301,6 @@ export const useWishActions = () => {
             // 5. Determine Actual Payment (NO INFLATION RULE)
             // "You cannot give what you do not have (after honoring other promises)."
             const actualPayment = Math.min(availableForThisPayment, wishDecayedValue);
-            const isBankruptcy = actualPayment < wishDecayedValue;
 
             // === ATOMIC UPDATE: Balance - Payment, Committed - Reservation ===
             // 保存則: Available = Balance - Committed
@@ -351,14 +350,14 @@ export const useWishActions = () => {
                   
                   // Context
                   sender_id: wishData.requester_id,
-                  sender_name: rName,
+                  sender_name: isRequesterCanceling ? "私" : rName,
                   recipient_id: wishData.helper_id,
-                  recipient_name: hName,
+                  recipient_name: !isRequesterCanceling ? "私" : hName,
                   wish_title: wishData.content,
                   wish_id: wishId,
-                  description: isBankruptcy 
-                      ? "request_cancelled_by_owner (Bankruptcy Partial Payment)" 
-                      : "request_cancelled_by_owner"
+                  description: isRequesterCanceling 
+                      ? "私が中断したため、誠実のしるしをお渡ししました" 
+                      : "相手が中断したため、誠実のしるしを受け取りました"
                 });
             }
 
@@ -379,7 +378,6 @@ export const useWishActions = () => {
             // Helper has no reservation for this wish, so available = balance
             const availableForThisPayment = Math.max(0, helperCurrentReal);
             const actualPayment = Math.min(availableForThisPayment, wishDecayedValue);
-            const isBankruptcy = actualPayment < wishDecayedValue;
 
             // Update helper: pay compensation
             transaction.update(helperRef, {
@@ -418,14 +416,14 @@ export const useWishActions = () => {
                   amount: actualPayment,
                   created_at: serverTimestamp(),
                   sender_id: wishData.helper_id,
-                  sender_name: hName,
+                  sender_name: !isRequesterCanceling ? "私" : hName,
                   recipient_id: wishData.requester_id,
-                  recipient_name: rName,
+                  recipient_name: isRequesterCanceling ? "私" : rName,
                   wish_title: wishData.content,
                   wish_id: wishId,
-                  description: isBankruptcy 
-                      ? "helper_cancelled (Bankruptcy Partial Payment)" 
-                      : "helper_cancelled"
+                  description: !isRequesterCanceling
+                      ? "私が辞退したため、願いから離れました"
+                      : "相手が辞退したため、予約分が手元に戻りました"
                 });
             }
 
