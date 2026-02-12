@@ -123,7 +123,7 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center w-full relative">
+    <div className="flex-1 flex flex-col items-center justify-center w-full relative pt-safe pt-20 md:pt-24">
         {/* 1. Balance Display (Only when Alive/Color) */}
         {showColor && (
           <div className="absolute top-[18%] left-0 right-0 flex flex-col items-center z-20 pointer-events-none">
