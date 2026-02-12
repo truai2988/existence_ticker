@@ -175,9 +175,9 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
     return (
         <div className="fixed inset-0 z-[70] bg-slate-50 flex flex-col animate-fade-in font-sans w-full h-full">
             {/* Header */}
-            <div className="w-full bg-white border-b border-slate-100/50 sticky top-0 z-10 shrink-0 pt-safe">
-                <div className="max-w-2xl mx-auto px-6 py-4 md:py-6">
-                    <div className="flex justify-between items-start w-full">
+            <div className="w-full bg-slate-50 sticky top-0 z-10 shrink-0 pt-safe">
+                <div className="border-b border-transparent">
+                    <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between flex-nowrap gap-2">
                         <div className="flex flex-col">
                             <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
                                 Existence Ticker

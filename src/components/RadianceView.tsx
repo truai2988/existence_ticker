@@ -55,7 +55,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
         <div className="flex-1 flex flex-col w-full h-full">
             {/* View Title Area (Subtle) */}
             <div className="border-b border-slate-100/50">
-                <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between flex-nowrap gap-2">
+                <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between flex-nowrap gap-2">
                     <div className="min-w-0">
                         <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
                             Existence Ticker
@@ -65,9 +65,9 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         </h2>
                         <p className="text-xs min-[375px]:text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">My Wishes</p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 mt-6">
                         {onTabChange && (
-                            <div className="shrink-0 ml-1">
+                            <div className="shrink-0 mt-1">
                                 <HeaderNavigation 
                                     currentTab="give" 
                                     onTabChange={(tab: AppViewMode) => onTabChange(tab)} 

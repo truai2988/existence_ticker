@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
           {/* Two Pillars Structure - with white background spanning full width */}
           <div className="relative w-full bg-transparent">
             <div className="w-full max-w-2xl mx-auto px-6 py-4 md:py-6">
-              <div className="flex items-center justify-between">
+              <div className="flex items-start justify-between">
                 {/* Left: Title and Location */}
                 <div>
                   <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
@@ -100,7 +100,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                 </div>
 
                 {/* Right: Water Clock & Navigation */}
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 mt-6">
                   {/* Water Clock Indicator (Lm Capacity) - Compact Visual Only */}
                   <div className="relative w-10 h-12 bg-slate-50 rounded-b-xl rounded-t-md overflow-hidden border border-slate-200 shadow-inner shrink-0">
                     {/* 1. Committed Lm (Bottom Layer - Frozen/Sediment) */}
