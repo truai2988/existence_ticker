@@ -118,10 +118,10 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
         )}
         {/* Subtle Section Header with Navigation */}
         <div className="border-b border-slate-100 bg-white/50">
-            <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div className="max-w-2xl mx-auto px-6 py-6 flex items-center justify-between">
                  <div>
-                    <h2 className="text-sm font-bold tracking-widest uppercase text-slate-900">Journal</h2>
-                    <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase">あなたの歩みの記録</p>
+                    <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">Journal</h2>
+                    <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1">あなたの歩みの記録</p>
                 </div>
                 {onTabChange && (
                     <div className="shrink-0">
@@ -342,9 +342,9 @@ const WishViewerModal = ({ wishId, onClose, currentUserId }: { wishId: string, o
             >
                 {/* Header */}
                 <div className="sticky top-0 z-10 p-4 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-slate-50">
-                    <span className="text-xs font-bold text-slate-400 tracking-[0.2em] uppercase pl-2">
+                    <motion.span layoutId="modal-header-title" className="text-xs font-bold text-slate-400 tracking-[0.2em] uppercase pl-2">
                         追憶の欠片 (Past Fragment)
-                    </span>
+                    </motion.span>
                     <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400">
                         <X size={20} />
                     </button>
