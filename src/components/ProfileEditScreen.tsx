@@ -229,10 +229,10 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                 <div className="bg-gradient-to-br from-blue-50 to-slate-50 p-5 rounded-2xl border border-blue-100 shadow-sm">
                     <div className="flex items-center gap-2 mb-3">
                         <ShieldCheck size={18} className="text-blue-500" strokeWidth={2.5} />
-                        <h3 className="text-sm font-bold text-slate-800">信頼の盾までの道のり</h3>
+                        <h3 className="text-sm font-bold text-slate-800">信頼の証までの道のり</h3>
                     </div>
                     <p className="text-xs text-slate-600 mb-4 leading-relaxed">
-                        すべて整えると、プロフィールに<span className="font-bold text-blue-600">信頼の盾</span>が灯ります。あなたの誠実さが隣人に伝わり、安心して助け合える関係がここから広がっていきます。
+                        すべて整えると、プロフィールに<span className="font-bold text-blue-600">信頼の証</span>が灯ります。あなたの誠実さが隣人に伝わり、安心して助け合える関係がここから広がっていきます。
                     </p>
                     <div className="space-y-2.5">
                         {/* Avatar Check */}

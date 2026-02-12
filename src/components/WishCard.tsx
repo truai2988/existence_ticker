@@ -352,7 +352,7 @@ export const WishCard: React.FC<WishCardProps> = ({
         confirmAction === "resign"
           ? "辞退しました"
           : confirmAction === "compensate"
-            ? "お詫びを渡して取り下げました"
+            ? "誠実のしるしを渡して取り下げました"
             : "取り下げました",
         "success",
       );
@@ -681,7 +681,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                 onClick={handleCancel}
                 disabled={isLoading}
                 className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                title="お詫びを渡して中断"
+                title="誠実のしるしを渡して中断"
               >
                 <AlertTriangle size={14} />
               </button>
@@ -794,14 +794,14 @@ export const WishCard: React.FC<WishCardProps> = ({
                         // Case 1: Helper Cancelled (Resignation)
                         if (isHelperCancellation) {
                           return isRequester
-                            ? `相手が中断したため、${compensationAmount} Lm をお詫びとして受け取りました`
-                            : `私が中断したため、${compensationAmount} Lm をお詫びとしてお渡ししました`;
+                            ? `相手が中断したため、${compensationAmount} Lm を誠実のしるしとして受け取りました`
+                            : `私が中断したため、${compensationAmount} Lm を誠実のしるしとしてお渡ししました`;
                         }
                         // Case 2: Requester Cancelled (Withdrawal with Compensation)
                         else if (isCompensatory) {
                           return isRequester
-                            ? `私が取り下げたため、${compensationAmount} Lm をお詫びとしてお渡ししました`
-                            : `相手が取り下げたため、${compensationAmount} Lm をお詫びとして受け取りました`;
+                            ? `私が取り下げたため、${compensationAmount} Lm を誠実のしるしとしてお渡ししました`
+                            : `相手が取り下げたため、${compensationAmount} Lm を誠実のしるしとして受け取りました`;
                         }
                         // Case 3: Simple Void (Open Cancel)
                         else {

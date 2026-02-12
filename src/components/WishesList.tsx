@@ -149,7 +149,7 @@ export const WishesList = ({ currentUserId }: WishesListProps) => {
             `}
             >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>星々</span>
+            <span>みんな</span>
             </button>
 
             <button
