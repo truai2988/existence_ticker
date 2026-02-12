@@ -175,19 +175,26 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
     return (
         <div className="fixed inset-0 z-[70] bg-slate-50 flex flex-col animate-fade-in font-sans w-full h-full">
             {/* Header */}
-            <div className="w-full bg-white border-b border-slate-200 sticky top-0 z-10 shrink-0 pt-safe">
-                <div className="max-w-2xl mx-auto px-6 py-4">
-                    <div className="flex justify-between items-center w-full">
-                        <div className="flex items-center gap-2">
-                            <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500 -ml-2">
-                                <ChevronLeft size={24} />
-                            </button>
-                            <h2 className="text-lg font-bold text-slate-800">プロフィール編集</h2>
+            <div className="w-full bg-white border-b border-slate-100/50 sticky top-0 z-10 shrink-0 pt-safe">
+                <div className="max-w-2xl mx-auto px-6 py-4 md:py-6">
+                    <div className="flex justify-between items-start w-full">
+                        <div className="flex flex-col">
+                            <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
+                                Existence Ticker
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500 -ml-2">
+                                    <ChevronLeft size={24} />
+                                </button>
+                                <h2 className="text-lg min-[375px]:text-xl font-bold tracking-widest uppercase text-slate-900 truncate">
+                                    プロフィール編集
+                                </h2>
+                            </div>
                         </div>
                         <button 
                             onClick={handleSave} 
                             disabled={isLoading}
-                            className="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-full text-sm font-bold hover:bg-slate-800 disabled:opacity-50 transition-all shadow-sm"
+                            className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-full text-sm font-bold hover:bg-slate-800 disabled:opacity-50 transition-all shadow-md mt-6"
                         >
                             {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                             <span>保存</span>
