@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
             <header className="relative w-full pt-safe z-40">
                 <div className="relative w-full">
                     {/* Two Pillars Structure - with white background spanning full width */}
-                    <div className="relative w-full bg-white/95">
+                    <div className="relative w-full bg-transparent">
                         <div className="w-full max-w-2xl mx-auto px-6 py-4 md:py-6">
                             <div className="flex items-center justify-between">
                                 {/* Left: Title and Location */}

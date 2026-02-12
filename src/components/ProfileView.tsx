@@ -194,7 +194,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   return (
     <div className="flex-1 flex flex-col w-full h-full">
       {/* Subtle Section Header */}
-      <div className="border-b border-slate-100 bg-white/50">
+      <div className="border-b border-slate-100/50">
           <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between">
               <div>
                   <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">Profile</h2>
