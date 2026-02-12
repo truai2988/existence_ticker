@@ -203,7 +203,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   <h2 className="text-lg min-[375px]:text-xl font-bold tracking-widest uppercase text-slate-900 truncate">Profile</h2>
                   <p className="text-xs min-[375px]:text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">あなたの記録</p>
               </div>
-              <div className="flex items-center gap-2 mt-6">
+              <div className="flex h-12 items-end gap-2">
                   {onOpenAdmin &&
                     (profile?.role === "admin" ||
                       (profile?.id && ADMIN_UIDS.includes(profile.id))) && (

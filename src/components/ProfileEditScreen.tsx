@@ -191,14 +191,16 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 </h2>
                             </div>
                         </div>
-                        <button 
-                            onClick={handleSave} 
-                            disabled={isLoading}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-full text-sm font-bold hover:bg-slate-800 disabled:opacity-50 transition-all shadow-md mt-6"
-                        >
-                            {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                            <span>保存</span>
-                        </button>
+                        <div className="flex h-12 items-end">
+                            <button 
+                                onClick={handleSave} 
+                                disabled={isLoading}
+                                className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-full text-sm font-bold hover:bg-slate-800 disabled:opacity-50 transition-all shadow-md"
+                            >
+                                {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                                <span>保存</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

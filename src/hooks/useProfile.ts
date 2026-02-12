@@ -7,7 +7,8 @@ import {
   updateDoc,
   serverTimestamp,
   runTransaction,
-  Transaction
+  Transaction,
+  increment
 } from "firebase/firestore";
 import { calculateDecayedValue } from "../logic/worldPhysics";
 import { UserProfile } from "../types";
@@ -102,10 +103,49 @@ export const useProfile = () => {
     const userRef = doc(db, "users", user.uid);
 
     try {
-      await updateDoc(userRef, {
-        ...updates,
-        last_updated: serverTimestamp(),
-      });
+      // Check if location is changing to manage stats
+      const isLocationChanging = updates.location && 
+        (updates.location.prefecture !== profile?.location?.prefecture || 
+         updates.location.city !== profile?.location?.city);
+
+      if (isLocationChanging) {
+        await runTransaction(db, async (transaction) => {
+          const userSnap = await transaction.get(userRef);
+          if (!userSnap.exists()) throw new Error("User profile not found");
+          const oldData = userSnap.data() as UserProfile;
+          
+          // 1. Decrement old location (Clamped to 0)
+          if (oldData.location?.prefecture && oldData.location?.city) {
+            const oldKey = `${oldData.location.prefecture}_${oldData.location.city}`;
+            const oldStatRef = doc(db!, 'location_stats', oldKey);
+            const oldStatSnap = await transaction.get(oldStatRef);
+            if (oldStatSnap.exists()) {
+              const currentCount = oldStatSnap.data().count || 0;
+              transaction.update(oldStatRef, { count: Math.max(0, currentCount - 1) });
+            }
+          }
+
+          // 2. Increment new location
+          if (updates.location?.prefecture && updates.location?.city) {
+            const newKey = `${updates.location.prefecture}_${updates.location.city}`;
+            const newStatRef = doc(db!, 'location_stats', newKey);
+            transaction.set(newStatRef, { count: increment(1) }, { merge: true });
+          }
+
+          // 3. Update Profile
+          transaction.update(userRef, {
+            ...updates,
+            last_updated: serverTimestamp(),
+          });
+        });
+      } else {
+        // Standard update if location is same
+        await updateDoc(userRef, {
+          ...updates,
+          last_updated: serverTimestamp(),
+        });
+      }
+      
       console.log("Profile updated:", updates);
       return { success: true };
     } catch (error) {

@@ -606,17 +606,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
                                     log.push(`[${new Date().toLocaleTimeString()}] ✅ 完了: ${restoredCount}件修正 / ${ignoredCount}件スキップ・維持`);
                                     setCleanupLog([...log]);
-                                    console.log("Cleanup Ritual complete", { restoredCount, ignoredCount });
-
-                                    log.push(`[${new Date().toLocaleTimeString()}] ✅ 修理完了: ${restoredCount}件復元 / ${ignoredCount}件スキップ`);
-                                    setCleanupLog([...log]);
-                                    alert(`✅ 歴史の修復が完了しました\n\n復元: ${restoredCount}件\nスキップ: ${ignoredCount}件`);
-
                                 } catch (error) {
                                     console.error("Restoration failed:", error);
-                                    log.push(`[${new Date().toLocaleTimeString()}] ❌ エラー: ${error}`);
-                                    setCleanupLog([...log]);
-                                    alert(`❌ 修理失敗\n\n${error}`);
                                 } finally {
                                     setIsCleaningUp(false);
                                 }
@@ -624,18 +615,81 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                             disabled={isCleaningUp}
                             className="w-full py-4 rounded-xl bg-orange-900/30 hover:bg-orange-900/50 border border-orange-900/50 hover:border-orange-500 text-orange-400 font-bold uppercase tracking-widest text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
-                            {isCleaningUp ? (
-                                <>
-                                    <div className="w-4 h-4 border-2 border-orange-400 border-t-transparent rounded-full animate-spin"></div>
-                                    儀式中...
-                                </>
-                            ) : (
-                                <>
-                                    <Activity size={16} />
-                                    歴史を修復する (修理の儀式)
-                                </>
-                            )}
+                            {isCleaningUp ? "儀式中..." : <><Activity size={16} /> 歴史を修復する (修理の儀式)</>}
                         </button>
+
+                        <div className="mt-4">
+                            <button
+                                onClick={async () => {
+                                    if (!window.confirm("⚠️ 統計データの再集計を実行しますか？\n\n全ユーザーの居住地をスキャンし、地域別統計（人数）をゼロから再構築します。\n不整合が発生している場合に有効です。")) return;
+
+                                    setIsCleaningUp(true);
+                                    setCleanupLog([]);
+                                    const log: string[] = [];
+
+                                    try {
+                                        if (!db) throw new Error("Database not initialized");
+                                        const { collection, getDocs, query, writeBatch, doc } = await import("firebase/firestore");
+
+                                        log.push(`[${new Date().toLocaleTimeString()}] 再集計開始...`);
+                                        setCleanupLog([...log]);
+
+                                        // 1. Fetch all users
+                                        const usersRef = collection(db, "users");
+                                        const userSnap = await getDocs(query(usersRef));
+                                        const totalUsers = userSnap.size;
+                                        log.push(`[${new Date().toLocaleTimeString()}] ユーザー総数: ${totalUsers}名`);
+                                        setCleanupLog([...log]);
+
+                                        // 2. Build counts map
+                                        const countsMap: Record<string, number> = {};
+                                        userSnap.docs.forEach(uDoc => {
+                                            const data = uDoc.data();
+                                            if (data.location?.prefecture && data.location?.city) {
+                                                const key = `${data.location.prefecture}_${data.location.city}`;
+                                                countsMap[key] = (countsMap[key] || 0) + 1;
+                                            }
+                                        });
+
+                                        log.push(`[${new Date().toLocaleTimeString()}] 集計完了: ${Object.keys(countsMap).length} 地域`);
+                                        setCleanupLog([...log]);
+
+                                        // 3. Reset existing stats (Delete all first to ensure clean state)
+                                        const statsRef = collection(db, "location_stats");
+                                        const statsSnap = await getDocs(query(statsRef));
+                                        
+                                        const batch = writeBatch(db);
+                                        statsSnap.docs.forEach(sDoc => {
+                                            batch.delete(sDoc.ref);
+                                        });
+                                        
+                                        // 4. Set new counts
+                                        Object.entries(countsMap).forEach(([key, count]) => {
+                                            const statRef = doc(db!, "location_stats", key);
+                                            batch.set(statRef, { count });
+                                        });
+
+                                        await batch.commit();
+                                        log.push(`[${new Date().toLocaleTimeString()}] ✅ 統計テーブルを更新しました (登録地域数: ${Object.keys(countsMap).length})`);
+                                        setCleanupLog([...log]);
+                                        alert("✅ 統計データの再集計が完了しました。");
+
+                                    } catch (error) {
+                                        console.error("Recount failed:", error);
+                                        log.push(`[${new Date().toLocaleTimeString()}] ❌ エラー: ${error}`);
+                                        setCleanupLog([...log]);
+                                        alert(`❌ 再集計失敗\n\n${error}`);
+                                    } finally {
+                                        setIsCleaningUp(false);
+                                    }
+                                }}
+                                disabled={isCleaningUp}
+                                className="w-full py-4 rounded-xl bg-blue-900/30 hover:bg-blue-900/50 border border-blue-900/50 hover:border-blue-500 text-blue-400 font-bold uppercase tracking-widest text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                <Users size={16} />
+                                統計データの再集計
+                            </button>
+                        </div>
                     </div>
 
                     {cleanupLog.length > 0 && (
