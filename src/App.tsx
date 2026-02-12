@@ -122,8 +122,12 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
       } catch (e) { setRitualState('idle'); }
   };
 
+  // Move randomized message logic outside of the conditional button render to follow Hooks rules
+  const ritualMessage = React.useMemo(() => Math.random() > 0.5 ? "私は、私。" : "ETの世界へ", []);
+
   return (
     <div className="flex-1 flex flex-col items-center justify-center w-full relative pt-safe pt-20 md:pt-24">
+        {/* ... (rest of HomeView code) ... */}
         {/* 1. Balance Display (Only when Alive/Color) */}
         {showColor && (
           <div className="absolute top-[18%] left-0 right-0 flex flex-col items-center z-20 pointer-events-none">
@@ -208,8 +212,12 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
                       <div className="absolute inset-0 bg-white/60 blur-xl rounded-full scale-150 transform -z-10" />
                       <Sparkles size={24} strokeWidth={1} className="mb-4 opacity-30 animate-pulse text-slate-400" />
                       <div className="flex flex-col items-center">
-                        <span className="text-2xl font-serif tracking-[0.2em] font-light text-slate-600 mb-1 drop-shadow-sm pl-[0.8em]">私は、私。</span>
-                        <span className="text-xs font-serif tracking-[0.3em] font-light text-slate-400 opacity-40 pl-[0.3em]">I AM WHO I AM</span>
+                        <span className="text-2xl font-light tracking-[0.2em] text-slate-600 mb-1 drop-shadow-sm pl-[0.8em]">
+                            {ritualMessage}
+                        </span>
+                        <span className="text-[10px] font-light tracking-[0.3em] text-slate-400 opacity-60 pl-[0.3em] uppercase">
+                            I am who I am / Into the World of ET
+                        </span>
                       </div>
                     </div>
                 </motion.button>

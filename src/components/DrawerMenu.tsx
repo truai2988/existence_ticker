@@ -51,11 +51,11 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
                         className="fixed inset-y-0 right-0 w-[280px] bg-white z-50 shadow-2xl flex flex-col pt-safe"
                     >
                         {/* Brand Area */}
-                        <div className="px-8 pt-8 pb-4">
-                            <h1 className="text-4xl font-serif font-light tracking-tighter text-slate-800 mb-1">
+                        <div className="px-8 pt-12 pb-6">
+                            <h1 className="text-6xl font-light tracking-tighter text-slate-800 mb-2 font-['Inter']">
                                 ET
                             </h1>
-                            <p className="text-xs text-slate-400 font-sans tracking-[0.3em] uppercase font-medium">
+                            <p className="text-[10px] text-slate-400 font-light tracking-[0.5em] uppercase">
                                 Existence Ticker
                             </p>
                         </div>
@@ -87,7 +87,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
                                             strokeWidth={isActive ? 2 : 1.5}
                                             className={`${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'} transition-colors`} 
                                         />
-                                        <span className={`text-xl font-serif tracking-widest font-normal ${isActive ? 'text-blue-600' : 'text-slate-800'}`}>
+                                        <span className={`text-lg tracking-[0.2em] font-light ${isActive ? 'text-blue-600' : 'text-slate-800'}`}>
                                             {item.label}
                                         </span>
                                     </button>
@@ -96,8 +96,8 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
                         </nav>
 
                         {/* Footer / Brand (Optional) */}
-                        <div className="p-8 text-center">
-                            <p className="text-xs text-slate-300 font-mono tracking-widest uppercase opacity-50">
+                        <div className="p-10 text-center">
+                            <p className="text-[10px] text-slate-300 font-light tracking-[0.4em] uppercase opacity-60">
                                 Existence Ticker
                             </p>
                         </div>
