@@ -161,6 +161,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                             emptyIcon={<ClipboardList size={48} className="text-slate-300 mb-2" />}
                             onOpenProfile={onOpenProfile}
                             onActionComplete={handleActionComplete}
+                            onTabChange={onTabChange}
                         />
                     )}
 
@@ -173,6 +174,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                             emptyIcon={<Timer size={48} className="text-slate-300 mb-2" />}
                             onOpenProfile={onOpenProfile}
                             onActionComplete={handleActionComplete}
+                            onTabChange={onTabChange}
                         />
                     )}
 
@@ -185,6 +187,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                             emptyIcon={<PlayCircle size={48} className="text-slate-300 mb-2" />}
                             onOpenProfile={onOpenProfile}
                             onActionComplete={handleActionComplete}
+                            onTabChange={onTabChange}
                         />
                     )}
 

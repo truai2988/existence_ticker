@@ -144,6 +144,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                                 viewType="radiance"
                                 emptyMessage="活動記録はありません。"
                                 onActionComplete={handleActionComplete}
+                                onTabChange={onTabChange}
                              />
                          </div>
                      )}

@@ -37,10 +37,9 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const timer = setInterval(() => setLocalTick(t => t + 1), 3600000);
     return () => clearInterval(timer);
   }, []);
-  // TODO:
-  // - [x] 最終動作確認と整合性チェック（ランタイムエラー修正含む）
-  // - [x] iPad/タブレット向けのレスポンス対応（コンテンツ幅拡大 & ホーム画面の陰陽デザイン調整）
-  // - [x] ホーム画面のボタン配置とサイズ微調整（大画面向け）
+  // 4. Optimistic Offsets (The Mirage)
+  const [optimisticBalanceOffset, setOptimisticBalanceOffset] = useState(0);
+  const [optimisticCommittedOffset, setOptimisticCommittedOffset] = useState(0);
 
   // === 1. PHYSICAL TRUTH (Absolute Hierarchy) ===
 
@@ -48,18 +47,20 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const balance = useMemo(() => {
     const rawBalance = profile?.balance ?? 0;
     const lastUpdated = profile?.last_updated;
-    return calculateDecayedValue(rawBalance, lastUpdated);
+    const decayedBase = calculateDecayedValue(rawBalance, lastUpdated);
+    return decayedBase + optimisticBalanceOffset;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.balance, profile?.last_updated, localTick]);
+  }, [profile?.balance, profile?.last_updated, localTick, optimisticBalanceOffset]);
 
   // Chain 2: Committed Lm (Source of Truth: DB Record + Decay) - O(1)
   const committedLm = useMemo(() => {
     const rawCommitted = profile?.committed_lm ?? 0;
     const lastUpdated = profile?.last_updated;
     // O(1) Calculation: We trust the Vessel's record, decaying it as a single mass
-    return calculateDecayedValue(rawCommitted, lastUpdated);
+    const decayedBase = calculateDecayedValue(rawCommitted, lastUpdated);
+    return decayedBase + optimisticCommittedOffset;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.committed_lm, profile?.last_updated, localTick]);
+  }, [profile?.committed_lm, profile?.last_updated, localTick, optimisticCommittedOffset]);
 
   // Chain 3: Available Lm (The Result)
   const availableLm = useMemo(() => {
@@ -71,6 +72,14 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Performs the O(N) calculation in background to check integrity
   useEffect(() => {
     if (!user || !db || wishesLoading || profileLoading || !profile) return;
+
+    // 【不可侵条約】(The Non-Aggression Pact)
+    // 楽観的更新が行われている間は、サーバーとの整合性チェック（Sanitization）をスキップする。
+    // これにより、UI上の仮の数値とDBの数値が一時的にズレていることによる競合上書きを防ぐ。
+    if (optimisticBalanceOffset !== 0 || optimisticCommittedOffset !== 0) {
+        console.log("[Sanitization] System Silent: Optimistic update in progress...");
+        return;
+    }
 
     // Combine active and archive wishes for comprehensive check
     const allUserWishes = [...userActiveWishes];
@@ -121,7 +130,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         };
         syncDb();
     }
-  }, [user, profile, userActiveWishes, wishesLoading, profileLoading, committedLm]);
+  }, [user, profile, userActiveWishes, wishesLoading, profileLoading, committedLm, optimisticBalanceOffset, optimisticCommittedOffset]);
 
 
   // === 3. METABOLIC STATUS ===
@@ -301,6 +310,10 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     pay,
     performRebirthReset,
     isLoading: profileLoading || wishesLoading,
+    optimisticBalanceOffset,
+    setOptimisticBalanceOffset,
+    optimisticCommittedOffset,
+    setOptimisticCommittedOffset,
   };
 
   return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;

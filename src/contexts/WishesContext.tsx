@@ -26,6 +26,11 @@ interface WishesContextType {
     
     isLoading: boolean;
     error: Error | null;
+
+    // Optimistic Actions
+    addOptimisticWish: (wish: Wish) => void;
+    removeOptimisticWish: (wishId: string) => void;
+    updateOptimisticWish: (wishId: string, updates: Partial<Wish>) => void;
 }
 
 const WishesContext = createContext<WishesContextType | undefined>(undefined);
@@ -36,6 +41,33 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const [wishes, setWishes] = useState<Wish[]>([]); // Global Active
     const [userActiveWishes, setUserActiveWishes] = useState<Wish[]>([]); // My Active
     const [involvedActiveWishes, setInvolvedActiveWishes] = useState<Wish[]>([]); // My Involved Active
+
+    // --- Optimistic Logic ---
+    const [optimisticWishes, setOptimisticWishes] = useState<Wish[]>([]);
+
+    const addOptimisticWish = (wish: Wish) => {
+        setOptimisticWishes(prev => [wish, ...prev]);
+    };
+
+    const removeOptimisticWish = (wishId: string) => {
+        setOptimisticWishes(prev => prev.filter(w => w.id !== wishId));
+    };
+
+    const updateOptimisticWish = (wishId: string, updates: Partial<Wish>) => {
+        setOptimisticWishes(prev => prev.map(w => w.id === wishId ? { ...w, ...updates } : w));
+    };
+
+    // Merge Real + Optimistic
+    // Note: Deduplicate by ID to prefer Real data if both exist (e.g. after sync)
+    const mergeOptimistic = (real: Wish[]) => {
+        const realIds = new Set(real.map(r => r.id));
+        const filteredOptimistic = optimisticWishes.filter(o => !realIds.has(o.id));
+        return [...filteredOptimistic, ...real].sort((a,b) => getMillis(b.created_at) - getMillis(a.created_at));
+    };
+
+    const mergedWishes = mergeOptimistic(wishes);
+    const mergedUserActive = mergeOptimistic(userActiveWishes);
+    const mergedInvolved = mergeOptimistic(involvedActiveWishes);
 
 
 
@@ -145,10 +177,14 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
     return (
         <WishesContext.Provider value={{ 
-            wishes, // Global Active
-            userActiveWishes, 
-            involvedActiveWishes,
+            wishes: mergedWishes, // Global Active
+            userActiveWishes: mergedUserActive, 
+            involvedActiveWishes: mergedInvolved,
             
+            addOptimisticWish,
+            removeOptimisticWish,
+            updateOptimisticWish,
+
             isLoading, 
             error
         }}>

@@ -89,6 +89,8 @@ export interface Wish {
   isAnonymous?: boolean;
   applicant_ids?: string[]; // For querying involved wishes
   system_note?: string; // System-generated explanatory messages (e.g., helper departure)
+  isOptimistic?: boolean;
+  error?: string;
 }
 
 export interface CreateWishInput {

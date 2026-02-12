@@ -17,6 +17,7 @@ interface WishCardListProps {
     onOpenProfile?: () => void;
     onActionComplete?: (action: 'applied' | 'withdrawn' | 'approved' | 'cancelled' | 'resigned' | 'completed' | 'cleanup') => void;
     viewType?: 'radiance' | 'flow';
+    onTabChange?: (tab: 'give' | 'flow' | 'history') => void;
 }
 
 export const WishCardList: React.FC<WishCardListProps> = ({ 
@@ -30,7 +31,8 @@ export const WishCardList: React.FC<WishCardListProps> = ({
     isFetchingMore = false,
     onOpenProfile,
     onActionComplete,
-    viewType = 'radiance'
+    viewType = 'radiance',
+    onTabChange
 }) => {
     const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -86,6 +88,7 @@ export const WishCardList: React.FC<WishCardListProps> = ({
                         viewType={viewType}
                         onOpenProfile={onOpenProfile}
                         onActionComplete={onActionComplete}
+                        onTabChange={onTabChange}
                     />
                 </motion.div>
             ))}

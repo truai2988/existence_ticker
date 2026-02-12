@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { CreateWishInput, UserProfile } from "../types";
+import { Wish, CreateWishInput, UserProfile } from "../types";
 import { useAuth } from "./useAuthHook";
+import { useWishesContext } from "../contexts/WishesContext";
+import { useWallet } from "./useWallet";
 import { db } from "../lib/firebase";
 import {
   collection,
@@ -23,6 +25,8 @@ import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS } from "../l
 
 export const useWishActions = () => {
   const { user } = useAuth();
+  const { addOptimisticWish, updateOptimisticWish } = useWishesContext();
+  const { setOptimisticBalanceOffset, setOptimisticCommittedOffset } = useWallet();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Calculate costs matches logic in UI/Types
@@ -43,6 +47,24 @@ export const useWishActions = () => {
     const userRef = doc(db, "users", user.uid);
     const wishRef = doc(collection(db, "wishes")); // Generates new ID
     const bounty = costMap[input.tier];
+
+    // Optimistic Update
+    const tempId = wishRef.id;
+    const optimisticWish: Wish = {
+      id: tempId,
+      requester_id: user.uid,
+      requester_name: "伝搬中...", 
+      content: input.content,
+      gratitude_preset: input.tier,
+      status: "open",
+      cost: bounty,
+      created_at: new Date().toISOString(),
+      isAnonymous: input.isAnonymous || false,
+      isOptimistic: true
+    };
+
+    addOptimisticWish(optimisticWish);
+    setOptimisticCommittedOffset((prev: number) => prev + bounty);
 
     try {
       await runTransaction(db, async (transaction) => {
@@ -73,12 +95,10 @@ export const useWishActions = () => {
         }
 
         // === ATOMIC UPDATE: Balance + Committed ===
-        // 保存則: Available = Balance - Committed
-        // Available は変わらない（予約を増やすため）
         transaction.update(userRef, {
-          balance: decayedBalance, // 減価適用後の値に更新（減算なし）
-          committed_lm: decayedCommittedLm + bounty, // 減価後の予約額に足す
-          created_contracts: increment(1), // Track Requests (Created)
+          balance: decayedBalance,
+          committed_lm: decayedCommittedLm + bounty,
+          created_contracts: increment(1),
           last_updated: serverTimestamp(),
         });
 
@@ -89,21 +109,27 @@ export const useWishActions = () => {
           content: input.content,
           gratitude_preset: input.tier,
           status: "open",
-          cost: bounty, // Initial Value
-
-          requester_trust_score: data.completed_contracts || 0, // Stamp Trust (Helped Count)
-          requester_completed_requests: data.completed_requests || 0, // Stamp Reliability (Paid/Completed Requests)
-          created_at: serverTimestamp(), // Firestore Timestamp
+          cost: bounty,
+          requester_trust_score: data.completed_contracts || 0,
+          requester_completed_requests: data.completed_requests || 0,
+          created_at: serverTimestamp(),
           isAnonymous: input.isAnonymous || false,
         });
       });
 
       console.log("Wish Cast:", input, { bounty });
+      // Clear offset (Real update will take over)
+      setOptimisticCommittedOffset((prev: number) => Math.max(0, prev - bounty));
       return true;
     } catch (e) {
       console.error("Failed to cast wish:", e);
       const errorMessage = e instanceof Error ? e.message : String(e);
-      alert(`${errorMessage}`);
+      
+      // 【慈悲】: 失敗時はデータを消さずにエラーをマークする
+      updateOptimisticWish(tempId, { error: errorMessage });
+      setOptimisticCommittedOffset((prev: number) => Math.max(0, prev - bounty));
+      
+      alert(`願いを届けることができませんでした: ${errorMessage}`);
       return false;
     } finally {
       setIsSubmitting(false);
@@ -559,7 +585,19 @@ export const useWishActions = () => {
     const wishRef = doc(database, "wishes", wishId);
     const fulfillerRef = doc(database, "users", fulfillerId);
 
+    // Optimistic Logic for Fulfillment
+    let estimatedPayment = 0;
+
     try {
+      // Pre-read for optimism (approximate)
+      const wishSnap = await getDocs(query(collection(db!, "wishes"), where("__name__", "==", wishId)));
+      if (!wishSnap.empty) {
+          const wData = wishSnap.docs[0].data();
+          estimatedPayment = calculateDecayedValue(wData.cost || 0, wData.created_at);
+      }
+
+      setOptimisticBalanceOffset((prev: number) => prev - estimatedPayment);
+
       await runTransaction(db, async (transaction) => {
         // --- 1. ALL READS MUST COME FIRST ---
         const wishDoc = await transaction.get(wishRef);
@@ -588,11 +626,7 @@ export const useWishActions = () => {
              throw "Transaction already processed (Idempotency Check)";
         }
 
-        // System Settings (Global Metropolis Cap) - Now strictly enforced via WORLD_CONSTANTS
-
         // --- 2. CALCULATION & WRITES ---
-        
-        // Anti-Gravity Logic & STRICT PHYSICS
         const createdAt = wishData.created_at as Timestamp;
         const promisedValue = calculateDecayedValue(
           wishData.cost || 0,
@@ -605,7 +639,6 @@ export const useWishActions = () => {
              const iData = issuerDoc.data() as UserProfile;
              const iCurrentReal = calculateDecayedValue(iData.balance || 0, iData.last_updated);
              const iCommittedLm = iData.committed_lm || 0;
-             // Available = Balance - Committed (excluding this wish)
              const availableForThisPayment = Math.max(0, iCurrentReal - iCommittedLm + promisedValue);
              paymentAmount = Math.min(promisedValue, availableForThisPayment);
         } else {
@@ -614,7 +647,7 @@ export const useWishActions = () => {
         
         const isBankruptcy = paymentAmount < promisedValue;
 
-        // Reward Fulfiller (with Overflow/Solar Return logic)
+        // Reward Fulfiller
         if (fulfillerDoc.exists()) {
           const fData = fulfillerDoc.data();
           const currentDecayedLm = calculateDecayedValue(fData.balance || 0, fData.last_updated);
@@ -632,19 +665,16 @@ export const useWishActions = () => {
             last_updated: serverTimestamp(),
           });
 
-          // Solar Return: Add overflow to global pool
           if (overflowMilli > 0) {
             const globalStatsRef = doc(database, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
             transaction.set(globalStatsRef, {
                 total_overflow_pool: increment(overflowMilli),
                 updated_at: serverTimestamp()
             }, { merge: true });
-            
-            console.log(`[Solar Return] Overflow detected: ${fromMilli(overflowMilli)} Lm returned to the Sun.`);
           }
         }
 
-        // Salvation for Issuer & Purification
+        // Salvation for Issuer
         if (issuerDoc.exists()) {
           const iData = issuerDoc.data() as UserProfile;
           const iCurrentRealLm = calculateDecayedValue(iData.balance || 0, iData.last_updated);
@@ -652,7 +682,7 @@ export const useWishActions = () => {
 
           const iNewBalanceLm = iCurrentRealLm - paymentAmount;
           const iDecayedCommittedLm = calculateDecayedValue(iCommittedLm, iData.last_updated);
-          const iNewCommittedLm = Math.max(0, iDecayedCommittedLm - (wishData.cost || 0)); // 減価後の予約額から解放
+          const iNewCommittedLm = Math.max(0, iDecayedCommittedLm - (wishData.cost || 0));
           const newStreak = (iData.consecutive_completions || 0) + 1;
 
           transaction.update(issuerRef, {
@@ -689,12 +719,9 @@ export const useWishActions = () => {
           sender_name: wishData.requester_name || "Anonymous",
           recipient_id: fulfillerId,
           recipient_name: fulfillerDoc.data()?.name || "Anonymous",
-          description: isBankruptcy 
-              ? "wish_fulfilled (Bankruptcy Partial Payment)" 
-              : "wish_fulfilled"
+          description: isBankruptcy ? "wish_fulfilled (Bankruptcy Partial Payment)" : "wish_fulfilled"
         });
 
-        // Daily Stats
         const today = new Date().toISOString().split("T")[0];
         const dailyStatsRef = doc(database, "daily_stats", today);
         transaction.set(dailyStatsRef, {
@@ -703,10 +730,11 @@ export const useWishActions = () => {
         }, { merge: true });
       });
 
-      console.log("Wish Fulfilled & Salvation Granted");
+      setOptimisticBalanceOffset(0); // Clear on success
       return true;
     } catch (e) {
       console.error("Fulfillment failed:", e);
+      setOptimisticBalanceOffset(0); // Clear on failure
       const errorMessage = e instanceof Error ? e.message : String(e);
       alert(`感謝の巡りに失敗しました: ${errorMessage}`);
       return false;

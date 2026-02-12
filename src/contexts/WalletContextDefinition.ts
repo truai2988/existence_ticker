@@ -10,6 +10,10 @@ export interface WalletContextType {
     pay: (amount: number) => Promise<boolean>;
     performRebirthReset: () => Promise<{ success: boolean; newBalance?: number }>;
     isLoading: boolean;
+    optimisticBalanceOffset: number;
+    setOptimisticBalanceOffset: (val: number | ((prev: number) => number)) => void;
+    optimisticCommittedOffset: number;
+    setOptimisticCommittedOffset: (val: number | ((prev: number) => number)) => void;
 }
 
 // Context

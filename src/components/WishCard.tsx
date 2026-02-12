@@ -29,6 +29,7 @@ import { useOtherProfile } from "../hooks/useOtherProfile";
 import { useProfile } from "../hooks/useProfile";
 import { isProfileComplete } from "../utils/profileCompleteness";
 import { useToast } from "../contexts/ToastContext";
+import { useWishesContext } from "../contexts/WishesContext";
 
 // Internal Component: Individual Applicant Row with Real-time Data
 const ApplicantItem: React.FC<{
@@ -152,6 +153,7 @@ interface WishCardProps {
       | "cleanup",
   ) => void;
   isReadOnly?: boolean;
+  onTabChange?: (tab: "give" | "flow" | "history") => void;
 }
 
 export const WishCard: React.FC<WishCardProps> = ({
@@ -161,6 +163,7 @@ export const WishCard: React.FC<WishCardProps> = ({
   onOpenProfile,
   onActionComplete,
   isReadOnly = false,
+  onTabChange,
 }) => {
   const {
     applyForWish,
@@ -172,6 +175,7 @@ export const WishCard: React.FC<WishCardProps> = ({
     withdrawApplication,
     expireWish,
   } = useWishActions();
+  const { removeOptimisticWish } = useWishesContext();
   const { openUserProfile } = useUserView();
   const { profile: requesterProfile } = useOtherProfile(wish.requester_id);
   const { profile: helperProfile } = useOtherProfile(wish.helper_id || null);
@@ -237,7 +241,7 @@ export const WishCard: React.FC<WishCardProps> = ({
 
   const isMyWish = wish.requester_id === currentUserId;
   const applicants = wish.applicants || [];
-  const hasApplied = applicants.some((a) => a.id === currentUserId);
+  const hasApplied = applicants.some((a: { id: string }) => a.id === currentUserId);
 
   // MASKING LOGIC FOR REQUESTER
   // Hidden if anonymous AND (open OR (cancelled/expired without match))
@@ -419,6 +423,55 @@ export const WishCard: React.FC<WishCardProps> = ({
   const mailtoLink = contactEmail
     ? `mailto:${contactEmail}?subject=${encodeURIComponent(mailSubject)}&body=${encodeURIComponent(mailBody)}`
     : "#";
+
+  // --- OPTIMISTIC RENDER (The Phantom) ---
+  if (wish.isOptimistic) {
+    if (wish.error) {
+        return (
+            <div className="relative bg-white border-2 border-red-200 rounded-2xl p-6 shadow-sm overflow-hidden animate-in fade-in duration-300">
+                <div className="flex items-center gap-2 mb-4 text-red-600">
+                    <AlertTriangle size={20} />
+                    <span className="text-sm font-bold">通信エラー: 願いが届きませんでした</span>
+                </div>
+                <p className="text-slate-600 text-sm mb-6 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    {wish.content}
+                </p>
+                <div className="flex flex-col gap-3">
+                    <p className="text-xs text-red-400 font-medium">理由: {wish.error}</p>
+                    <button 
+                        onClick={() => removeOptimisticWish(wish.id)}
+                        className="w-full py-3 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+                    >
+                        <Trash2 size={14} />
+                        この内容を消去する
+                    </button>
+                    <p className="text-[10px] text-slate-400 text-center">※このお願いのLm予約はすでに解除されています</p>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="relative bg-slate-50/50 border border-slate-200 rounded-2xl p-6 overflow-hidden animate-pulse">
+            <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-full bg-slate-200" />
+                <div className="space-y-2 flex-1">
+                    <div className="h-4 w-32 bg-slate-200 rounded" />
+                    <div className="h-3 w-48 bg-slate-100 rounded" />
+                </div>
+            </div>
+            <div className="space-y-3 mb-6">
+                <div className="h-4 w-full bg-slate-100 rounded" />
+                <div className="h-4 w-5/6 bg-slate-100 rounded" />
+            </div>
+            <div className="h-10 w-full bg-slate-200 rounded-xl" />
+            <div className="absolute top-4 right-6 flex items-center gap-1.5 text-slate-300 text-[10px] font-bold uppercase tracking-widest">
+                <Loader2 size={12} className="animate-spin" />
+                伝搬中...
+            </div>
+        </div>
+    );
+  }
 
   return (
     <div className="relative bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow group overflow-hidden">
@@ -1026,7 +1079,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                                   まだ申し出はありません
                                 </div>
                               ) : (
-                                applicants.map((app) => (
+                                applicants.map((app: { id: string; name: string; trust_score?: number }) => (
                                   <ApplicantItem
                                     key={app.id}
                                     applicant={app}
@@ -1072,6 +1125,8 @@ export const WishCard: React.FC<WishCardProps> = ({
                             );
                             if (success) {
                               showToast("感謝を届けました", "success");
+                              // 完了後は「履歴」タブへ
+                              if (onTabChange) onTabChange("history");
                             }
                             setIsLoading(false);
                           };
