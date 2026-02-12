@@ -36,12 +36,12 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
         <div className="flex-1 flex flex-col w-full h-full">
             {/* View Title Area (Subtle) */}
             <div className="border-b border-slate-100/50">
-                <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between">
-                    <div>
-                        <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">
+                <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between flex-nowrap gap-2">
+                    <div className="min-w-0">
+                        <h2 className="text-lg min-[375px]:text-xl font-bold tracking-widest uppercase text-slate-900 truncate">
                             自分の願ったこと
                         </h2>
-                        <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1">My Wishes</p>
+                        <p className="text-xs min-[375px]:text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">My Wishes</p>
                     </div>
                     <div className="flex items-center gap-2">
                         {onTabChange && (

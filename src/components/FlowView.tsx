@@ -57,12 +57,12 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
         <div className="flex-1 flex flex-col w-full h-full animate-fade-in group/flow">
             {/* Subtle Section Header with Navigation */}
             <div className="border-b border-slate-100/50">
-                <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between">
-                    <div>
-                        <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900 flex items-center gap-2">
+                <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between flex-nowrap gap-2">
+                    <div className="min-w-0">
+                        <h2 className="text-lg min-[375px]:text-xl font-bold tracking-widest uppercase text-slate-900 flex items-center gap-2 truncate">
                             みんなの願い
                         </h2>
-                        <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1">Flow of Wishes</p>
+                        <p className="text-xs min-[375px]:text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">Flow of Wishes</p>
                     </div>
                     <div className="flex items-center gap-2">
                         {onTabChange && (

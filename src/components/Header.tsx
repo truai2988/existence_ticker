@@ -76,7 +76,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                             <div className="flex items-center justify-between">
                                 {/* Left: Title and Location */}
                                 <div>
-                                    <h1 className="text-xl font-bold tracking-widest uppercase text-slate-900 leading-none mb-2">
+                                    <h1 className="text-lg min-[375px]:text-xl font-bold tracking-widest uppercase text-slate-900 leading-none mb-2">
                                         Existence Ticker
                                     </h1>
                                     <button
@@ -84,12 +84,12 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                                         className="flex items-center gap-1.5 text-left hover:opacity-70 transition-opacity group"
                                     >
                                         <MapPin size={16} className="text-slate-500 group-hover:text-slate-700 transition-colors" />
-                                        <span className="text-base text-slate-600 font-mono tracking-wider uppercase group-hover:text-slate-900 transition-colors truncate max-w-[160px]">
+                                        <span className="text-sm min-[375px]:text-base text-slate-600 font-mono tracking-wider uppercase group-hover:text-slate-900 transition-colors truncate max-w-[100px] min-[375px]:max-w-[160px]">
                                             {getLocationText()}
                                         </span>
                                         <span className="text-xs text-slate-400 mx-1">|</span>
                                         <Users size={16} className="text-slate-500 group-hover:text-slate-700 transition-colors" />
-                                        <span className="text-base text-slate-600 font-mono tracking-wider group-hover:text-slate-900 transition-colors">
+                                        <span className="text-sm min-[375px]:text-base text-slate-600 font-mono tracking-wider group-hover:text-slate-900 transition-colors whitespace-nowrap">
                                             {getUserCountText()}
                                         </span>
                                     </button>

@@ -5,6 +5,7 @@ import { useSeasonalEvent, SeasonalEventData } from "./useSeasonalEvent";
 import { useMemo, useState, useEffect, useRef } from "react";
 import { User } from 'firebase/auth';
 import { UserProfile } from '../types';
+import { ADMIN_UIDS } from "../constants";
 
 // The 4 Discrete Views of Existence (GHOST removed - brain handles it)
 export type StartupView = 
@@ -49,7 +50,21 @@ export const useStartupMachine = () => {
     // 3. GHOST Detection & Purge Logic (Brain's exclusive judgment)
     useEffect(() => {
         // Condition: Auth loaded, Profile loaded, user exists, but profile is null
-        const isGhostDetected = !authLoading && !profileLoading && user && !profile && !isGhostPurging;
+        // CRITICAL PROTECTION: 
+        // 1. Only anonymous users can be considered ghosts (registered users always have profiles, even if slow to load)
+        // 2. Admin users are NEVER purged even if anonymous (extra safety)
+        const isGhostDetected = 
+            !authLoading && 
+            !profileLoading && 
+            user && 
+            !profile && 
+            user.isAnonymous &&
+            !ADMIN_UIDS.includes(user.uid) &&
+            !isGhostPurging;
+        
+        if (isGhostDetected) {
+            console.log(`[StateMachine] Potential ghost detected (UID: ${user.uid}, Anonymous: ${user.isAnonymous})`);
+        }
         
         // 1. Protection: If we are currently in the middle of a registration, NEVER purge.
         if (window.__isRegistering || isRegistering || !isGhostDetected) {
@@ -63,7 +78,7 @@ export const useStartupMachine = () => {
 
         // Handle Grace Period start
         if (isGhostDetected && !isGhostGracePeriod && !ghostTimerRef.current) {
-            console.warn("[StateMachine] GHOST suspected - starting 2s grace period");
+            console.warn("[StateMachine] GHOST suspected - starting 8s grace period for safety");
             setIsGhostGracePeriod(true);
             
             ghostTimerRef.current = setTimeout(async () => {
@@ -101,7 +116,7 @@ export const useStartupMachine = () => {
                     purgeTimeoutRef.current = null;
                     ghostTimerRef.current = null;
                 }
-            }, 2000);
+            }, 8000);
         }
 
         return () => {

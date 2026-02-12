@@ -195,10 +195,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     <div className="flex-1 flex flex-col w-full h-full">
       {/* Subtle Section Header */}
       <div className="border-b border-slate-100/50">
-          <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between">
-              <div>
-                  <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">Profile</h2>
-                  <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1">あなたの記録</p>
+          <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between flex-nowrap gap-2">
+              <div className="min-w-0">
+                  <h2 className="text-lg min-[375px]:text-xl font-bold tracking-widest uppercase text-slate-900 truncate">Profile</h2>
+                  <p className="text-xs min-[375px]:text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">あなたの記録</p>
               </div>
               <div className="flex items-center gap-2">
                   {onOpenAdmin &&
