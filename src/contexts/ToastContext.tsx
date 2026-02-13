@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle, Info } from 'lucide-react';
+import { CheckCircle, Info, AlertCircle } from 'lucide-react';
 
-type ToastType = 'success' | 'info';
+type ToastType = 'success' | 'info' | 'error';
 
 interface Toast {
   id: number;
@@ -57,16 +57,20 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg pointer-events-auto ${
                 toast.type === 'success'
                   ? 'bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200'
-                  : 'bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200'
+                  : toast.type === 'error'
+                    ? 'bg-gradient-to-r from-red-50 to-orange-50 border border-red-200'
+                    : 'bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200'
               }`}
             >
               {toast.type === 'success' ? (
                 <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+              ) : toast.type === 'error' ? (
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
               ) : (
                 <Info className="w-5 h-5 text-blue-600 flex-shrink-0" />
               )}
               <span className={`text-sm font-medium ${
-                toast.type === 'success' ? 'text-emerald-900' : 'text-blue-900'
+                toast.type === 'success' ? 'text-emerald-900' : toast.type === 'error' ? 'text-red-900' : 'text-blue-900'
               }`}>
                 {toast.message}
               </span>

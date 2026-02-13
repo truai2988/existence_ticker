@@ -289,6 +289,8 @@ export const WishCard: React.FC<WishCardProps> = ({
       showToast("応える意思を伝えました", "success");
 
       if (onActionComplete) onActionComplete("applied");
+    } else {
+      showToast("立候補に失敗しました。時間をおいて再度お試しください。", "error");
     }
   };
 
@@ -309,6 +311,8 @@ export const WishCard: React.FC<WishCardProps> = ({
       setApprovalTarget(null);
 
       if (onActionComplete) onActionComplete("approved");
+    } else {
+      showToast("承認に失敗しました。通信状態を確認してください。", "error");
     }
   };
 
@@ -319,6 +323,8 @@ export const WishCard: React.FC<WishCardProps> = ({
     if (success) {
       setIsEditing(false);
       showToast("更新しました", "success");
+    } else {
+      showToast("更新に失敗しました", "error");
     }
     setIsLoading(false);
   };
@@ -369,6 +375,8 @@ export const WishCard: React.FC<WishCardProps> = ({
       );
 
       if (onActionComplete) onActionComplete(actionType);
+    } else {
+      showToast("不具合により取り下げに失敗しました。時間をおいて再度お試しください。", "error");
     }
   };
 
@@ -381,6 +389,8 @@ export const WishCard: React.FC<WishCardProps> = ({
       showToast("記録を整理しました", "success");
 
       if (onActionComplete) onActionComplete("cleanup");
+    } else {
+      showToast("整理に失敗しました", "error");
     }
   };
 

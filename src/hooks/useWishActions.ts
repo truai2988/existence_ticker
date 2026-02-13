@@ -293,12 +293,14 @@ export const useWishActions = () => {
           const hName = helperDoc.data()?.name || "Helper";
 
           // 3. Calculate PHYSICAL TRUTHS (All Decayed)
-          const wishElapsedSec = ((Date.now() - getMillis(wishData.created_at)) / 1000) | 0;
+          const now = Date.now();
+          const wishElapsedSec = ((now - getMillis(wishData.created_at)) / 1000) | 0;
           const wishDecayedMilli = calculateDecayedValue(toMilli(wishData.cost || 0), wishElapsedSec);
           
           // Requester's Real Holding (Now)
-          const rElapsedSec = ((Date.now() - rLastUpdated) / 1000) | 0;
+          const rElapsedSec = ((now - rLastUpdated) / 1000) | 0;
           const rDecayedMilli = calculateDecayedValue(toMilli(rBalance), rElapsedSec);
+          const rCommittedMilli = calculateDecayedValue(toMilli(rCommittedLm), rElapsedSec);
 
           // 4. PRE-FETCH Transaction Log (Idempotency Check) - MUST BE BEFORE ANY WRITES
           const txId = isRequesterCanceling 
@@ -308,19 +310,15 @@ export const useWishActions = () => {
           const txCheck = await transaction.get(txRef);
 
           if (isRequesterCanceling) {
-            const rRealMilli = rDecayedMilli;
-            const rCommittedMilli = calculateDecayedValue(toMilli(rCommittedLm), rElapsedSec);
-
-            const availableForThisPaymentMilli = Math.max(0, rRealMilli - rCommittedMilli + wishDecayedMilli);
-            const actualPaymentMilli = Math.min(availableForThisPaymentMilli, wishDecayedMilli);
+            const actualPaymentMilli = Math.min(Math.max(0, rDecayedMilli - rCommittedMilli + wishDecayedMilli), wishDecayedMilli);
             
             // Gravity Calculation (Naturally decayed Lm)
-            const rDecayMilli = toMilli(rBalance) - rRealMilli;
+            const rDecayMilli = toMilli(rBalance) - rDecayedMilli;
             const cDecayMilli = toMilli(rCommittedLm) - rCommittedMilli;
             
             // === ATOMIC UPDATE: Balance - Payment, Committed - Reservation ===
             transaction.update(requesterRef, {
-              balance: fromMilli(rRealMilli - actualPaymentMilli),
+              balance: fromMilli(rDecayedMilli - actualPaymentMilli),
               committed_lm: fromMilli(Math.max(0, rCommittedMilli - wishDecayedMilli)), 
               consecutive_completions: 0, 
               has_cancellation_history: true, 
@@ -331,7 +329,7 @@ export const useWishActions = () => {
             const hData = helperDoc.data();
             const hBalanceLm = hData?.balance || 0;
             const hLastUpdated = getMillis(hData?.last_updated);
-            const hElapsedSec = ((Date.now() - hLastUpdated) / 1000) | 0;
+            const hElapsedSec = ((now - hLastUpdated) / 1000) | 0;
             const hCurrentDecayedMilli = calculateDecayedValue(toMilli(hBalanceLm), hElapsedSec);
             const hRawNewMilli = hCurrentDecayedMilli + actualPaymentMilli;
 
@@ -352,26 +350,9 @@ export const useWishActions = () => {
                 updated_at: serverTimestamp()
             }, { merge: true });
 
-            // 5. Enforce Social Constraints (The Crack)
-            if (isRequesterCanceling) {
-                transaction.update(requesterRef, {
-                    consecutive_completions: 0,
-                    has_cancellation_history: true,
-                    last_updated: serverTimestamp(),
-                });
-            } else {
-                transaction.update(helperRef, {
-                    consecutive_completions: 0,
-                    has_cancellation_history: true,
-                    last_updated: serverTimestamp(),
-                });
-            }
-
             // 6. Care for the Left-Behind: Set Notification
-            const partnerRef = isRequesterCanceling ? helperRef : requesterRef;
-            const notificationMsg = isRequesterCanceling 
-                ? "依頼主様のご都合により願いが中断されました。しるしとしてLmが補償されています。" 
-                : "助け手様のご都合により願いが中断されました。預けていたLmが返還されています。";
+            const partnerRef = helperRef;
+            const notificationMsg = "依頼主様のご都合により願いが中断されました。しるしとしてLmが補償されています。";
             
             transaction.update(partnerRef, {
                 pending_interruption_notification: notificationMsg,
@@ -384,15 +365,11 @@ export const useWishActions = () => {
                   type: "COMPENSATION",
                   amount: fromMilli(actualPaymentMilli), 
                   created_at: serverTimestamp(),
-                  
-                  // Crystallized Names (No dynamic lookup)
                   sender_name: rName, 
                   recipient_name: hName,
                   wish_title: wishData.content,
                   wish_id: wishId,
-                  description: isRequesterCanceling 
-                      ? "依頼主が中断したため、誠実のしるしをお渡ししました" 
-                      : "助け手が中断したため、誠実のしるしを受け取りました"
+                  description: "依頼主が中断したため、誠実のしるしをお渡ししました"
                 });
             }
 
@@ -403,28 +380,27 @@ export const useWishActions = () => {
             const hData = helperDoc.data();
             const hBalance = hData?.balance || 0;
             const hLastUpdated = getMillis(hData?.last_updated);
-            const hElapsedSec = ((Date.now() - hLastUpdated) / 1000) | 0;
+            const hElapsedSec = ((now - hLastUpdated) / 1000) | 0;
             const hCurrentDecayedMilli = calculateDecayedValue(toMilli(hBalance), hElapsedSec);
             
             // 1. Maintain Helper (No Lateral Penalty)
             transaction.update(helperRef, {
               balance: fromMilli(hCurrentDecayedMilli),
               consecutive_completions: 0, // Reputation penalty only
+              has_cancellation_history: true,
               last_updated: serverTimestamp(),
             });
 
             // 2. Maintain Requester (Reservations stay for Re-broadcast)
-            const rRealMilli = rDecayedMilli;
-            const rCommittedMilli = calculateDecayedValue(toMilli(rCommittedLm), rElapsedSec);
-            
+            // Here we use rDecayedMilli and rCommittedMilli calculated earlier
             transaction.update(requesterRef, {
-              balance: fromMilli(rRealMilli),
-              committed_lm: fromMilli(toMilli(calculateDecayedValue(rCommittedLm, rLastUpdated))),
+              balance: fromMilli(rDecayedMilli),
+              committed_lm: fromMilli(rCommittedMilli),
               last_updated: serverTimestamp(),
             });
 
             // 3. Log Gravity (Naturally decayed Lm)
-            const rDecayMilli = toMilli(rBalance) - rRealMilli;
+            const rDecayMilli = toMilli(rBalance) - rDecayedMilli;
             const cDecayMilli = toMilli(rCommittedLm) - rCommittedMilli;
             const hDecayMilli = toMilli(hBalance) - hCurrentDecayedMilli;
             const totalDecayMilli = Math.max(0, rDecayMilli + cDecayMilli + hDecayMilli);
@@ -435,7 +411,11 @@ export const useWishActions = () => {
                 updated_at: serverTimestamp()
             }, { merge: true });
 
-            // 4. No COMPENSATION log here per "Personal Logic Purification"
+            // 4. Care for the Left-Behind: Set Notification
+            transaction.update(requesterRef, {
+                pending_interruption_notification: "助け手様が辞退されたため、願いが再び募集に戻りました。Lmは安全に守られています。",
+                last_updated: serverTimestamp()
+            });
             
             // === HELPER CANCELS: RECAST Wish (Re-broadcast) ===
             transaction.update(wishRef, {
@@ -450,60 +430,54 @@ export const useWishActions = () => {
             });
           }
         } else {
-        // === 通常キャンセル (Open Status) ===
-        // 予約解放を明示的に記録（アトミック化）
-        const requesterRef = doc(db!, "users", user.uid);
-        const requesterDoc = await transaction.get(requesterRef);
-        
-        if (requesterDoc.exists()) {
-          const rData = requesterDoc.data();
-          const rBalance = rData?.balance || 0;
-          const rLastUpdated = rData?.last_updated;
-          const rCommittedLm = rData?.committed_lm || 0;
+          // === 通常キャンセル (Open Status) ===
+          const requesterRef = doc(db!, "users", user.uid);
+          const requesterDoc = await transaction.get(requesterRef);
           
-          // Get wish value to release
-          
-          // 減価適用（予約解放時にタイムスタンプを更新）
-          const rElapsedSec = ((Date.now() - getMillis(rLastUpdated)) / 1000) | 0;
-          const rRealMilli = calculateDecayedValue(toMilli(rBalance), rElapsedSec);
-          
-          // === ATOMIC UPDATE: Committed - Reservation ===
-          const rCommittedMilli = calculateDecayedValue(toMilli(rCommittedLm), rElapsedSec);
-          const wishElapsedSec = ((Date.now() - getMillis(wishData.created_at)) / 1000) | 0;
-          const wishDecayedMilli = calculateDecayedValue(toMilli(wishData.cost || 0), wishElapsedSec);
+          if (requesterDoc.exists()) {
+            const rData = requesterDoc.data();
+            const rBalance = rData?.balance || 0;
+            const rLastUpdated = getMillis(rData?.last_updated);
+            const rCommittedLm = rData?.committed_lm || 0;
+            
+            const now = Date.now();
+            const rElapsedSec = ((now - rLastUpdated) / 1000) | 0;
+            const rDecayedMilli = calculateDecayedValue(toMilli(rBalance), rElapsedSec);
+            const rCommittedMilli = calculateDecayedValue(toMilli(rCommittedLm), rElapsedSec);
 
-          transaction.update(requesterRef, {
-            balance: fromMilli(rRealMilli), 
-            committed_lm: fromMilli(Math.max(0, rCommittedMilli - wishDecayedMilli)), 
-            last_updated: serverTimestamp(),
+            const wishElapsedSec = ((now - getMillis(wishData.created_at)) / 1000) | 0;
+            const wishDecayedMilli = calculateDecayedValue(toMilli(wishData.cost || 0), wishElapsedSec);
+
+            transaction.update(requesterRef, {
+              balance: fromMilli(rDecayedMilli), 
+              committed_lm: fromMilli(Math.max(0, rCommittedMilli - wishDecayedMilli)), 
+              last_updated: serverTimestamp(),
+            });
+          }
+
+          transaction.delete(wishRef);
+
+          const txId = `cancel_${wishId}`;
+          const txRef = doc(collection(db!, "transactions"), txId);
+          transaction.set(txRef, {
+            type: "WISH_CANCELLED",
+            amount: 0,
+            created_at: serverTimestamp(),
+            sender_id: user.uid,
+            sender_name: wishData.requester_name || "Anonymous",
+            recipient_id: wishData.helper_id || null,
+            recipient_name: wishData.helper_name || null,
+            wish_title: wishData.content,
+            wish_id: wishId,
+            description: "user_cancellation"
           });
         }
-
-        // CRYSTALLIZE Wish (Physical Deletion)
-        transaction.delete(wishRef);
-
-        // === 写経ロジック：Journalにamount:0で記録 ===
-        const txId = `cancel_${wishId}`;
-        const txRef = doc(collection(db!, "transactions"), txId);
-        transaction.set(txRef, {
-          type: "WISH_CANCELLED",
-          amount: 0,
-          created_at: serverTimestamp(),
-          sender_id: user.uid,
-          sender_name: wishData.requester_name || "Anonymous",
-          recipient_id: wishData.helper_id || null,
-          recipient_name: wishData.helper_name || null,
-          wish_title: wishData.content,
-          wish_id: wishId,
-          description: "user_cancellation"
-        });
-      }
       });
 
       return true;
     } catch (error) {
       console.error("Cancel failed:", error);
-      alert("キャンセルに失敗しました");
+      // alert("キャンセルに失敗しました"); // Removed to let WishCard handle with Toast
       return false;
     } finally {
       setIsSubmitting(false);
