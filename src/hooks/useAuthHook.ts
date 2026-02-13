@@ -13,7 +13,7 @@ import {
 import { doc, serverTimestamp, runTransaction, increment, collection, query, where, getDocs, getDoc, QueryDocumentSnapshot, DocumentData, deleteField } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { useAuthContext } from '../contexts/AuthContextDefinition';
-import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS } from '../logic/worldPhysics';
+import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS, getMillis } from '../logic/worldPhysics';
 import { useCallback } from 'react';
 
 
@@ -287,7 +287,7 @@ export const useAuth = () => {
                     const uData = userSnap.data();
                     const uBalance = uData.balance || 0;
                     const uCommitted = uData.committed_lm || 0;
-                    const uLastUpdated = uData.last_updated;
+                    const uLastUpdated = getMillis(uData.last_updated);
 
                     const uBalanceDecayedMilli = toMilli(calculateDecayedValue(uBalance, uLastUpdated));
                     const uCommittedDecayedMilli = toMilli(calculateDecayedValue(uCommitted, uLastUpdated));
@@ -299,7 +299,7 @@ export const useAuth = () => {
                 for (const wishDoc of snapRequester.docs) {
                     const wishData = wishDoc.data();
                     const wishInitialCost = wishData.cost || 0;
-                    const wishDecayedMilli = toMilli(calculateDecayedValue(wishInitialCost, wishData.created_at));
+                    const wishDecayedMilli = toMilli(calculateDecayedValue(wishInitialCost, getMillis(wishData.created_at)));
                     totalDecayMilli += (toMilli(wishInitialCost) - wishDecayedMilli);
                     
                     // Compensation if helper was in progress
@@ -308,12 +308,12 @@ export const useAuth = () => {
                          if (helperSnap && helperSnap.exists()) {
                              const hData = helperSnap.data();
                              const hBalance = hData.balance || 0;
-                             const hLastUpdated = hData.last_updated;
+                             const hLastUpdated = getMillis(hData.last_updated);
                              const hDecayedBalanceMilli = toMilli(calculateDecayedValue(hBalance, hLastUpdated));
                              totalDecayMilli += (toMilli(hBalance) - hDecayedBalanceMilli);
                              
                              const uData = userSnap.data();
-                             const uDecayedBalanceMilli = toMilli(calculateDecayedValue(uData?.balance || 0, uData?.last_updated));
+                             const uDecayedBalanceMilli = toMilli(calculateDecayedValue(uData?.balance || 0, getMillis(uData?.last_updated)));
                              
                              const actualPaymentMilli = Math.min(wishDecayedMilli, uDecayedBalanceMilli);
                              const actualPayment = fromMilli(actualPaymentMilli);

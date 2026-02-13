@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuthHook';
 import { db } from '../lib/firebase';
-import { collection, query, where, orderBy, limit, onSnapshot, Timestamp } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import { HeaderNavigation } from './HeaderNavigation';
 import { AppViewMode } from '../types';
 import { Sun, Heart, Sparkles, CheckCircle2, Archive, Slash } from 'lucide-react';
@@ -12,7 +12,7 @@ type TransactionLog = {
   id: string;
   type: string; // 'GIFT', 'WISH_FULFILLMENT', 'REBIRTH'
   amount: number;
-  created_at: Timestamp | { seconds: number, nanoseconds: number } | Date | number | string;
+  created_at: number;
   
   // Context
   sender_id?: string;
@@ -28,14 +28,19 @@ interface JournalViewProps {
   onTabChange?: (mode: AppViewMode) => void;
 }
 
-const parseDate = (val: TransactionLog['created_at']): Date => {
-    if (!val) return new Date();
-    if (val instanceof Date) return val;
-    if (typeof val === 'number') return new Date(val);
-    if (typeof val === 'string') return new Date(val);
-    if ('toDate' in val && typeof val.toDate === 'function') return val.toDate();
-    if ('seconds' in val) return new Date(val.seconds * 1000);
-    return new Date();
+interface FSTs { toDate: () => Date; seconds: number; }
+
+// Local helper for edge normalization
+const getMillis = (ts: unknown): number => {
+    if (!ts) return Date.now();
+    if (typeof ts === 'number') return ts;
+    if (typeof ts === 'string') return new Date(ts).getTime();
+    if (ts && typeof ts === 'object') {
+        const t = ts as FSTs;
+        if ('toDate' in t && typeof t.toDate === 'function') return t.toDate().getTime();
+        if ('seconds' in t && typeof t.seconds === 'number') return t.seconds * 1000;
+    }
+    return Date.now();
 };
 
 const formatDate = (date: Date): string => {
@@ -69,11 +74,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
      const updateState = () => {
          const validData = [...sentData, ...receivedData];
          const uniqueById = Array.from(new Map(validData.map(item => [item.id, item])).values());
-         const sorted = uniqueById.sort((a, b) => {
-             const tA = parseDate(a.created_at).getTime();
-             const tB = parseDate(b.created_at).getTime();
-             return tB - tA;
-         });
+         const sorted = uniqueById.sort((a, b) => b.created_at - a.created_at);
 
          const cleanLogs: TransactionLog[] = [];
          sorted.forEach((current, i) => {
@@ -82,8 +83,8 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
                  return;
              }
              const prev = cleanLogs[cleanLogs.length - 1];
-             const tCurrent = parseDate(current.created_at).getTime();
-             const tPrev = parseDate(prev.created_at).getTime();
+             const tCurrent = current.created_at;
+             const tPrev = prev.created_at;
              const isTimeClose = Math.abs(tPrev - tCurrent) < 2 * 60 * 1000;
              const isSameType = current.type === prev.type;
              const isSameTitle = current.wish_title === prev.wish_title;
@@ -96,12 +97,20 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
      };
 
      const u1 = onSnapshot(qSent, (snap) => {
-         sentData = snap.docs.map(d => ({ id: d.id, ...d.data() } as TransactionLog));
+         sentData = snap.docs.map(d => ({ 
+             id: d.id, 
+             ...d.data(),
+             created_at: getMillis(d.data().created_at)
+         } as TransactionLog));
          updateState();
      });
      
      const u2 = onSnapshot(qReceived, (snap) => {
-         receivedData = snap.docs.map(d => ({ id: d.id, ...d.data() } as TransactionLog));
+         receivedData = snap.docs.map(d => ({ 
+             id: d.id, 
+             ...d.data(),
+             created_at: getMillis(d.data().created_at)
+         } as TransactionLog));
          updateState();
      });
 
@@ -178,7 +187,7 @@ const LogItem = ({
     userId: string 
 }) => {
     const isSender = log.sender_id === userId;
-    const date = parseDate(log.created_at);
+    const date = new Date(log.created_at);
     const dateStr = formatDate(date);
     const partnerName = (isSender ? log.recipient_name : log.sender_name) || '誰か';
 

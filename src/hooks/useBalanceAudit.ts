@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from './useAuthHook';
-import { calculateDecayedValue, calculateHistoricalValue } from '../logic/worldPhysics';
+import { calculateDecayedValue, calculateHistoricalValue, getMillis } from '../logic/worldPhysics';
 
 interface AuditLog {
   timestamp: Date;
@@ -49,7 +49,7 @@ export function useBalanceAudit() {
       // Calculate current actual balance (decayed to NOW)
       const currentActualBalance = calculateDecayedValue(
         userData.balance || 0, 
-        userData.last_updated
+        getMillis(userData.last_updated)
       );
 
       // 2. Fetch ALL transactions (Looking for 'recipient_id' as used in Birth/Rebirth)
@@ -87,18 +87,12 @@ export function useBalanceAudit() {
       // If user has 'cycle_started_at', maybe that's the start anchor?
       // But transactions should cover everything.
       
-      const processDocs = (snapshot.docs.map(d => ({...d.data(), id: d.id, created_at: d.data().created_at})) as { id: string; created_at: unknown; amount?: number; type: string; description?: string }[])
-        .sort((a, b) => {
-            const getMillis = (t: unknown): number => {
-                if (typeof t === 'object' && t !== null && 'toMillis' in t) {
-                    return (t as { toMillis: () => number }).toMillis();
-                }
-                if (typeof t === 'string') return Date.parse(t);
-                if (typeof t === 'number') return t;
-                return 0;
-            };
-            return getMillis(a.created_at) - getMillis(b.created_at);
-        });
+      const processDocs = (snapshot.docs.map(d => ({
+          ...d.data(), 
+          id: d.id, 
+          created_at: getMillis(d.data().created_at)
+      })) as { id: string; created_at: number; amount?: number; type: string; description?: string }[])
+        .sort((a, b) => (Number(a.created_at) - Number(b.created_at)));
       
       // Check if we need to account for initial 2400 that might not be in transactions
       // If the first TX is "spending" without "income", then we started with something.
@@ -108,16 +102,8 @@ export function useBalanceAudit() {
       // But let's just replay and see.
       
       for (const tx of processDocs) {
-        let txTime = 0;
-        const c = tx.created_at as { toMillis?: () => number } | string | number | null;
-        
-        if (typeof c === 'object' && c && 'toMillis' in c && typeof c.toMillis === 'function') {
-           txTime = c.toMillis();
-        } else if (typeof c === 'string') {
-           txTime = Date.parse(c);
-        } else if (typeof c === 'number') {
-            txTime = c;
-        }
+        const txTime = Number(tx.created_at) || 0;
+        if (txTime === 0) continue;
 
         if (isNaN(txTime) || txTime === 0) continue;
 

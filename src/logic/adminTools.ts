@@ -1,5 +1,6 @@
 import { doc, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { getMillis } from './worldPhysics';
 
 /**
  * Force deletes a user and all their associated data (wishes).
@@ -106,7 +107,7 @@ export const listUsers = async () => {
         console.log(`Found ${snap.size} users:`);
         snap.forEach(doc => {
             const d = doc.data();
-            console.log(`- Name: ${d.name}, UID: ${doc.id}, Updated: ${d.last_updated?.toDate?.() || 'unknown'}`);
+            console.log(`- Name: ${d.name}, UID: ${doc.id}, Updated: ${new Date(getMillis(d.last_updated)).toISOString()}`);
         });
     } catch (e) {
         console.error("Failed to list users", e);
@@ -126,7 +127,7 @@ export const listInvitations = async () => {
         snap.forEach(doc => {
             const d = doc.data();
             if (d.is_used) {
-                console.log(`- Code: ${doc.id}, Used By UID: ${d.used_by}, At: ${d.used_at?.toDate?.() || 'unknown'}`);
+                console.log(`- Code: ${doc.id}, Used By UID: ${d.used_by}, At: ${new Date(getMillis(d.used_at)).toISOString()}`);
             } else {
                 console.log(`- Code: ${doc.id} (Unused)`);
             }

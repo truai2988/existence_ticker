@@ -6,9 +6,9 @@ import {
     where, 
     getDocs, 
     writeBatch, 
-    doc,
-    Timestamp 
+    doc
 } from 'firebase/firestore';
+import { getMillis } from '../logic/worldPhysics';
 
 export const useMigration = () => {
     const [isMigrating, setIsMigrating] = useState(false);
@@ -51,7 +51,8 @@ export const useMigration = () => {
                     const txId = `${wishData.status}_migration_${wishId}`;
                     const targetTxRef = doc(txRef, txId);
                     
-                    const timestamp = wishData.cancelled_at || wishData.updated_at || wishData.created_at || Timestamp.now();
+                    const normalizedAt = getMillis(wishData.cancelled_at || wishData.updated_at || wishData.created_at);
+                    const timestamp = normalizedAt || Date.now();
 
                     batch.set(targetTxRef, {
                         type: wishData.status === 'cancelled' ? 'WISH_CANCELLED' : 'WISH_EXPIRED',

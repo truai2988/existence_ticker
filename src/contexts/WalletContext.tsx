@@ -227,7 +227,8 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         if (!userDoc.exists()) throw "Missing Soul";
 
         const data = userDoc.data();
-        const currentRealBalance = calculateDecayedValue(data.balance, getMillis(data.last_updated));
+        const lastUpdated = getMillis(data.last_updated);
+        const currentRealBalance = calculateDecayedValue(data.balance, lastUpdated);
 
         if (currentRealBalance < amount) throw "Insufficient Energy";
 

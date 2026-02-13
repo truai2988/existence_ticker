@@ -1,4 +1,5 @@
-import { Firestore, DocumentData, Timestamp } from 'firebase/firestore';
+import { Firestore, DocumentData } from 'firebase/firestore';
+import { getMillis } from './worldPhysics';
 
 // Core Physics Simulation Engine
 const simulateAndCorrect = async (db: Firestore, user: DocumentData, userTxs: DocumentData[]) => {
@@ -9,12 +10,12 @@ const simulateAndCorrect = async (db: Firestore, user: DocumentData, userTxs: Do
     
     // Sort transactions descending to find origin
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    userTxs.sort((a: any, b: any) => (b.created_at?.toMillis() || 0) - (a.created_at?.toMillis() || 0));
+    userTxs.sort((a: any, b: any) => (Number(b.created_at) || 0) - (Number(a.created_at) || 0));
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const originTx = userTxs.find((tx: any) => ['BIRTH', 'REBIRTH'].includes(tx.type));
     
-    let originTime: Timestamp;
+    let originTime: number;
     let originBalance = 0;
     let fallbackMode = false;
 
@@ -49,21 +50,21 @@ const simulateAndCorrect = async (db: Firestore, user: DocumentData, userTxs: Do
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const inflows = userTxs.filter((tx: any) => 
         fallbackMode 
-            ? (tx.created_at?.toMillis() || 0) >= originTime.toMillis()
-            : (tx.created_at?.toMillis() || 0) > originTime.toMillis()
+            ? (Number(tx.created_at) || 0) >= originTime
+            : (Number(tx.created_at) || 0) > originTime
     );
     // Sort ASC for replay
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    inflows.sort((a: any, b: any) => (a.created_at?.toMillis() || 0) - (b.created_at?.toMillis() || 0));
+    inflows.sort((a: any, b: any) => (Number(a.created_at) || 0) - (Number(b.created_at) || 0));
 
     // Simulate
     let simulatedBalance = originBalance;
-    let lastSimTime = originTime.toMillis();
+    let lastSimTime = originTime;
     const decayRatePerHour = 10;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     inflows.forEach((tx: any) => {
-        const txTime = tx.created_at.toMillis();
+        const txTime = Number(tx.created_at) || 0;
         const elapsed = txTime - lastSimTime;
         const hoursPassed = elapsed / (1000 * 60 * 60);
         const decayAmount = Math.floor(hoursPassed * decayRatePerHour);
@@ -113,7 +114,11 @@ export const auditGravity = async (db: Firestore, userId: string) => {
     // Fetch All Txs (Brute force per previous fix)
     const txSnap = await getDocs(collection(db, 'transactions'));
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const allTxs = txSnap.docs.map(d => ({id: d.id, ...d.data()}));
+    const allTxs = txSnap.docs.map(d => ({
+        id: d.id, 
+        ...d.data(),
+        created_at: getMillis(d.data().created_at)
+    }));
     
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const userTxs = allTxs.filter((tx: any) => tx.recipient_id === userId);

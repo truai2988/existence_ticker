@@ -1,11 +1,5 @@
 export type GratitudeTier = "light" | "medium" | "heavy";
 
-export interface FirestoreTimestamp {
-  seconds: number;
-  nanoseconds: number;
-  toDate: () => Date;
-  toMillis: () => number;
-}
 
 export interface UserProfile {
   id: string;

@@ -3,6 +3,7 @@ import { collection, getDocs, limit, query, orderBy } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { checkUserAnomaly, UserAnomaly } from '../hooks/useDiagnostics';
 import { UserProfile } from '../types';
+import { getMillis } from '../logic/worldPhysics';
 import { Loader2, CheckCircle, Search } from 'lucide-react';
 
 export const AnomalyScanner: React.FC = () => {
@@ -27,9 +28,14 @@ export const AnomalyScanner: React.FC = () => {
             const results: {user: UserProfile, anomaly: UserAnomaly}[] = [];
 
             snapshot.forEach(doc => {
-                const data = doc.data() as Omit<UserProfile, 'id'>;
-                // Ensure ID is present
-                const userData: UserProfile = { ...data, id: doc.id } as UserProfile;
+                const data = doc.data() as Record<string, any>;
+                const userData: UserProfile = { 
+                    ...data, 
+                    id: doc.id,
+                    last_updated: getMillis(data.last_updated),
+                    cycle_started_at: getMillis(data.cycle_started_at),
+                    created_at: getMillis(data.created_at)
+                } as UserProfile;
                 const anomaly = checkUserAnomaly(userData);
                 if (anomaly) {
                     results.push({ user: userData, anomaly });

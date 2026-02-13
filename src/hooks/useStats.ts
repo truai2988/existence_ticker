@@ -3,6 +3,7 @@ import { LUNAR_CONSTANTS } from '../constants';
 import { db } from '../lib/firebase';
 import { collection, query, limit, getDocs, doc, getDoc, getCountFromServer, setDoc } from 'firebase/firestore';
 import { calculateLifePoints } from '../utils/decay';
+import { getMillis } from '../logic/worldPhysics';
 
 export type Season = 'Spring' | 'Autumn' | 'Winter';
 export type MetabolismStatus = 'Active' | 'Stable' | 'Stagnant';
@@ -105,7 +106,7 @@ export const useStats = () => {
                     snapshot.forEach(doc => {
                         const data = doc.data();
                         const rawBal = Number(data.balance) || 0;
-                        const lastUpdated = data.last_updated || data.created_at;
+                        const lastUpdated = getMillis(data.last_updated || data.created_at);
                         const trueBal = calculateLifePoints(rawBal, lastUpdated);
 
                         if (trueBal >= 1500) full++;
@@ -114,9 +115,7 @@ export const useStats = () => {
                         
                         // Cycle Calculation
                         // cycle_started_at -> days elapsed
-                        let startedAt = now; 
-                        if (data.cycle_started_at) startedAt = data.cycle_started_at.toMillis();
-                        else if (data.created_at) startedAt = data.created_at.toMillis();
+                        const startedAt = getMillis(data.cycle_started_at || data.created_at);
                         
                         const elapsed = now - startedAt;
                         // 1 day = 86400000ms
@@ -148,7 +147,7 @@ export const useStats = () => {
                     snapshot.forEach(doc => {
                         const d = doc.data();
                         const b = Number(d.balance) || 0;
-                        const l = d.last_updated || d.created_at;
+                        const l = getMillis(d.last_updated || d.created_at);
                         calculatedTotalSupply += calculateLifePoints(b, l);
                     });
                     

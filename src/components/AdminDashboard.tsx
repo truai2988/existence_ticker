@@ -5,7 +5,7 @@ import { db, auth } from "../lib/firebase";
 import { ADMIN_UIDS } from "../constants";
 import { UserProfile } from "../types";
 import { useMigration } from "../hooks/useMigration";
-import { calculateDecayedValue, toMilli, fromMilli } from "../logic/worldPhysics";
+import { calculateDecayedValue, toMilli, fromMilli, getMillis } from "../logic/worldPhysics";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -56,18 +56,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           const q = query(usersRef, limit(50));
 
           const snapshot = await getDocs(q);
-          const users = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as UserProfile));
-          
-          // Client-side sort to be safe against missing fields
-          users.sort((a, b) => {
-             const getSeconds = (t: unknown) => {
-                 if (t && typeof t === 'object' && 'seconds' in t) {
-                     return (t as { seconds: number }).seconds;
-                 }
-                 return 0;
-             };
-             return getSeconds(b.last_updated) - getSeconds(a.last_updated);
+          const users = snapshot.docs.map(doc => {
+              const data = doc.data();
+              return { 
+                  ...data, 
+                  id: doc.id,
+                  last_updated: getMillis(data.last_updated),
+                  cycle_started_at: getMillis(data.cycle_started_at),
+                  created_at: getMillis(data.created_at)
+              } as UserProfile;
           });
+          
+          // Client-side sort (now using normalized numbers)
+          users.sort((a, b) => (Number(b.last_updated) || 0) - (Number(a.last_updated) || 0));
           
           setUserList(users);
           // データベース上のadmin + コード指定のadminの両方をカウント

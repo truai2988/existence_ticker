@@ -380,20 +380,10 @@ export const WishCard: React.FC<WishCardProps> = ({
     }
   };
 
-  // Update formatDate to include time
-  const formatDate = (
-    val: number | string | { toDate?: () => Date } | Date | undefined,
-  ) => {
+  const formatDate = (val: number | undefined) => {
     if (!val) return "今";
-    const date =
-      typeof val === "number"
-        ? new Date(val)
-        : typeof val === "string"
-          ? new Date(val)
-          : val && "toDate" in val && typeof val.toDate === "function"
-            ? val.toDate()
-            : null;
-    if (!date) return "不明";
+    const date = new Date(val);
+    if (isNaN(date.getTime())) return "不明";
     return date.toLocaleString("ja-JP", {
       year: "numeric",
       month: "2-digit",

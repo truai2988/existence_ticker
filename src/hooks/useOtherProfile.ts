@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { db } from '../lib/firebase';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { UserProfile } from '../types';
+import { getMillis } from '../logic/worldPhysics';
 
 export const useOtherProfile = (userId: string | null) => {
     const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -20,8 +21,14 @@ export const useOtherProfile = (userId: string | null) => {
         const unsubscribe = onSnapshot(ref, (snap) => {
             if (snap.exists()) {
                 const data = snap.data();
-                // console.log("Fetched Profile:", userId, data.name);
-                setProfile({ id: snap.id, ...data } as UserProfile);
+                const normalized: UserProfile = {
+                    id: snap.id,
+                    ...data,
+                    last_updated: getMillis(data.last_updated),
+                    cycle_started_at: getMillis(data.cycle_started_at),
+                    created_at: getMillis(data.created_at),
+                } as UserProfile;
+                setProfile(normalized);
             } else {
                 console.warn("Profile not found for:", userId);
                 setProfile(null);

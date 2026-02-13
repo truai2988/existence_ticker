@@ -1,4 +1,5 @@
 import { Firestore } from 'firebase/firestore';
+import { getMillis } from './worldPhysics';
 
 export const cleanupDuplicates = async (db: Firestore) => {
     if (!db) return;
@@ -51,7 +52,12 @@ export const cleanupDuplicates = async (db: Firestore) => {
         }
         
         if (!groups[key]) groups[key] = [];
-        groups[key].push({ id: d.id, ...data, _ref: d.ref, _millis: data.created_at?.toMillis?.() || 0 });
+        groups[key].push({ 
+            id: d.id, 
+            ...data, 
+            _ref: d.ref, 
+            _millis: getMillis(data.created_at)
+        });
     });
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
