@@ -104,11 +104,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
       try {
           if (!db) return;
-          const { doc, updateDoc } = await import("firebase/firestore");
+          const { doc, runTransaction } = await import("firebase/firestore");
           const userRef = doc(db, "users", targetUser.id);
           
-          await updateDoc(userRef, {
-              role: isCurrentlyAdmin ? 'user' : 'admin'
+          await runTransaction(db, async (transaction) => {
+              const userSnap = await transaction.get(userRef);
+              if (!userSnap.exists()) throw new Error("User not found");
+              
+              transaction.update(userRef, {
+                  role: isCurrentlyAdmin ? 'user' : 'admin'
+              });
           });
 
           // Optimistic Update
@@ -504,7 +509,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
                                 try {
                                     if (!db) throw new Error("Database not initialized");
-                                    const { collection, getDocs, query, where, updateDoc, serverTimestamp, limit } = await import("firebase/firestore");
+                                    const { collection, getDocs, query, where, serverTimestamp, limit, runTransaction } = await import("firebase/firestore");
 
                                     log.push(`[${new Date().toLocaleTimeString()}] 修理の儀式 開始...`);
                                     setCleanupLog([...log]);
@@ -572,30 +577,33 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
                                             log.push(`[${new Date().toLocaleTimeString()}] 修正中: "${title}" (現:${currentStatus} → 履歴:${txData.type})`);
 
-                                            if (txData.type === "COMPENSATION") {
-                                                await updateDoc(wishDoc.ref, {
-                                                    status: "cancelled",
-                                                    cancel_reason: "helper_cancellation",
-                                                    helper_id: txData.recipient_id || txData.helper_id || wishData.helper_id || null,
-                                                    helper_name: txData.recipient_name || txData.helper_name || wishData.helper_name || "Helper",
-                                                    val_at_fulfillment: txData.amount,
-                                                    cancelled_at: txData.created_at || serverTimestamp(),
-                                                    system_note: null,
-                                                    updated_at: serverTimestamp()
-                                                });
-                                                log.push(`   ✅ 補償（お詫び受領）として正常化しました`);
-                                            } else {
-                                                await updateDoc(wishDoc.ref, {
-                                                    status: "fulfilled",
-                                                    helper_id: txData.recipient_id || txData.helper_id || wishData.helper_id || null,
-                                                    helper_name: txData.recipient_name || txData.helper_name || wishData.helper_name || "Helper",
-                                                    val_at_fulfillment: txData.amount,
-                                                    fulfilled_at: txData.created_at || serverTimestamp(),
-                                                    system_note: null,
-                                                    updated_at: serverTimestamp()
-                                                });
-                                                log.push(`   ✅ 完了（感謝受領）として正常化しました`);
-                                            }
+                                            await runTransaction(db, async (transaction) => {
+                                                // Read first
+                                                await transaction.get(wishDoc.ref);
+
+                                                if (txData.type === "COMPENSATION") {
+                                                    transaction.update(wishDoc.ref, {
+                                                        status: "cancelled",
+                                                        cancel_reason: "helper_cancellation",
+                                                        helper_id: txData.recipient_id || txData.helper_id || wishData.helper_id || null,
+                                                        helper_name: txData.recipient_name || txData.helper_name || wishData.helper_name || "Helper",
+                                                        val_at_fulfillment: txData.amount,
+                                                        cancelled_at: txData.created_at || serverTimestamp(),
+                                                        system_note: null,
+                                                        updated_at: serverTimestamp()
+                                                    });
+                                                } else {
+                                                    transaction.update(wishDoc.ref, {
+                                                        status: "fulfilled",
+                                                        helper_id: txData.recipient_id || txData.helper_id || wishData.helper_id || null,
+                                                        helper_name: txData.recipient_name || txData.helper_name || wishData.helper_name || "Helper",
+                                                        val_at_fulfillment: txData.amount,
+                                                        fulfilled_at: txData.created_at || serverTimestamp(),
+                                                        system_note: null,
+                                                        updated_at: serverTimestamp()
+                                                    });
+                                                }
+                                            });
                                             
                                             restoredCount++;
                                             setCleanupLog([...log]);

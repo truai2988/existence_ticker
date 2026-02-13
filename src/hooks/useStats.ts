@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LUNAR_CONSTANTS } from '../constants';
 import { db } from '../lib/firebase';
-import { collection, query, limit, getDocs, doc, getDoc, getCountFromServer, setDoc } from 'firebase/firestore';
+import { collection, query, limit, getDocs, doc, getDoc, getCountFromServer, runTransaction, Transaction } from 'firebase/firestore';
 import { calculateDecayedValue, getMillis, toMilli, fromMilli } from '../logic/worldPhysics';
 
 export type Season = 'Spring' | 'Autumn' | 'Winter';
@@ -217,15 +217,19 @@ export const useStats = () => {
     }, [sunCapacity]);
 
     const updateCapacity = async (newCapacity: number) => {
-        setSunCapacity(newCapacity);
-        if (db) {
-            try {
-                const settingsRef = doc(db, 'system_settings', 'stats');
-                await setDoc(settingsRef, { global_capacity: newCapacity }, { merge: true });
-                console.log(`Sun Capacity Synced: ${newCapacity}`);
-            } catch (e) {
-                console.error("Failed to sync sun capacity", e);
-            }
+        if (!db) return;
+        try {
+            const settingsRef = doc(db, 'system_settings', 'stats');
+            await runTransaction(db, async (transaction: Transaction) => {
+                // Read First
+                await transaction.get(settingsRef); 
+                
+                transaction.set(settingsRef, { global_capacity: newCapacity }, { merge: true });
+            });
+            setSunCapacity(newCapacity);
+            console.log(`Sun Capacity Synced: ${newCapacity}`);
+        } catch (e) {
+            console.error("Failed to sync sun capacity", e);
         }
     };
 

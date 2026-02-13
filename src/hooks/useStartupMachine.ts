@@ -2,7 +2,7 @@ import { useAuth } from "./useAuthHook";
 import { useProfile } from "./useProfile";
 import { useWallet } from "./useWallet";
 import { useSeasonalEvent, SeasonalEventData } from "./useSeasonalEvent";
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { User } from 'firebase/auth';
 import { UserProfile } from '../types';
 import { ADMIN_UIDS } from "../constants";
@@ -40,14 +40,10 @@ export const useStartupMachine = () => {
     const { status: walletStatus } = useWallet(); 
     const { eventData, isChecking: eventChecking, completeEvent } = useSeasonalEvent();
 
-    // 2. Brain-exclusive state: GHOST detection timer
-    const ghostTimerRef = useRef<NodeJS.Timeout | null>(null);
-    const purgeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    // 2. Brain-exclusive state: GHOST detection
     const [isGhostGracePeriod, setIsGhostGracePeriod] = useState(false);
-    const [isGhostPurging, setIsGhostPurging] = useState(false);
-    const [purgeMessage, setPurgeMessage] = useState<string | undefined>(undefined);
 
-    // 3. GHOST Detection & Purge Logic (Brain's exclusive judgment)
+    // 3. GHOST Detection Logic (Passive Observation)
     useEffect(() => {
         // Condition: Auth loaded, Profile loaded, user exists, but profile is null
         // CRITICAL PROTECTION: 
@@ -59,70 +55,16 @@ export const useStartupMachine = () => {
             user && 
             !profile && 
             user.isAnonymous &&
-            !ADMIN_UIDS.includes(user.uid) &&
-            !isGhostPurging;
+            !ADMIN_UIDS.includes(user.uid);
         
         if (isGhostDetected) {
-            console.log(`[StateMachine] Potential ghost detected (UID: ${user.uid}, Anonymous: ${user.isAnonymous})`);
+            console.log(`[StateMachine] Ghost detected (UID: ${user.uid}, Anonymous: ${user.isAnonymous}) - Passive state initiated.`);
+            setIsGhostGracePeriod(true); // Re-using state to signal ghost presence to UI
+        } else {
+            setIsGhostGracePeriod(false);
         }
         
-        // 1. Protection: If we are currently in the middle of a registration, NEVER purge.
-        if (window.__isRegistering || isRegistering || !isGhostDetected) {
-            if (ghostTimerRef.current) {
-                clearTimeout(ghostTimerRef.current);
-                ghostTimerRef.current = null;
-            }
-            if (isGhostGracePeriod) setIsGhostGracePeriod(false);
-            return;
-        }
-
-        // Handle Grace Period start
-        if (isGhostDetected && !isGhostGracePeriod && !ghostTimerRef.current) {
-            console.warn("[StateMachine] GHOST suspected - starting 8s grace period for safety");
-            setIsGhostGracePeriod(true);
-            
-            ghostTimerRef.current = setTimeout(async () => {
-                // Secondary check: Did registration start or profile arrive during the timeout?
-                if (window.__isRegistering || isRegistering) {
-                    setIsGhostGracePeriod(false);
-                    ghostTimerRef.current = null;
-                    return;
-                }
-
-                console.error("[StateMachine] GHOST confirmed - executing strict removal");
-                setIsGhostGracePeriod(false);
-                setIsGhostPurging(true);
-                setPurgeMessage("システムを最適化中...");
-
-                // Safety Timeout: If purge takes more than 10s, force logout
-                const safety = setTimeout(async () => {
-                    console.error("[StateMachine] Purge timed out - forcing sign out");
-                    await signOut();
-                    setIsGhostPurging(false);
-                    setPurgeMessage(undefined);
-                }, 10000);
-                purgeTimeoutRef.current = safety;
-
-                try {
-                    sessionStorage.setItem('ghost_pured_feedback_needed', 'true');
-                    await deleteAccount();
-                } catch (error) {
-                    console.error("[StateMachine] Failed to purge GHOST:", error);
-                    await signOut();
-                } finally {
-                    setIsGhostPurging(false);
-                    setPurgeMessage(undefined);
-                    if (purgeTimeoutRef.current) clearTimeout(purgeTimeoutRef.current);
-                    purgeTimeoutRef.current = null;
-                    ghostTimerRef.current = null;
-                }
-            }, 8000);
-        }
-
-        return () => {
-            // No automatic cleanup here to keep the async chain stable
-        };
-    }, [authLoading, profileLoading, user, profile, isGhostPurging, isGhostGracePeriod, isRegistering, deleteAccount, signOut]);
+    }, [authLoading, profileLoading, user, profile]);
 
     // 4. The Deterministic State Machine
     // We derive the current visual state purely from the inputs.
@@ -130,8 +72,8 @@ export const useStartupMachine = () => {
     
     return useMemo((): StartupResult => {
         // PHASE 1: LOADING
-        // If any core system is loading, OR we are purging a ghost, show LOADING
-        if (authLoading || profileLoading || eventChecking || isGhostPurging) {
+        // If any core system is loading, show LOADING
+        if (authLoading || profileLoading || eventChecking) {
             return {
                 view: 'LOADING' as StartupView,
                 appMode: 'NORMAL' as AppMode,
@@ -140,8 +82,7 @@ export const useStartupMachine = () => {
                     profile: null, 
                     eventData: null,
                     message: authLoading ? "魂を呼び覚ましています..." : 
-                             profileLoading ? "記憶を辿っています..." : 
-                             isGhostPurging ? (purgeMessage || "修復を試みています...") : "世界を整えています..."
+                             profileLoading ? "記憶を辿っています..." : "世界を整えています..."
                 },
                 actions: { signOut, completeEvent, deleteAccount }
             };
@@ -198,7 +139,7 @@ export const useStartupMachine = () => {
                     user, 
                     profile: null, 
                     eventData: null,
-                    message: (isRegistering || window.__isRegistering) ? "新しい存在を刻んでいます..." : "再接続を待っています..."
+                    message: (isRegistering || (window as any).__isRegistering) ? "新しい存在を刻んでいます..." : "再接続を待っています..."
                 },
                 actions: { signOut, completeEvent, deleteAccount }
             };
@@ -214,13 +155,12 @@ export const useStartupMachine = () => {
         };
 
     }, [
-        authLoading, profileLoading, eventChecking, isGhostPurging, // Loading flags
-        user, profile,                                              // Data existence
-        eventData,                                                  // Events
-        walletStatus,                                               // Business Logic status
-        isGhostGracePeriod,                                         // Brain's timer state
-        purgeMessage,                                               // Purge message
-        isRegistering,                                              // Registration status
-        signOut, completeEvent, deleteAccount                       // Dependencies
+        authLoading, profileLoading, eventChecking,
+        user, profile,
+        eventData,
+        walletStatus,
+        isGhostGracePeriod,
+        isRegistering,
+        signOut, completeEvent, deleteAccount
     ]);
 };

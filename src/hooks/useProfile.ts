@@ -4,7 +4,6 @@ import { db } from "../lib/firebase";
 import {
   doc,
   onSnapshot,
-  updateDoc,
   serverTimestamp,
   runTransaction,
   Transaction,
@@ -73,7 +72,7 @@ export const useProfile = () => {
          updates.location.city !== profile?.location?.city);
 
       if (isLocationChanging) {
-        await runTransaction(db, async (transaction) => {
+        await runTransaction(db, async (transaction: Transaction) => {
           const userSnap = await transaction.get(userRef);
           if (!userSnap.exists()) throw new Error("User profile not found");
           const oldData = userSnap.data() as UserProfile;
@@ -104,9 +103,14 @@ export const useProfile = () => {
         });
       } else {
         // Standard update if location is same
-        await updateDoc(userRef, {
-          ...updates,
-          last_updated: serverTimestamp(),
+        await runTransaction(db, async (transaction: Transaction) => {
+          const userSnap = await transaction.get(userRef);
+          if (!userSnap.exists()) throw new Error("User profile not found");
+          
+          transaction.update(userRef, {
+            ...updates,
+            last_updated: serverTimestamp(),
+          });
         });
       }
       
@@ -126,7 +130,7 @@ export const useProfile = () => {
     const userRef = doc(db, "users", user.uid);
 
     try {
-        await runTransaction(db, async (transaction) => {
+        await runTransaction(db, async (transaction: Transaction) => {
             const userSnap = await transaction.get(userRef);
             if (!userSnap.exists()) {
                 throw new Error("User profile not found during transaction");

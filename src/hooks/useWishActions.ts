@@ -8,14 +8,13 @@ import {
   collection,
   doc,
   runTransaction,
+  Transaction,
   serverTimestamp,
   increment,
-  updateDoc,
   deleteField,
   query,
   where,
   getDocs,
-  FieldValue,
 } from "firebase/firestore";
 
 import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS, getMillis } from "../logic/worldPhysics";
@@ -44,7 +43,8 @@ export const useWishActions = () => {
     setIsSubmitting(true);
 
     const userRef = doc(db, "users", user.uid);
-    const wishRef = doc(collection(db, "wishes")); // Generates new ID
+    const wishId = `wish_${user.uid}_${Date.now()}`;
+    const wishRef = doc(db, "wishes", wishId); 
     const bounty = costMap[input.tier];
 
     // Optimistic Update
@@ -66,7 +66,7 @@ export const useWishActions = () => {
     setOptimisticCommittedOffset((prev: number) => prev + bounty);
 
     try {
-      await runTransaction(db, async (transaction) => {
+      await runTransaction(db, async (transaction: Transaction) => {
         // 1. Get User Data
         const userDoc = await transaction.get(userRef);
         if (!userDoc.exists()) throw "User profile not found";
@@ -153,7 +153,7 @@ export const useWishActions = () => {
       const wishRef = doc(db, "wishes", wishId);
       const userRef = doc(db, "users", user.uid);
 
-      await runTransaction(db, async (transaction) => {
+      await runTransaction(db, async (transaction: any) => {
         const wishDoc = await transaction.get(wishRef);
         if (!wishDoc.exists()) throw "Wish not found";
 
@@ -198,7 +198,7 @@ export const useWishActions = () => {
     try {
       const wishRef = doc(db, "wishes", wishId);
       
-      await runTransaction(db, async (transaction) => {
+      await runTransaction(db, async (transaction: any) => {
           const wishDoc = await transaction.get(wishRef);
           if (!wishDoc.exists()) throw "Wish not found";
           
@@ -233,8 +233,16 @@ export const useWishActions = () => {
     setIsSubmitting(true);
     try {
       const wishRef = doc(db, "wishes", wishId);
-      await updateDoc(wishRef, {
-        status: "review_pending",
+      await runTransaction(db, async (transaction: any) => {
+          const wishDoc = await transaction.get(wishRef);
+          if (!wishDoc.exists()) throw "Wish not found";
+          
+          if (wishDoc.data().helper_id !== user.uid) throw "Not authorized to report completion";
+          
+          transaction.update(wishRef, {
+            status: "review_pending",
+            updated_at: serverTimestamp()
+          });
       });
       return true;
     } catch (e) {
@@ -250,7 +258,7 @@ export const useWishActions = () => {
     setIsSubmitting(true);
     try {
       const wishRef = doc(db, "wishes", wishId);
-      await runTransaction(db, async (transaction) => {
+      await runTransaction(db, async (transaction: any) => {
         const wishDoc = await transaction.get(wishRef);
         if (!wishDoc.exists()) throw "Wish does not exist";
         const wishData = wishDoc.data();
@@ -382,7 +390,6 @@ export const useWishActions = () => {
                   sender_name: isRequesterCanceling ? rName : rName, 
                   recipient_id: wishData.helper_id,
                   recipient_name: hName,
-                  
                   wish_title: wishData.content,
                   wish_id: wishId,
                   description: isRequesterCanceling 
@@ -517,7 +524,13 @@ export const useWishActions = () => {
         if (!wishDoc.exists()) throw "Wish not found";
 
         const wishData = wishDoc.data();
+        const rRef = doc(db!, 'users', wishData.requester_id);
         
+        // --- READS FIRST ---
+        await transaction.get(userRef);
+        await transaction.get(rRef);
+
+        // --- WRITES ---
         // 1. Remove from Applicants (Clean Slate)
         const currentApplicants = wishData.applicants || [];
         const updatedApplicants = currentApplicants.filter(
@@ -536,7 +549,6 @@ export const useWishActions = () => {
         });
 
         // Notify Requester
-        const rRef = doc(db!, 'users', wishData.requester_id);
         transaction.update(rRef, {
             pending_interruption_notification: "助け手様が辞退されたため、願いが再び募集に戻りました。Lmは安全に守られています。",
             last_updated: serverTimestamp()
@@ -572,14 +584,23 @@ export const useWishActions = () => {
     setIsSubmitting(true);
     try {
       const wishRef = doc(db, "wishes", wishId);
-      await updateDoc(wishRef, {
-        content: newContent,
-        updated_at: serverTimestamp(),
+      await runTransaction(db, async (transaction) => {
+          const wishDoc = await transaction.get(wishRef);
+          if (!wishDoc.exists()) throw "Wish not found";
+          
+          const data = wishDoc.data();
+          if (data.requester_id !== user.uid) throw "Not authorized to update this wish";
+          if (data.status !== 'open') throw "Wish is already in progress and cannot be edited";
+
+          transaction.update(wishRef, {
+            content: newContent,
+            updated_at: serverTimestamp(),
+          });
       });
       return true;
     } catch (e) {
       console.error("Failed to update wish:", e);
-      alert("更新に失敗しました");
+      alert(`更新に失敗しました: ${e instanceof Error ? e.message : String(e)}`);
       return false;
     } finally {
       setIsSubmitting(false);
@@ -832,7 +853,7 @@ export const useWishActions = () => {
       try {
         const wishRef = doc(db, "wishes", wishId);
         
-        await runTransaction(db, async (transaction) => {
+        await runTransaction(db, async (transaction: Transaction) => {
           const wishDoc = await transaction.get(wishRef);
           if (!wishDoc.exists()) throw "Wish not found";
           const wishData = wishDoc.data();
@@ -878,26 +899,25 @@ export const useWishActions = () => {
       try {
         const wishRef = doc(db, "wishes", wishId);
         
-        let targetStatus = status;
-        let targetHelperId = helperId;
+        await runTransaction(db, async (transaction: Transaction) => {
+            const wishDoc = await transaction.get(wishRef);
+            if (!wishDoc.exists()) throw "Wish not found";
+            
+            const wishData = wishDoc.data();
+            const targetStatus = status || ((helperId || wishData.helper_id) ? 'in_progress' : 'open');
+            const targetHelperId = helperId || wishData.helper_id;
 
-        if (!targetStatus) {
-            const wishDoc = await getDocs(query(collection(db, "wishes"), where("__name__", "==", wishId)));
-            const wishData = wishDoc.docs[0]?.data();
-            targetStatus = (helperId || wishData?.helper_id) ? 'in_progress' : 'open';
-            if (!targetHelperId) targetHelperId = wishData?.helper_id;
-        }
+            const updateData: Record<string, any> = {
+              status: targetStatus,
+              updated_at: serverTimestamp(),
+            };
 
-        const updateData: { status: string; updated_at: FieldValue; helper_id?: string } = {
-          status: targetStatus,
-          updated_at: serverTimestamp(),
-        };
+            if (targetHelperId) {
+                updateData.helper_id = targetHelperId;
+            }
 
-        if (targetHelperId) {
-            updateData.helper_id = targetHelperId;
-        }
-
-        await updateDoc(wishRef, updateData);
+            transaction.update(wishRef, updateData);
+        });
         return true;
       } catch (e) {
         console.error("Failed to reactivate wish:", e);
