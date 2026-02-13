@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuthHook';
 import { db } from '../lib/firebase';
-import { collection, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { HeaderNavigation } from './HeaderNavigation';
 import { AppViewMode } from '../types';
 import { Sun, Heart, Sparkles, CheckCircle2, Archive, Slash } from 'lucide-react';
+import { getMillis } from '../logic/worldPhysics';
 
 // Type Definition for our unified Transaction
 type TransactionLog = {
@@ -28,20 +29,6 @@ interface JournalViewProps {
   onTabChange?: (mode: AppViewMode) => void;
 }
 
-interface FSTs { toDate: () => Date; seconds: number; }
-
-// Local helper for edge normalization
-const getMillis = (ts: unknown): number => {
-    if (!ts) return Date.now();
-    if (typeof ts === 'number') return ts;
-    if (typeof ts === 'string') return new Date(ts).getTime();
-    if (ts && typeof ts === 'object') {
-        const t = ts as FSTs;
-        if ('toDate' in t && typeof t.toDate === 'function') return t.toDate().getTime();
-        if ('seconds' in t && typeof t.seconds === 'number') return t.seconds * 1000;
-    }
-    return Date.now();
-};
 
 const formatDate = (date: Date): string => {
     const now = new Date();
@@ -68,53 +55,55 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
      const qSent = query(txRef, where('sender_id', '==', user.uid), orderBy('created_at', 'desc'), limit(50));
      const qReceived = query(txRef, where('recipient_id', '==', user.uid), orderBy('created_at', 'desc'), limit(50));
      
-     let sentData: TransactionLog[] = [];
-     let receivedData: TransactionLog[] = [];
+     const fetchData = async () => {
+         setIsLoading(true);
+         try {
+             const [sentSnap, receivedSnap] = await Promise.all([
+                 getDocs(qSent),
+                 getDocs(qReceived)
+             ]);
 
-     const updateState = () => {
-         const validData = [...sentData, ...receivedData];
-         const uniqueById = Array.from(new Map(validData.map(item => [item.id, item])).values());
-         const sorted = uniqueById.sort((a, b) => b.created_at - a.created_at);
+             const sentData = sentSnap.docs.map(d => ({ 
+                 id: d.id, 
+                 ...d.data(),
+                 created_at: getMillis(d.data().created_at)
+             } as TransactionLog));
 
-         const cleanLogs: TransactionLog[] = [];
-         sorted.forEach((current, i) => {
-             if (i === 0) {
+             const receivedData = receivedSnap.docs.map(d => ({ 
+                 id: d.id, 
+                 ...d.data(),
+                 created_at: getMillis(d.data().created_at)
+             } as TransactionLog));
+
+             const validData = [...sentData, ...receivedData];
+             const uniqueById = Array.from(new Map(validData.map(item => [item.id, item])).values());
+             const sorted = uniqueById.sort((a, b) => b.created_at - a.created_at);
+
+             const cleanLogs: TransactionLog[] = [];
+             sorted.forEach((current, i) => {
+                 if (i === 0) {
+                     cleanLogs.push(current);
+                     return;
+                 }
+                 const prev = cleanLogs[cleanLogs.length - 1];
+                 const tCurrent = current.created_at;
+                 const tPrev = prev.created_at;
+                 const isTimeClose = Math.abs(tPrev - tCurrent) < 2 * 60 * 1000;
+                 const isSameType = current.type === prev.type;
+                 const isSameTitle = current.wish_title === prev.wish_title;
+                 const isSameAmount = current.amount === prev.amount;
+                 if (isTimeClose && isSameType && isSameTitle && isSameAmount) return;
                  cleanLogs.push(current);
-                 return;
-             }
-             const prev = cleanLogs[cleanLogs.length - 1];
-             const tCurrent = current.created_at;
-             const tPrev = prev.created_at;
-             const isTimeClose = Math.abs(tPrev - tCurrent) < 2 * 60 * 1000;
-             const isSameType = current.type === prev.type;
-             const isSameTitle = current.wish_title === prev.wish_title;
-             const isSameAmount = current.amount === prev.amount;
-             if (isTimeClose && isSameType && isSameTitle && isSameAmount) return;
-             cleanLogs.push(current);
-         });
-         setLogs(cleanLogs);
-         setIsLoading(false);
+             });
+             setLogs(cleanLogs);
+         } catch (e) {
+             console.error("Journal fetch failed:", e);
+         } finally {
+             setIsLoading(false);
+         }
      };
 
-     const u1 = onSnapshot(qSent, (snap) => {
-         sentData = snap.docs.map(d => ({ 
-             id: d.id, 
-             ...d.data(),
-             created_at: getMillis(d.data().created_at)
-         } as TransactionLog));
-         updateState();
-     });
-     
-     const u2 = onSnapshot(qReceived, (snap) => {
-         receivedData = snap.docs.map(d => ({ 
-             id: d.id, 
-             ...d.data(),
-             created_at: getMillis(d.data().created_at)
-         } as TransactionLog));
-         updateState();
-     });
-
-     return () => { u1(); u2(); };
+     fetchData();
   }, [user]);
 
    return (

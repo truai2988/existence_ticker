@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useState, ReactNode } from "react";
+import React, { useMemo, useEffect, useState, useCallback, ReactNode } from "react";
 import { useAuth } from "../hooks/useAuthHook";
 import { db } from "../lib/firebase";
 import {
@@ -22,7 +22,7 @@ import {
 } from "../logic/worldPhysics";
 import { WalletStatus } from "../types/wallet";
 import { useWishesContext } from "./WishesContext";
-import { WalletContext, WalletContextType } from "./WalletContextDefinition";
+import { WalletContext } from "./WalletContextDefinition";
 
 // WalletProvider Component
 
@@ -117,7 +117,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   }, [user, profile, profileLoading, balance, committedLm, availableLm]);
 
   // === 4. THE SACRED RITUAL (Rebirth) ===
-  const performRebirthReset = async (options: { userInitiated: boolean }): Promise<{ success: boolean; newBalance?: number }> => {
+  const performRebirthReset = useCallback(async (options: { userInitiated: boolean }): Promise<{ success: boolean; newBalance?: number }> => {
     if (!user || !db) return { success: false };
     
     // Strict enforcement of User Will
@@ -219,9 +219,9 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       console.error("Purification Failed:", e);
       return { success: false };
     }
-  };
+  }, [user, status]);
 
-  const pay = async (amount: number): Promise<boolean> => {
+  const pay = useCallback(async (amount: number): Promise<boolean> => {
     if (!user || !db) return false;
     try {
       await runTransaction(db, async (transaction) => {
@@ -256,9 +256,9 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       console.error("Payment Failed:", e);
       return false;
     }
-  };
+  }, [user]);
 
-  const value: WalletContextType = {
+  const contextValue = useMemo(() => ({
     balance,
     committedLm,
     availableLm,
@@ -270,7 +270,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setOptimisticBalanceOffset,
     optimisticCommittedOffset,
     setOptimisticCommittedOffset,
-  };
+  }), [balance, committedLm, availableLm, status, pay, performRebirthReset, profileLoading, wishesLoading, optimisticBalanceOffset, optimisticCommittedOffset]);
 
-  return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>;
+  return <WalletContext.Provider value={contextValue}>{children}</WalletContext.Provider>;
 };

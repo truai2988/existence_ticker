@@ -1,4 +1,4 @@
-import { useEffect, useState, ReactNode } from 'react';
+import { useEffect, useState, useMemo, ReactNode } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { AuthContext } from './AuthContextDefinition';
@@ -28,8 +28,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return () => unsubscribe();
     }, []);
 
+    const contextValue = useMemo(() => ({ 
+        user, 
+        loading, 
+        isRegistering, 
+        setIsRegistering 
+    }), [user, loading, isRegistering]);
+
     return (
-        <AuthContext.Provider value={{ user, loading, isRegistering, setIsRegistering }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );

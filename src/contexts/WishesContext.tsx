@@ -1,22 +1,11 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, useCallback, ReactNode } from 'react';
 import { Wish } from '../types';
 import { db } from '../lib/firebase';
-import { collection, query, orderBy, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, where, onSnapshot, limit } from 'firebase/firestore';
 import { useAuth } from '../hooks/useAuthHook';
+import { getMillis } from '../logic/worldPhysics';
 
-// --- Global Helpers ---
-const getMillis = (ts: unknown): number => {
-    if (!ts) return 0;
-    if (typeof ts === 'string') return new Date(ts).getTime();
-    if (typeof ts === 'object' && ts !== null && 'toMillis' in ts && typeof (ts as { toMillis: () => number }).toMillis === 'function') {
-        return (ts as { toMillis: () => number }).toMillis();
-    }
-    if (typeof ts === 'object' && ts !== null && 'seconds' in ts) {
-        return (ts as { seconds: number }).seconds * 1000;
-    }
-    return 0;
-};
 
 interface WishesContextType {
     // Active Data (Real-time)
@@ -59,15 +48,15 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
     // Merge Real + Optimistic
     // Note: Deduplicate by ID to prefer Real data if both exist (e.g. after sync)
-    const mergeOptimistic = (real: Wish[]) => {
+    const mergeOptimistic = useCallback((real: Wish[]) => {
         const realIds = new Set(real.map(r => r.id));
         const filteredOptimistic = optimisticWishes.filter(o => !realIds.has(o.id));
         return [...filteredOptimistic, ...real].sort((a,b) => getMillis(b.created_at) - getMillis(a.created_at));
-    };
+    }, [optimisticWishes]);
 
-    const mergedWishes = mergeOptimistic(wishes);
-    const mergedUserActive = mergeOptimistic(userActiveWishes);
-    const mergedInvolved = mergeOptimistic(involvedActiveWishes);
+    const mergedWishes = useMemo(() => mergeOptimistic(wishes), [wishes, mergeOptimistic]);
+    const mergedUserActive = useMemo(() => mergeOptimistic(userActiveWishes), [userActiveWishes, mergeOptimistic]);
+    const mergedInvolved = useMemo(() => mergeOptimistic(involvedActiveWishes), [involvedActiveWishes, mergeOptimistic]);
 
 
 
@@ -85,7 +74,8 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         const qFeed = query(
             collection(db, 'wishes'),
             where('status', '==', 'open'),
-            orderBy('created_at', 'desc')
+            orderBy('created_at', 'desc'),
+            limit(100)
         );
 
         const unsubFeed = onSnapshot(qFeed, (snap) => {
@@ -215,19 +205,21 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
     }, [user]);
 
-    return (
-        <WishesContext.Provider value={{ 
-            wishes: mergedWishes, // Global Active
-            userActiveWishes: mergedUserActive, 
-            involvedActiveWishes: mergedInvolved,
-            
-            addOptimisticWish,
-            removeOptimisticWish,
-            updateOptimisticWish,
+    const contextValue = useMemo(() => ({ 
+        wishes: mergedWishes, // Global Active
+        userActiveWishes: mergedUserActive, 
+        involvedActiveWishes: mergedInvolved,
+        
+        addOptimisticWish,
+        removeOptimisticWish,
+        updateOptimisticWish,
 
-            isLoading, 
-            error
-        }}>
+        isLoading, 
+        error
+    }), [mergedWishes, mergedUserActive, mergedInvolved, isLoading, error]);
+
+    return (
+        <WishesContext.Provider value={contextValue}>
             {children}
         </WishesContext.Provider>
     );
