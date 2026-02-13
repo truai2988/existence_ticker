@@ -256,4 +256,3 @@ export const debugShiroRebirth = async (db: Firestore) => {
     }
 };
 
-export { restoreJournalRecords } from './restoreJournalRecords';
