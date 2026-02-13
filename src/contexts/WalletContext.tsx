@@ -181,9 +181,12 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         let newCommittedMilli = 0;
         activeSnap.forEach(d => {
             const w = d.data();
-            const wElapsedSec = ((now - getMillis(w.created_at)) / 1000) | 0;
-            const decayedMilli = calculateDecayedValue(toMilli(w.cost || 0), wElapsedSec);
-            newCommittedMilli += decayedMilli;
+            // === DISCREPANCY FIX: Double Decay ===
+            // We calculate the state at newAnchorTimeMillis (the past anchor), 
+            // NOT 'now'. The UI will handle the decay from anchor to now.
+            const wElapsedSecAtAnchor = Math.max(0, ((newAnchorTimeMillis - getMillis(w.created_at)) / 1000) | 0);
+            const decayedMilliAtAnchor = calculateDecayedValue(toMilli(w.cost || 0), wElapsedSecAtAnchor);
+            newCommittedMilli += decayedMilliAtAnchor;
         });
 
         const anchorDate = new Date(newAnchorTimeMillis);

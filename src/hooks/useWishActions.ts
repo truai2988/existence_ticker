@@ -426,7 +426,7 @@ export const useWishActions = () => {
               helper_name: deleteField(),
               helper_contact_email: deleteField(),
               accepted_at: deleteField(),
-              system_note: "お相手の事情により、願いが再度募集されています。"
+              system_note: "事情により、願いが再度募集されています。"
             });
           }
         } else {
@@ -533,7 +533,7 @@ export const useWishActions = () => {
             applicant_ids: updatedApplicantIds,
             helper_id: deleteField(),
             accepted_at: deleteField(),
-            system_note: "お相手の事情により、願いが再度募集されています。"
+            system_note: "事情により、願いが再度募集されています。"
         });
       });
 
