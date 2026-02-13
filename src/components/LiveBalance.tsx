@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { calculateLifePoints } from '../utils/decay';
 import { UNIT_LABEL } from '../constants';
+import { getMillis } from '../logic/worldPhysics';
 
 interface LiveBalanceProps {
     usage?: 'profile' | 'plain'; // Style variant
@@ -22,16 +23,16 @@ export const LiveBalance: React.FC<LiveBalanceProps> = ({
 }) => {
     // Initial Calc
     const [displayValue, setDisplayValue] = useState(() => 
-        calculateLifePoints(balance, lastUpdated)
+        calculateLifePoints(balance, getMillis(lastUpdated))
     );
 
     useEffect(() => {
         // Sync immediate on prop change
-        setDisplayValue(calculateLifePoints(balance, lastUpdated));
+        setDisplayValue(calculateLifePoints(balance, getMillis(lastUpdated)));
 
         // Self-contained loop (1-Hour Silence: 1 hour)
         const interval = setInterval(() => {
-            const current = calculateLifePoints(balance, lastUpdated);
+            const current = calculateLifePoints(balance, getMillis(lastUpdated));
             setDisplayValue(current);
         }, 3600000); 
 

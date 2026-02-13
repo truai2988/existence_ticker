@@ -9,7 +9,6 @@ import {
   doc,
   runTransaction,
   serverTimestamp,
-  Timestamp,
   increment,
   updateDoc,
   deleteField,
@@ -19,7 +18,7 @@ import {
   FieldValue,
 } from "firebase/firestore";
 
-import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS } from "../logic/worldPhysics";
+import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS, getMillis } from "../logic/worldPhysics";
 
 // タイムスタンプと初期値から現在価値を計算
 
@@ -58,7 +57,7 @@ export const useWishActions = () => {
       gratitude_preset: input.tier,
       status: "open",
       cost: bounty,
-      created_at: new Date().toISOString(),
+      created_at: Date.now(),
       isAnonymous: input.isAnonymous || false,
       isOptimistic: true
     };
@@ -79,12 +78,12 @@ export const useWishActions = () => {
         // 2. Strict Check (Phase 1: No Void/Negative)
         const decayedBalance = calculateDecayedValue(
           currentBalance,
-          lastUpdated,
+          getMillis(lastUpdated),
         );
 
         // === Phase 2: Read & Decay committed_lm ===
         const currentCommittedLm = data.committed_lm || 0;
-        const decayedCommittedLm = calculateDecayedValue(currentCommittedLm, lastUpdated);
+        const decayedCommittedLm = calculateDecayedValue(currentCommittedLm, getMillis(lastUpdated));
         
         const availableLm = decayedBalance - decayedCommittedLm;
 
@@ -292,11 +291,11 @@ export const useWishActions = () => {
           // 3. Calculate PHYSICAL TRUTHS (All Decayed)
           const wishDecayedValue = calculateDecayedValue(
             wishData.cost || 0,
-            wishData.created_at,
+            getMillis(wishData.created_at),
           );
           
           // Requester's Real Holding (Now)
-          const requesterCurrentReal = calculateDecayedValue(rBalance, rLastUpdated);
+          const requesterCurrentReal = calculateDecayedValue(rBalance, getMillis(rLastUpdated));
 
           // 4. PRE-FETCH Transaction Log (Idempotency Check) - MUST BE BEFORE ANY WRITES
           const txId = isRequesterCanceling 
@@ -309,7 +308,7 @@ export const useWishActions = () => {
             // === REQUESTER CANCELS: Requester pays helper ===
             // mLM Precision arithmetic
             const rRealMilli = toMilli(requesterCurrentReal);
-            const rCommittedMilli = toMilli(calculateDecayedValue(rCommittedLm, rLastUpdated));
+            const rCommittedMilli = toMilli(calculateDecayedValue(rCommittedLm, getMillis(rLastUpdated)));
             const wishDecayedMilli = toMilli(wishDecayedValue);
 
             const availableForThisPaymentMilli = Math.max(0, rRealMilli - rCommittedMilli + wishDecayedMilli);
@@ -332,7 +331,7 @@ export const useWishActions = () => {
             const hData = helperDoc.data();
             const hBalanceLm = hData?.balance || 0;
             const hLastUpdated = hData?.last_updated;
-            const hCurrentDecayedLm = calculateDecayedValue(hBalanceLm, hLastUpdated);
+            const hCurrentDecayedLm = calculateDecayedValue(hBalanceLm, getMillis(hLastUpdated));
 
             const hCurrentDecayedMilli = toMilli(hCurrentDecayedLm);
             const hRawNewMilli = hCurrentDecayedMilli + actualPaymentMilli;
@@ -408,7 +407,7 @@ export const useWishActions = () => {
             const hData = helperDoc.data();
             const hBalance = hData?.balance || 0;
             const hLastUpdated = hData?.last_updated;
-            const hCurrentDecayedMilli = toMilli(calculateDecayedValue(hBalance, hLastUpdated));
+            const hCurrentDecayedMilli = toMilli(calculateDecayedValue(hBalance, getMillis(hLastUpdated)));
             
             // 1. Maintain Helper (No Lateral Penalty)
             transaction.update(helperRef, {
@@ -423,7 +422,7 @@ export const useWishActions = () => {
             
             transaction.update(requesterRef, {
               balance: fromMilli(rRealMilli),
-              committed_lm: fromMilli(rCommittedMilli),
+              committed_lm: fromMilli(toMilli(calculateDecayedValue(rCommittedLm, getMillis(rLastUpdated)))),
               last_updated: serverTimestamp(),
             });
 
@@ -472,8 +471,8 @@ export const useWishActions = () => {
           
           // === ATOMIC UPDATE: Committed - Reservation ===
           const rBalanceMilli = toMilli(currentReal);
-          const rCommittedMilli = toMilli(calculateDecayedValue(rCommittedLm, rLastUpdated));
-          const wishDecayedMilli = toMilli(calculateDecayedValue(wishData.cost || 0, wishData.created_at));
+          const rCommittedMilli = toMilli(calculateDecayedValue(rCommittedLm, getMillis(rLastUpdated)));
+          const wishDecayedMilli = toMilli(calculateDecayedValue(wishData.cost || 0, getMillis(wishData.created_at)));
 
           transaction.update(requesterRef, {
             balance: fromMilli(rBalanceMilli), 
@@ -614,7 +613,7 @@ export const useWishActions = () => {
       const wishSnap = await getDocs(query(collection(db!, "wishes"), where("__name__", "==", wishId)));
       if (!wishSnap.empty) {
           const wData = wishSnap.docs[0].data();
-          estimatedPayment = calculateDecayedValue(wData.cost || 0, wData.created_at);
+          estimatedPayment = calculateDecayedValue(wData.cost || 0, getMillis(wData.created_at));
       }
 
       setOptimisticBalanceOffset((prev: number) => prev - estimatedPayment);
@@ -648,17 +647,16 @@ export const useWishActions = () => {
         }
 
         // --- 2. CALCULATION & WRITES ---
-        const createdAt = wishData.created_at as Timestamp;
         const promisedValue = calculateDecayedValue(
           wishData.cost || 0,
-          createdAt,
+          getMillis(wishData.created_at),
         );
 
         // Check Issuer Solvency
         let paymentAmount = promisedValue;
         if (issuerDoc.exists()) {
              const iData = issuerDoc.data() as UserProfile;
-             const iCurrentReal = calculateDecayedValue(iData.balance || 0, iData.last_updated);
+             const iCurrentReal = calculateDecayedValue(iData.balance || 0, getMillis(iData.last_updated) || Date.now());
              const iCommittedLm = iData.committed_lm || 0;
              const availableForThisPayment = Math.max(0, iCurrentReal - iCommittedLm + promisedValue);
              paymentAmount = Math.min(promisedValue, availableForThisPayment);
@@ -697,8 +695,9 @@ export const useWishActions = () => {
         // Salvation for Issuer
         if (issuerDoc.exists()) {
           const iData = issuerDoc.data() as UserProfile;
-          const iCurrentRealMilli = toMilli(calculateDecayedValue(iData.balance || 0, iData.last_updated));
-          const iCommittedMilli = toMilli(calculateDecayedValue(iData.committed_lm || 0, iData.last_updated));
+          const iLastUpdated = getMillis(iData.last_updated) || Date.now();
+          const iCurrentRealMilli = toMilli(calculateDecayedValue(iData.balance || 0, iLastUpdated));
+          const iCommittedMilli = toMilli(calculateDecayedValue(iData.committed_lm || 0, iLastUpdated));
           const wishDecayedMilli = toMilli(promisedValue);
           const paymentMilli = toMilli(paymentAmount);
 

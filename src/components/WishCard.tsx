@@ -382,15 +382,17 @@ export const WishCard: React.FC<WishCardProps> = ({
 
   // Update formatDate to include time
   const formatDate = (
-    val: string | { toDate?: () => Date } | Date | undefined,
+    val: number | string | { toDate?: () => Date } | Date | undefined,
   ) => {
     if (!val) return "今";
     const date =
-      typeof val === "string"
+      typeof val === "number"
         ? new Date(val)
-        : "toDate" in val && typeof val.toDate === "function"
-          ? val.toDate()
-          : null;
+        : typeof val === "string"
+          ? new Date(val)
+          : val && "toDate" in val && typeof val.toDate === "function"
+            ? val.toDate()
+            : null;
     if (!date) return "不明";
     return date.toLocaleString("ja-JP", {
       year: "numeric",
@@ -830,8 +832,8 @@ export const WishCard: React.FC<WishCardProps> = ({
                         : Math.floor(
                             calculateHistoricalValue(
                               wish.cost || 0,
-                              wish.created_at,
-                              wish.cancelled_at,
+                              wish.created_at || 0,
+                              wish.cancelled_at || 0,
                             ),
                           ).toLocaleString()}
                       <span className="text-xs ml-0.5 whitespace-nowrap">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { calculateLifePoints } from '../utils/decay';
+import { getMillis } from '../logic/worldPhysics';
 
 /**
  * 共通の減価計算フック
@@ -14,12 +15,12 @@ import { calculateLifePoints } from '../utils/decay';
  */
 export const useDecayedValue = (initialValue: number, createdAt: unknown) => {
   const [displayValue, setDisplayValue] = useState(() => 
-    calculateLifePoints(initialValue, createdAt)
+    calculateLifePoints(initialValue, getMillis(createdAt))
   );
   
   useEffect(() => {
     const update = () => {
-      const val = calculateLifePoints(initialValue, createdAt);
+      const val = calculateLifePoints(initialValue, getMillis(createdAt));
       setDisplayValue(val);
     };
     

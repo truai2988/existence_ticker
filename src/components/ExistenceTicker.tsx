@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import { calculateLifePoints } from '../utils/decay';
 import { UNIT_LABEL, LUNAR_CONSTANTS } from '../constants';
+import { getMillis } from '../logic/worldPhysics';
 
 interface ExistenceTickerProps {
     balance: number;
@@ -10,13 +11,13 @@ interface ExistenceTickerProps {
 }
 
 export const ExistenceTicker: React.FC<ExistenceTickerProps> = ({ balance, lastUpdated, rationReceived }) => {
-  const [displayValue, setDisplayValue] = useState(() => calculateLifePoints(balance, lastUpdated));
+  const [displayValue, setDisplayValue] = useState(() => calculateLifePoints(balance, getMillis(lastUpdated)));
 
   React.useEffect(() => {
-    setDisplayValue(calculateLifePoints(balance, lastUpdated));
+    setDisplayValue(calculateLifePoints(balance, getMillis(lastUpdated)));
     const INTERVAL_MS = 3600000; 
     const timer = setInterval(() => {
-        setDisplayValue(calculateLifePoints(balance, lastUpdated));
+        setDisplayValue(calculateLifePoints(balance, getMillis(lastUpdated)));
     }, INTERVAL_MS);
     return () => clearInterval(timer);
   }, [balance, lastUpdated]);
