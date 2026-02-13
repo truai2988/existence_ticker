@@ -12,7 +12,7 @@ import {
   Camera,
   Edit2,
   ShieldCheck,
-  Settings,
+  Shield,
 } from "lucide-react";
 import { useProfile } from "../hooks/useProfile";
 import { useAuth } from "../hooks/useAuthHook";
@@ -206,9 +206,10 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   {onOpenAdmin && isAdmin && (
                       <button
                         onClick={onOpenAdmin}
-                        className="p-2 pb-0 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
+                        className="p-2 pb-0 hover:bg-red-50 rounded-full transition-colors text-red-500"
+                        aria-label="管理コンソール"
                       >
-                         <Settings size={28} strokeWidth={1.5} />
+                         <Shield size={28} strokeWidth={2} />
                       </button>
                     )}
                   <button

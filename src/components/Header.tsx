@@ -16,7 +16,7 @@ import { AnimatePresence } from "framer-motion";
 
 interface HeaderProps {
   viewMode?: AppViewMode;
-  onTabChange: (tab: "home" | "history" | "profile") => void;
+  onTabChange: (tab: AppViewMode) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {

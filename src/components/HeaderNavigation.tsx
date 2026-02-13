@@ -1,15 +1,26 @@
-import { Home, History, User, Menu, X } from 'lucide-react';
+import { Home, History, User, Menu, X, Shield } from 'lucide-react';
 import { AppViewMode } from '../types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useAuth } from '../hooks/useAuthHook';
 
 interface HeaderNavigationProps {
     currentTab: AppViewMode;
-    onTabChange: (tab: "home" | "history" | "profile") => void;
+    onTabChange: (tab: AppViewMode) => void;
 }
 
 export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, onTabChange }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { user, isAdmin } = useAuth();
+
+    // Silent Sync: Refresh token globally when menu is interacted with (Mobile)
+    // AND once on mount (for PC users who don't have a hamburger)
+    useEffect(() => {
+        if ((isMenuOpen || !window.matchMedia("(max-width: 768px)").matches) && user) {
+            console.log("[HeaderNavigation] Silent Sync: Refreshing ID token...");
+            user.getIdToken(true).catch(e => console.error("Claim sync failed", e));
+        }
+    }, [isMenuOpen, user]);
 
     const handleTabChange = (tab: "home" | "history" | "profile") => {
         onTabChange(tab);
@@ -49,6 +60,17 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                 >
                     <User size={28} strokeWidth={currentTab === "profile" ? 2.5 : 2} />
                 </button>
+
+                {/* PC Admin Entrance (Hidden until synced) */}
+                {isAdmin && (
+                    <button
+                        onClick={() => onTabChange("admin")}
+                        className={`px-2 pt-5 pb-0 transition-colors text-red-500 hover:text-red-600 animate-in fade-in duration-500`}
+                        aria-label="管理コンソール"
+                    >
+                        <Shield size={28} strokeWidth={2.5} />
+                    </button>
+                )}
             </nav>
 
             {/* Mobile: Hamburger Menu */}
@@ -106,6 +128,20 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                                 <User size={20} strokeWidth={currentTab === "profile" ? 2 : 1.5} />
                                 <span className="text-sm tracking-[0.1em] font-light">プロフィール</span>
                             </button>
+
+                            {/* Mobile Admin Entrance */}
+                            {isAdmin && (
+                                <button
+                                    onClick={() => {
+                                        onTabChange("admin");
+                                        setIsMenuOpen(false);
+                                    }}
+                                    className="w-full px-5 py-3 text-left flex items-center gap-3 transition-colors rounded-xl text-red-500 bg-red-50/30 hover:bg-red-50/50 mt-2 border border-red-100"
+                                >
+                                    <Shield size={20} strokeWidth={2} />
+                                    <span className="text-sm tracking-[0.1em] font-bold">管理コンソール</span>
+                                </button>
+                            )}
                         </motion.div>
                     )}
                 </AnimatePresence>

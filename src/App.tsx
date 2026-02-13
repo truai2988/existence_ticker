@@ -366,8 +366,7 @@ function App() {
     setGateOpened(true);
     sessionStorage.setItem('gateOpened', 'true');
   };
-  
-  const handleTabChange = (tab: AppViewMode) => setViewMode(tab);
+    const handleTabChange = (tab: AppViewMode) => setViewMode(tab);
   const handleGoHome = () => setViewMode("home");
 
   // --- THE DETERMINISTIC SWITCH ---
