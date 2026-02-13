@@ -21,8 +21,8 @@ interface FirestoreTimestamp {
     seconds: number;
 }
 
-export const getMillis = (timestamp: unknown): number => {
-    if (!timestamp) return Date.now();
+export const getMillis = (timestamp: unknown, fallback: number = Date.now()): number => {
+    if (!timestamp) return fallback;
     if (timestamp instanceof Date) return timestamp.getTime();
     if (typeof timestamp === 'number') return timestamp;
     if (typeof timestamp === 'string') return new Date(timestamp).getTime();
@@ -36,7 +36,7 @@ export const getMillis = (timestamp: unknown): number => {
             return (timestamp as FirestoreTimestamp).seconds * 1000;
         }
     }
-    return Date.now();
+    return fallback;
 };
 
 // =========================================================================================

@@ -38,7 +38,7 @@ export const useProfile = () => {
             ...rawData,
             name: rawData.name || user.displayName || "Anonymous",
             last_updated: getMillis(rawData.last_updated),
-            cycle_started_at: getMillis(rawData.cycle_started_at),
+            cycle_started_at: getMillis(rawData.cycle_started_at, 0),
             created_at: getMillis(rawData.created_at),
           } as UserProfile;
 
