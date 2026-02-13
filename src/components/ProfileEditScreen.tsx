@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, MapPin, Link as LinkIcon, Save, Loader2, ChevronLeft, Mail, AlertCircle, ShieldCheck, CheckCircle, XCircle } from 'lucide-react';
+import { Camera, MapPin, Link as LinkIcon, Save, Loader2, ChevronLeft, Mail, AlertCircle, ShieldCheck, CheckCircle, XCircle, Sparkles } from 'lucide-react';
+import imageCompression from 'browser-image-compression';
 import { useProfile } from '../hooks/useProfile';
 import { useLocationData } from '../hooks/useLocationData';
 import { useAuth } from '../hooks/useAuthHook';
@@ -15,6 +16,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
     const { profile, updateProfile } = useProfile();
     const { user, updateUserEmail } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
+    const [isOptimizing, setIsOptimizing] = useState(false);
     
     // Email Change Modal States
     const [showEmailModal, setShowEmailModal] = useState(false);
@@ -77,24 +79,39 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
     const [previewUrl, setPreviewUrl] = useState<string | null>(profile?.avatarUrl || null);
     const [imageFile, setImageFile] = useState<File | null>(null);
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
+            const rawFile = e.target.files[0];
             
-            // ファイルサイズチェック（100KB以下）
-            if (file.size > 100 * 1024) {
-                alert('画像サイズは100KB以下にしてください。画像を圧縮してから再度お試しください。');
-                return;
+            setIsOptimizing(true);
+            try {
+                // 圧縮オプションの設定
+                const options = {
+                    maxSizeMB: 0.09, // 100KB弱を目指す
+                    maxWidthOrHeight: 400,
+                    useWebWorker: true,
+                    fileType: 'image/webp' as string, // WebPを優先
+                    initialQuality: 0.8,
+                };
+
+                // ブラウザ内での圧縮実行
+                const compressedFile = await imageCompression(rawFile, options);
+                
+                // Fileオブジェクトとして保持
+                setImageFile(compressedFile);
+                
+                // Base64に変換してプレビュー表示
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setPreviewUrl(reader.result as string);
+                };
+                reader.readAsDataURL(compressedFile);
+            } catch (error) {
+                console.error("Image optimization failed:", error);
+                alert("画像の最適化に失敗しました。別の画像をお試しください。");
+            } finally {
+                setIsOptimizing(false);
             }
-            
-            setImageFile(file);
-            
-            // Base64に変換してプレビュー表示
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewUrl(reader.result as string);
-            };
-            reader.readAsDataURL(file);
         }
     };
 
@@ -210,28 +227,49 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                     
                     {/* Avatar Selection */}
                     <div className="flex flex-col items-center">
-                        <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-                            <div className="w-24 h-24 rounded-full bg-slate-200 overflow-hidden border-2 border-white shadow-md">
+                        <div className="relative group cursor-pointer" onClick={() => !isOptimizing && fileInputRef.current?.click()}>
+                            <div className="w-24 h-24 rounded-full bg-slate-200 overflow-hidden border-2 border-white shadow-md relative">
                                 {previewUrl ? (
-                                    <img src={previewUrl} alt="Avatar" className="w-full h-full object-cover" />
+                                    <img src={previewUrl} alt="Avatar" className={`w-full h-full object-cover transition-opacity ${isOptimizing ? 'opacity-30' : 'opacity-100'}`} />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center text-slate-400">
                                         <Camera size={32} />
                                     </div>
                                 )}
+                                
+                                {/* Optimization Overlay */}
+                                {isOptimizing && (
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/40 backdrop-blur-[1px]">
+                                        <Loader2 size={24} className="text-blue-500 animate-spin mb-1" />
+                                    </div>
+                                )}
                             </div>
-                            <div className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Camera size={24} className="text-white" />
-                            </div>
+                            
+                            {!isOptimizing && (
+                                <div className="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Camera size={24} className="text-white" />
+                                </div>
+                            )}
+
                             <input 
                                 type="file" 
                                 ref={fileInputRef} 
                                 className="hidden" 
                                 accept="image/*" 
                                 onChange={handleImageChange}
+                                disabled={isOptimizing}
                             />
                         </div>
-                        <p className="text-xs text-slate-400 mt-2 font-medium">写真を変更</p>
+                        <div className="flex flex-col items-center gap-1 mt-2">
+                           {isOptimizing ? (
+                               <div className="flex items-center gap-1.5 text-blue-600 animate-pulse">
+                                   <Sparkles size={12} />
+                                   <span className="text-[10px] font-bold tracking-wider">画像を最適化しています...</span>
+                               </div>
+                           ) : (
+                               <p className="text-xs text-slate-400 font-medium">写真を変更</p>
+                           )}
+                        </div>
                     </div>
 
                 {/* Trust Shield Progress */}
