@@ -8,7 +8,6 @@ import { AppViewMode } from '../types';
 import { Sun, Heart, Sparkles, CheckCircle2, Archive, Slash } from 'lucide-react';
 import { getMillis } from '../logic/worldPhysics';
 import { useOtherProfile } from '../hooks/useOtherProfile';
-import { useDeepMemoryRecovery } from '../hooks/useDeepMemoryRecovery';
 
 // Type Definition for our unified Transaction
 type TransactionLog = {
@@ -47,7 +46,6 @@ const formatDate = (date: Date): string => {
 export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
   const { user } = useAuth();
   const [logs, setLogs] = useState<TransactionLog[]>([]);
-  const [nameMap, setNameMap] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -99,24 +97,6 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
                  cleanLogs.push(current);
              });
              setLogs(cleanLogs);
-
-             // Build Name Recovery Map (Memoized-like)
-             const mechanicalLabels = ["退会された方", "退会した奏者", "Anonymous Soul", "Anonymous Helper", "Anonymous", "Unknown", "Helper", "Requester"];
-             const recoveryMap: Record<string, string> = {};
-             validData.forEach(log => {
-                 const sId = log.sender_id;
-                 const sName = log.sender_name;
-                 const rId = log.recipient_id;
-                 const rName = log.recipient_name;
-
-                 if (sId && sName && !mechanicalLabels.includes(sName)) {
-                     recoveryMap[sId] = sName;
-                 }
-                 if (rId && rName && !mechanicalLabels.includes(rName)) {
-                     recoveryMap[rId] = rName;
-                 }
-             });
-             setNameMap(recoveryMap);
          } catch (e) {
              console.error("Journal fetch failed:", e);
          } finally {
@@ -172,16 +152,13 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
                         </div>
                     ) : (
                         logs.map((log, index) => {
-                           const isSender = log.sender_id === user?.uid;
-                           const partnerId = isSender ? log.recipient_id : log.sender_id;
                            return (
-                               <LogItem 
-                                    key={log.id} 
-                                    log={log} 
-                                    index={index} 
-                                    userId={user?.uid || ''} 
-                                    backupName={partnerId ? nameMap[partnerId] : undefined}
-                               />
+                                <LogItem 
+                                     key={log.id} 
+                                     log={log} 
+                                     index={index} 
+                                     userId={user?.uid || ''} 
+                                />
                            );
                         })
                     )}
@@ -195,13 +172,11 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
 const LogItem = ({ 
     log, 
     index, 
-    userId,
-    backupName
+    userId
 }: { 
     log: TransactionLog, 
     index: number, 
-    userId: string,
-    backupName?: string
+    userId: string
 }) => {
     const isSender = log.sender_id === userId;
     const date = new Date(log.created_at);
@@ -223,13 +198,13 @@ const LogItem = ({
     else if (log.type === 'GIFT') {
         if (isSender) {
             icon = <Heart size={14} className="text-pink-500 fill-pink-50" />;
-            title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} backupName={backupName} />さんに光を贈りました（旧機能）</>;
+            title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんに光を贈りました（旧機能）</>;
             metaColor = "bg-slate-50 border-slate-200 grayscale";
             amountPrefix = "";
             amountColor = "text-slate-400";
         } else {
             icon = <Sparkles size={14} className="text-cyan-500 fill-cyan-50" />;
-            title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} backupName={backupName} />さんから光を預かりました（旧機能）</>;
+            title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんから光を預かりました（旧機能）</>;
             metaColor = "bg-slate-50 border-slate-200 grayscale";
             amountPrefix = "+";
             amountColor = "text-cyan-600";
@@ -252,13 +227,13 @@ const LogItem = ({
     else if (log.type === 'COMPENSATION') {
         if (isSender) {
              icon = <CheckCircle2 size={14} className="text-red-400" />;
-             title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} backupName={backupName} />さんにお詫びのしるしを渡しました</>;
+             title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんにお詫びのしるしを渡しました</>;
              metaColor = "bg-red-50 border-red-100";
              amountPrefix = ""; 
              amountColor = "text-red-500";
         } else {
              icon = <Sun size={14} className="text-orange-500 fill-orange-50" />;
-             title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} backupName={backupName} />さんからお詫びのしるしを受け取りました</>;
+             title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんからお詫びのしるしを受け取りました</>;
              metaColor = "bg-orange-50 border-orange-100";
              amountPrefix = "+";
              amountColor = "text-orange-600";
@@ -267,13 +242,13 @@ const LogItem = ({
     else {
         if (isSender) {
              icon = <CheckCircle2 size={14} className="text-amber-600" />;
-             title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} backupName={backupName} />さんに感謝を伝えました（依頼完了）</>;
+             title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんに感謝を伝えました（依頼完了）</>;
              metaColor = "bg-amber-50 border-amber-200";
              amountPrefix = "";
              amountColor = "text-slate-400";
         } else {
              icon = <CheckCircle2 size={14} className="text-blue-600" />;
-             title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} backupName={backupName} />さんの願いを叶えました（報酬受取）</>;
+             title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんの願いを叶えました（報酬受取）</>;
              metaColor = "bg-blue-50 border-blue-200";
              amountPrefix = "+";
              amountColor = "text-blue-600";
@@ -325,36 +300,16 @@ const LogItem = ({
     );
 };
 
-const PartnerName = ({ id, snapshot, backupName }: { id?: string | null, snapshot?: string | null, backupName?: string }) => {
+const PartnerName = ({ id, snapshot }: { id?: string | null, snapshot?: string | null }) => {
     const { profile, loading } = useOtherProfile(id || null);
-    const { recoveredName, isRecovering } = useDeepMemoryRecovery(id || null);
 
-    // 1. Memory Priority: If snapshot exists and is a valid name, use it
-    const mechanicalLabels = ["退会された方", "退会した奏者", "Anonymous Soul", "Anonymous Helper", "Anonymous", "Unknown", "Helper", "Requester"];
-    const isValidSnapshot = snapshot && !mechanicalLabels.includes(snapshot);
-    if (isValidSnapshot) return <span className="font-bold">{snapshot}</span>;
+    // 1. Memory Priority: If snapshot exists, use it
+    if (snapshot) return <span className="font-bold">{snapshot}</span>;
 
-    // 2. Local Recovery: If snapshot is corrupted, try names found in other current view logs
-    if (backupName) {
-        console.log(`[PartnerName] Using local backupName "${backupName}" for ${id}`);
-        return <span className="font-bold">{backupName}</span>;
-    }
-
-    // 3. Profile Lookup: Attempt to fetch live profile status
+    // 2. Profile Lookup: Attempt to fetch live profile status
     if (loading) return <span className="text-slate-300 animate-pulse">...</span>;
-    if (profile) {
-        console.log(`[PartnerName] Using profile name "${profile.name}" for ${id}`);
-        return <span className="font-bold">{profile.name}</span>;
-    }
+    if (profile) return <span className="font-bold">{profile.name}</span>;
 
-    // 4. Deep Recovery: Background Firestore scan if no other memory remains
-    if (recoveredName) {
-        console.log(`[PartnerName] Using deep recovered name "${recoveredName}" for ${id}`);
-        return <span className="font-bold">{recoveredName}</span>;
-    }
-    if (isRecovering) return <span className="text-slate-300 animate-pulse">...</span>;
-
-    // 5. Absolute Legacy Fallback
-    if (id) console.log(`[PartnerName] FAILED to recover identity for ${id}. Last resort: 退会された方`);
-    return <span className="text-slate-400 font-normal italic">退会された方</span>;
+    // 3. Absolute Legacy Fallback
+    return <span className="font-bold text-slate-400">退会された方</span>;
 };
