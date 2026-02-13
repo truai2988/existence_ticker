@@ -15,13 +15,20 @@ import * as path from "path";
  * 4. npx ts-node scripts/setAdminClaim.ts を実行します。
  */
 
-const UID_TO_GRANT = "INSERT_USER_UID_HERE"; 
+import { fileURLToPath } from 'url';
+
+const UID_TO_GRANT = "6KVmwK3ZSYh7XVLg9pKkNEFwxz02"; 
+
+// ESM scope workaround for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // サービスアカウントキーの読み込み
 const serviceAccountPath = path.resolve(__dirname, "serviceAccountKey.json");
+console.log("Checking for service account key at:", serviceAccountPath);
 
 if (!fs.existsSync(serviceAccountPath)) {
-  console.error("Error: serviceAccountKey.json not found in scripts/ directory.");
+  console.error(`Error: serviceAccountKey.json not found. Looked at: ${serviceAccountPath}`);
   process.exit(1);
 }
 

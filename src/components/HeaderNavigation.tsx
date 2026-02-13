@@ -17,9 +17,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
     // AND once on mount (for PC users who don't have a hamburger)
     useEffect(() => {
         if ((isMenuOpen || !window.matchMedia("(max-width: 768px)").matches) && user) {
-            console.log("[HeaderNavigation] Silent Sync: Starting for user", user.uid);
             user.getIdToken(true)
-                .then(() => console.log("[HeaderNavigation] Silent Sync: Success"))
                 .catch(e => console.error("[HeaderNavigation] Silent Sync: Failed", e));
         }
     }, [isMenuOpen, user]);

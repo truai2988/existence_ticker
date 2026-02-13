@@ -104,13 +104,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const requestCount = profile?.completed_requests || 0;
   const rank = getTrustRank(profile);
 
-  console.log("[ProfileView] Render State:", { 
-    uid: user?.uid, 
-    isAdmin, 
-    onOpenAdmin: !!onOpenAdmin,
-    isProfileLoading
-  });
-
   const handleLinkAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
