@@ -531,24 +531,14 @@ export const WishCard: React.FC<WishCardProps> = ({
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs uppercase font-bold text-slate-400 tracking-wider mb-0.5">
-                    {isHelperMasked ? "退会された方" : (helperProfile?.name || wish.helper_name || "隣人")}{" "}
-                    {wish.status === "fulfilled" || wish.status === "completed" 
-                      ? "さんに感謝を届けました" 
-                      : wish.status === "interrupted"
-                        ? "さんの事情により終了しました"
-                        : wish.status === "cancelled" 
-                          ? "さんとの願いを中断しました"
-                          : "さんが応えてくれています"}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         if (wish.helper_id && !isHelperMasked)
                           openUserProfile(wish.helper_id, isMasked); 
                       }}
-                      className={`block text-sm font-bold tracking-wide text-left truncate max-w-full transition-colors ${isHelperMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:text-blue-600 hover:underline"}`}
+                      className={`text-sm font-bold tracking-wide text-left transition-colors whitespace-nowrap ${isHelperMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:text-blue-600 hover:underline"}`}
                     >
                       {isHelperMasked 
                         ? "退会された方"
@@ -559,6 +549,15 @@ export const WishCard: React.FC<WishCardProps> = ({
                           wish.helper_id?.slice(0, 8) ||
                           "隣人")}
                     </button>
+                    <span className="text-xs uppercase font-bold text-slate-400 tracking-wider whitespace-nowrap">
+                      {wish.status === "fulfilled" || wish.status === "completed" 
+                        ? "さんに感謝を届けました" 
+                        : wish.status === "interrupted"
+                          ? "さんの事情により終了しました"
+                          : wish.status === "cancelled" 
+                            ? "さんとの願いを中断しました"
+                            : "さんが応えてくれます"}
+                    </span>
                   </div>
                 </div>
               </>
@@ -876,12 +875,12 @@ export const WishCard: React.FC<WishCardProps> = ({
                 <span
                   className={`text-xs font-bold ${isMyWish ? "text-amber-600" : "text-slate-500"}`}
                 >
-                  {isMyWish ? "循環を待つ感謝" : "今わかちあえる感謝"}
+                  {isMyWish ? "お渡しする感謝" : "今わかちあえる感謝"}
                 </span>
               </div>
               {displayValue > 0 && (
                 <div className="text-xs text-red-400 font-semibold tracking-wide">
-                  ※時間が経つと減ってしまいます
+                  ※時間が経つと減っていきます
                 </div>
               )}
             </div>
@@ -899,18 +898,16 @@ export const WishCard: React.FC<WishCardProps> = ({
       {wish.status === "in_progress" && !isReadOnly &&
         (isMyWish || wish.helper_id === currentUserId) && (
           <div className="relative mb-4 p-4 border border-slate-200 rounded-xl bg-slate-50/30">
-            <h5 className="text-xs font-bold text-slate-700 mb-3 flex items-center gap-2">
-              <Megaphone size={14} className="text-slate-400" />
-              隣人に連絡する
-            </h5>
-
-            <div className="space-y-3">
+            <div className="space-y-3 mt-1">
               {/* Email Section */}
               {/* Email Section with Copy & Mailto */}
               <div className="flex flex-col gap-1">
-                <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
-                  {isMyWish ? "相手の連絡先" : "依頼主の連絡先"}
-                </span>
+                <div className="flex items-center gap-2 mb-1">
+                  <Megaphone size={14} className="text-slate-400" />
+                  <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
+                    {isMyWish ? "相手の連絡先" : "依頼主の連絡先"}
+                  </span>
+                </div>
                 {contactEmail ? (
                   <div className="bg-white border border-slate-200 rounded-lg p-3">
                     {/* Top Row: Address + Copy */}
@@ -954,7 +951,7 @@ export const WishCard: React.FC<WishCardProps> = ({
               {wish.contact_note && (
                 <div className="flex flex-col gap-1 pt-2 border-t border-slate-100">
                   <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
-                    {isMyWish ? "承認時のメモ" : "依頼者さんより"}
+                    {isMyWish ? `${requesterProfile?.name || '自分'}さんのメモ` : "依頼者さんより"}
                   </span>
                   <p className="text-xs text-slate-600 bg-white p-2 rounded-lg border border-slate-100 whitespace-pre-wrap">
                     {wish.contact_note}
