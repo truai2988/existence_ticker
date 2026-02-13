@@ -31,7 +31,7 @@ export interface UserProfile {
   gender?: "male" | "female" | "other";
 
   is_deleted?: boolean;
-  last_updated?: unknown;
+  last_updated?: number;
   completed_contracts?: number;
   created_contracts?: number;
   completed_requests?: number;
@@ -41,8 +41,8 @@ export interface UserProfile {
   pending_interruption_notification?: string | null;
 
   scheduled_cycle_days?: number;
-  cycle_started_at?: FirestoreTimestamp;
-  created_at?: FirestoreTimestamp;
+  cycle_started_at?: number;
+  created_at?: number;
 }
 
 export interface Point {
@@ -75,7 +75,7 @@ export interface Wish {
     | "cancelled"
     | "interrupted"
     | "expired";
-  created_at: string;
+  created_at: number;
   tags?: string[];
   helper_id?: string;
   helper_name?: string;
@@ -84,9 +84,9 @@ export interface Wish {
   contact_note?: string;
   cost?: number;
   val_at_fulfillment?: number;
-  accepted_at?: string;
-  fulfilled_at?: unknown;
-  cancelled_at?: unknown;
+  accepted_at?: number;
+  fulfilled_at?: number;
+  cancelled_at?: number;
   cancel_reason?: string;
   isAnonymous?: boolean;
   applicant_ids?: string[]; // For querying involved wishes

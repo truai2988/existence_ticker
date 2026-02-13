@@ -46,7 +46,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Chain 1: Total Balance (Decayed Base)
   const balance = useMemo(() => {
     const rawBalance = profile?.balance ?? 0;
-    const lastUpdated = profile?.last_updated;
+    const lastUpdated = profile?.last_updated ?? Date.now();
     const decayedBase = calculateDecayedValue(rawBalance, lastUpdated);
     return decayedBase + optimisticBalanceOffset;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -55,7 +55,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Chain 2: Committed Lm (Source of Truth: DB Record + Decay) - O(1)
   const committedLm = useMemo(() => {
     const rawCommitted = profile?.committed_lm ?? 0;
-    const lastUpdated = profile?.last_updated;
+    const lastUpdated = profile?.last_updated ?? Date.now();
     // O(1) Calculation: We trust the Vessel's record, decaying it as a single mass
     const decayedBase = calculateDecayedValue(rawCommitted, lastUpdated);
     return decayedBase + optimisticCommittedOffset;
@@ -86,7 +86,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     // Return 'ALIVE' so we fall through to the Auth Gate in App.tsx.
     if (!profile) return 'ALIVE';
 
-    const cycleStartedAt = getMillis(profile.cycle_started_at);
+    const cycleStartedAt = profile.cycle_started_at || 0;
 
     const effectiveCycleDays = profile.scheduled_cycle_days || 10;
     const cycleDurationMillis = effectiveCycleDays * 24 * 60 * 60 * 1000;
@@ -98,7 +98,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       isNaN(balance) || 
       isNaN(committedLm) || 
       isNaN(availableLm) || 
-      (profile.cycle_started_at && isNaN(getMillis(profile.cycle_started_at)));
+      isNaN(cycleStartedAt);
 
     if (isCorrupted) {
       console.warn("[Rescue] Corruption detected in wallet data. Transitioning to RITUAL_READY.");
@@ -179,7 +179,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         let newCommittedMilli = 0;
         activeSnap.forEach(d => {
             const w = d.data();
-            const decayed = calculateDecayedValue(w.cost || 0, w.created_at);
+            const decayed = calculateDecayedValue(w.cost || 0, getMillis(w.created_at));
             newCommittedMilli += toMilli(decayed);
         });
 
@@ -227,7 +227,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         if (!userDoc.exists()) throw "Missing Soul";
 
         const data = userDoc.data();
-        const currentRealBalance = calculateDecayedValue(data.balance, data.last_updated);
+        const currentRealBalance = calculateDecayedValue(data.balance, getMillis(data.last_updated));
 
         if (currentRealBalance < amount) throw "Insufficient Energy";
 

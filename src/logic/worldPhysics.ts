@@ -61,21 +61,15 @@ const MILLI_DECAY_PER_SEC_DENOMINATOR = 9;
  * 内部計算はすべて milli-Lm (1 Lm = 1000) の整数で行う。
  * 10 Lm/h = 10,000 milli-Lm/h = 25/9 milli-Lm/sec.
  */
-export const calculateDecayedValue = (initialValueLm: number, lastUpdated: unknown): number => {
+export const calculateDecayedValue = (initialValueLm: number, lastUpdatedMs: number): number => {
   const initialMilli = toMilli(initialValueLm);
   const now = Date.now();
-  const lastTime = getMillis(lastUpdated);
   
-  // Fail-Safe: If time is unreadable (NaN or 0), assume no time passed (Stop Physics)
-  if (!lastTime || isNaN(lastTime)) {
-    return fromMilli(initialMilli);
-  }
-
-  if (now < lastTime) {
+  if (now < lastUpdatedMs) {
       return fromMilli(initialMilli);
   }
 
-  const elapsedSec = Math.floor((now - lastTime) / 1000);
+  const elapsedSec = Math.floor((now - lastUpdatedMs) / 1000);
   const milliDecay = Math.floor((elapsedSec * MILLI_DECAY_PER_SEC_NUMERATOR) / MILLI_DECAY_PER_SEC_DENOMINATOR);
   
   const resultMilli = Math.max(0, initialMilli - milliDecay);
@@ -85,15 +79,8 @@ export const calculateDecayedValue = (initialValueLm: number, lastUpdated: unkno
 /**
  * 過去の特定の時点での価値を計算する (Historical Truth)
  */
-export const calculateHistoricalValue = (initialValueLm: number, startTime: unknown, endTime: unknown): number => {
+export const calculateHistoricalValue = (initialValueLm: number, startMs: number, endMs: number): number => {
     const initialMilli = toMilli(initialValueLm);
-    const startMs = getMillis(startTime);
-    const endMs = getMillis(endTime);
-
-    // Fail-Safe: If time is unreadable
-    if (!startMs || isNaN(startMs) || !endMs || isNaN(endMs)) {
-        return fromMilli(initialMilli);
-    }
 
     if (endMs < startMs) return fromMilli(initialMilli);
 

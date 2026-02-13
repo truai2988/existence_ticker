@@ -89,9 +89,19 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         );
 
         const unsubFeed = onSnapshot(qFeed, (snap) => {
-            const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Wish));
-            // Filter out 0 Lm
-            const valid = data.filter(w => getMillis(w.created_at) + (w.cost || 0) * 3600 * 1000 > Date.now());
+            const data = snap.docs.map(doc => {
+                const raw = doc.data();
+                return { 
+                    ...raw,
+                    id: doc.id,
+                    created_at: getMillis(raw.created_at),
+                    accepted_at: raw.accepted_at ? getMillis(raw.accepted_at) : undefined,
+                    fulfilled_at: raw.fulfilled_at ? getMillis(raw.fulfilled_at) : undefined,
+                    cancelled_at: raw.cancelled_at ? getMillis(raw.cancelled_at) : undefined,
+                } as Wish;
+            });
+            // Filter out 0 Lm (using normalized number)
+            const valid = data.filter(w => w.created_at + (w.cost || 0) * 3600 * 1000 > Date.now());
             setWishes(valid);
             setIsLoading(false);
         }, (err) => {
@@ -119,9 +129,19 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         );
         
         const unsubUser = onSnapshot(qUserActive, (snap) => {
-             const data = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Wish));
+             const data = snap.docs.map(doc => {
+                const raw = doc.data();
+                return { 
+                    ...raw,
+                    id: doc.id,
+                    created_at: getMillis(raw.created_at),
+                    accepted_at: raw.accepted_at ? getMillis(raw.accepted_at) : undefined,
+                    fulfilled_at: raw.fulfilled_at ? getMillis(raw.fulfilled_at) : undefined,
+                    cancelled_at: raw.cancelled_at ? getMillis(raw.cancelled_at) : undefined,
+                } as Wish;
+             });
              // Sort client-side
-             setUserActiveWishes(data.sort((a,b) => getMillis(b.created_at) - getMillis(a.created_at)));
+             setUserActiveWishes(data.sort((a,b) => b.created_at - a.created_at));
         });
 
         // 3. Involved Active Wishes (Helper: InProgress/Review/Open(Applied))
@@ -161,10 +181,30 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         };
 
         const unsubHelper = onSnapshot(qHelperActive, (snap) => {
-             updateInvolvedState(snap.docs.map(d => ({id:d.id, ...d.data()} as Wish)), 'helper');
+             updateInvolvedState(snap.docs.map(d => {
+                const raw = d.data();
+                return {
+                    ...raw,
+                    id: d.id,
+                    created_at: getMillis(raw.created_at),
+                    accepted_at: raw.accepted_at ? getMillis(raw.accepted_at) : undefined,
+                    fulfilled_at: raw.fulfilled_at ? getMillis(raw.fulfilled_at) : undefined,
+                    cancelled_at: raw.cancelled_at ? getMillis(raw.cancelled_at) : undefined,
+                } as Wish;
+             }), 'helper');
         });
         const unsubApplied = onSnapshot(qApplied, (snap) => {
-             updateInvolvedState(snap.docs.map(d => ({id:d.id, ...d.data()} as Wish)), 'applicant');
+             updateInvolvedState(snap.docs.map(d => {
+                const raw = d.data();
+                return {
+                    ...raw,
+                    id: d.id,
+                    created_at: getMillis(raw.created_at),
+                    accepted_at: raw.accepted_at ? getMillis(raw.accepted_at) : undefined,
+                    fulfilled_at: raw.fulfilled_at ? getMillis(raw.fulfilled_at) : undefined,
+                    cancelled_at: raw.cancelled_at ? getMillis(raw.cancelled_at) : undefined,
+                } as Wish;
+             }), 'applicant');
         });
 
         return () => {
