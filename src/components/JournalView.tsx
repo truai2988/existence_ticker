@@ -210,15 +210,16 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
         amountColor = "text-slate-400";
     }
     else if (log.type === 'COMPENSATION') {
+        const isWithdrawal = log.description?.includes('退会');
         if (isSender) {
              icon = <CheckCircle2 size={14} className="text-red-400" />;
-             title = <>{partnerName}さんにお詫びのしるしを渡しました</>;
+             title = isWithdrawal ? <>{partnerName}（退会）への感謝を刻みました</> : <>{partnerName}さんにお詫びのしるしを渡しました</>;
              metaColor = "bg-red-50 border-red-100";
              amountPrefix = ""; 
              amountColor = "text-red-500";
         } else {
              icon = <Sun size={14} className="text-orange-500 fill-orange-50" />;
-             title = <>{partnerName}さんからお詫びのしるしを受け取りました</>;
+             title = isWithdrawal ? <>{partnerName}さんの退会に伴う感謝を受け取りました</> : <>{partnerName}さんからお詫びのしるしを受け取りました</>;
              metaColor = "bg-orange-50 border-orange-100";
              amountPrefix = "+";
              amountColor = "text-orange-600";
@@ -251,6 +252,9 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
                 <p className="text-sm text-slate-700 font-medium leading-relaxed">{title}</p>
                 {log.wish_title && log.type !== 'WISH_CANCELLED' && log.type !== 'WISH_EXPIRED' && (
                     <p className="text-xs text-slate-400 mt-1 pl-2 border-l-2 border-slate-100 line-clamp-1 italic">"{log.wish_title}"</p>
+                )}
+                {log.description && (
+                    <p className="text-[10px] text-slate-400/70 mt-1 line-clamp-2 leading-relaxed">{log.description}</p>
                 )}
                 <div className="mt-2 flex items-center justify-end gap-1">
                     {log.amount === 0 ? (
