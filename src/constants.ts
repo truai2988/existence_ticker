@@ -29,8 +29,7 @@ export const SURVIVAL_CONSTANTS = {
 };
 
 // --- Security / Roles ---
-// Replace with your actual User ID from the Profile screen (or console)
-export const ADMIN_UIDS = [
-    "6KVmwK3ZSYh7XVLg9pKkNEFwxz02",
-    "truai_admin_id"
+// Emails that have permanent "Super Admin" access (survives UID changes)
+export const ADMIN_EMAILS = [
+    "truai_admin@example.com", // Replace with your actual email
 ];

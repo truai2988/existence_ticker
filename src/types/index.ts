@@ -4,6 +4,7 @@ export type GratitudeTier = "light" | "medium" | "heavy";
 export interface UserProfile {
   id: string;
   name: string;
+  email?: string;
   avatarUrl?: string | null;
   headline?: string;
   location?: {

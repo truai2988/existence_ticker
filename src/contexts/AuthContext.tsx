@@ -3,7 +3,7 @@ import { User, onIdTokenChanged } from 'firebase/auth';
 import { onSnapshot, doc } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { AuthContext } from './AuthContextDefinition';
-import { ADMIN_UIDS } from '../constants';
+import { ADMIN_EMAILS } from '../constants';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
@@ -18,25 +18,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         let unsubscribeFirestore: (() => void) | null = null;
+        let unsubscribeSuperAdmin: (() => void) | null = null;
 
         const unsubscribeAuth = onIdTokenChanged(auth, async (currentUser) => {
             if (unsubscribeFirestore) {
                 unsubscribeFirestore();
                 unsubscribeFirestore = null;
             }
+            if (unsubscribeSuperAdmin) {
+                unsubscribeSuperAdmin();
+                unsubscribeSuperAdmin = null;
+            }
 
             if (currentUser) {
-                // Simplified: Admin is either hardcoded (Emergency) or in DB (Live)
-                const isSuperAdmin = ADMIN_UIDS.includes(currentUser.uid);
+                const userEmail = currentUser.email;
+                const isHardcodedAdmin = userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
 
+                // Sync signals: isSuper (Email/Static) + isDoc (DB/Live) + isDynamicSuper (DB/Global)
+                let isDynamicSuper = false;
+                let isDocAdmin = false;
+
+                const updateAdminState = () => {
+                    setIsAdmin(isHardcodedAdmin || isDocAdmin || isDynamicSuper);
+                };
+
+                // 1. Live Profile Role
                 const userRef = doc(db!, 'users', currentUser.uid);
                 unsubscribeFirestore = onSnapshot(userRef, (snap) => {
-                    const isDocAdmin = snap.exists() && snap.data()?.role === 'admin';
-                    setIsAdmin(isSuperAdmin || isDocAdmin);
+                    isDocAdmin = snap.exists() && snap.data()?.role === 'admin';
+                    updateAdminState();
                 });
 
-                // Initial sync for the super admin/static check
-                setIsAdmin(isSuperAdmin);
+                // 2. Global Super Admin Status (survives user deletion)
+                if (userEmail) {
+                    const superRef = doc(db!, 'super_admins', userEmail);
+                    unsubscribeSuperAdmin = onSnapshot(superRef, (snap) => {
+                        isDynamicSuper = snap.exists() && snap.data()?.is_super === true;
+                        updateAdminState();
+                    });
+                }
+
+                updateAdminState();
             } else {
                 setIsAdmin(false);
             }
@@ -51,6 +73,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return () => {
             unsubscribeAuth();
             if (unsubscribeFirestore) unsubscribeFirestore();
+            if (unsubscribeSuperAdmin) unsubscribeSuperAdmin();
         };
     }, []);
 

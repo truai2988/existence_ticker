@@ -90,6 +90,7 @@ export const useAuth = () => {
                         transaction.set(userRef, {
                             id: cred.user!.uid,
                             name: name,
+                            email: email,
                             location: location,
                             age_group: age_group,
                             gender: gender,
