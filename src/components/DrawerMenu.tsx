@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, History, User, X } from 'lucide-react';
+import { Home, History, User, X, Shield } from 'lucide-react';
 import { AppViewMode } from '../types';
+import { useAuth } from '../hooks/useAuthHook';
 
 interface DrawerMenuProps {
     isOpen: boolean;
     onClose: () => void;
     currentTab: AppViewMode;
-    onTabChange: (tab: "home" | "history" | "profile") => void;
+    onTabChange: (tab: AppViewMode) => void;
 }
 
 export const DrawerMenu: React.FC<DrawerMenuProps> = ({ 
@@ -16,6 +17,15 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
     currentTab, 
     onTabChange 
 }) => {
+    const { user, isAdmin } = useAuth();
+
+    // Silent Sync: Refresh token when menu is opened to finalize claims
+    useEffect(() => {
+        if (isOpen && user) {
+            console.log("[DrawerMenu] Silent Sync: Refreshing ID token...");
+            user.getIdToken(true).catch(e => console.error("Claim sync failed", e));
+        }
+    }, [isOpen, user]);
     
     // Menu Items Definition
     const menuItems = [
@@ -93,6 +103,26 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
                                     </button>
                                 );
                             })}
+
+                            {/* Admin Exit (GOD MODE) */}
+                            {isAdmin && (
+                                <button
+                                    onClick={() => {
+                                        onTabChange('admin');
+                                        onClose();
+                                    }}
+                                    className="mt-auto group flex items-center gap-6 text-left transition-all text-red-400 hover:text-red-500"
+                                >
+                                    <Shield 
+                                        size={24} 
+                                        strokeWidth={1.5}
+                                        className="text-red-400 group-hover:text-red-500 transition-colors" 
+                                    />
+                                    <span className="text-lg tracking-[0.2em] font-light">
+                                        管理コンソール
+                                    </span>
+                                </button>
+                            )}
                         </nav>
 
                         {/* Footer / Brand (Optional) */}

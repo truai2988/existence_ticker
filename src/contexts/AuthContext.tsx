@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, ReactNode } from 'react';
-import { User, onAuthStateChanged } from 'firebase/auth';
+import { User, onIdTokenChanged } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { AuthContext } from './AuthContextDefinition';
 
@@ -15,8 +15,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             return;
         }
 
-        console.log("[AuthProvider] Initializing Singleton Listener...");
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        console.log("[AuthProvider] Initializing Singleton Listener (Token-Aware)...");
+        const unsubscribe = onIdTokenChanged(auth, async (currentUser) => {
             console.log("[AuthProvider] Auth state changed:", currentUser ? `User: ${currentUser.uid}` : "No user");
             
             if (currentUser) {
