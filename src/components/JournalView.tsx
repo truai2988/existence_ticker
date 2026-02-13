@@ -2,19 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuthHook';
 import { db } from '../lib/firebase';
-import { collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit, onSnapshot, getDoc, doc, Timestamp } from 'firebase/firestore';
 import { HeaderNavigation } from './HeaderNavigation';
-import { AppViewMode } from '../types';
-import { Sun, Heart, Sparkles, CheckCircle2, Archive, Slash } from 'lucide-react';
-import { getMillis } from '../logic/worldPhysics';
-import { useOtherProfile } from '../hooks/useOtherProfile';
+import { AppViewMode, Wish } from '../types';
+import { WishCard } from './WishCard';
+import { X, Sun, Heart, Sparkles, CheckCircle2, Archive, Slash } from 'lucide-react';
 
 // Type Definition for our unified Transaction
 type TransactionLog = {
   id: string;
   type: string; // 'GIFT', 'WISH_FULFILLMENT', 'REBIRTH'
   amount: number;
-  created_at: number;
+  created_at: Timestamp | { seconds: number, nanoseconds: number } | Date | number | string;
   
   // Context
   sender_id?: string;
@@ -30,6 +29,15 @@ interface JournalViewProps {
   onTabChange?: (mode: AppViewMode) => void;
 }
 
+const parseDate = (val: TransactionLog['created_at']): Date => {
+    if (!val) return new Date();
+    if (val instanceof Date) return val;
+    if (typeof val === 'number') return new Date(val);
+    if (typeof val === 'string') return new Date(val);
+    if ('toDate' in val && typeof val.toDate === 'function') return val.toDate();
+    if ('seconds' in val) return new Date(val.seconds * 1000);
+    return new Date();
+};
 
 const formatDate = (date: Date): string => {
     const now = new Date();
@@ -47,6 +55,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
   const { user } = useAuth();
   const [logs, setLogs] = useState<TransactionLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedWishId, setSelectedWishId] = useState<string | null>(null);
 
   useEffect(() => {
      if (!user || !db) return;
@@ -56,79 +65,72 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
      const qSent = query(txRef, where('sender_id', '==', user.uid), orderBy('created_at', 'desc'), limit(50));
      const qReceived = query(txRef, where('recipient_id', '==', user.uid), orderBy('created_at', 'desc'), limit(50));
      
-     const fetchData = async () => {
-         setIsLoading(true);
-         try {
-             const [sentSnap, receivedSnap] = await Promise.all([
-                 getDocs(qSent),
-                 getDocs(qReceived)
-             ]);
+     let sentData: TransactionLog[] = [];
+     let receivedData: TransactionLog[] = [];
 
-             const sentData = sentSnap.docs.map(d => ({ 
-                 id: d.id, 
-                 ...d.data(),
-                 created_at: getMillis(d.data().created_at)
-             } as TransactionLog));
+     const updateState = () => {
+         const validData = [...sentData, ...receivedData];
+         const uniqueById = Array.from(new Map(validData.map(item => [item.id, item])).values());
+         const sorted = uniqueById.sort((a, b) => {
+             const tA = parseDate(a.created_at).getTime();
+             const tB = parseDate(b.created_at).getTime();
+             return tB - tA;
+         });
 
-             const receivedData = receivedSnap.docs.map(d => ({ 
-                 id: d.id, 
-                 ...d.data(),
-                 created_at: getMillis(d.data().created_at)
-             } as TransactionLog));
-
-             const validData = [...sentData, ...receivedData];
-             const uniqueById = Array.from(new Map(validData.map(item => [item.id, item])).values());
-             const sorted = uniqueById.sort((a, b) => b.created_at - a.created_at);
-
-             const cleanLogs: TransactionLog[] = [];
-             sorted.forEach((current, i) => {
-                 if (i === 0) {
-                     cleanLogs.push(current);
-                     return;
-                 }
-                 const prev = cleanLogs[cleanLogs.length - 1];
-                 const tCurrent = current.created_at;
-                 const tPrev = prev.created_at;
-                 const isTimeClose = Math.abs(tPrev - tCurrent) < 2 * 60 * 1000;
-                 const isSameType = current.type === prev.type;
-                 const isSameTitle = current.wish_title === prev.wish_title;
-                 const isSameAmount = current.amount === prev.amount;
-                 if (isTimeClose && isSameType && isSameTitle && isSameAmount) return;
+         const cleanLogs: TransactionLog[] = [];
+         sorted.forEach((current, i) => {
+             if (i === 0) {
                  cleanLogs.push(current);
-             });
-             setLogs(cleanLogs);
-         } catch (e) {
-             console.error("Journal fetch failed:", e);
-         } finally {
-             setIsLoading(false);
-         }
+                 return;
+             }
+             const prev = cleanLogs[cleanLogs.length - 1];
+             const tCurrent = parseDate(current.created_at).getTime();
+             const tPrev = parseDate(prev.created_at).getTime();
+             const isTimeClose = Math.abs(tPrev - tCurrent) < 2 * 60 * 1000;
+             const isSameType = current.type === prev.type;
+             const isSameTitle = current.wish_title === prev.wish_title;
+             const isSameAmount = current.amount === prev.amount;
+             if (isTimeClose && isSameType && isSameTitle && isSameAmount) return;
+             cleanLogs.push(current);
+         });
+         setLogs(cleanLogs);
+         setIsLoading(false);
      };
 
-     fetchData();
+     const u1 = onSnapshot(qSent, (snap) => {
+         sentData = snap.docs.map(d => ({ id: d.id, ...d.data() } as TransactionLog));
+         updateState();
+     });
+     
+     const u2 = onSnapshot(qReceived, (snap) => {
+         receivedData = snap.docs.map(d => ({ id: d.id, ...d.data() } as TransactionLog));
+         updateState();
+     });
+
+     return () => { u1(); u2(); };
   }, [user]);
 
    return (
     <div className="flex-1 flex flex-col w-full h-full relative">
+        {/* Wish Detail Modal Overlay */}
+        {selectedWishId && (
+            <WishViewerModal wishId={selectedWishId} onClose={() => setSelectedWishId(null)} currentUserId={user?.uid || ''} />
+        )}
         {/* Subtle Section Header with Navigation */}
         <div className="border-b border-slate-100/50">
-            <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between flex-nowrap gap-2">
-                 <div className="min-w-0">
-                    <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
-                        Existence Ticker
+            <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between">
+                 <div>
+                    <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">Journal</h2>
+                    <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1">あなたの歩みの記録</p>
+                </div>
+                {onTabChange && (
+                    <div className="shrink-0">
+                        <HeaderNavigation 
+                            currentTab="history" 
+                            onTabChange={(tab: AppViewMode) => onTabChange(tab)} 
+                        />
                     </div>
-                    <h2 className="text-lg min-[375px]:text-xl font-bold tracking-widest uppercase text-slate-900 truncate">Journal</h2>
-                    <p className="text-xs min-[375px]:text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">あなたの歩みの記録</p>
-                </div>
-                <div className="flex h-12 items-end gap-2">
-                    {onTabChange && (
-                        <div className="shrink-0">
-                            <HeaderNavigation 
-                                currentTab="history" 
-                                onTabChange={(tab: AppViewMode) => onTabChange(tab)} 
-                            />
-                        </div>
-                    )}
-                </div>
+                )}
             </div>
         </div>
 
@@ -151,16 +153,15 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
                             </p>
                         </div>
                     ) : (
-                        logs.map((log, index) => {
-                           return (
-                                <LogItem 
-                                     key={log.id} 
-                                     log={log} 
-                                     index={index} 
-                                     userId={user?.uid || ''} 
-                                />
-                           );
-                        })
+                        logs.map((log, index) => (
+                           <LogItem 
+                                key={log.id} 
+                                log={log} 
+                                index={index} 
+                                userId={user?.uid || ''} 
+                                onSelectWish={(id) => setSelectedWishId(id)}
+                           />
+                        ))
                     )}
                 </div>
              </div>
@@ -172,19 +173,18 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
 const LogItem = ({ 
     log, 
     index, 
-    userId
+    userId, 
+    onSelectWish 
 }: { 
     log: TransactionLog, 
     index: number, 
-    userId: string
+    userId: string, 
+    onSelectWish: (id: string) => void 
 }) => {
     const isSender = log.sender_id === userId;
-    const date = new Date(log.created_at);
+    const date = parseDate(log.created_at);
     const dateStr = formatDate(date);
-    
-    // Partner identification
-    const partnerId = isSender ? log.recipient_id : log.sender_id;
-    const partnerSnapshotName = isSender ? log.recipient_name : log.sender_name;
+    const partnerName = (isSender ? log.recipient_name : log.sender_name) || '誰か';
 
     let icon, title, metaColor, amountPrefix, amountColor;
 
@@ -198,13 +198,13 @@ const LogItem = ({
     else if (log.type === 'GIFT') {
         if (isSender) {
             icon = <Heart size={14} className="text-pink-500 fill-pink-50" />;
-            title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんに光を贈りました（旧機能）</>;
+            title = `${partnerName}さんに光を贈りました（旧機能）`;
             metaColor = "bg-slate-50 border-slate-200 grayscale";
             amountPrefix = "";
             amountColor = "text-slate-400";
         } else {
             icon = <Sparkles size={14} className="text-cyan-500 fill-cyan-50" />;
-            title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんから光を預かりました（旧機能）</>;
+            title = `${partnerName}さんから光を預かりました（旧機能）`;
             metaColor = "bg-slate-50 border-slate-200 grayscale";
             amountPrefix = "+";
             amountColor = "text-cyan-600";
@@ -227,13 +227,13 @@ const LogItem = ({
     else if (log.type === 'COMPENSATION') {
         if (isSender) {
              icon = <CheckCircle2 size={14} className="text-red-400" />;
-             title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんにお詫びのしるしを渡しました</>;
+             title = `${partnerName}さんにお詫びのしるしを渡しました`;
              metaColor = "bg-red-50 border-red-100";
              amountPrefix = ""; 
              amountColor = "text-red-500";
         } else {
              icon = <Sun size={14} className="text-orange-500 fill-orange-50" />;
-             title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんからお詫びのしるしを受け取りました</>;
+             title = `${partnerName}さんからお詫びのしるしを受け取りました`;
              metaColor = "bg-orange-50 border-orange-100";
              amountPrefix = "+";
              amountColor = "text-orange-600";
@@ -242,13 +242,13 @@ const LogItem = ({
     else {
         if (isSender) {
              icon = <CheckCircle2 size={14} className="text-amber-600" />;
-             title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんに感謝を伝えました（依頼完了）</>;
+             title = `${partnerName}さんに感謝を伝えました（依頼完了）`;
              metaColor = "bg-amber-50 border-amber-200";
              amountPrefix = "";
              amountColor = "text-slate-400";
         } else {
              icon = <CheckCircle2 size={14} className="text-blue-600" />;
-             title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんの願いを叶えました（報酬受取）</>;
+             title = `${partnerName}さんの願いを叶えました（報酬受取）`;
              metaColor = "bg-blue-50 border-blue-200";
              amountPrefix = "+";
              amountColor = "text-blue-600";
@@ -260,7 +260,8 @@ const LogItem = ({
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
-            className={`flex items-start gap-3 relative group transition-all rounded-xl p-2 -ml-2`}
+            onClick={() => log.wish_id && onSelectWish(log.wish_id)}
+            className={`flex items-start gap-3 relative group transition-all rounded-xl p-2 -ml-2 ${log.wish_id ? 'cursor-pointer hover:bg-white/40 active:scale-[0.98]' : ''}`}
         >
             <div className="w-12 pt-1 text-right shrink-0">
                 <span className="text-xs font-mono text-slate-400 block">{dateStr}</span>
@@ -300,16 +301,73 @@ const LogItem = ({
     );
 };
 
-const PartnerName = ({ id, snapshot }: { id?: string | null, snapshot?: string | null }) => {
-    const { profile, loading } = useOtherProfile(id || null);
+// --- Wish Detail Modal (Internal) ---
+const WishViewerModal = ({ wishId, onClose, currentUserId }: { wishId: string, onClose: () => void, currentUserId: string }) => {
+    const [wish, setWish] = useState<Wish | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    // 1. Memory Priority: If snapshot exists, use it
-    if (snapshot) return <span className="font-bold">{snapshot}</span>;
+    useEffect(() => {
+        const fetchWish = async () => {
+            if (!db) return;
+            try {
+                const snap = await getDoc(doc(db, 'wishes', wishId));
+                if (snap.exists()) {
+                    setWish({ id: snap.id, ...snap.data() } as Wish);
+                }
+            } catch (e) {
+                console.error("Failed to fetch wish", e);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchWish();
+    }, [wishId]);
 
-    // 2. Profile Lookup: Attempt to fetch live profile status
-    if (loading) return <span className="text-slate-300 animate-pulse">...</span>;
-    if (profile) return <span className="font-bold">{profile.name}</span>;
+    // Lock body scroll
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => { document.body.style.overflow = 'auto'; };
+    }, []);
 
-    // 3. Absolute Legacy Fallback
-    return <span className="font-bold text-slate-400">退会された方</span>;
+    return (
+        <div 
+            className="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
+            onClick={onClose}
+        >
+            <motion.div 
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                className="bg-white rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto no-scrollbar shadow-2xl relative"
+                onClick={e => e.stopPropagation()}
+            >
+                {/* Header */}
+                <div className="sticky top-0 z-10 p-4 flex justify-between items-center bg-white/80 backdrop-blur-md border-b border-slate-50">
+                    <motion.span layoutId="modal-header-title" className="text-xs font-bold text-slate-400 tracking-[0.2em] uppercase pl-2">
+                        追憶の欠片 (Past Fragment)
+                    </motion.span>
+                    <button onClick={onClose} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400">
+                        <X size={20} />
+                    </button>
+                </div>
+
+                <div className="p-2">
+                    {loading ? (
+                        <div className="h-40 flex items-center justify-center">
+                            <div className="w-6 h-6 border-2 border-slate-300 border-t-slate-800 rounded-full animate-spin"></div>
+                        </div>
+                    ) : wish ? (
+                        <WishCard 
+                            wish={wish} 
+                            currentUserId={currentUserId} 
+                            isReadOnly={true}
+                        />
+                    ) : (
+                        <div className="h-40 flex items-center justify-center text-slate-400 text-sm">
+                            記録が見つかりませんでした
+                        </div>
+                    )}
+                </div>
+            </motion.div>
+        </div>
+    );
 };
