@@ -7,7 +7,7 @@ import { DiagnosticModal } from "./DiagnosticModal";
 import { db } from "../lib/firebase";
 import { UserProfile } from "../types";
 import { calculateDecayedValue, toMilli, fromMilli, getMillis } from "../logic/worldPhysics";
-import { ADMIN_UIDS } from "../constants";
+
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -326,7 +326,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                             <div className="col-span-2 mb-4 md:mb-0 w-full md:w-auto flex items-center md:block text-xs">
                                                 <span className="md:hidden text-slate-500 w-16 flex-shrink-0">Role:</span>
                                                 <div className="inline-flex flex-col items-start gap-1">
-                                                    {(ADMIN_UIDS.includes(u.id) || superAdminIds.includes(u.id)) && (
+                                                    {superAdminIds.includes(u.id) && (
                                                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-yellow-400 text-black border border-yellow-500 shadow-[0_0_10px_rgba(250,204,21,0.4)]">
                                                             <Shield size={10} fill="black" />
                                                             SUPER ADMIN
@@ -338,7 +338,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                                             Admin
                                                         </span>
                                                     )}
-                                                    {u.role !== 'admin' && !(ADMIN_UIDS.includes(u.id) || superAdminIds.includes(u.id)) && (
+                                                    {u.role !== 'admin' && !superAdminIds.includes(u.id) && (
                                                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-500">
                                                             User
                                                         </span>
