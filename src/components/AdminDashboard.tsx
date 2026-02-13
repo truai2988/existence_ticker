@@ -517,7 +517,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                             wish_id: wishDoc.id,
                                             wish_title: wishData.content,
                                             sender_id: wishData.requester_id,
-                                            sender_name: wishData.requester_name || "Unknown"
+                                            sender_name: wishData.requester_name || "Unknown",
+                                            recipient_id: wishData.helper_id || null,
+                                            recipient_name: wishData.helper_name || null
                                         });
                                     }
                                     batch.delete(wishDoc.ref);

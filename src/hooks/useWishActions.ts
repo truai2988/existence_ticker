@@ -153,7 +153,7 @@ export const useWishActions = () => {
       const wishRef = doc(db, "wishes", wishId);
       const userRef = doc(db, "users", user.uid);
 
-      await runTransaction(db, async (transaction: any) => {
+      await runTransaction(db, async (transaction: Transaction) => {
         const wishDoc = await transaction.get(wishRef);
         if (!wishDoc.exists()) throw "Wish not found";
 
@@ -198,7 +198,7 @@ export const useWishActions = () => {
     try {
       const wishRef = doc(db, "wishes", wishId);
       
-      await runTransaction(db, async (transaction: any) => {
+      await runTransaction(db, async (transaction: Transaction) => {
           const wishDoc = await transaction.get(wishRef);
           if (!wishDoc.exists()) throw "Wish not found";
           
@@ -233,7 +233,7 @@ export const useWishActions = () => {
     setIsSubmitting(true);
     try {
       const wishRef = doc(db, "wishes", wishId);
-      await runTransaction(db, async (transaction: any) => {
+      await runTransaction(db, async (transaction: Transaction) => {
           const wishDoc = await transaction.get(wishRef);
           if (!wishDoc.exists()) throw "Wish not found";
           
@@ -258,7 +258,7 @@ export const useWishActions = () => {
     setIsSubmitting(true);
     try {
       const wishRef = doc(db, "wishes", wishId);
-      await runTransaction(db, async (transaction: any) => {
+      await runTransaction(db, async (transaction: Transaction) => {
         const wishDoc = await transaction.get(wishRef);
         if (!wishDoc.exists()) throw "Wish does not exist";
         const wishData = wishDoc.data();
@@ -386,9 +386,7 @@ export const useWishActions = () => {
                   created_at: serverTimestamp(),
                   
                   // Crystallized Names (No dynamic lookup)
-                  sender_id: wishData.requester_id,
-                  sender_name: isRequesterCanceling ? rName : rName, 
-                  recipient_id: wishData.helper_id,
+                  sender_name: rName, 
                   recipient_name: hName,
                   wish_title: wishData.content,
                   wish_id: wishId,
@@ -767,10 +765,9 @@ export const useWishActions = () => {
           wish_title: wishData.content,
           
           // Crystallized Names
-          sender_id: wishData.requester_id,
           sender_name: issuerDoc.data()?.name || wishData.requester_name || "Anonymous Soul",
           recipient_id: fulfillerId,
-          recipient_name: fulfillerDoc.data()?.name || "Anonymous Helper",
+          recipient_name: fulfillerDoc.data()?.name || wishData.helper_name || "Anonymous Helper",
           
           tags: tags,
           description: isBankruptcy ? "wish_fulfilled (Bankruptcy Partial Payment) [Crystallized]" : "wish_fulfilled [Crystallized]"
@@ -907,16 +904,11 @@ export const useWishActions = () => {
             const targetStatus = status || ((helperId || wishData.helper_id) ? 'in_progress' : 'open');
             const targetHelperId = helperId || wishData.helper_id;
 
-            const updateData: Record<string, any> = {
+            transaction.update(wishRef, {
               status: targetStatus,
-              updated_at: serverTimestamp(),
-            };
-
-            if (targetHelperId) {
-                updateData.helper_id = targetHelperId;
-            }
-
-            transaction.update(wishRef, updateData);
+              updated_at: serverTimestamp() as unknown as number, // Cast FieldValue to number for type compliance
+              ...(targetHelperId ? { helper_id: targetHelperId } : {})
+            });
         });
         return true;
       } catch (e) {

@@ -7,6 +7,7 @@ import { HeaderNavigation } from './HeaderNavigation';
 import { AppViewMode } from '../types';
 import { Sun, Heart, Sparkles, CheckCircle2, Archive, Slash } from 'lucide-react';
 import { getMillis } from '../logic/worldPhysics';
+import { useOtherProfile } from '../hooks/useOtherProfile';
 
 // Type Definition for our unified Transaction
 type TransactionLog = {
@@ -178,7 +179,10 @@ const LogItem = ({
     const isSender = log.sender_id === userId;
     const date = new Date(log.created_at);
     const dateStr = formatDate(date);
-    const partnerName = (isSender ? log.recipient_name : log.sender_name) || '誰か';
+    
+    // Partner identification
+    const partnerId = isSender ? log.recipient_id : log.sender_id;
+    const partnerSnapshotName = isSender ? log.recipient_name : log.sender_name;
 
     let icon, title, metaColor, amountPrefix, amountColor;
 
@@ -192,13 +196,13 @@ const LogItem = ({
     else if (log.type === 'GIFT') {
         if (isSender) {
             icon = <Heart size={14} className="text-pink-500 fill-pink-50" />;
-            title = `${partnerName}さんに光を贈りました（旧機能）`;
+            title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんに光を贈りました（旧機能）</>;
             metaColor = "bg-slate-50 border-slate-200 grayscale";
             amountPrefix = "";
             amountColor = "text-slate-400";
         } else {
             icon = <Sparkles size={14} className="text-cyan-500 fill-cyan-50" />;
-            title = `${partnerName}さんから光を預かりました（旧機能）`;
+            title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんから光を預かりました（旧機能）</>;
             metaColor = "bg-slate-50 border-slate-200 grayscale";
             amountPrefix = "+";
             amountColor = "text-cyan-600";
@@ -221,13 +225,13 @@ const LogItem = ({
     else if (log.type === 'COMPENSATION') {
         if (isSender) {
              icon = <CheckCircle2 size={14} className="text-red-400" />;
-             title = `${partnerName}さんにお詫びのしるしを渡しました`;
+             title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんにお詫びのしるしを渡しました</>;
              metaColor = "bg-red-50 border-red-100";
              amountPrefix = ""; 
              amountColor = "text-red-500";
         } else {
              icon = <Sun size={14} className="text-orange-500 fill-orange-50" />;
-             title = `${partnerName}さんからお詫びのしるしを受け取りました`;
+             title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんからお詫びのしるしを受け取りました</>;
              metaColor = "bg-orange-50 border-orange-100";
              amountPrefix = "+";
              amountColor = "text-orange-600";
@@ -236,13 +240,13 @@ const LogItem = ({
     else {
         if (isSender) {
              icon = <CheckCircle2 size={14} className="text-amber-600" />;
-             title = `${partnerName}さんに感謝を伝えました（依頼完了）`;
+             title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんに感謝を伝えました（依頼完了）</>;
              metaColor = "bg-amber-50 border-amber-200";
              amountPrefix = "";
              amountColor = "text-slate-400";
         } else {
              icon = <CheckCircle2 size={14} className="text-blue-600" />;
-             title = `${partnerName}さんの願いを叶えました（報酬受取）`;
+             title = <><PartnerName id={partnerId} snapshot={partnerSnapshotName} />さんの願いを叶えました（報酬受取）</>;
              metaColor = "bg-blue-50 border-blue-200";
              amountPrefix = "+";
              amountColor = "text-blue-600";
@@ -294,3 +298,16 @@ const LogItem = ({
     );
 };
 
+const PartnerName = ({ id, snapshot }: { id?: string | null, snapshot?: string | null }) => {
+    const { profile, loading } = useOtherProfile(id || null);
+
+    // 1. Memory Priority: If snapshot exists, use it immediately (No lookup)
+    if (snapshot) return <span className="font-bold">{snapshot}</span>;
+
+    // 2. Fallback: If no snapshot, attempt to fetch profile
+    if (loading) return <span className="text-slate-300 animate-pulse">...</span>;
+    if (profile) return <span className="font-bold">{profile.name}</span>;
+
+    // 3. Negative Legacy: If user is missing (withdrawn), show gentle alias
+    return <span className="text-slate-400 font-normal italic">かつての隣人</span>;
+};

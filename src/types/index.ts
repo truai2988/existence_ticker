@@ -70,6 +70,7 @@ export interface Wish {
     | "interrupted"
     | "expired";
   created_at: number;
+  updated_at?: number;
   tags?: string[];
   helper_id?: string;
   helper_name?: string;
