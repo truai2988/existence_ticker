@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ClipboardList, Timer, PlayCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useWishes } from '../hooks/useWishes';
-import { calculateLifePoints } from '../utils/decay';
+import { calculateDecayedValue, getMillis, toMilli, fromMilli } from '../logic/worldPhysics';
 import { WishCardList } from './WishCardList';
 import { HeaderNavigation } from './HeaderNavigation';
 import { AppViewMode } from '../types';
@@ -28,7 +28,9 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
     const exploreWishes = wishes.filter(w => {
         if (w.requester_id === currentUserId) return false;
         if (w.applicants && w.applicants.some(a => a.id === currentUserId)) return false;
-        const currentValue = calculateLifePoints(w.cost || 0, w.created_at);
+        const startMs = getMillis(w.created_at);
+        const elapsedSec = ((Date.now() - startMs) / 1000) | 0;
+        const currentValue = fromMilli(calculateDecayedValue(toMilli(w.cost || 0), elapsedSec));
         if (currentValue <= 0) return false;
         return true;
     });

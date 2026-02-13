@@ -10,7 +10,7 @@ import {
   Transaction,
   increment
 } from "firebase/firestore";
-import { calculateDecayedValue, getMillis } from "../logic/worldPhysics";
+import { calculateDecayedValue, getMillis, toMilli, fromMilli, WORLD_CONSTANTS } from "../logic/worldPhysics";
 import { UserProfile } from "../types";
 
 export const useProfile = () => {
@@ -133,13 +133,14 @@ export const useProfile = () => {
             }
             const userData = userSnap.data();
             const lastUpdated = getMillis(userData.last_updated);
-            const currentBalance = userData.balance || 0;
-            const decayedBalance = calculateDecayedValue(currentBalance, lastUpdated);
-            const newBalance = decayedBalance + amount;
-            const cappedBalance = Math.min(newBalance, 100); // Example cap at 100
+            const elapsedSec = ((Date.now() - lastUpdated) / 1000) | 0;
+            const currentBalanceMilli = toMilli(userData.balance || 0);
+            const decayedBalanceMilli = calculateDecayedValue(currentBalanceMilli, elapsedSec);
+            const newBalanceMilli = decayedBalanceMilli + toMilli(amount);
+            const cappedBalanceMilli = Math.min(newBalanceMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
 
             transaction.update(userRef, {
-                balance: cappedBalance,
+                balance: fromMilli(cappedBalanceMilli),
                 last_updated: serverTimestamp(),
             });
         });
@@ -166,22 +167,23 @@ export const useProfile = () => {
             }
             const userData = userSnap.data();
             const lastUpdated = getMillis(userData.last_updated);
-            const currentBalance = userData.balance || 0;
-            const decayedBalance = calculateDecayedValue(currentBalance, lastUpdated);
+            const elapsedSec = ((Date.now() - lastUpdated) / 1000) | 0;
+            const currentBalanceMilli = toMilli(userData.balance || 0);
+            const decayedBalanceMilli = calculateDecayedValue(currentBalanceMilli, elapsedSec);
 
-            if (decayedBalance < amount) {
-                console.warn("Insufficient balance for deduction:", decayedBalance, "needed:", amount);
+            if (fromMilli(decayedBalanceMilli) < amount) {
+                console.warn("Insufficient balance for deduction:", fromMilli(decayedBalanceMilli), "needed:", amount);
                 return { success: false, error: "Insufficient balance" };
             }
 
-            const newBalance = decayedBalance - amount;
+            const newBalanceMilli = decayedBalanceMilli - toMilli(amount);
 
             transaction.update(userRef, {
-                balance: newBalance,
+                balance: fromMilli(newBalanceMilli),
                 last_updated: serverTimestamp(),
             });
 
-            return { success: true, newBalance };
+            return { success: true, newBalance: fromMilli(newBalanceMilli) };
         });
 
         console.log("Balance deducted by", amount);

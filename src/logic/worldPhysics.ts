@@ -43,65 +43,53 @@ export const getMillis = (timestamp: unknown): number => {
 // Milli-Lm Helpers (1 Lm = 1000 milli-Lm)
 // =========================================================================================
 
-export const toMilli = (lm: number): number => Math.floor(lm * 1000);
+export const toMilli = (lm: number): number => (lm * 1000) | 0;
 export const fromMilli = (milli: number): number => milli / 1000;
 
 // Decay Rate: 10 Lm/h = 10,000 milli-Lm / 3600 sec = 25 / 9 milli-Lm per sec
-const MILLI_DECAY_PER_SEC_NUMERATOR = 25;
-const MILLI_DECAY_PER_SEC_DENOMINATOR = 9;
+const DECAY_NUM = 25;
+const DECAY_DEN = 9;
 
 // =========================================================================================
-// Decay Logic (減価計算)
+// Decay Logic (減価計算) - Pure Integer Math
 // =========================================================================================
 
 /**
- * 時間経過による価値の減少を計算する (Physical Truth)
- * 
- * [Integer Policy]:
- * 内部計算はすべて milli-Lm (1 Lm = 1000) の整数で行う。
- * 10 Lm/h = 10,000 milli-Lm/h = 25/9 milli-Lm/sec.
+ * 時間経過による価値の減少を計算する (Pure Mathematical Truth)
+ * @param initialMilli 初期値 (milli-Lm)
+ * @param elapsedSec 経過時間 (秒)
+ * @returns 減少後の値 (milli-Lm)
  */
-export const calculateDecayedValue = (initialValueLm: number, lastUpdatedMs: number): number => {
-  const initialMilli = toMilli(initialValueLm);
-  const now = Date.now();
-  
-  if (now < lastUpdatedMs) {
-      return fromMilli(initialMilli);
-  }
-
-  const elapsedSec = Math.floor((now - lastUpdatedMs) / 1000);
-  const milliDecay = Math.floor((elapsedSec * MILLI_DECAY_PER_SEC_NUMERATOR) / MILLI_DECAY_PER_SEC_DENOMINATOR);
-  
-  const resultMilli = Math.max(0, initialMilli - milliDecay);
-  return fromMilli(resultMilli);
+export const calculateDecayedValue = (initialMilli: number, elapsedSec: number): number => {
+  // Positive elapsed only
+  const s = elapsedSec < 0 ? 0 : elapsedSec;
+  const decay = ((s * DECAY_NUM) / DECAY_DEN) | 0;
+  const result = initialMilli - decay;
+  return result < 0 ? 0 : result;
 };
 
 /**
  * 過去の特定の時点での価値を計算する (Historical Truth)
+ * @param initialMilli 初期値 (milli-Lm)
+ * @param startMs 開始時間 (ms)
+ * @param endMs 終了時間 (ms)
+ * @returns 算出値 (milli-Lm)
  */
-export const calculateHistoricalValue = (initialValueLm: number, startMs: number, endMs: number): number => {
-    const initialMilli = toMilli(initialValueLm);
-
-    if (endMs < startMs) return fromMilli(initialMilli);
-
-    const elapsedSec = Math.floor((endMs - startMs) / 1000);
-    const milliDecay = Math.floor((elapsedSec * MILLI_DECAY_PER_SEC_NUMERATOR) / MILLI_DECAY_PER_SEC_DENOMINATOR);
-    
-    const resultMilli = Math.max(0, initialMilli - milliDecay);
-    return fromMilli(resultMilli);
+export const calculateHistoricalValue = (initialMilli: number, startMs: number, endMs: number): number => {
+    const elapsedSec = ((endMs - startMs) / 1000) | 0;
+    return calculateDecayedValue(initialMilli, elapsedSec);
 };
 
 // =========================================================================================
-// Liquidity Logic (ゆとり計算)
+// Liquidity Logic (ゆとり計算) - Pure Integer Math
 // =========================================================================================
 
 /**
- * Available = Total - Committed
+ * Available = Total - Committed (Expects Milli-Lm)
  */
-export const calculateAvailableLm = (currentBalanceLm: number, committedLm: number = 0): number => {
-    const balanceMilli = toMilli(currentBalanceLm);
-    const committedMilli = toMilli(committedLm);
-    return fromMilli(Math.max(0, balanceMilli - committedMilli));
+export const calculateAvailableLm = (currentBalanceMilli: number, committedMilli: number = 0): number => {
+    const res = currentBalanceMilli - committedMilli;
+    return res < 0 ? 0 : res;
 };
 
 // =========================================================================================

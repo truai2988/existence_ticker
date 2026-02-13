@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from './useAuthHook';
-import { calculateDecayedValue, calculateHistoricalValue, getMillis } from '../logic/worldPhysics';
+import { calculateDecayedValue, calculateHistoricalValue, getMillis, toMilli, fromMilli } from '../logic/worldPhysics';
 
 interface AuditLog {
   timestamp: Date;
@@ -46,11 +46,13 @@ export function useBalanceAudit() {
       if (userDocs.empty) throw new Error("User not found");
       
       const userData = userDocs.docs[0].data();
-      // Calculate current actual balance (decayed to NOW)
-      const currentActualBalance = calculateDecayedValue(
-        userData.balance || 0, 
-        getMillis(userData.last_updated)
+      const lastUpdatedMs = getMillis(userData.last_updated);
+      const elapsedSec = ((Date.now() - lastUpdatedMs) / 1000) | 0;
+      const currentActualBalanceMilli = calculateDecayedValue(
+        toMilli(userData.balance || 0), 
+        elapsedSec
       );
+      const currentActualBalance = fromMilli(currentActualBalanceMilli);
 
       // 2. Fetch ALL transactions (Looking for 'recipient_id' as used in Birth/Rebirth)
       const txRef = collection(db, 'transactions');
@@ -73,7 +75,7 @@ export function useBalanceAudit() {
       
       // 3. Replay History
       // Initial State
-      let theoreticalBalance = 0;
+      let theoreticalBalanceMilli = 0;
       let lastTime = 0;
       
       // Attempt to find "Birth" time or first accumulated balance?
@@ -130,27 +132,28 @@ export function useBalanceAudit() {
         // We probably need a customized version for audit that accepts 'now'.
         
         // Apply decay from lastTime to txTime (Fixed Linear Logic)
-        const balanceAfterDecay = calculateHistoricalValue(theoreticalBalance, lastTime, txTime);
+        const balanceAfterDecayMilli = calculateHistoricalValue(theoreticalBalanceMilli, lastTime, txTime);
         
-        const amount = tx.amount || 0;
-        const balanceAfterTx = balanceAfterDecay + amount;
+        const amountMilli = toMilli(tx.amount || 0);
+        const balanceAfterTxMilli = balanceAfterDecayMilli + amountMilli;
         
         auditLogs.push({
             timestamp: new Date(txTime),
             type: tx.type,
-            amount: amount,
-            balanceBefore: balanceAfterDecay,
-            balanceAfter: balanceAfterTx,
-            decayedAmount: theoreticalBalance - balanceAfterDecay,
+            amount: tx.amount || 0,
+            balanceBefore: fromMilli(balanceAfterDecayMilli),
+            balanceAfter: fromMilli(balanceAfterTxMilli),
+            decayedAmount: fromMilli(theoreticalBalanceMilli - balanceAfterDecayMilli),
             description: tx.description || tx.type
         });
         
-        theoreticalBalance = balanceAfterTx;
+        theoreticalBalanceMilli = balanceAfterTxMilli;
         lastTime = txTime;
       }
       
       // Finally decay to NOW (Fixed Linear Logic)
-      const finalCalculated = calculateHistoricalValue(theoreticalBalance, lastTime, now);
+      const finalCalculatedMilli = calculateHistoricalValue(theoreticalBalanceMilli, lastTime, now);
+      const finalCalculated = fromMilli(finalCalculatedMilli);
       
       setResult({
         calculatedBalance: finalCalculated,

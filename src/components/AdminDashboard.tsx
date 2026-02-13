@@ -923,7 +923,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                         for (const wDoc of activeWishes) {
                                             const wData = wDoc.data();
                                             const rId = wData.requester_id;
-                                            const decayedWishMilli = toMilli(calculateDecayedValue(wData.cost || 0, wData.created_at));
+                                            const startMs = getMillis(wData.created_at);
+                                            const elapsedSec = ((Date.now() - startMs) / 1000) | 0;
+                                            const decayedWishMilli = calculateDecayedValue(toMilli(wData.cost || 0), elapsedSec);
                                             userReservationMap.set(rId, (userReservationMap.get(rId) || 0) + decayedWishMilli);
                                         }
 
@@ -941,10 +943,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                                 const uId = uDoc.id;
                                                 
                                                 const expectedMilli = userReservationMap.get(uId) || 0;
-                                                const currentCommittedMilli = toMilli(calculateDecayedValue(uData.committed_lm || 0, uData.last_updated));
+                                                const uLastMs = getMillis(uData.last_updated);
+                                                const uElapsedSec = ((Date.now() - uLastMs) / 1000) | 0;
+                                                const currentCommittedMilli = calculateDecayedValue(toMilli(uData.committed_lm || 0), uElapsedSec);
 
                                                 if (Math.abs(expectedMilli - currentCommittedMilli) > 1) {
-                                                    const currentBalanceMilli = toMilli(calculateDecayedValue(uData.balance || 0, uData.last_updated));
+                                                    const currentBalanceMilli = calculateDecayedValue(toMilli(uData.balance || 0), uElapsedSec);
                                                     
                                                     batch.update(uDoc.ref, {
                                                         balance: fromMilli(currentBalanceMilli),

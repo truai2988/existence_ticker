@@ -21,6 +21,8 @@ import { Wish } from "../types";
 import {
   calculateDecayedValue,
   calculateHistoricalValue,
+  toMilli,
+  fromMilli
 } from "../logic/worldPhysics";
 import { useWishActions } from "../hooks/useWishActions";
 import { useUserView } from "../contexts/UserViewContext";
@@ -228,7 +230,9 @@ export const WishCard: React.FC<WishCardProps> = ({
 
   // Recalculate whenever tick changes (every 10 seconds)
   const displayValue = React.useMemo(() => {
-    return calculateDecayedValue(initialCost, wish.created_at);
+    const elapsedSec = ((Date.now() - wish.created_at) / 1000) | 0;
+    const decayedMilli = calculateDecayedValue(toMilli(initialCost), elapsedSec);
+    return fromMilli(decayedMilli);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tick, initialCost, wish.created_at]);
 

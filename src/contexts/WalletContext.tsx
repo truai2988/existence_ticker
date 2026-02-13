@@ -46,25 +46,27 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Chain 1: Total Balance (Decayed Base)
   const balance = useMemo(() => {
     const rawBalance = profile?.balance ?? 0;
-    const lastUpdated = profile?.last_updated ?? Date.now();
-    const decayedBase = calculateDecayedValue(rawBalance, lastUpdated);
-    return decayedBase + optimisticBalanceOffset;
+    const lastUpdated = getMillis(profile?.last_updated ?? Date.now());
+    const elapsedSec = ((Date.now() - lastUpdated) / 1000) | 0;
+    const decayedBaseMilli = calculateDecayedValue(toMilli(rawBalance), elapsedSec);
+    return fromMilli(decayedBaseMilli) + optimisticBalanceOffset;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.balance, profile?.last_updated, localTick, optimisticBalanceOffset]);
 
   // Chain 2: Committed Lm (Source of Truth: DB Record + Decay) - O(1)
   const committedLm = useMemo(() => {
     const rawCommitted = profile?.committed_lm ?? 0;
-    const lastUpdated = profile?.last_updated ?? Date.now();
+    const lastUpdated = getMillis(profile?.last_updated ?? Date.now());
+    const elapsedSec = ((Date.now() - lastUpdated) / 1000) | 0;
     // O(1) Calculation: We trust the Vessel's record, decaying it as a single mass
-    const decayedBase = calculateDecayedValue(rawCommitted, lastUpdated);
-    return decayedBase + optimisticCommittedOffset;
+    const decayedBaseMilli = calculateDecayedValue(toMilli(rawCommitted), elapsedSec);
+    return fromMilli(decayedBaseMilli) + optimisticCommittedOffset;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.committed_lm, profile?.last_updated, localTick, optimisticCommittedOffset]);
 
   // Chain 3: Available Lm (The Result)
   const availableLm = useMemo(() => {
-    return calculateAvailableLm(balance, committedLm);
+    return fromMilli(calculateAvailableLm(toMilli(balance), toMilli(committedLm)));
   }, [balance, committedLm]);
 
 
@@ -165,9 +167,9 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }
 
         const exactElapsedSec = Math.floor((now - newAnchorTimeMillis) / 1000);
-        const milliDecay = Math.floor((exactElapsedSec * 25) / 9);
-        const milliRebirth = toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT);
-        resultBalance = fromMilli(Math.max(0, milliRebirth - milliDecay));
+        // Pure integer math for rebirth decay
+        const milliDecay = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), exactElapsedSec);
+        resultBalance = fromMilli(milliDecay);
 
         const txId = `rebirth_${user.uid}_${newAnchorTimeMillis}`;
         const txRef = doc(db!, 'transactions', txId);
@@ -179,8 +181,9 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         let newCommittedMilli = 0;
         activeSnap.forEach(d => {
             const w = d.data();
-            const decayed = calculateDecayedValue(w.cost || 0, getMillis(w.created_at));
-            newCommittedMilli += toMilli(decayed);
+            const wElapsedSec = ((now - getMillis(w.created_at)) / 1000) | 0;
+            const decayedMilli = calculateDecayedValue(toMilli(w.cost || 0), wElapsedSec);
+            newCommittedMilli += decayedMilli;
         });
 
         const anchorDate = new Date(newAnchorTimeMillis);
@@ -228,7 +231,9 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         const data = userDoc.data();
         const lastUpdated = getMillis(data.last_updated);
-        const currentRealBalance = calculateDecayedValue(data.balance, lastUpdated);
+        const elapsedSec = ((Date.now() - lastUpdated) / 1000) | 0;
+        const currentRealMilli = calculateDecayedValue(toMilli(data.balance), elapsedSec);
+        const currentRealBalance = fromMilli(currentRealMilli);
 
         if (currentRealBalance < amount) throw "Insufficient Energy";
 

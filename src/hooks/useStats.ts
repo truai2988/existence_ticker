@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { LUNAR_CONSTANTS } from '../constants';
 import { db } from '../lib/firebase';
 import { collection, query, limit, getDocs, doc, getDoc, getCountFromServer, setDoc } from 'firebase/firestore';
-import { calculateLifePoints } from '../utils/decay';
-import { getMillis } from '../logic/worldPhysics';
+import { calculateDecayedValue, getMillis, toMilli, fromMilli } from '../logic/worldPhysics';
 
 export type Season = 'Spring' | 'Autumn' | 'Winter';
 export type MetabolismStatus = 'Active' | 'Stable' | 'Stagnant';
@@ -107,7 +106,9 @@ export const useStats = () => {
                         const data = doc.data();
                         const rawBal = Number(data.balance) || 0;
                         const lastUpdated = getMillis(data.last_updated || data.created_at);
-                        const trueBal = calculateLifePoints(rawBal, lastUpdated);
+                        const elapsedSec = ((now - lastUpdated) / 1000) | 0;
+                        const trueBalMilli = calculateDecayedValue(toMilli(rawBal), elapsedSec);
+                        const trueBal = fromMilli(trueBalMilli);
 
                         if (trueBal >= 1500) full++;
                         else if (trueBal >= 500) quarter++;
@@ -148,7 +149,8 @@ export const useStats = () => {
                         const d = doc.data();
                         const b = Number(d.balance) || 0;
                         const l = getMillis(d.last_updated || d.created_at);
-                        calculatedTotalSupply += calculateLifePoints(b, l);
+                        const elapsedSec = ((now - l) / 1000) | 0;
+                        calculatedTotalSupply += fromMilli(calculateDecayedValue(toMilli(b), elapsedSec));
                     });
                     
                     // Approximate total supply for whole population if sample is small

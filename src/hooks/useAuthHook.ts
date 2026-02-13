@@ -289,8 +289,9 @@ export const useAuth = () => {
                     const uCommitted = uData.committed_lm || 0;
                     const uLastUpdated = getMillis(uData.last_updated);
 
-                    const uBalanceDecayedMilli = toMilli(calculateDecayedValue(uBalance, uLastUpdated));
-                    const uCommittedDecayedMilli = toMilli(calculateDecayedValue(uCommitted, uLastUpdated));
+                    const uElapsedSec = ((Date.now() - uLastUpdated) / 1000) | 0;
+                    const uBalanceDecayedMilli = calculateDecayedValue(toMilli(uBalance), uElapsedSec);
+                    const uCommittedDecayedMilli = calculateDecayedValue(toMilli(uCommitted), uElapsedSec);
                     
                     totalDecayMilli += (toMilli(uBalance) - uBalanceDecayedMilli);
                     totalDecayMilli += (toMilli(uCommitted) - uCommittedDecayedMilli);
@@ -299,7 +300,8 @@ export const useAuth = () => {
                 for (const wishDoc of snapRequester.docs) {
                     const wishData = wishDoc.data();
                     const wishInitialCost = wishData.cost || 0;
-                    const wishDecayedMilli = toMilli(calculateDecayedValue(wishInitialCost, getMillis(wishData.created_at)));
+                    const wishElapsedSec = ((Date.now() - getMillis(wishData.created_at)) / 1000) | 0;
+                    const wishDecayedMilli = calculateDecayedValue(toMilli(wishInitialCost), wishElapsedSec);
                     totalDecayMilli += (toMilli(wishInitialCost) - wishDecayedMilli);
                     
                     // Compensation if helper was in progress
@@ -309,11 +311,14 @@ export const useAuth = () => {
                              const hData = helperSnap.data();
                              const hBalance = hData.balance || 0;
                              const hLastUpdated = getMillis(hData.last_updated);
-                             const hDecayedBalanceMilli = toMilli(calculateDecayedValue(hBalance, hLastUpdated));
+                             const hElapsedSec = ((Date.now() - hLastUpdated) / 1000) | 0;
+                             const hDecayedBalanceMilli = calculateDecayedValue(toMilli(hBalance), hElapsedSec);
                              totalDecayMilli += (toMilli(hBalance) - hDecayedBalanceMilli);
                              
                              const uData = userSnap.data();
-                             const uDecayedBalanceMilli = toMilli(calculateDecayedValue(uData?.balance || 0, getMillis(uData?.last_updated)));
+                             const uLastUpdatedForComp = getMillis(uData?.last_updated);
+                             const uElapsedSecForComp = ((Date.now() - uLastUpdatedForComp) / 1000) | 0;
+                             const uDecayedBalanceMilli = calculateDecayedValue(toMilli(uData?.balance || 0), uElapsedSecForComp);
                              
                              const actualPaymentMilli = Math.min(wishDecayedMilli, uDecayedBalanceMilli);
                              const actualPayment = fromMilli(actualPaymentMilli);
@@ -403,16 +408,6 @@ export const useAuth = () => {
                 }
 
                 // D. Delete Profile
-                if (userSnap.exists()) {
-                    transaction.delete(userRef);
-                }
-
-                // C. Delete History Subcollection
-                for (const historyDoc of historySnap.docs) {
-                    transaction.delete(historyDoc.ref);
-                }
-
-                // D. Delete Profile (Physical deletion, but wishes remain as 'interrupted')
                 if (userSnap.exists()) {
                     transaction.delete(userRef);
                 }

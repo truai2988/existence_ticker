@@ -11,7 +11,7 @@
  */
 
 import { getFirestore, Timestamp } from 'firebase-admin/firestore';
-import { calculateDecayedValue } from '../logic/worldPhysics';
+import { calculateDecayedValue, toMilli, fromMilli, getMillis } from '../logic/worldPhysics';
 
 // Firebase Admin 初期化
 // 注: このスクリプトを実行する前に、外部から initializeApp() を呼び出すこと
@@ -49,7 +49,10 @@ async function purifyAllVessels() {
       const createdAt = wish.created_at;
 
       // 減価適用
-      const currentValue = calculateDecayedValue(initialCost, createdAt);
+      const startMs = getMillis(createdAt);
+      const elapsedSec = ((Date.now() - startMs) / 1000) | 0;
+      const currentValueMilli = calculateDecayedValue(toMilli(initialCost), elapsedSec);
+      const currentValue = fromMilli(currentValueMilli);
 
       const current = userCommitments.get(requesterId) || 0;
       userCommitments.set(requesterId, current + currentValue);

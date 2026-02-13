@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { calculateLifePoints } from '../utils/decay';
-import { getMillis } from '../logic/worldPhysics';
+import { calculateDecayedValue, getMillis, toMilli, fromMilli } from '../logic/worldPhysics';
 
 /**
  * 共通の減価計算フック
@@ -14,13 +13,17 @@ import { getMillis } from '../logic/worldPhysics';
  * @returns リアルタイムで減価した現在値
  */
 export const useDecayedValue = (initialValue: number, createdAt: unknown) => {
-  const [displayValue, setDisplayValue] = useState(() => 
-    calculateLifePoints(initialValue, getMillis(createdAt))
-  );
+  const [displayValue, setDisplayValue] = useState(() => {
+    const startMs = getMillis(createdAt);
+    const elapsedSec = ((Date.now() - startMs) / 1000) | 0;
+    return fromMilli(calculateDecayedValue(toMilli(initialValue), elapsedSec));
+  });
   
   useEffect(() => {
     const update = () => {
-      const val = calculateLifePoints(initialValue, getMillis(createdAt));
+      const startMs = getMillis(createdAt);
+      const elapsedSec = ((Date.now() - startMs) / 1000) | 0;
+      const val = fromMilli(calculateDecayedValue(toMilli(initialValue), elapsedSec));
       setDisplayValue(val);
     };
     
