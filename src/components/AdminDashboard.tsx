@@ -7,7 +7,7 @@ import { DiagnosticModal } from "./DiagnosticModal";
 import { db } from "../lib/firebase";
 import { UserProfile } from "../types";
 import { calculateDecayedValue, toMilli, fromMilli, getMillis } from "../logic/worldPhysics";
-import { ADMIN_EMAILS } from "../constants";
+import { ADMIN_UIDS } from "../constants";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -27,7 +27,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [isCleaningUp, setIsCleaningUp] = useState(false);
   const [cleanupLog, setCleanupLog] = useState<string[]>([]);
-  const [superAdminEmails, setSuperAdminEmails] = useState<string[]>([]);
+  const [superAdminIds, setSuperAdminIds] = useState<string[]>([]);
 
 
 
@@ -78,7 +78,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           // Fetch Super Admins
           const superRef = collection(db, "super_admins");
           const superSnap = await getDocs(superRef);
-          setSuperAdminEmails(superSnap.docs.map(d => d.id));
+          setSuperAdminIds(superSnap.docs.map(d => d.id));
       } catch (e) {
           console.error("Failed to fetch users", e);
       } finally {
@@ -104,22 +104,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   };
 
   const toggleSuperAdmin = async (u: UserProfile) => {
-    if (!u.email) {
-        alert("このユーザーはメールアドレスが登録されていないため、特別権限を付与できません。");
-        return;
-    }
-    const isCurrentlySuper = superAdminEmails.includes(u.email);
+    const isCurrentlySuper = superAdminIds.includes(u.id);
     if (!window.confirm(`⚠️ ${u.name || u.id} の【特別権限（Super Admin）】を${isCurrentlySuper ? '剥奪' : '付与'}しますか？`)) return;
     
     try {
         if (!db) return;
         const { doc, setDoc, deleteDoc } = await import("firebase/firestore");
-        const superRef = doc(db, "super_admins", u.email);
+        const superRef = doc(db, "super_admins", u.id);
         
         if (isCurrentlySuper) {
             await deleteDoc(superRef);
         } else {
-            await setDoc(superRef, { is_super: true, granted_at: new Date().toISOString() });
+            await setDoc(superRef, { 
+                uid: u.id,
+                email: u.email || "unknown", 
+                is_super: true, 
+                granted_at: new Date().toISOString() 
+            });
         }
         
         alert(`特別権限を${isCurrentlySuper ? '剥奪' : '付与'}しました。`);
@@ -307,7 +308,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                                 </div>
                                                 <div className="min-w-0 flex-1">
                                                     <div className="font-bold text-slate-200 truncate">{u.name || 'Unknown'}</div>
-                                                    <div className="font-mono text-xs text-slate-600 truncate">{u.id}</div>
+                                                    <div className="flex flex-col">
+                                                        <div className="font-mono text-[10px] text-slate-600 truncate">{u.id}</div>
+                                                        {u.email && <div className="font-mono text-[10px] text-blue-400/70 truncate">{u.email}</div>}
+                                                        {!u.email && <div className="text-[10px] text-red-500/70 italic">Email Missing</div>}
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -321,7 +326,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                             <div className="col-span-2 mb-4 md:mb-0 w-full md:w-auto flex items-center md:block text-xs">
                                                 <span className="md:hidden text-slate-500 w-16 flex-shrink-0">Role:</span>
                                                 <div className="inline-flex flex-col items-start gap-1">
-                                                    {(ADMIN_EMAILS.includes(u.email || '') || superAdminEmails.includes(u.email || '')) && (
+                                                    {(ADMIN_UIDS.includes(u.id) || superAdminIds.includes(u.id)) && (
                                                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-yellow-400 text-black border border-yellow-500 shadow-[0_0_10px_rgba(250,204,21,0.4)]">
                                                             <Shield size={10} fill="black" />
                                                             SUPER ADMIN
@@ -333,7 +338,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                                             Admin
                                                         </span>
                                                     )}
-                                                    {u.role !== 'admin' && !(ADMIN_EMAILS.includes(u.email || '') || superAdminEmails.includes(u.email || '')) && (
+                                                    {u.role !== 'admin' && !(ADMIN_UIDS.includes(u.id) || superAdminIds.includes(u.id)) && (
                                                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-500">
                                                             User
                                                         </span>
@@ -345,12 +350,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                             <div className="col-span-2 w-full md:w-auto flex justify-end gap-2">
                                                 <button
                                                     onClick={() => toggleSuperAdmin(u)}
-                                                    className={`p-2 rounded-lg transition-colors border ${superAdminEmails.includes(u.email || '')
+                                                    className={`p-2 rounded-lg transition-colors border ${superAdminIds.includes(u.id)
                                                         ? 'bg-yellow-400/10 border-yellow-400/30 text-yellow-500 hover:bg-yellow-400/30'
                                                         : 'bg-slate-800 border-slate-700 text-slate-500 hover:text-white hover:border-slate-500'}`}
-                                                    title={superAdminEmails.includes(u.email || '') ? "特別権限を剥奪" : "特別権限を付与"}
+                                                    title={superAdminIds.includes(u.id) ? "特別権限を剥奪" : "特別権限を付与"}
                                                 >
-                                                    <Shield size={16} fill={superAdminEmails.includes(u.email || '') ? "currentColor" : "none"} />
+                                                    <Shield size={16} fill={superAdminIds.includes(u.id) ? "currentColor" : "none"} />
                                                 </button>
                                                 <button
                                                     onClick={() => toggleAdmin(u)}

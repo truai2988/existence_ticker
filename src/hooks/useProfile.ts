@@ -58,6 +58,14 @@ export const useProfile = () => {
     return () => unsubscribe();
   }, [user]);
 
+  // SELF-REPAIR: Sync email from Auth to Firestore if missing in Profile
+  useEffect(() => {
+    if (user && profile && !profile.email && user.email && !isLoading) {
+      console.log("[useProfile] Missing email in Firestore. Self-repairing from Auth state...");
+      updateProfile({ email: user.email });
+    }
+  }, [user, profile, isLoading]);
+
   const updateProfile = async (updates: Partial<UserProfile>) => {
     if (!user || !db) {
         console.error("Profile update failed: No user or db");

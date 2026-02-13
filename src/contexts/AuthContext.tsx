@@ -3,7 +3,6 @@ import { User, onIdTokenChanged } from 'firebase/auth';
 import { onSnapshot, doc } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 import { AuthContext } from './AuthContextDefinition';
-import { ADMIN_EMAILS } from '../constants';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
@@ -31,15 +30,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             }
 
             if (currentUser) {
-                const userEmail = currentUser.email;
-                const isHardcodedAdmin = userEmail ? ADMIN_EMAILS.includes(userEmail) : false;
-
-                // Sync signals: isSuper (Email/Static) + isDoc (DB/Live) + isDynamicSuper (DB/Global)
+                // Sync signals: isDoc (DB/Live) + isDynamicSuper (DB/Global)
                 let isDynamicSuper = false;
                 let isDocAdmin = false;
 
                 const updateAdminState = () => {
-                    setIsAdmin(isHardcodedAdmin || isDocAdmin || isDynamicSuper);
+                    setIsAdmin(isDocAdmin || isDynamicSuper);
                 };
 
                 // 1. Live Profile Role
@@ -49,14 +45,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     updateAdminState();
                 });
 
-                // 2. Global Super Admin Status (survives user deletion)
-                if (userEmail) {
-                    const superRef = doc(db!, 'super_admins', userEmail);
-                    unsubscribeSuperAdmin = onSnapshot(superRef, (snap) => {
-                        isDynamicSuper = snap.exists() && snap.data()?.is_super === true;
-                        updateAdminState();
-                    });
-                }
+                // 2. Super Admin Status (UID keyed)
+                const superRef = doc(db!, 'super_admins', currentUser.uid);
+                unsubscribeSuperAdmin = onSnapshot(superRef, (snap) => {
+                    isDynamicSuper = snap.exists() && snap.data()?.is_super === true;
+                    updateAdminState();
+                });
 
                 updateAdminState();
             } else {

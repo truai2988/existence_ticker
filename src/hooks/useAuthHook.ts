@@ -148,9 +148,23 @@ export const useAuth = () => {
 
     const linkEmail = useCallback(async (email: string, pass: string) => {
         if (!auth || !auth.currentUser) throw new Error("No user to link");
+        if (!db) throw new Error("Database not connected");
+
+        const user = auth.currentUser;
         const credential = EmailAuthProvider.credential(email, pass);
-        await linkWithCredential(auth.currentUser, credential);
-        // User remains logged in but is no longer anonymous
+        await linkWithCredential(user, credential);
+
+        // SYNC: Update email in Firestore profile after successful link
+        const userRef = doc(db, 'users', user.uid);
+        await runTransaction(db, async (transaction) => {
+            const snap = await transaction.get(userRef);
+            if (snap.exists()) {
+                transaction.update(userRef, {
+                    email: email,
+                    last_updated: serverTimestamp()
+                });
+            }
+        });
     }, []);
 
     const signOut = useCallback(async () => {
@@ -178,16 +192,31 @@ export const useAuth = () => {
     const updateUserEmail = useCallback(async (newEmail: string, currentPassword: string) => {
         if (!auth || !auth.currentUser) throw new Error("Not authenticated");
         if (!auth.currentUser.email) throw new Error("No email on current user");
-        
+        if (!db) throw new Error("Database not connected");
+
+        const user = auth.currentUser;
+
         // Step 1: Re-authenticate the user (required for sensitive operations)
         const credential = EmailAuthProvider.credential(
-            auth.currentUser.email,
+            user.email!,
             currentPassword
         );
-        await reauthenticateWithCredential(auth.currentUser, credential);
+        await reauthenticateWithCredential(user, credential);
         
-        // Step 2: Update the email
-        await updateEmail(auth.currentUser, newEmail);
+        // Step 2: Update the email in Auth
+        await updateEmail(user, newEmail);
+
+        // Step 3: SYNC to Firestore
+        const userRef = doc(db, 'users', user.uid);
+        await runTransaction(db, async (transaction) => {
+            const snap = await transaction.get(userRef);
+            if (snap.exists()) {
+                transaction.update(userRef, {
+                    email: newEmail,
+                    last_updated: serverTimestamp()
+                });
+            }
+        });
     }, []);
 
     const deleteAccount = useCallback(async () => {

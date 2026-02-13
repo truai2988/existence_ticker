@@ -29,7 +29,5 @@ export const SURVIVAL_CONSTANTS = {
 };
 
 // --- Security / Roles ---
-// Emails that have permanent "Super Admin" access (survives UID changes)
-export const ADMIN_EMAILS = [
-    "truai_admin@example.com", // Replace with your actual email
-];
+// All administrative access is now managed dynamically via the Admin Dashboard.
+// To bootstrap the first admin, please contact the developer or use the database console.
