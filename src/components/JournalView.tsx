@@ -8,6 +8,7 @@ import { AppViewMode } from '../types';
 import { Sun, Heart, Sparkles, CheckCircle2, Archive, Slash } from 'lucide-react';
 import { getMillis } from '../logic/worldPhysics';
 import { useOtherProfile } from '../hooks/useOtherProfile';
+import { useDeepMemoryRecovery } from '../hooks/useDeepMemoryRecovery';
 
 // Type Definition for our unified Transaction
 type TransactionLog = {
@@ -326,20 +327,24 @@ const LogItem = ({
 
 const PartnerName = ({ id, snapshot, backupName }: { id?: string | null, snapshot?: string | null, backupName?: string }) => {
     const { profile, loading } = useOtherProfile(id || null);
+    const { recoveredName, isRecovering } = useDeepMemoryRecovery(id || null);
 
     // 1. Memory Priority: If snapshot exists and is a valid name, use it
-    // We filter out system-generated or placeholder labels from legacy data
     const mechanicalLabels = ["退会された方", "退会した奏者", "Anonymous Soul", "Anonymous Helper", "Anonymous", "Unknown", "Helper", "Requester"];
     const isValidSnapshot = snapshot && !mechanicalLabels.includes(snapshot);
     if (isValidSnapshot) return <span className="font-bold">{snapshot}</span>;
 
-    // 2. Recovery: If snapshot is corrupted, try names from other logs (backupName)
+    // 2. Local Recovery: If snapshot is corrupted, try names found in other current view logs
     if (backupName) return <span className="font-bold">{backupName}</span>;
 
-    // 3. Fallback: If no memory exists, attempt to fetch live profile
+    // 3. Profile Lookup: Attempt to fetch live profile status
     if (loading) return <span className="text-slate-300 animate-pulse">...</span>;
     if (profile) return <span className="font-bold">{profile.name}</span>;
 
-    // 4. Absolute Legacy: If user is missing and no records remain, show standard label
+    // 4. Deep Recovery: Background Firestore scan if no other memory remains
+    if (recoveredName) return <span className="font-bold">{recoveredName}</span>;
+    if (isRecovering) return <span className="text-slate-300 animate-pulse">...</span>;
+
+    // 5. Absolute Legacy Fallback: If no records exist anywhere, use mechanical label
     return <span className="text-slate-400 font-normal italic">退会された方</span>;
 };
