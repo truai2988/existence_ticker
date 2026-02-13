@@ -74,6 +74,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       }
   }, []);
 
+  const toggleAdmin = async (u: UserProfile) => {
+    if (!window.confirm(`⚠️ ${u.name || u.id} の権限を変更しますか？`)) return;
+    try {
+        if (!db) return;
+        const { doc, updateDoc } = await import("firebase/firestore");
+        const newRole = u.role === 'admin' ? 'user' : 'admin';
+        await updateDoc(doc(db, "users", u.id), {
+            role: newRole
+        });
+        alert(`権限を ${newRole} に変更しました。`);
+        fetchUsers();
+    } catch (e) {
+        console.error(e);
+        alert("変更に失敗しました");
+    }
+  };
+
   // Fetch Users Logic
   React.useEffect(() => {
       if (activeTab === 'citizens') {
@@ -281,7 +298,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
                                             {/* Action Col (Mobile: Row 4) */}
                                             <div className="col-span-2 w-full md:w-auto flex justify-end">
-                                                {/* Actions Removed for Security */}
+                                                <button
+                                                    onClick={() => toggleAdmin(u)}
+                                                    className={`p-2 rounded-lg transition-colors border ${u.role === 'admin' 
+                                                        ? 'bg-red-900/10 border-red-900/30 text-red-400 hover:bg-red-900/30' 
+                                                        : 'bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500'}`}
+                                                    title={u.role === 'admin' ? "一般ユーザーに降格" : "管理者に昇格"}
+                                                >
+                                                    <Shield size={16} />
+                                                </button>
                                             </div>
                                         </div>
                                     ))}
