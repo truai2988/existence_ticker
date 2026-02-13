@@ -15,7 +15,6 @@ import {
   Settings,
 } from "lucide-react";
 import { useProfile } from "../hooks/useProfile";
-import { ADMIN_UIDS } from "../constants";
 import { useAuth } from "../hooks/useAuthHook";
 import { HeaderNavigation } from "./HeaderNavigation";
 import { AppViewMode } from "../types";
@@ -78,7 +77,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onTabChange,
 }) => {
   const { profile, isLoading: isProfileLoading } = useProfile();
-  const { user, signOut, linkEmail, deleteAccount, updateUserPassword, reauthenticate } =
+  const { user, isAdmin, signOut, linkEmail, deleteAccount, updateUserPassword, reauthenticate } =
     useAuth();
 
   const [isEditingProfile, setIsEditingProfile] = useState(initialEditMode);
@@ -204,9 +203,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   <p className="text-xs min-[375px]:text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">あなたの記録</p>
               </div>
               <div className="flex h-12 items-end gap-2">
-                  {onOpenAdmin &&
-                    (profile?.role === "admin" ||
-                      (profile?.id && ADMIN_UIDS.includes(profile.id))) && (
+                  {onOpenAdmin && isAdmin && (
                       <button
                         onClick={onOpenAdmin}
                         className="p-2 pb-0 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
@@ -427,8 +424,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
               {!isAnonymous &&
                 !isProfileLoading &&
-                profile?.role !== "admin" &&
-                !ADMIN_UIDS.includes(profile?.id || "") && (
+                !isAdmin && (
                   <ListItem
                     icon={Trash2}
                     label="退会する"

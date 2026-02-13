@@ -1,8 +1,7 @@
 import React, { useState, useCallback } from "react";
-import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, ShieldOff, Trash2, Archive, Droplets } from "lucide-react";
+import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, Trash2, Archive, Droplets } from "lucide-react";
 import { useStats, MetabolismStatus } from "../hooks/useStats";
 import { db } from "../lib/firebase";
-import { ADMIN_UIDS } from "../constants";
 import { UserProfile } from "../types";
 import { calculateDecayedValue, toMilli, fromMilli, getMillis } from "../logic/worldPhysics";
 
@@ -20,7 +19,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [userList, setUserList] = useState<UserProfile[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
-  const [adminCount, setAdminCount] = useState(0);
   const [isCleaningUp, setIsCleaningUp] = useState(false);
   const [cleanupLog, setCleanupLog] = useState<string[]>([]);
 
@@ -69,15 +67,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           users.sort((a, b) => (Number(b.last_updated) || 0) - (Number(a.last_updated) || 0));
           
           setUserList(users);
-          // データベース上のadmin + コード指定のadminの両方をカウント
-          const totalAdminCount = users.filter(u => u.role === 'admin' || ADMIN_UIDS.includes(u.id?.trim())).length;
-          setAdminCount(totalAdminCount);
       } catch (e) {
           console.error("Failed to fetch users", e);
       } finally {
           setIsLoadingUsers(false);
       }
-  }, [setAdminCount]);
+  }, []);
 
   // Fetch Users Logic
   React.useEffect(() => {
@@ -87,44 +82,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   }, [activeTab, fetchUsers]);
 
 
-  const handleToggleAdmin = async (targetUser: UserProfile) => {
-      const isCurrentlyAdmin = targetUser.role === 'admin';
-      const actionLabel = isCurrentlyAdmin ? "管理者権限を削除" : "管理者権限を付与";
-      
-      if (isCurrentlyAdmin && adminCount <= 1) {
-          alert("禁止操作: この世界で最後の管理者です。\n権限を放棄する前に、別の後継者を指名してください。");
-          return;
-      }
-
-      if (!window.confirm(`${targetUser.name || 'このユーザー'} に対する ${actionLabel} を行いますか？\n\n${isCurrentlyAdmin ? '警告: このユーザーはシステム設定を変更できなくなります。' : '注意: このユーザーはシステム設定を変更できるようになります。'}`)) {
-          return;
-      }
-
-      try {
-          if (!db) return;
-          const { doc, runTransaction } = await import("firebase/firestore");
-          const userRef = doc(db, "users", targetUser.id);
-          
-          await runTransaction(db, async (transaction) => {
-              const userSnap = await transaction.get(userRef);
-              if (!userSnap.exists()) throw new Error("User not found");
-              
-              transaction.update(userRef, {
-                  role: isCurrentlyAdmin ? 'user' : 'admin'
-              });
-          });
-
-          // Optimistic Update
-          setUserList(prev => prev.map(u => 
-              u.id === targetUser.id ? { ...u, role: isCurrentlyAdmin ? 'user' : 'admin' } : u
-          ));
-          setAdminCount(prev => isCurrentlyAdmin ? prev - 1 : prev + 1);
-
-      } catch (e: unknown) {
-          console.error("Failed to update role", e);
-          alert("権限の変更に失敗しました。\nあなた自身に十分な権限がない可能性があります。\n" + String(e));
-      }
-  };
 
 
   const filteredUsers = userList.filter(u => 
@@ -308,41 +265,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                             <div className="col-span-2 mb-4 md:mb-0 w-full md:w-auto flex items-center md:block text-xs">
                                                 <span className="md:hidden text-slate-500 w-16 flex-shrink-0">Role:</span>
                                                 <div className="inline-flex flex-col items-start gap-1">
-                                                    {u.role === 'admin' ? (
+                                                    {u.role === 'admin' && (
                                                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-900/50">
                                                             <Shield size={10} />
                                                             Admin
                                                         </span>
-                                                    ) : (
+                                                    )}
+                                                    {u.role !== 'admin' && (
                                                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-500">
                                                             User
                                                         </span>
-                                                    )}
-                                                    {ADMIN_UIDS.includes(u.id?.trim()) && (
-                                                        <div className="text-xs text-indigo-400 font-mono opacity-50"> emergency-access </div>
                                                     )}
                                                 </div>
                                             </div>
 
                                             {/* Action Col (Mobile: Row 4) */}
                                             <div className="col-span-2 w-full md:w-auto flex justify-end">
-                                                {u.role === 'admin' ? (
-                                                    <button 
-                                                        onClick={() => handleToggleAdmin(u)}
-                                                        className="w-full md:w-auto justify-center text-xs bg-slate-800 hover:bg-red-900/50 text-slate-400 hover:text-red-400 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors flex items-center gap-1"
-                                                    >
-                                                        <ShieldOff size={12} />
-                                                        Revoke
-                                                    </button>
-                                                ) : (
-                                                    <button 
-                                                        onClick={() => handleToggleAdmin(u)}
-                                                        className="w-full md:w-auto justify-center text-xs bg-slate-800 hover:bg-green-900/50 text-slate-400 hover:text-green-400 px-3 py-1.5 rounded-lg border border-slate-700 transition-colors flex items-center gap-1"
-                                                    >
-                                                        <Shield size={12} />
-                                                        Grant Admin
-                                                    </button>
-                                                )}
+                                                {/* Actions Removed for Security */}
                                             </div>
                                         </div>
                                     ))}

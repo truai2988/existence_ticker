@@ -19,7 +19,7 @@ import { useCallback } from 'react';
 
 export const useAuth = () => {
     // Consume Singleton State
-    const { user, loading, isRegistering, setIsRegistering } = useAuthContext();
+    const { user, isAdmin, loading, isRegistering, setIsRegistering } = useAuthContext();
 
     const signIn = useCallback(async (email: string, pass: string) => {
         if (!auth) throw new Error("Auth not initialized");
@@ -435,6 +435,7 @@ export const useAuth = () => {
 
     return {
         user,
+        isAdmin,
         loading,
         isRegistering,
         signIn,

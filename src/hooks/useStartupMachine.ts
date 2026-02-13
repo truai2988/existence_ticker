@@ -5,7 +5,6 @@ import { useSeasonalEvent, SeasonalEventData } from "./useSeasonalEvent";
 import { useMemo, useState, useEffect } from "react";
 import { User } from 'firebase/auth';
 import { UserProfile } from '../types';
-import { ADMIN_UIDS } from "../constants";
 
 // The 4 Discrete Views of Existence (GHOST removed - brain handles it)
 export type StartupView = 
@@ -23,6 +22,7 @@ interface StartupResult {
     data: {
         user: User | null;
         profile: UserProfile | null;
+        isAdmin: boolean;
         eventData: SeasonalEventData | null;
         message?: string;
     };
@@ -35,7 +35,7 @@ interface StartupResult {
 
 export const useStartupMachine = () => {
     // 1. Ingest all raw signals from sensors (no judgment)
-    const { user, loading: authLoading, signOut, deleteAccount, isRegistering } = useAuth();
+    const { user, isAdmin, loading: authLoading, signOut, deleteAccount, isRegistering } = useAuth();
     const { profile, isLoading: profileLoading } = useProfile();
     const { status: walletStatus } = useWallet(); 
     const { eventData, isChecking: eventChecking, completeEvent } = useSeasonalEvent();
@@ -55,7 +55,7 @@ export const useStartupMachine = () => {
             user && 
             !profile && 
             user.isAnonymous &&
-            !ADMIN_UIDS.includes(user.uid);
+            !isAdmin;
         
         if (isGhostDetected) {
             console.log(`[StateMachine] Ghost detected (UID: ${user.uid}, Anonymous: ${user.isAnonymous}) - Passive state initiated.`);
@@ -64,7 +64,7 @@ export const useStartupMachine = () => {
             setIsGhostGracePeriod(false);
         }
         
-    }, [authLoading, profileLoading, user, profile]);
+    }, [authLoading, profileLoading, user, profile, isAdmin]);
 
     // 4. The Deterministic State Machine
     // We derive the current visual state purely from the inputs.
@@ -80,9 +80,8 @@ export const useStartupMachine = () => {
                 data: { 
                     user: null, 
                     profile: null, 
+                    isAdmin: false,
                     eventData: null,
-                    message: authLoading ? "魂を呼び覚ましています..." : 
-                             profileLoading ? "記憶を辿っています..." : "世界を整えています..."
                 },
                 actions: { signOut, completeEvent, deleteAccount }
             };
@@ -94,7 +93,7 @@ export const useStartupMachine = () => {
             return {
                 view: 'GATE' as StartupView,
                 appMode: 'NORMAL' as AppMode,
-                data: { user: null, profile: null, eventData: null, message: undefined },
+                data: { user: null, profile: null, isAdmin: false, eventData: null, message: undefined },
                 actions: { signOut, completeEvent, deleteAccount }
             };
         }
@@ -108,8 +107,8 @@ export const useStartupMachine = () => {
                 data: { 
                     user, 
                     profile: null, 
+                    isAdmin: false,
                     eventData: null,
-                    message: "アカウントの状態を確認しています..."
                 },
                 actions: { signOut, completeEvent, deleteAccount }
             };
@@ -121,7 +120,7 @@ export const useStartupMachine = () => {
             return {
                 view: 'EVENT' as StartupView,
                 appMode: 'NORMAL' as AppMode,
-                data: { user, profile, eventData, message: undefined },
+                data: { user, profile, isAdmin, eventData, message: undefined },
                 actions: { signOut, completeEvent, deleteAccount }
             };
         }
@@ -138,8 +137,9 @@ export const useStartupMachine = () => {
                 data: { 
                     user, 
                     profile: null, 
+                    isAdmin,
                     eventData: null,
-                    message: (isRegistering || (window as any).__isRegistering) ? "新しい存在を刻んでいます..." : "再接続を待っています..."
+                    message: (isRegistering || (window as { __isRegistering?: boolean }).__isRegistering) ? "新しい存在を刻んでいます..." : "再接続を待っています..."
                 },
                 actions: { signOut, completeEvent, deleteAccount }
             };
@@ -150,13 +150,13 @@ export const useStartupMachine = () => {
         return {
             view: 'APP' as StartupView,
             appMode,
-            data: { user, profile, eventData: null, message: undefined },
+            data: { user, profile, isAdmin, eventData: null, message: undefined },
             actions: { signOut, completeEvent, deleteAccount }
         };
 
     }, [
         authLoading, profileLoading, eventChecking,
-        user, profile,
+        user, profile, isAdmin,
         eventData,
         walletStatus,
         isGhostGracePeriod,

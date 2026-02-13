@@ -5,9 +5,9 @@ import { AuthContext } from './AuthContextDefinition';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
+    const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isRegistering, setIsRegistering] = useState(false);
-    // Global flag is now managed directly on window object in useAuthHook
 
     useEffect(() => {
         if (!auth) {
@@ -16,8 +16,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         console.log("[AuthProvider] Initializing Singleton Listener...");
-        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             console.log("[AuthProvider] Auth state changed:", currentUser ? `User: ${currentUser.uid}` : "No user");
+            
+            if (currentUser) {
+                try {
+                    const idTokenResult = await currentUser.getIdTokenResult();
+                    setIsAdmin(!!idTokenResult.claims.admin);
+                } catch (e) {
+                    console.error("Failed to fetch custom claims", e);
+                    setIsAdmin(false);
+                }
+            } else {
+                setIsAdmin(false);
+            }
+            
             setUser(currentUser);
             setLoading(false);
         }, (error) => {
@@ -30,10 +43,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const contextValue = useMemo(() => ({ 
         user, 
+        isAdmin,
         loading, 
         isRegistering, 
         setIsRegistering 
-    }), [user, loading, isRegistering]);
+    }), [user, isAdmin, loading, isRegistering]);
 
     return (
         <AuthContext.Provider value={contextValue}>

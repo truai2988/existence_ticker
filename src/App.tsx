@@ -8,7 +8,7 @@ import { Inbox, Megaphone, Sparkles } from "lucide-react";
 import { useWallet } from "./hooks/useWallet";
 import { ProfileView } from './components/ProfileView';
 import { JournalView } from './components/JournalView';
-import { AdminDashboard as AdminComp } from './components/AdminDashboard';
+// import { AdminDashboard as AdminComp } from './components/AdminDashboard'; // REMOVED FOR SECURITY
 import { RadianceView } from './components/RadianceView';
 import { FlowView } from './components/FlowView';
 import { SeasonalRevelation } from './components/SeasonalRevelation';
@@ -263,9 +263,10 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
 
 
 // メインコンテンツの切り替えレイヤー
-const MainContent = ({ viewMode, setViewMode, currentUserId, onGoHome, ritualState, setRitualState, setTargetBalance, appMode }: { 
+const MainContent = ({ viewMode, setViewMode, isAdmin, currentUserId, onGoHome, ritualState, setRitualState, setTargetBalance, appMode }: { 
     viewMode: AppViewMode; 
     setViewMode: (mode: AppViewMode) => void; 
+    isAdmin: boolean;
     currentUserId: string; 
     onGoHome: () => void;
     ritualState: 'idle' | 'breathing' | 'blooming' | 'syncing';
@@ -282,21 +283,15 @@ const MainContent = ({ viewMode, setViewMode, currentUserId, onGoHome, ritualSta
 
     const renderContent = () => {
         switch (viewMode) {
-            case 'home': return withTransition(
-                <HomeView 
-                    onOpenFlow={() => setViewMode('flow')} 
-                    onOpenRequest={() => setViewMode('give')} 
-                    ritualState={ritualState}
-                    setRitualState={setRitualState}
-                    setTargetBalance={setTargetBalance}
-                    appMode={appMode}
-                />, 'home');
-            case 'profile': return withTransition(<ProfileView onOpenAdmin={() => setViewMode('admin')} onTabChange={setViewMode} />, 'profile');
-            case 'profile_edit': return withTransition(<ProfileView onOpenAdmin={() => setViewMode('admin')} initialEditMode={true} onTabChange={setViewMode} />, 'profile_edit');
+            case 'home': return withTransition(<HomeView onOpenFlow={() => setViewMode('flow')} onOpenRequest={() => setViewMode('give')} ritualState={ritualState} setRitualState={setRitualState} setTargetBalance={setTargetBalance} appMode={appMode} />, 'home');
+            case 'profile': return withTransition(<ProfileView onOpenAdmin={isAdmin ? () => setViewMode('admin') : undefined} onTabChange={setViewMode} />, 'profile');
+            case 'profile_edit': return withTransition(<ProfileView onOpenAdmin={isAdmin ? () => setViewMode('admin') : undefined} initialEditMode={true} onTabChange={setViewMode} />, 'profile_edit');
             case 'history': return withTransition(<JournalView onTabChange={setViewMode} />, 'history');
             case 'flow': return withTransition(<FlowView currentUserId={currentUserId} onOpenProfile={() => setViewMode('profile_edit')} onTabChange={setViewMode} />, 'flow');
             case 'give': return withTransition(<RadianceView currentUserId={currentUserId} onTabChange={setViewMode} />, 'give');
-            case 'admin': return withTransition(<AdminComp onClose={onGoHome} />, 'admin');
+            case 'admin': 
+                if (!isAdmin) return withTransition(<HomeView onOpenFlow={() => setViewMode('flow')} onOpenRequest={() => setViewMode('give')} ritualState={ritualState} setRitualState={setRitualState} setTargetBalance={setTargetBalance} appMode={appMode} />, 'home');
+                return withTransition(<AdminDashboard onClose={onGoHome} />, 'admin');
             default: return null;
         }
     };
@@ -435,6 +430,7 @@ function App() {
                     <MainContent
                         viewMode={viewMode}
                         setViewMode={setViewMode}
+                        isAdmin={data.isAdmin}
                         currentUserId={data.user!.uid}
                         onGoHome={handleGoHome}
                         ritualState={ritualState}
