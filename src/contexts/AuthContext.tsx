@@ -15,7 +15,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             return;
         }
 
-        console.log("[AuthProvider] Initializing Singleton Listener (Token-Aware)...");
         const unsubscribe = onIdTokenChanged(auth, async (currentUser) => {
             if (currentUser) {
                 try {
