@@ -255,3 +255,5 @@ export const debugShiroRebirth = async (db: Firestore) => {
         console.log("✅ Transaction ID is available. Idempotency check should PASS.");
     }
 };
+
+export { restoreJournalRecords } from './restoreJournalRecords';

@@ -16,6 +16,18 @@ import { AppViewMode } from "./types";
 import { useProfile } from "./hooks/useProfile";
 import { useStartupMachine, AppMode } from "./hooks/useStartupMachine";
 import { getMillis } from "./logic/worldPhysics";
+import { restoreJournalRecords } from "./logic/restoreJournalRecords";
+import { db } from "./lib/firebase";
+
+// Dev Tool: Trigger via console: window.runJournalRestoration()
+if (typeof window !== 'undefined') {
+  // @ts-expect-error: Exposing to window for dev console access
+  window.runJournalRestoration = () => {
+    if (db) return restoreJournalRecords(db);
+    console.error("Firebase db is not initialized.");
+    return Promise.resolve(0);
+  };
+}
 
 // カウントアップ演出
 const CountingNumber: React.FC<{ value: number; duration: number }> = ({ value, duration }) => {
