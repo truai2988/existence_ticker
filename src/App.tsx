@@ -112,7 +112,7 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
           setRitualState('breathing');
           playCrystalSound(); 
           await new Promise(r => setTimeout(r, 1500));
-          const result = await performRebirthReset();
+          const result = await performRebirthReset({ userInitiated: true });
           if (result.success && result.newBalance !== undefined) {
               setTargetBalance(result.newBalance); setRitualState('blooming'); 
               await new Promise(r => setTimeout(r, 1500)); setRitualState('syncing');

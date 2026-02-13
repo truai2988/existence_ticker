@@ -76,7 +76,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           
           await new Promise(r => setTimeout(r, 1500));
           
-          const result = await performRebirthReset();
+          const result = await performRebirthReset({ userInitiated: true });
           
           if (result.success && result.newBalance !== undefined) {
               setTargetBalance(result.newBalance);

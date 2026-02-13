@@ -22,7 +22,6 @@ import {
 } from "../logic/worldPhysics";
 import { WalletStatus } from "../types/wallet";
 import { useWishesContext } from "./WishesContext";
-import { Wish } from "../types";
 import { WalletContext, WalletContextType } from "./WalletContextDefinition";
 
 // WalletProvider Component
@@ -30,7 +29,7 @@ import { WalletContext, WalletContextType } from "./WalletContextDefinition";
 export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
-  const { userActiveWishes, isLoading: wishesLoading } = useWishesContext();
+  const { isLoading: wishesLoading } = useWishesContext();
 
   // 1-Hour Silence: Live Ticker for live decay updates (1 hour)
   const [localTick, setLocalTick] = useState(0);
@@ -70,68 +69,8 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
 
   // === 2. AUTOMATIC SANITIZATION (Ghost Exorcism) ===
-  // Performs the O(N) calculation in background to check integrity
-  useEffect(() => {
-    if (!user || !db || wishesLoading || profileLoading || !profile) return;
-
-    // 【不可侵条約】(The Non-Aggression Pact)
-    // 楽観的更新が行われている間は、サーバーとの整合性チェック（Sanitization）をスキップする。
-    // これにより、UI上の仮の数値とDBの数値が一時的にズレていることによる競合上書きを防ぐ。
-    if (optimisticBalanceOffset !== 0 || optimisticCommittedOffset !== 0) {
-        console.log("[Sanitization] System Silent: Optimistic update in progress...");
-        return;
-    }
-
-    // Combine active and archive wishes for comprehensive check
-    const allUserWishes = [...userActiveWishes];
-
-    // O(N) Calculation: Sum of all active individual promises
-    let realCommittedMilli = 0;
-    allUserWishes.forEach((w: Wish) => {
-        const isActive = ['open', 'in_progress', 'review_pending'].includes(w.status);
-        if (isActive) {
-            const decayedCost = calculateDecayedValue(w.cost || 0, w.created_at);
-            realCommittedMilli += toMilli(decayedCost);
-        }
-    });
-    const realCommitted = fromMilli(realCommittedMilli);
-    
-    // compare: committedLm (Displayed O(1)) vs realCommitted (Calculated O(N))
-    const diff = Math.abs(committedLm - realCommitted);
-    
-    // Tolerance: 1 Lm (due to floor accumulations in O(N))
-    if (diff > 1.0) {
-        console.warn(`[Sanitization] Syncing Committed Lm: Display(${committedLm}) vs Real(${realCommitted})`);
-        
-        const syncDb = async () => {
-            try {
-                await runTransaction(db!, async (transaction) => {
-                    const userRef = doc(db!, "users", user.uid);
-                    const userSnap = await transaction.get(userRef);
-                    if (!userSnap.exists()) return;
-                    
-                    // We overwrite with the "Real" sum (O(N) truth)
-                    transaction.update(userRef, {
-                        committed_lm: realCommitted,
-                        last_updated: serverTimestamp()
-                    });
-                    
-                    const logRef = doc(collection(db!, "transactions"));
-                    transaction.set(logRef, {
-                        type: 'SYSTEM_SYNC',
-                        user_id: user.uid,
-                        amount: fromMilli(toMilli(realCommitted) - toMilli(committedLm)),
-                        description: `Auto-Sync: committed_lm corrected to ${realCommitted} (was ${committedLm})`,
-                        created_at: serverTimestamp()
-                    });
-                });
-            } catch (e) {
-                console.error("Sanitization Failed", e);
-            }
-        };
-        syncDb();
-    }
-  }, [user, profile, userActiveWishes, wishesLoading, profileLoading, committedLm, optimisticBalanceOffset, optimisticCommittedOffset]);
+  // [ABOLISHED 2026-02-13] Automatic repair is disabled to honor user will.
+  // Data inconsistencies now lead to passive ritual state instead of auto-sync.
 
 
   // === 3. METABOLIC STATUS ===
@@ -154,23 +93,37 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const expiryDate = cycleStartedAt + cycleDurationMillis;
     const now = Date.now();
 
-    // 2026-02-10: PURE TIME-BASED LOGIC - "The system reads the clock, not the balance"
-    
+    // 2026-02-13: PASSIVE RESCUE - "Detect corruption, transition to ritual"
+    const isCorrupted = 
+      isNaN(balance) || 
+      isNaN(committedLm) || 
+      isNaN(availableLm) || 
+      (profile.cycle_started_at && isNaN(getMillis(profile.cycle_started_at)));
+
+    if (isCorrupted) {
+      console.warn("[Rescue] Corruption detected in wallet data. Transitioning to RITUAL_READY.");
+      return 'RITUAL_READY';
+    }
+
     // 1. First Birth (Never reset before)
     if (cycleStartedAt === 0) return 'RITUAL_READY';
 
     // 2. Rebirth (Time has passed) - "Even 1 second beyond next_reset requires ritual"
     if (now >= expiryDate) return 'RITUAL_READY';
 
-    // The user must perform the ritual every 10 days, REGARDLESS of Lm balance.
-    // Balance is irrelevant to ritual timing.
-
     return 'ALIVE';
-  }, [user, profile, profileLoading]);
+  }, [user, profile, profileLoading, balance, committedLm, availableLm]);
 
   // === 4. THE SACRED RITUAL (Rebirth) ===
-  const performRebirthReset = async (): Promise<{ success: boolean; newBalance?: number }> => {
+  const performRebirthReset = async (options: { userInitiated: boolean }): Promise<{ success: boolean; newBalance?: number }> => {
     if (!user || !db) return { success: false };
+    
+    // Strict enforcement of User Will
+    if (!options.userInitiated) {
+      console.error("[Security] performRebirthReset was called without explicit user initiation. Blocked.");
+      return { success: false };
+    }
+
     if (status !== 'RITUAL_READY') return { success: false };
 
     try {

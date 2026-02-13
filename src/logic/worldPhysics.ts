@@ -63,14 +63,14 @@ const MILLI_DECAY_PER_SEC_DENOMINATOR = 9;
  */
 export const calculateDecayedValue = (initialValueLm: number, lastUpdated: unknown): number => {
   const initialMilli = toMilli(initialValueLm);
-
-  if (lastUpdated === null || lastUpdated === undefined) {
-      return fromMilli(initialMilli);
-  }
-
   const now = Date.now();
   const lastTime = getMillis(lastUpdated);
   
+  // Fail-Safe: If time is unreadable (NaN or 0), assume no time passed (Stop Physics)
+  if (!lastTime || isNaN(lastTime)) {
+    return fromMilli(initialMilli);
+  }
+
   if (now < lastTime) {
       return fromMilli(initialMilli);
   }
@@ -87,13 +87,13 @@ export const calculateDecayedValue = (initialValueLm: number, lastUpdated: unkno
  */
 export const calculateHistoricalValue = (initialValueLm: number, startTime: unknown, endTime: unknown): number => {
     const initialMilli = toMilli(initialValueLm);
-
-    if (startTime === null || startTime === undefined || endTime === null || endTime === undefined) {
-        return fromMilli(initialMilli);
-    }
-
     const startMs = getMillis(startTime);
     const endMs = getMillis(endTime);
+
+    // Fail-Safe: If time is unreadable
+    if (!startMs || isNaN(startMs) || !endMs || isNaN(endMs)) {
+        return fromMilli(initialMilli);
+    }
 
     if (endMs < startMs) return fromMilli(initialMilli);
 
