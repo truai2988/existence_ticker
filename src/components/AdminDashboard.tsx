@@ -298,7 +298,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
             </div>
         ) : activeTab === 'integrity' ? (
-            <div className="animate-in fade-in duration-300 overflow-y-auto max-h-[75vh] pr-2 custom-scrollbar space-y-6">
+            <div className="animate-in fade-in duration-300 space-y-6">
                 
                 {/* 1. Orphan Cleanup */}
                 <div className="bg-slate-900/50 rounded-xl border border-slate-700 p-6">
