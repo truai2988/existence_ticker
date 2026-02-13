@@ -15,6 +15,7 @@ import { SeasonalRevelation } from './components/SeasonalRevelation';
 import { AppViewMode } from "./types";
 import { useProfile } from "./hooks/useProfile";
 import { useStartupMachine, AppMode } from "./hooks/useStartupMachine";
+import { getMillis } from "./logic/worldPhysics";
 
 // カウントアップ演出
 const CountingNumber: React.FC<{ value: number; duration: number }> = ({ value, duration }) => {
@@ -71,9 +72,7 @@ const HomeView = ({ onOpenFlow, onOpenRequest, ritualState, setRitualState, setT
   
   // Calculate Days
   const cycleDays = profile?.scheduled_cycle_days || 10;
-  const cycleStartedAt = profile?.cycle_started_at?.toMillis 
-      ? profile.cycle_started_at.toMillis() 
-      : (profile?.created_at?.toMillis ? profile.created_at.toMillis() : Date.now());
+  const cycleStartedAt = getMillis(profile?.cycle_started_at || profile?.created_at);
   const nextReset = cycleStartedAt + (cycleDays * 24 * 60 * 60 * 1000);
   const daysLeft = Math.max(0, Math.ceil((nextReset - Date.now()) / (1000 * 60 * 60 * 24)));
   

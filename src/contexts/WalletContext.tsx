@@ -17,7 +17,8 @@ import {
   calculateAvailableLm, 
   WORLD_CONSTANTS,
   toMilli,
-  fromMilli
+  fromMilli,
+  getMillis
 } from "../logic/worldPhysics";
 import { WalletStatus } from "../types/wallet";
 import { useWishesContext } from "./WishesContext";
@@ -146,9 +147,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     // Return 'ALIVE' so we fall through to the Auth Gate in App.tsx.
     if (!profile) return 'ALIVE';
 
-    const cycleStartedAt = profile.cycle_started_at && typeof profile.cycle_started_at.toMillis === 'function'
-        ? profile.cycle_started_at.toMillis()
-        : 0;
+    const cycleStartedAt = getMillis(profile.cycle_started_at);
 
     const effectiveCycleDays = profile.scheduled_cycle_days || 10;
     const cycleDurationMillis = effectiveCycleDays * 24 * 60 * 60 * 1000;
@@ -191,9 +190,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         if (!userDoc.exists()) throw "World Error: Soul not found";
         
         const data = userDoc.data();
-        const cycleStartedAt = data.cycle_started_at && typeof data.cycle_started_at.toMillis === 'function'
-            ? data.cycle_started_at.toMillis()
-            : 0;
+        const cycleStartedAt = getMillis(data.cycle_started_at);
 
         const now = Date.now();
         let newAnchorTimeMillis: number;

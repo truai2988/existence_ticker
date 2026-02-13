@@ -16,13 +16,12 @@ export const WORLD_CONSTANTS = {
 // Time Helper (Internal)
 // =========================================================================================
 
-// Firestore Timestamp duck typing interface
 interface FirestoreTimestamp {
     toMillis: () => number;
     seconds: number;
 }
 
-const getMillis = (timestamp: unknown): number => {
+export const getMillis = (timestamp: unknown): number => {
     if (!timestamp) return Date.now();
     if (timestamp instanceof Date) return timestamp.getTime();
     if (typeof timestamp === 'number') return timestamp;
