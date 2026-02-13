@@ -20,37 +20,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         let unsubscribeFirestore: (() => void) | null = null;
 
         const unsubscribeAuth = onIdTokenChanged(auth, async (currentUser) => {
-            // Clean up previous Firestore listener if user changes
             if (unsubscribeFirestore) {
                 unsubscribeFirestore();
                 unsubscribeFirestore = null;
             }
 
             if (currentUser) {
-                // 1. Core Auth Claims Check & Emergency Access
-                const updateAdminStatus = async (docRole?: string) => {
-                    try {
-                        const idTokenResult = await currentUser.getIdTokenResult();
-                        const isSuperAdmin = ADMIN_UIDS.includes(currentUser.uid);
-                        const isClaimAdmin = !!idTokenResult.claims.admin;
-                        const isDocAdmin = docRole === 'admin';
-                        
-                        setIsAdmin(isClaimAdmin || isSuperAdmin || isDocAdmin);
-                    } catch (e) {
-                        console.error("[AuthProvider] Admin check failed:", e);
-                        setIsAdmin(ADMIN_UIDS.includes(currentUser.uid) || docRole === 'admin');
-                    }
-                };
+                // Simplified: Admin is either hardcoded (Emergency) or in DB (Live)
+                const isSuperAdmin = ADMIN_UIDS.includes(currentUser.uid);
 
-                // 2. Real-time Firestore Role Listener
                 const userRef = doc(db!, 'users', currentUser.uid);
                 unsubscribeFirestore = onSnapshot(userRef, (snap) => {
-                    const role = snap.exists() ? snap.data()?.role : undefined;
-                    updateAdminStatus(role);
+                    const isDocAdmin = snap.exists() && snap.data()?.role === 'admin';
+                    setIsAdmin(isSuperAdmin || isDocAdmin);
                 });
 
-                // Initial check before snapshot returns
-                updateAdminStatus();
+                // Initial sync for the super admin/static check
+                setIsAdmin(isSuperAdmin);
             } else {
                 setIsAdmin(false);
             }
