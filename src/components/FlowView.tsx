@@ -107,7 +107,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                                 : exploreWishes.length === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-slate-500'
                         }`}
                     >
-                        <span>募集中</span>
+                        <span>募集中 ({exploreWishes.length})</span>
                         {activeTab === 'explore' && (
                             <motion.div 
                                 layoutId="flow-tab-underline"
