@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, ReactNode } from 'react';
 import { User, onIdTokenChanged } from 'firebase/auth';
 import { auth } from '../lib/firebase';
 import { AuthContext } from './AuthContextDefinition';
+import { ADMIN_UIDS } from '../constants';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
@@ -19,10 +20,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             if (currentUser) {
                 try {
                     const idTokenResult = await currentUser.getIdTokenResult();
-                    setIsAdmin(!!idTokenResult.claims.admin);
+                    const isSuperAdmin = ADMIN_UIDS.includes(currentUser.uid);
+                    setIsAdmin(!!idTokenResult.claims.admin || isSuperAdmin);
                 } catch (e) {
                     console.error("[AuthProvider] Failed to fetch custom claims", e);
-                    setIsAdmin(false);
+                    const isSuperAdmin = ADMIN_UIDS.includes(currentUser.uid);
+                    setIsAdmin(isSuperAdmin); 
                 }
             } else {
                 setIsAdmin(false);
