@@ -60,13 +60,18 @@ const simulateAndCorrect = async (db: Firestore, user: DocumentData, userTxs: Do
     // Simulate
     let simulatedBalance = originBalance;
     let lastSimTime = originTime;
-    const decayRatePerHour = 10;
+    
+    // Dynamic Decay Rate Law: Lm/hour = 100 / cycleDays
+    const cycleDays = userData.scheduled_cycle_days || 10;
+    const decayRatePerHour = 100 / cycleDays;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     inflows.forEach((tx: any) => {
         const txTime = Number(tx.created_at) || 0;
         const elapsed = txTime - lastSimTime;
         const hoursPassed = elapsed / (1000 * 60 * 60);
+        
+        // Match worldPhysics pure math if possible, but audit uses float-hour for simplicity
         const decayAmount = Math.floor(hoursPassed * decayRatePerHour);
         
         simulatedBalance = Math.max(0, simulatedBalance - decayAmount);

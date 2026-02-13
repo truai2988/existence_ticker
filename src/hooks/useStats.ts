@@ -114,15 +114,14 @@ export const useStats = () => {
                         else if (trueBal >= 500) quarter++;
                         else low++;
                         
-                        // Cycle Calculation
-                        // cycle_started_at -> days elapsed
                         const startedAt = getMillis(data.cycle_started_at || data.created_at);
+                        const scheduledCycleDays = data.scheduled_cycle_days || 10;
                         
                         const elapsed = now - startedAt;
                         // 1 day = 86400000ms
                         // Day is 1-indexed. Elapsed < 24h -> Day 1.
                         let currentDay = Math.floor(elapsed / (24 * 60 * 60 * 1000)) + 1;
-                        if (currentDay > 10) currentDay = 10; // Cap at max cycle logic for avg
+                        if (currentDay > scheduledCycleDays) currentDay = scheduledCycleDays; 
                         if (currentDay < 1) currentDay = 1;
                         
                         totalDaysSum += currentDay;
@@ -159,8 +158,10 @@ export const useStats = () => {
                     }
 
                     // Decay = Population * Decay_Per_Sec * 86400
-                    // 10 Lm/hour = 240 Lm/day per person
-                    // This is "Potential Decay". Actual decay depends on if they have balance, but macro-level fits.
+                    // Default Rate (If 10 days): 10 Lm/hour = 240 Lm/day per person
+                    // New Law: Rate = 100 / (avg scheduled cycle days)
+                    // We use 10 as a reference for macro stats if avg is unknown,
+                    // but since most people are currently 10, it's consistent.
                     const estimatedDecay24h = totalPopulation * 240; 
                     
                     const avgBalance = totalPopulation > 0 ? calculatedTotalSupply / totalPopulation : 0;

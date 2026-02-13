@@ -46,9 +46,6 @@ export const getMillis = (timestamp: unknown, fallback: number = Date.now()): nu
 export const toMilli = (lm: number): number => (lm * 1000) | 0;
 export const fromMilli = (milli: number): number => milli / 1000;
 
-// Decay Rate: 10 Lm/h = 10,000 milli-Lm / 3600 sec = 25 / 9 milli-Lm per sec
-const DECAY_NUM = 25;
-const DECAY_DEN = 9;
 
 // =========================================================================================
 // Decay Logic (減価計算) - Pure Integer Math
@@ -58,12 +55,23 @@ const DECAY_DEN = 9;
  * 時間経過による価値の減少を計算する (Pure Mathematical Truth)
  * @param initialMilli 初期値 (milli-Lm)
  * @param elapsedSec 経過時間 (秒)
+ * @param cycleDays リセット周期 (日) - デフォルトは10日
  * @returns 減少後の値 (milli-Lm)
  */
-export const calculateDecayedValue = (initialMilli: number, elapsedSec: number): number => {
+export const calculateDecayedValue = (initialMilli: number, elapsedSec: number, cycleDays: number = 10): number => {
   // Positive elapsed only
   const s = elapsedSec < 0 ? 0 : elapsedSec;
-  const decay = ((s * DECAY_NUM) / DECAY_DEN) | 0;
+  
+  // Dynamic Decay Rate Law:
+  // Rate (Lm/hour) = 2400 / (cycleDays * 24) = 100 / cycleDays
+  // Rate (milli-Lm/sec) = (100 / cycleDays) * 1000 / 3600
+  //                    = 100000 / (cycleDays * 3600)
+  //                    = 250 / (cycleDays * 9)
+  
+  const num = 250;
+  const den = cycleDays * 9;
+  
+  const decay = ((s * num) / den) | 0;
   const result = initialMilli - decay;
   return result < 0 ? 0 : result;
 };
@@ -75,9 +83,9 @@ export const calculateDecayedValue = (initialMilli: number, elapsedSec: number):
  * @param endMs 終了時間 (ms)
  * @returns 算出値 (milli-Lm)
  */
-export const calculateHistoricalValue = (initialMilli: number, startMs: number, endMs: number): number => {
+export const calculateHistoricalValue = (initialMilli: number, startMs: number, endMs: number, cycleDays: number = 10): number => {
     const elapsedSec = ((endMs - startMs) / 1000) | 0;
-    return calculateDecayedValue(initialMilli, elapsedSec);
+    return calculateDecayedValue(initialMilli, elapsedSec, cycleDays);
 };
 
 // =========================================================================================

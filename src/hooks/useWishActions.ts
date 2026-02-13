@@ -30,6 +30,24 @@ export const useWishActions = () => {
   // Calculate costs matches logic in UI/Types
   const costMap = { light: 100, medium: 500, heavy: 1000 };
 
+  // Helper: Resync on Action - Recalculates the absolute truth of commitment
+  const fetchActiveCommittedMilli = async (uid: string, now: number, cycleDays: number): Promise<number> => {
+    if (!db) return 0;
+    const q = query(
+        collection(db, "wishes"),
+        where("requester_id", "==", uid),
+        where("status", "in", ["open", "in_progress", "review_pending"])
+    );
+    const snap = await getDocs(q);
+    let totalMilli = 0;
+    snap.forEach(d => {
+        const w = d.data();
+        const elapsedSec = Math.max(0, ((now - getMillis(w.created_at)) / 1000) | 0);
+        totalMilli += calculateDecayedValue(toMilli(w.cost || 0), elapsedSec, cycleDays);
+    });
+    return totalMilli;
+  };
+
   const castWish = async (input: CreateWishInput): Promise<boolean> => {
     if (!db) {
       alert("データベースエラー: 接続されていません。");
@@ -66,6 +84,19 @@ export const useWishActions = () => {
     setOptimisticCommittedOffset((prev: number) => prev + bounty);
 
     try {
+      const now = Date.now();
+      
+      // === DISCREPANCY FIX: Resync on Action ===
+      // Before transaction, we fetch the absolute truth of existing wishes.
+      // We will refresh the user's profile with this truthful sum during the TX.
+      
+      // 1. Prelim Fetch (Outside TX because Firestore Web SDK doesn't support queries in TX)
+      // Note: This is an approximation of truth, but self-heals the 'bucket leak' over time.
+      const initialUserDoc = await getDocs(query(collection(db, "users"), where("__name__", "==", user.uid)));
+      const cycleDays = initialUserDoc.empty ? 10 : (initialUserDoc.docs[0].data().scheduled_cycle_days || 10);
+      
+      const resyncedCommittedMilli = await fetchActiveCommittedMilli(user.uid, now, cycleDays);
+
       await runTransaction(db, async (transaction: Transaction) => {
         // 1. Get User Data
         const userDoc = await transaction.get(userRef);
@@ -74,19 +105,19 @@ export const useWishActions = () => {
         const data = userDoc.data();
         const currentBalance = data.balance || 0;
         const lastUpdated = getMillis(data.last_updated);
+        const userCycleDays = data.scheduled_cycle_days || 10;
 
-        const elapsedSec = ((Date.now() - lastUpdated) / 1000) | 0;
+        const elapsedSec = ((now - lastUpdated) / 1000) | 0;
         const currentBalanceMilli = toMilli(currentBalance);
-        const decayedBalanceMilli = calculateDecayedValue(currentBalanceMilli, elapsedSec);
+        const decayedBalanceMilli = calculateDecayedValue(currentBalanceMilli, elapsedSec, userCycleDays);
 
-        // === Phase 2: Read & Decay committed_lm ===
-        const currentCommittedMilli = toMilli(data.committed_lm || 0);
-        const decayedCommittedMilli = calculateDecayedValue(currentCommittedMilli, elapsedSec);
+        // === DISCREPANCY FIX: Use Resynced Absolute Sum instead of decaying the bucket ===
+        const baseCommittedMilli = resyncedCommittedMilli;
         
-        const availableMilli = decayedBalanceMilli - decayedCommittedMilli;
+        const availableMilli = decayedBalanceMilli - baseCommittedMilli;
 
         // Gravity Stats: Sum up lost Lm
-        const totalDecayMilli = Math.max(0, (currentBalanceMilli - decayedBalanceMilli) + (currentCommittedMilli - decayedCommittedMilli));
+        const totalDecayMilli = Math.max(0, (currentBalanceMilli - decayedBalanceMilli));
 
         if (availableMilli < toMilli(bounty)) {
           throw new Error(
@@ -97,7 +128,7 @@ export const useWishActions = () => {
         // === ATOMIC UPDATE: Balance + Committed ===
         transaction.update(userRef, {
           balance: fromMilli(decayedBalanceMilli),
-          committed_lm: fromMilli(decayedCommittedMilli + toMilli(bounty)),
+          committed_lm: fromMilli(baseCommittedMilli + toMilli(bounty)),
           created_contracts: increment(1),
           last_updated: serverTimestamp(),
         });
@@ -257,7 +288,20 @@ export const useWishActions = () => {
     if (!db || !user) return false;
     setIsSubmitting(true);
     try {
+      const now = Date.now();
       const wishRef = doc(db, "wishes", wishId);
+      
+      // === DISCREPANCY FIX: Resync on Action ===
+      const wishSnapPre = await getDocs(query(collection(db, "wishes"), where("__name__", "==", wishId)));
+      if (wishSnapPre.empty) return false;
+      const initialWishData = wishSnapPre.docs[0].data();
+      const rId = initialWishData.requester_id;
+      
+      const rDocPre = await getDocs(query(collection(db, "users"), where("__name__", "==", rId)));
+      const rCycleDays = rDocPre.empty ? 10 : (rDocPre.docs[0].data().scheduled_cycle_days || 10);
+      
+      const resyncedCommittedMilli = await fetchActiveCommittedMilli(rId, now, rCycleDays);
+
       await runTransaction(db, async (transaction: Transaction) => {
         const wishDoc = await transaction.get(wishRef);
         if (!wishDoc.exists()) throw "Wish does not exist";
@@ -265,16 +309,11 @@ export const useWishActions = () => {
 
         if (wishData.status === "in_progress") {
           // === 補償キャンセル (Compensation Logic) ===
-          
-          // Determine who is canceling
           const isRequesterCanceling = wishData.requester_id === user.uid;
           const isHelperCanceling = wishData.helper_id === user.uid;
           
-          if (!isRequesterCanceling && !isHelperCanceling) {
-            throw "You are not authorized to cancel this wish";
-          }
+          if (!isRequesterCanceling && !isHelperCanceling) throw "Unauthorized";
           
-          // 1. Fetch Requester Data FIRST to check solvency
           const requesterRef = doc(db!, "users", wishData.requester_id);
           const requesterDoc = await transaction.get(requesterRef);
           if (!requesterDoc.exists()) throw "Requester not found";
@@ -282,27 +321,23 @@ export const useWishActions = () => {
           const rData = requesterDoc.data();
           const rBalance = rData?.balance || 0;
           const rLastUpdated = getMillis(rData?.last_updated);
+          const userRCycleDays = rData?.scheduled_cycle_days || 10;
           const rName = rData?.name || "Requester";
-          const rCommittedLm = rData?.committed_lm || 0;
 
-          // 2. Fetch Helper Data
           const helperRef = doc(db!, "users", wishData.helper_id);
           const helperDoc = await transaction.get(helperRef);
           if (!helperDoc.exists()) throw "Helper not found";
-          
           const hName = helperDoc.data()?.name || "Helper";
 
-          // 3. Calculate PHYSICAL TRUTHS (All Decayed)
-          const now = Date.now();
           const wishElapsedSec = ((now - getMillis(wishData.created_at)) / 1000) | 0;
-          const wishDecayedMilli = calculateDecayedValue(toMilli(wishData.cost || 0), wishElapsedSec);
+          const wishDecayedMilli = calculateDecayedValue(toMilli(wishData.cost || 0), wishElapsedSec, userRCycleDays);
           
-          // Requester's Real Holding (Now)
           const rElapsedSec = ((now - rLastUpdated) / 1000) | 0;
-          const rDecayedMilli = calculateDecayedValue(toMilli(rBalance), rElapsedSec);
-          const rCommittedMilli = calculateDecayedValue(toMilli(rCommittedLm), rElapsedSec);
+          const rDecayedMilli = calculateDecayedValue(toMilli(rBalance), rElapsedSec, userRCycleDays);
+          
+          // Use resynced absolute sum
+          const rCommittedMilli = resyncedCommittedMilli;
 
-          // 4. PRE-FETCH Transaction Log (Idempotency Check) - MUST BE BEFORE ANY WRITES
           const txId = isRequesterCanceling 
               ? `compensate_${wishId}_TO_${wishData.helper_id}`
               : `compensate_${wishId}_TO_${wishData.requester_id}`;
@@ -312,11 +347,6 @@ export const useWishActions = () => {
           if (isRequesterCanceling) {
             const actualPaymentMilli = Math.min(Math.max(0, rDecayedMilli - rCommittedMilli + wishDecayedMilli), wishDecayedMilli);
             
-            // Gravity Calculation (Naturally decayed Lm)
-            const rDecayMilli = toMilli(rBalance) - rDecayedMilli;
-            const cDecayMilli = toMilli(rCommittedLm) - rCommittedMilli;
-            
-            // === ATOMIC UPDATE: Balance - Payment, Committed - Reservation ===
             transaction.update(requesterRef, {
               balance: fromMilli(rDecayedMilli - actualPaymentMilli),
               committed_lm: fromMilli(Math.max(0, rCommittedMilli - wishDecayedMilli)), 
@@ -325,41 +355,40 @@ export const useWishActions = () => {
               last_updated: serverTimestamp(),
             });
 
-            // Helper Update (with Overflow/Solar Return logic)
             const hData = helperDoc.data();
             const hBalanceLm = hData?.balance || 0;
             const hLastUpdated = getMillis(hData?.last_updated);
+            const hCycleDays = hData?.scheduled_cycle_days || 10;
             const hElapsedSec = ((now - hLastUpdated) / 1000) | 0;
-            const hCurrentDecayedMilli = calculateDecayedValue(toMilli(hBalanceLm), hElapsedSec);
+            const hCurrentDecayedMilli = calculateDecayedValue(toMilli(hBalanceLm), hElapsedSec, hCycleDays);
             const hRawNewMilli = hCurrentDecayedMilli + actualPaymentMilli;
 
             const hCappedMilli = Math.min(hRawNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
             const hOverflowMilli = Math.max(0, hRawNewMilli - WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
-            const hDecayMilli = toMilli(hBalanceLm) - hCurrentDecayedMilli;
 
             transaction.update(helperRef, {
               balance: fromMilli(hCappedMilli),
               last_updated: serverTimestamp(),
             });
 
-            // Log Global Stats: Naturally decayed Lm + Overflow to global metabolism
-            const totalDecayMilli = Math.max(0, rDecayMilli + cDecayMilli + hDecayMilli + hOverflowMilli);
+            // Gravity Calculation (Corrected to remove cDecayMilli)
+            const rDecayMilli = toMilli(rBalance) - rDecayedMilli;
+            const hDecayMilli = toMilli(hBalanceLm) - hCurrentDecayedMilli;
+            const totalDecayMilli = Math.max(0, rDecayMilli + hDecayMilli + hOverflowMilli);
+
             const globalStatsRef = doc(db!, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
             transaction.set(globalStatsRef, {
                 total_decayed_stats: increment(fromMilli(totalDecayMilli)),
                 updated_at: serverTimestamp()
             }, { merge: true });
 
-            // 6. Care for the Left-Behind: Set Notification
             const partnerRef = helperRef;
             const notificationMsg = "依頼主様のご都合により願いが中断されました。しるしとしてLmが補償されています。";
-            
             transaction.update(partnerRef, {
                 pending_interruption_notification: notificationMsg,
                 last_updated: serverTimestamp()
             });
 
-            // 7. Log Global Transaction (Crystallization)
             if (!txCheck.exists()) {
                 transaction.set(txRef, {
                   type: "COMPENSATION",
@@ -372,38 +401,32 @@ export const useWishActions = () => {
                   description: "依頼主が中断したため、誠実のしるしをお渡ししました"
                 });
             }
-
-            // 8. CRYSTALLIZE Wish (Physical Deletion)
             transaction.delete(wishRef);
           } else {
-            // === HELPER CANCELS: Purification (No Penalty, Just Recast) ===
+            // HELPER CANCELS
             const hData = helperDoc.data();
             const hBalance = hData?.balance || 0;
             const hLastUpdated = getMillis(hData?.last_updated);
+            const hCycleDays = hData?.scheduled_cycle_days || 10;
             const hElapsedSec = ((now - hLastUpdated) / 1000) | 0;
-            const hCurrentDecayedMilli = calculateDecayedValue(toMilli(hBalance), hElapsedSec);
+            const hCurrentDecayedMilli = calculateDecayedValue(toMilli(hBalance), hElapsedSec, hCycleDays);
             
-            // 1. Maintain Helper (No Lateral Penalty)
             transaction.update(helperRef, {
               balance: fromMilli(hCurrentDecayedMilli),
-              consecutive_completions: 0, // Reputation penalty only
+              consecutive_completions: 0, 
               has_cancellation_history: true,
               last_updated: serverTimestamp(),
             });
 
-            // 2. Maintain Requester (Reservations stay for Re-broadcast)
-            // Here we use rDecayedMilli and rCommittedMilli calculated earlier
             transaction.update(requesterRef, {
               balance: fromMilli(rDecayedMilli),
               committed_lm: fromMilli(rCommittedMilli),
               last_updated: serverTimestamp(),
             });
 
-            // 3. Log Gravity (Naturally decayed Lm)
             const rDecayMilli = toMilli(rBalance) - rDecayedMilli;
-            const cDecayMilli = toMilli(rCommittedLm) - rCommittedMilli;
             const hDecayMilli = toMilli(hBalance) - hCurrentDecayedMilli;
-            const totalDecayMilli = Math.max(0, rDecayMilli + cDecayMilli + hDecayMilli);
+            const totalDecayMilli = Math.max(0, rDecayMilli + hDecayMilli);
 
             const globalStatsRef = doc(db!, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
             transaction.set(globalStatsRef, {
@@ -411,13 +434,11 @@ export const useWishActions = () => {
                 updated_at: serverTimestamp()
             }, { merge: true });
 
-            // 4. Care for the Left-Behind: Set Notification
             transaction.update(requesterRef, {
                 pending_interruption_notification: "助け手様が辞退されたため、願いが再び募集に戻りました。Lmは安全に守られています。",
                 last_updated: serverTimestamp()
             });
             
-            // === HELPER CANCELS: RECAST Wish (Re-broadcast) ===
             transaction.update(wishRef, {
               status: "open",
               cancel_reason: "helper_interruption",
@@ -426,35 +447,31 @@ export const useWishActions = () => {
               helper_name: deleteField(),
               helper_contact_email: deleteField(),
               accepted_at: deleteField(),
-              system_note: "事情により、願いが再度募集されています。"
+              system_note: "事情により、願いが再び募集されています。"
             });
           }
         } else {
-          // === 通常キャンセル (Open Status) ===
+          // Open Status Cancel
           const requesterRef = doc(db!, "users", user.uid);
           const requesterDoc = await transaction.get(requesterRef);
-          
           if (requesterDoc.exists()) {
             const rData = requesterDoc.data();
             const rBalance = rData?.balance || 0;
             const rLastUpdated = getMillis(rData?.last_updated);
-            const rCommittedLm = rData?.committed_lm || 0;
+            const rCycleDays = rData?.scheduled_cycle_days || 10;
             
-            const now = Date.now();
             const rElapsedSec = ((now - rLastUpdated) / 1000) | 0;
-            const rDecayedMilli = calculateDecayedValue(toMilli(rBalance), rElapsedSec);
-            const rCommittedMilli = calculateDecayedValue(toMilli(rCommittedLm), rElapsedSec);
+            const rDecayedMilli = calculateDecayedValue(toMilli(rBalance), rElapsedSec, rCycleDays);
 
             const wishElapsedSec = ((now - getMillis(wishData.created_at)) / 1000) | 0;
-            const wishDecayedMilli = calculateDecayedValue(toMilli(wishData.cost || 0), wishElapsedSec);
+            const wishDecayedMilli = calculateDecayedValue(toMilli(wishData.cost || 0), wishElapsedSec, rCycleDays);
 
             transaction.update(requesterRef, {
               balance: fromMilli(rDecayedMilli), 
-              committed_lm: fromMilli(Math.max(0, rCommittedMilli - wishDecayedMilli)), 
+              committed_lm: fromMilli(Math.max(0, resyncedCommittedMilli - wishDecayedMilli)), 
               last_updated: serverTimestamp(),
             });
           }
-
           transaction.delete(wishRef);
 
           const txId = `cancel_${wishId}`;
@@ -586,93 +603,85 @@ export const useWishActions = () => {
     if (!db) return false;
     setIsSubmitting(true);
 
-    const database = db;
-
-    const wishRef = doc(database, "wishes", wishId);
-    const fulfillerRef = doc(database, "users", fulfillerId);
-
-    // Optimistic Logic for Fulfillment
-    let estimatedPayment = 0;
+    const wishRef = doc(db, "wishes", wishId);
+    const fulfillerRef = doc(db, "users", fulfillerId);
 
     try {
-      // Pre-read for optimism (approximate)
-      const wishSnap = await getDocs(query(collection(db!, "wishes"), where("__name__", "==", wishId)));
-      if (!wishSnap.empty) {
-          const wData = wishSnap.docs[0].data();
-          const wElapsedSec = ((Date.now() - getMillis(wData.created_at)) / 1000) | 0;
-          const wishDecayedMilli = calculateDecayedValue(toMilli(wData.cost || 0), wElapsedSec);
-          estimatedPayment = fromMilli(wishDecayedMilli);
-      }
+      const now = Date.now();
+      
+      // === DISCREPANCY FIX: Resync on Action ===
+      const wishSnapPre = await getDocs(query(collection(db, "wishes"), where("__name__", "==", wishId)));
+      if (wishSnapPre.empty) return false;
+      const initialWishData = wishSnapPre.docs[0].data();
+      const rId = initialWishData.requester_id;
+      
+      const rDocPre = await getDocs(query(collection(db, "users"), where("__name__", "==", rId)));
+      const rCycleDays = rDocPre.empty ? 10 : (rDocPre.docs[0].data().scheduled_cycle_days || 10);
+      
+      const resyncedCommittedMilli = await fetchActiveCommittedMilli(rId, now, rCycleDays);
 
-      setOptimisticBalanceOffset((prev: number) => prev - estimatedPayment);
+      // Optimistic estimation for UI smoothness
+      const wishElapsedSecEst = ((now - getMillis(initialWishData.created_at)) / 1000) | 0;
+      const wishDecayedMilliEst = calculateDecayedValue(toMilli(initialWishData.cost || 0), wishElapsedSecEst, rCycleDays);
+      setOptimisticBalanceOffset((prev: number) => prev - fromMilli(wishDecayedMilliEst));
 
-      await runTransaction(db, async (transaction) => {
+      await runTransaction(db, async (transaction: Transaction) => {
         // --- 1. ALL READS MUST COME FIRST ---
         const wishDoc = await transaction.get(wishRef);
         if (!wishDoc.exists()) throw "Wish does not exist";
 
         const wishData = wishDoc.data();
-        if (
-          wishData.status === "fulfilled" ||
-          wishData.status === "completed"
-        ) {
-          throw "Wish is already fulfilled";
-        }
+        if (wishData.status === "fulfilled" || wishData.status === "completed") throw "Already fulfilled";
 
-        // Issuer Ref
-        const issuerRef = doc(database, "users", wishData.requester_id);
+        const issuerRef = doc(db!, "users", wishData.requester_id);
         const issuerDoc = await transaction.get(issuerRef);
 
-        // Fulfiller Ref
         const fulfillerDoc = await transaction.get(fulfillerRef);
 
-        // Transaction Log (Idempotency Check)
         const txId = `wish_${wishId}_PAY_${fulfillerId}`;
-        const txRef = doc(collection(database, "transactions"), txId);
+        const txRef = doc(collection(db!, "transactions"), txId);
         const txDoc = await transaction.get(txRef);
-        if (txDoc.exists()) {
-             throw "Transaction already processed (Idempotency Check)";
-        }
+        if (txDoc.exists()) throw "Idempotency trigger";
 
         // --- 2. CALCULATION & WRITES ---
-        const wishElapsedSecForFulfill = ((Date.now() - getMillis(wishData.created_at)) / 1000) | 0;
-        const wishDecayedMilliForFulfill = calculateDecayedValue(toMilli(wishData.cost || 0), wishElapsedSecForFulfill);
+        const wishElapsedSec = ((now - getMillis(wishData.created_at)) / 1000) | 0;
+        const wishDecayedMilli = calculateDecayedValue(toMilli(wishData.cost || 0), wishElapsedSec, rCycleDays);
 
         // Check Issuer Solvency
-        let paymentMilli = wishDecayedMilliForFulfill;
+        let paymentMilli = wishDecayedMilli;
         if (issuerDoc.exists()) {
              const iData = issuerDoc.data() as UserProfile;
              const iLastUpdated = getMillis(iData.last_updated);
-             const iElapsedSec = ((Date.now() - iLastUpdated) / 1000) | 0;
-             const iCurrentRealMilli = calculateDecayedValue(toMilli(iData.balance || 0), iElapsedSec);
-             const iCommittedMilli = calculateDecayedValue(toMilli(iData.committed_lm || 0), iElapsedSec);
-             const availableForThisPaymentMilli = Math.max(0, iCurrentRealMilli - iCommittedMilli + wishDecayedMilliForFulfill);
-             paymentMilli = Math.min(wishDecayedMilliForFulfill, availableForThisPaymentMilli);
+             const iElapsedSec = ((now - iLastUpdated) / 1000) | 0;
+             const iCycleDays = iData.scheduled_cycle_days || 10;
+             
+             const iCurrentRealMilli = calculateDecayedValue(toMilli(iData.balance || 0), iElapsedSec, iCycleDays);
+             // Use Resynced Absolute Sum
+             const iCommittedMilli = resyncedCommittedMilli;
+             const availableForThisPaymentMilli = Math.max(0, iCurrentRealMilli - iCommittedMilli + wishDecayedMilli);
+             paymentMilli = Math.min(wishDecayedMilli, availableForThisPaymentMilli);
         } else {
              paymentMilli = 0;
         }
         
-        const isBankruptcy = paymentMilli < wishDecayedMilliForFulfill;
+        const isBankruptcy = paymentMilli < wishDecayedMilli;
         const paymentAmount = fromMilli(paymentMilli);
 
-        // Initialize metabolic sink for this transaction
         let totalDecayMilli = 0;
 
         // Reward Fulfiller
         if (fulfillerDoc.exists()) {
           const fData = fulfillerDoc.data();
           const fLastUpdated = getMillis(fData.last_updated);
-          const fElapsedSec = ((Date.now() - fLastUpdated) / 1000) | 0;
-          const fCurrentDecayedMilli = calculateDecayedValue(toMilli(fData.balance || 0), fElapsedSec);
+          const fCycleDays = fData.scheduled_cycle_days || 10;
+          const fElapsedSec = ((now - fLastUpdated) / 1000) | 0;
+          const fCurrentDecayedMilli = calculateDecayedValue(toMilli(fData.balance || 0), fElapsedSec, fCycleDays);
           
           const rawNewMilli = fCurrentDecayedMilli + paymentMilli;
-          
           const cappedMilli = Math.min(rawNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
           const overflowMilli = Math.max(0, rawNewMilli - WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
 
-          // Gravity Calculation for Fulfiller
-          const fDecayMilli = toMilli(fData.balance || 0) - fCurrentDecayedMilli;
-          totalDecayMilli += fDecayMilli + overflowMilli;
+          totalDecayMilli += (toMilli(fData.balance || 0) - fCurrentDecayedMilli) + overflowMilli;
 
           transaction.update(fulfillerRef, {
             balance: fromMilli(cappedMilli),
@@ -684,20 +693,16 @@ export const useWishActions = () => {
         // Salvation for Issuer
         if (issuerDoc.exists()) {
           const iData = issuerDoc.data() as UserProfile;
-          const iLastUpdated = getMillis(iData.last_updated) || Date.now();
-          const iElapsedSec = ((Date.now() - iLastUpdated) / 1000) | 0;
-          const iCurrentRealMilli = calculateDecayedValue(toMilli(iData.balance || 0), iElapsedSec);
-          const iCommittedMilli = calculateDecayedValue(toMilli(iData.committed_lm || 0), iElapsedSec);
-          const wishDecayedMilli = wishDecayedMilliForFulfill;
-
-          // Gravity Calculation for Issuer & Wish
-          const iBalanceDecayMilli = toMilli(iData.balance || 0) - iCurrentRealMilli;
-          const iCommittedDecayMilli = toMilli(iData.committed_lm || 0) - iCommittedMilli;
-          const wishDecayMilli = toMilli(wishData.cost || 0) - wishDecayedMilli;
-          totalDecayMilli += iBalanceDecayMilli + iCommittedDecayMilli + wishDecayMilli;
+          const iLastUpdated = getMillis(iData.last_updated) || now;
+          const iCycleDays = iData.scheduled_cycle_days || 10;
+          const iElapsedSec = ((now - iLastUpdated) / 1000) | 0;
+          const iCurrentRealMilli = calculateDecayedValue(toMilli(iData.balance || 0), iElapsedSec, iCycleDays);
+          
+          totalDecayMilli += (toMilli(iData.balance || 0) - iCurrentRealMilli);
 
           const iNewBalanceMilli = iCurrentRealMilli - paymentMilli;
-          const iNewCommittedMilli = Math.max(0, iCommittedMilli - wishDecayedMilli);
+          // Resync subtracts the wish being fulfilled
+          const iNewCommittedMilli = Math.max(0, resyncedCommittedMilli - wishDecayedMilli);
           const newStreak = (iData.consecutive_completions || 0) + 1;
 
           transaction.update(issuerRef, {
@@ -709,22 +714,17 @@ export const useWishActions = () => {
           });
         }
 
-        // Log Global Metabolic Stats (The Sun)
         if (totalDecayMilli > 0) {
-            const globalStatsRef = doc(database, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
+            const globalStatsRef = doc(db!, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
             transaction.set(globalStatsRef, {
                 total_decayed_stats: increment(fromMilli(totalDecayMilli)),
                 updated_at: serverTimestamp()
             }, { merge: true });
         }
 
-        // Mark Wish Fulfilled by CRYSTALLIZING it (Physical Deletion)
-        // Before deleting, ensure we have everything for the log
-        const tags = wishData.tags || [];
-
         transaction.delete(wishRef);
 
-        // Log Transaction with FULL metadata
+        const tags = wishData.tags || [];
         let txType = "SPARK";
         if (paymentAmount >= 900) txType = "BONFIRE";
         else if (paymentAmount >= 400) txType = "CANDLE";
@@ -737,36 +737,33 @@ export const useWishActions = () => {
           sub_type: txType,
           wish_id: wishId,
           wish_title: wishData.content,
-          
-          // Crystallized Names
           sender_name: issuerDoc.data()?.name || wishData.requester_name || "Anonymous Soul",
           recipient_id: fulfillerId,
           recipient_name: fulfillerDoc.data()?.name || wishData.helper_name || "Anonymous Helper",
-          
           tags: tags,
           description: isBankruptcy ? "wish_fulfilled (Bankruptcy Partial Payment) [Crystallized]" : "wish_fulfilled [Crystallized]"
         });
 
         const today = new Date().toISOString().split("T")[0];
-        const dailyStatsRef = doc(database, "daily_stats", today);
+        const dailyStatsRef = doc(db!, "daily_stats", today);
         transaction.set(dailyStatsRef, {
           volume: increment(paymentAmount),
           updated_at: serverTimestamp(),
         }, { merge: true });
       });
 
-      setOptimisticBalanceOffset(0); // Clear on success
+      setOptimisticBalanceOffset(0);
       return true;
     } catch (e) {
       console.error("Fulfillment failed:", e);
-      setOptimisticBalanceOffset(0); // Clear on failure
-      const errorMessage = e instanceof Error ? e.message : String(e);
-      alert(`感謝の巡りに失敗しました: ${errorMessage}`);
+      setOptimisticBalanceOffset(0);
+      alert(`感謝の巡りに失敗しました: ${e instanceof Error ? e.message : String(e)}`);
       return false;
     } finally {
       setIsSubmitting(false);
     }
   };
+
 
   const withdrawApplication = async (wishId: string): Promise<boolean> => {
     if (!db || !user) return false;
