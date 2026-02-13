@@ -1,6 +1,9 @@
 import React, { useState, useCallback } from "react";
+import { motion } from "framer-motion";
 import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, Trash2, Archive, Droplets } from "lucide-react";
 import { useStats, MetabolismStatus } from "../hooks/useStats";
+import { useDiagnostics } from "../hooks/useDiagnostics";
+import { DiagnosticModal } from "./DiagnosticModal";
 import { db } from "../lib/firebase";
 import { UserProfile } from "../types";
 import { calculateDecayedValue, toMilli, fromMilli, getMillis } from "../logic/worldPhysics";
@@ -12,8 +15,10 @@ interface AdminDashboardProps {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const { stats, error } = useStats(); // updateCapacity removed
+  const diagnostics = useDiagnostics(stats);
   const [cycleDays, setCycleDays] = useState(10);
   const [showManual, setShowManual] = useState(false);
+  const [showDiagnosisModal, setShowDiagnosisModal] = useState(false);
 
   // User Management State
   const [activeTab, setActiveTab] = useState<'monitor' | 'citizens' | 'integrity'>('monitor');
@@ -639,6 +644,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
         ) : (
           <>
+          {/* WORLD HEALTH DIAGNOSIS BANNER */}
+          <motion.button
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            onClick={() => setShowDiagnosisModal(true)}
+            className={`w-full p-4 rounded-2xl border ${diagnostics.bg} ${diagnostics.text} mb-6 flex items-center justify-between group transition-all hover:scale-[1.01] active:scale-[0.99]`}
+          >
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-full bg-white/10">
+                <Activity size={20} className="animate-pulse" />
+              </div>
+              <div className="text-left">
+                <div className="text-[10px] uppercase tracking-widest opacity-70 mb-0.5">
+                  World Health Status (現在の生態系診断)
+                </div>
+                <div className="text-lg font-serif font-bold tracking-wide">
+                  {diagnostics.shortDescription}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity">
+              <span>View Analysis</span>
+              <Book size={14} />
+            </div>
+          </motion.button>
+
           {/* SECTION A: ACTIVE CYCLES */}
           <div
             className={`p-6 rounded-2xl border border-slate-700 bg-slate-900/20 relative overflow-hidden group`}
@@ -919,7 +950,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           </div>
 
           {/* SECTION D: TIME CONTROL (Previously Sun Control) */}
-          <div className="p-6 rounded-2xl border border-yellow-900/30 bg-yellow-900/5 md:col-span-2 lg:col-span-1 relative overflow-hidden">
+          <div id="time-control-section" className="p-6 rounded-2xl border border-yellow-900/30 bg-yellow-900/5 md:col-span-2 lg:col-span-1 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-10 text-yellow-500">
               <Sun size={80} />
             </div>
@@ -1301,6 +1332,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         </div>
       )}
 
+
+      {/* === DIAGNOSTIC MODAL OVERLAY === */}
+      <DiagnosticModal
+        isOpen={showDiagnosisModal}
+        onClose={() => setShowDiagnosisModal(false)}
+        diagnosis={diagnostics}
+        stats={stats}
+        onScrollToSupply={() => {
+           const el = document.getElementById('time-control-section');
+           if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }}
+      />
 
     </div>
   );
