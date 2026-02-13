@@ -175,18 +175,16 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
                           </div>
                       </div>
                       
-                      {diagnosis.currentPhase !== 'HEALTHY' && (
-                           <button 
-                              onClick={() => {
-                                  onClose();
-                                  setTimeout(onScrollToSupply, 300);
-                              }}
-                              className="w-full sm:w-auto shrink-0 px-6 py-4 bg-white text-slate-900 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-cyan-50 transition-all active:scale-95 shadow-lg shadow-white/5 active:shadow-none translate-y-0 hover:-translate-y-1"
-                           >
-                               <Sun size={18} />
-                               調整を実行
-                           </button>
-                      )}
+                      <button 
+                         onClick={() => {
+                             onClose();
+                             setTimeout(onScrollToSupply, 300);
+                         }}
+                         className="w-full sm:w-auto shrink-0 px-6 py-4 bg-white text-slate-900 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-cyan-50 transition-all active:scale-95 shadow-lg shadow-white/5 active:shadow-none translate-y-0 hover:-translate-y-1"
+                      >
+                          <Sun size={18} />
+                          {diagnosis.currentPhase === 'HEALTHY' ? 'パラメータ調整' : '調整を実行'}
+                      </button>
                   </div>
               </div>
           </div>

@@ -190,7 +190,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   };
 
   return (
-    <div className={`fixed inset-0 z-[100] bg-black/95 backdrop-blur-md ${showManual ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+    <div id="admin-scroll-container" className={`fixed inset-0 z-[100] bg-black/95 backdrop-blur-md ${showManual ? 'overflow-hidden' : 'overflow-y-auto'}`}>
       {/* Header (Full Width Sticky) */}
       <div className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-slate-800/50 w-full">
           <div className="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center">
@@ -1341,7 +1341,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         stats={stats}
         onScrollToSupply={() => {
            const el = document.getElementById('time-control-section');
-           if (el) el.scrollIntoView({ behavior: 'smooth' });
+           const container = document.getElementById('admin-scroll-container');
+           if (el && container) {
+              const rect = el.getBoundingClientRect();
+              const containerRect = container.getBoundingClientRect();
+              const scrollTop = container.scrollTop;
+              // offset 80px for the sticky header
+              const targetPosition = rect.top - containerRect.top + scrollTop - 80;
+              
+              container.scrollTo({
+                  top: targetPosition,
+                  behavior: 'smooth'
+              });
+           }
         }}
       />
 
