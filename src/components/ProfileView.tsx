@@ -423,7 +423,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
               {!isAnonymous &&
                 !isProfileLoading &&
-                !isAdmin && (
+                profile?.role !== "admin" && (
                   <ListItem
                     icon={Trash2}
                     label="退会する"
