@@ -1261,7 +1261,7 @@ export const WishCard: React.FC<WishCardProps> = ({
 
             <h4 className="text-base font-bold text-slate-800 mb-2 text-center">
               {confirmAction === "compensate"
-                ? "響きあっている願いを取り下げますか？"
+                ? "この願いを取り下げますか？"
                 : confirmAction === "resign"
                   ? "このお手伝いを辞退しますか？"
                   : "このお願いを取り下げますか？"}
@@ -1270,8 +1270,6 @@ export const WishCard: React.FC<WishCardProps> = ({
             <p className="text-xs text-slate-600 text-center mb-6 leading-relaxed whitespace-pre-wrap">
               {confirmAction === "compensate" ? (
                 <>
-                  協力者はすでに時間を空けて待機しています。
-                  <br />
                   今キャンセルする場合、予約していたLmは
                   <br />
                   <strong className="text-red-500">
