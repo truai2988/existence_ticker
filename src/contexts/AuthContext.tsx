@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, ReactNode } from 'react';
 import { User, onIdTokenChanged } from 'firebase/auth';
-import { auth } from '../lib/firebase';
+import { onSnapshot, doc } from 'firebase/firestore';
+import { auth, db } from '../lib/firebase';
 import { AuthContext } from './AuthContextDefinition';
 import { ADMIN_UIDS } from '../constants';
 
@@ -11,22 +12,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isRegistering, setIsRegistering] = useState(false);
 
     useEffect(() => {
-        if (!auth) {
+        if (!auth || !db) {
             setLoading(false);
             return;
         }
 
-        const unsubscribe = onIdTokenChanged(auth, async (currentUser) => {
+        let unsubscribeFirestore: (() => void) | null = null;
+
+        const unsubscribeAuth = onIdTokenChanged(auth, async (currentUser) => {
+            // Clean up previous Firestore listener if user changes
+            if (unsubscribeFirestore) {
+                unsubscribeFirestore();
+                unsubscribeFirestore = null;
+            }
+
             if (currentUser) {
-                try {
-                    const idTokenResult = await currentUser.getIdTokenResult();
-                    const isSuperAdmin = ADMIN_UIDS.includes(currentUser.uid);
-                    setIsAdmin(!!idTokenResult.claims.admin || isSuperAdmin);
-                } catch (e) {
-                    console.error("[AuthProvider] Failed to fetch custom claims", e);
-                    const isSuperAdmin = ADMIN_UIDS.includes(currentUser.uid);
-                    setIsAdmin(isSuperAdmin); 
-                }
+                // 1. Core Auth Claims Check & Emergency Access
+                const updateAdminStatus = async (docRole?: string) => {
+                    try {
+                        const idTokenResult = await currentUser.getIdTokenResult();
+                        const isSuperAdmin = ADMIN_UIDS.includes(currentUser.uid);
+                        const isClaimAdmin = !!idTokenResult.claims.admin;
+                        const isDocAdmin = docRole === 'admin';
+                        
+                        setIsAdmin(isClaimAdmin || isSuperAdmin || isDocAdmin);
+                    } catch (e) {
+                        console.error("[AuthProvider] Admin check failed:", e);
+                        setIsAdmin(ADMIN_UIDS.includes(currentUser.uid) || docRole === 'admin');
+                    }
+                };
+
+                // 2. Real-time Firestore Role Listener
+                const userRef = doc(db!, 'users', currentUser.uid);
+                unsubscribeFirestore = onSnapshot(userRef, (snap) => {
+                    const role = snap.exists() ? snap.data()?.role : undefined;
+                    updateAdminStatus(role);
+                });
+
+                // Initial check before snapshot returns
+                updateAdminStatus();
             } else {
                 setIsAdmin(false);
             }
@@ -38,7 +62,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setLoading(false);
         });
 
-        return () => unsubscribe();
+        return () => {
+            unsubscribeAuth();
+            if (unsubscribeFirestore) unsubscribeFirestore();
+        };
     }, []);
 
     const contextValue = useMemo(() => ({ 
