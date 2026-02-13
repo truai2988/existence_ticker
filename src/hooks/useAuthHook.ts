@@ -193,6 +193,18 @@ export const useAuth = () => {
         if (!auth || !auth.currentUser || !db) throw new Error("Authentication or Database error");
         const user = auth.currentUser;
 
+        // --- PROTECTION: LAST ADMIN CHECK ---
+        // Ensure the system is never left without at least one DB administrator.
+        const userRef = doc(db, 'users', user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists() && userSnap.data().role === 'admin') {
+            const adminQuery = query(collection(db, 'users'), where('role', '==', 'admin'));
+            const adminSnap = await getDocs(adminQuery);
+            if (adminSnap.size <= 1) {
+                throw new Error("あなたが最後の管理者です。他の方を管理者に任命してから退会してください。");
+            }
+        }
+
         try {
             // 1. Fetch all data needed for compensation & resignation analysis
             const wishesRef = collection(db, 'wishes');
