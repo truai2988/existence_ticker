@@ -17,17 +17,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         console.log("[AuthProvider] Initializing Singleton Listener (Token-Aware)...");
         const unsubscribe = onIdTokenChanged(auth, async (currentUser) => {
-            console.log("[AuthProvider] Auth state changed:", currentUser ? `User: ${currentUser.uid}` : "No user");
+            console.log("[AuthProvider] Auth state or Token changed:", currentUser ? `User: ${currentUser.uid}` : "No user");
             
             if (currentUser) {
                 try {
                     const idTokenResult = await currentUser.getIdTokenResult();
-                    setIsAdmin(!!idTokenResult.claims.admin);
+                    const adminClaim = !!idTokenResult.claims.admin;
+                    console.log("[AuthProvider] Claims detected:", idTokenResult.claims);
+                    console.log("[AuthProvider] isAdmin set to:", adminClaim);
+                    setIsAdmin(adminClaim);
                 } catch (e) {
-                    console.error("Failed to fetch custom claims", e);
+                    console.error("[AuthProvider] Failed to fetch custom claims", e);
                     setIsAdmin(false);
                 }
             } else {
+                console.log("[AuthProvider] No user, setting isAdmin to false");
                 setIsAdmin(false);
             }
             
