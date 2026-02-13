@@ -40,6 +40,8 @@ export function useDeepMemoryRecovery(uid: string | null) {
                     ]);
 
                     const allDocs = [...sentSnap.docs, ...receivedSnap.docs];
+                    console.log(`[DeepRecovery] Found ${allDocs.length} potential records for ${uid}`);
+                    
                     for (const doc of allDocs) {
                         const data = doc.data();
                         const sName = data.sender_name;
@@ -48,14 +50,17 @@ export function useDeepMemoryRecovery(uid: string | null) {
                         const rId = data.recipient_id;
 
                         if (sId === uid && sName && !mechanicalLabels.includes(sName)) {
+                            console.log(`[DeepRecovery] Recovered name "${sName}" from log ${doc.id}`);
                             recoveryCache[uid] = sName;
                             return sName;
                         }
                         if (rId === uid && rName && !mechanicalLabels.includes(rName)) {
+                            console.log(`[DeepRecovery] Recovered name "${rName}" from log ${doc.id}`);
                             recoveryCache[uid] = rName;
                             return rName;
                         }
                     }
+                    console.log(`[DeepRecovery] No valid name found for ${uid} in samples.`);
                 } catch (e) {
                     console.error("Deep recovery failed for", uid, e);
                 }

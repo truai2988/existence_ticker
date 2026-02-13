@@ -335,16 +335,26 @@ const PartnerName = ({ id, snapshot, backupName }: { id?: string | null, snapsho
     if (isValidSnapshot) return <span className="font-bold">{snapshot}</span>;
 
     // 2. Local Recovery: If snapshot is corrupted, try names found in other current view logs
-    if (backupName) return <span className="font-bold">{backupName}</span>;
+    if (backupName) {
+        console.log(`[PartnerName] Using local backupName "${backupName}" for ${id}`);
+        return <span className="font-bold">{backupName}</span>;
+    }
 
     // 3. Profile Lookup: Attempt to fetch live profile status
     if (loading) return <span className="text-slate-300 animate-pulse">...</span>;
-    if (profile) return <span className="font-bold">{profile.name}</span>;
+    if (profile) {
+        console.log(`[PartnerName] Using profile name "${profile.name}" for ${id}`);
+        return <span className="font-bold">{profile.name}</span>;
+    }
 
     // 4. Deep Recovery: Background Firestore scan if no other memory remains
-    if (recoveredName) return <span className="font-bold">{recoveredName}</span>;
+    if (recoveredName) {
+        console.log(`[PartnerName] Using deep recovered name "${recoveredName}" for ${id}`);
+        return <span className="font-bold">{recoveredName}</span>;
+    }
     if (isRecovering) return <span className="text-slate-300 animate-pulse">...</span>;
 
-    // 5. Absolute Legacy Fallback: If no records exist anywhere, use mechanical label
+    // 5. Absolute Legacy Fallback
+    if (id) console.log(`[PartnerName] FAILED to recover identity for ${id}. Last resort: 退会された方`);
     return <span className="text-slate-400 font-normal italic">退会された方</span>;
 };
