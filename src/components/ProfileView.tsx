@@ -22,7 +22,6 @@ import { getTrustRank } from "../utils/trustRank";
 import { ProfileEditScreen } from "./ProfileEditScreen";
 
 interface ProfileViewProps {
-  onOpenAdmin?: () => void;
   userId?: string;
   initialEditMode?: boolean;
   onTabChange?: (mode: AppViewMode) => void;
@@ -72,7 +71,6 @@ const ListItem: React.FC<ListItemProps> = ({
 );
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
-  onOpenAdmin,
   initialEditMode = false,
   onTabChange,
 }) => {
@@ -199,19 +197,21 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
                       Existence Ticker
                   </div>
-                  <h2 className="text-lg min-[375px]:text-xl font-bold tracking-widest uppercase text-slate-900 truncate">Profile</h2>
+                  <div className="flex items-center gap-3">
+                    {isAdmin && (
+                      <button
+                        onClick={() => onTabChange?.("admin")}
+                        className="p-1 -ml-1 transition-colors text-red-500 hover:text-red-600 animate-in fade-in zoom-in duration-500"
+                        aria-label="管理コンソール"
+                      >
+                        <Shield size={24} strokeWidth={2.5} />
+                      </button>
+                    )}
+                    <h2 className="text-lg min-[375px]:text-xl font-bold tracking-widest uppercase text-slate-900 truncate">Profile</h2>
+                  </div>
                   <p className="text-xs min-[375px]:text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">あなたの記録</p>
               </div>
               <div className="flex h-12 items-end gap-2">
-                  {onOpenAdmin && isAdmin && (
-                      <button
-                        onClick={onOpenAdmin}
-                        className="p-2 pb-0 hover:bg-red-50 rounded-full transition-colors text-red-500"
-                        aria-label="管理コンソール"
-                      >
-                         <Shield size={28} strokeWidth={2} />
-                      </button>
-                    )}
                   <button
                     onClick={() => setIsEditingProfile(true)}
                     className="p-2 pb-0 hover:bg-slate-100 rounded-full transition-colors text-slate-400"

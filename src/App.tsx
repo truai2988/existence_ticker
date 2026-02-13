@@ -284,8 +284,8 @@ const MainContent = ({ viewMode, setViewMode, isAdmin, currentUserId, onGoHome, 
     const renderContent = () => {
         switch (viewMode) {
             case 'home': return withTransition(<HomeView onOpenFlow={() => setViewMode('flow')} onOpenRequest={() => setViewMode('give')} ritualState={ritualState} setRitualState={setRitualState} setTargetBalance={setTargetBalance} appMode={appMode} />, 'home');
-            case 'profile': return withTransition(<ProfileView onOpenAdmin={isAdmin ? () => setViewMode('admin') : undefined} onTabChange={setViewMode} />, 'profile');
-            case 'profile_edit': return withTransition(<ProfileView onOpenAdmin={isAdmin ? () => setViewMode('admin') : undefined} initialEditMode={true} onTabChange={setViewMode} />, 'profile_edit');
+            case 'profile': return withTransition(<ProfileView onTabChange={setViewMode} />, 'profile');
+            case 'profile_edit': return withTransition(<ProfileView initialEditMode={true} onTabChange={setViewMode} />, 'profile_edit');
             case 'history': return withTransition(<JournalView onTabChange={setViewMode} />, 'history');
             case 'flow': return withTransition(<FlowView currentUserId={currentUserId} onOpenProfile={() => setViewMode('profile_edit')} onTabChange={setViewMode} />, 'flow');
             case 'give': return withTransition(<RadianceView currentUserId={currentUserId} onTabChange={setViewMode} />, 'give');
