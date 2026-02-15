@@ -26,7 +26,7 @@ const CountingNumber: React.FC<{ value: number, duration: number }> = ({ value, 
         const update = () => {
             const now = Date.now();
             const progress = Math.min((now - startTime) / (duration * 1000), 1);
-            // Ease out quint (Yesterday's Logic)
+            // Ease out quintic
             const ease = 1 - Math.pow(1 - progress, 5);
             
             const current = Math.floor(start - (start - end) * ease);
@@ -58,7 +58,7 @@ const RitualOverlay = ({ state, targetBalance }: { state: string, targetBalance:
             exit={{ opacity: 0 }} 
             transition={{ duration: 1 }}
           >
-              {/* Backdrop Blur & Brightness: Restored exact classes from original */}
+              {/* Backdrop Blur & Brightness */}
               <div className={`absolute inset-0 bg-white/90 backdrop-blur-xl transition-all duration-1000 ${state === 'syncing' ? 'opacity-0' : 'opacity-100'}`} />
               
               <div className="relative z-10 flex flex-col items-center justify-center text-slate-800">
@@ -105,7 +105,7 @@ const MainContent = ({ viewMode, setViewMode, isAdmin, currentUserId, onGoHome, 
     appMode: AppMode;
     onOpenOnboarding: () => void;
 }) => {
-    // 3. Normal Mode: Fade in the main content (HomeView, etc.)
+    // Normal Mode: Fade in the main content
     const withTransition = (component: React.ReactNode, key: string) => (
         <motion.div key={key} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2, ease: "easeInOut" }} className="w-full h-full flex flex-col flex-1">
             {component}
@@ -249,7 +249,7 @@ function App() {
   const handleOnboardingComplete = async () => {
       setShowStoryGuide(false);
       
-      // 2. Play Blessing Animation
+      // Play Blessing Animation
       setRitualState('breathing');
       playCrystalSound(); 
       await new Promise(r => setTimeout(r, 1500));
