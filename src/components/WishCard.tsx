@@ -16,7 +16,6 @@ import {
   Copy,
   Check,
   Mail,
-  ChevronRight,
 } from "lucide-react";
 import { Wish } from "../types";
 import {
@@ -204,9 +203,6 @@ export const WishCard: React.FC<WishCardProps> = ({
   const [contactNote, setContactNote] = useState("");
   const [isCopied, setIsCopied] = useState(false);
 
-  // Fulfillment Modal State
-  const [showFulfillmentModal, setShowFulfillmentModal] = useState(false);
-  const [fulfillmentMessage, setFulfillmentMessage] = useState("");
 
   // Anti-Gravity: Universal Decay Logic (静的計算)
   // Derived initial cost
@@ -1118,19 +1114,43 @@ export const WishCard: React.FC<WishCardProps> = ({
               {!isExpired && !isReadOnly &&
                 (wish.status === "review_pending" ||
                   wish.status === "in_progress") && (
-                  <button
-                    onClick={() => {
-                      if (wish.helper_id) {
-                        setShowFulfillmentModal(true);
-                      }
-                    }}
+                  <div className="flex flex-col items-end gap-2">
+                    <p className="text-[11px] font-bold text-slate-700">
+                      実費（材料費など）の清算が済んでいることを確認し、感謝の Lm を贈ります。
+                    </p>
+                    <button
+                      onClick={() => {
+                        if (
+                          confirm(
+                            "本当にお礼をしてよろしいですか？Lumenが送られます。",
+                          )
+                        ) {
+                          if (wish.helper_id) {
+                            const run = async () => {
+                              setIsLoading(true);
+                              const success = await fulfillWish(
+                                wish.id,
+                                wish.helper_id!,
+                              );
+                              if (success) {
+                                showToast("感謝を届けました", "success");
+                                // 完了後は「履歴」タブへ
+                                if (onTabChange) onTabChange("history");
+                              }
+                              setIsLoading(false);
+                            };
+                            run();
+                          }
+                        }
+                      }}
                     disabled={isLoading}
                     className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold shadow-lg shadow-pink-200 hover:scale-105 active:scale-95 transition-all"
                   >
                     <Handshake className="w-4 h-4 text-white" />
                     <span>お礼をする (完了)</span>
                   </button>
-                )}
+                </div>
+              )}
 
               {/* Redundant expired display removed as requested */}
             </>
@@ -1353,88 +1373,6 @@ export const WishCard: React.FC<WishCardProps> = ({
         </div>
       )}
 
-      {/* Fulfillment Modal (Porcelain Design) */}
-      {showFulfillmentModal && wish.helper_id && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-sm animate-in fade-in duration-300">
-          <div
-            className="bg-[#FAFAFA] rounded-3xl p-8 w-full max-w-sm shadow-2xl flex flex-col items-center justify-center border border-white/50 relative overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Soft Glow Background */}
-            <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white to-transparent pointer-events-none" />
-            
-            <div className="relative z-10 flex flex-col items-center w-full">
-              <div className="bg-gradient-to-br from-pink-100 to-rose-50 text-pink-500 p-4 rounded-full mb-6 shadow-sm ring-4 ring-white">
-                <Handshake size={32} strokeWidth={1.5} />
-              </div>
-
-              <h4 className="text-xl font-bold text-slate-800 mb-2 text-center tracking-tight">
-                感謝を伝えます
-              </h4>
-              
-              <div className="flex items-baseline gap-1 mb-6">
-                 <span className="text-3xl font-mono font-bold text-slate-700">
-                    {Math.floor(displayValue).toLocaleString()}
-                 </span>
-                 <span className="text-sm text-slate-400">Lm</span>
-              </div>
-
-              <div className="w-full mb-6 mt-4">
-                <label className="text-xs font-bold text-slate-500 mb-2 block ml-1">
-                  メッセージを添える <span className="text-pink-500">(必須)</span>
-                </label>
-                <textarea
-                  value={fulfillmentMessage}
-                  onChange={(e) => setFulfillmentMessage(e.target.value)}
-                  placeholder={'例：本日は助かりました！\n\n・お礼のLmとは別に、材料費の1,000円は今度手渡ししますね。\n・遠くから来てくれて感謝です。交通費として2,000円包んでおきました！'}
-                  maxLength={100}
-                  className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-pink-100 focus:border-pink-300 outline-none resize-none min-h-[120px] shadow-inner placeholder:text-slate-400"
-                />
-                <div className="text-right text-[10px] text-slate-300 mt-1 pr-1">
-                  {fulfillmentMessage.length}/100
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-3 w-full">
-                <button
-                  onClick={async () => {
-                    if (!wish.helper_id) return;
-                    setIsLoading(true);
-                    const success = await fulfillWish(wish.id, wish.helper_id, fulfillmentMessage);
-                    setIsLoading(false);
-                    if (success) {
-                      setShowFulfillmentModal(false);
-                      setFulfillmentMessage("");
-                      showToast("ご縁を結びました。", "success");
-                      if (onTabChange) onTabChange("history");
-                    } else {
-                       showToast("送信に失敗しました", "error");
-                    }
-                  }}
-                  disabled={isLoading || !fulfillmentMessage.trim()}
-                  className="w-full py-4 rounded-2xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <>
-                      <span>お礼の言葉を送信してLmを贈る</span>
-                      <ChevronRight size={14} className="opacity-50 group-hover:translate-x-0.5 transition-transform" />
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={() => setShowFulfillmentModal(false)}
-                  disabled={isLoading}
-                  className="w-full py-3 rounded-2xl text-sm font-bold text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition-colors"
-                >
-                  キャンセル
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
