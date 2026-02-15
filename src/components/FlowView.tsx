@@ -82,7 +82,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                     <div className="flex h-12 items-end gap-2 shrink-0">
                         <HeaderNavigation 
                             currentTab="flow" 
-                            onTabChange={(tab: AppViewMode) => onTabChange(tab)}
+                            onTabChange={(tab: AppViewMode) => onTabChange?.(tab)}
                             onOpenGuide={onOpenGuide}
                         />
                     </div>
