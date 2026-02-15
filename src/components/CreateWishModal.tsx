@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Loader2, Send } from 'lucide-react';
+import { GuideModal } from './GuideModal';
 import { useWishActions } from '../hooks/useWishActions';
 import { useProfile } from '../hooks/useProfile';
 import { useWallet } from '../hooks/useWallet';
@@ -48,6 +49,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
     const [newWishContent, setNewWishContent] = useState('');
     const [selectedTier, setSelectedTier] = useState<GratitudeTier>('light');
     const [isAnonymous, setIsAnonymous] = useState(false);
+    const [showGuide, setShowGuide] = useState(false);
 
     const selectedTierCost = TIERS.find(t => t.id === selectedTier)?.cost || 0;
     const exceedsAvailable = selectedTierCost > availableLm;
@@ -91,20 +93,31 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                   </div>
                </div>
                
-               {/* Reward Selector Section */}
-               <div className="space-y-3">
+                {/* Reward Selector Section */}
+               <div className="space-y-4">
                    <div className="flex items-center justify-between">
-                       <label className="block text-sm font-bold text-slate-700">
-                           感謝として渡す Lm (時間)
-                       </label>
-                       <span className="text-xs font-medium text-orange-600 bg-orange-50 px-2 py-1 rounded-full border border-orange-100">
-                           対価として支払われます
+                       <div className="flex items-center gap-3">
+                           <label className="block text-sm font-bold text-slate-700">
+                               お裾分けする Lm (元気)
+                           </label>
+                           <button 
+                             type="button"
+                             onClick={() => setShowGuide(true)}
+                             className="text-xs text-slate-500 hover:text-slate-800 underline underline-offset-4 transition-colors font-serif tracking-wider"
+                           >
+                             お裾分けの目安とお作法
+                           </button>
+                       </div>
+                       <span className="text-xs font-medium text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-100">
+                           感謝としてお贈りします
                        </span>
                    </div>
                     
+                   <GuideModal isOpen={showGuide} onClose={() => setShowGuide(false)} />
+                    
                    {/* Available Info */}
                    <p className="text-xs text-slate-500 mb-2">
-                       現在分かち合えるのは <span className="font-mono font-bold text-orange-600">{Math.floor(availableLm).toLocaleString()} {UNIT_LABEL}</span> までです
+                       現在分かち合えるのは <span className="font-mono font-bold text-amber-600">{Math.floor(availableLm).toLocaleString()} {UNIT_LABEL}</span> までです
                    </p>
 
                    {/* Warning if exceeds */}
@@ -120,15 +133,15 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                              key={tier.id}
                              onClick={() => setSelectedTier(tier.id)}
                              className={`
-                                 relative flex items-center justify-between p-4 rounded-xl border-2 transition-all duration-200
+                                 relative flex items-center justify-between p-4 rounded-xl border transition-all duration-300
                                  ${selectedTier === tier.id
-                                     ? "border-orange-400 bg-orange-50/50 shadow-sm"
-                                     : "border-slate-100 bg-white text-slate-500 hover:border-slate-200"
+                                     ? "border-amber-300 bg-gradient-to-r from-amber-50/80 to-orange-50/50 shadow-[0_0_15px_-3px_rgba(251,191,36,0.4)] ring-1 ring-amber-100"
+                                     : "border-slate-100 bg-white text-slate-500 hover:border-slate-200 hover:bg-slate-50/50"
                                  }
                              `}
                            >
                              <div className="flex flex-col items-start gap-0.5">
-                               <span className={`text-sm font-bold ${selectedTier === tier.id ? "text-orange-800" : "text-slate-700"}`}>
+                               <span className={`text-sm font-bold ${selectedTier === tier.id ? "text-amber-900" : "text-slate-700"}`}>
                                  {tier.label}
                                </span>
                                <span className="text-xs text-slate-400">
@@ -137,18 +150,23 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                              </div>
 
                              <div className="flex items-center gap-3">
-                                <span className={`text-lg font-mono font-bold ${selectedTier === tier.id ? "text-orange-500" : "text-slate-300"}`}>
+                                <span className={`text-lg font-mono font-bold ${selectedTier === tier.id ? "text-amber-600" : "text-slate-300"}`}>
                                   {tier.cost.toLocaleString()} <span className="text-xs font-sans font-medium text-slate-400">{UNIT_LABEL}</span>
                                 </span>
-                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
-                                    selectedTier === tier.id ? "border-orange-500 bg-orange-500" : "border-slate-200 bg-white"
+                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
+                                    selectedTier === tier.id ? "border-amber-500 bg-amber-500 shadow-sm" : "border-slate-200 bg-white"
                                 }`}>
-                                    {selectedTier === tier.id && <div className="w-2 h-2 rounded-full bg-white" />}
+                                    {selectedTier === tier.id && <div className="w-2 h-2 rounded-full bg-white shadow-sm" />}
                                 </div>
                              </div>
                            </button>
                        ))}
                    </div>
+                   
+                   {/* Expense Disclaimer */}
+                   <p className="text-xs text-slate-600 leading-relaxed pl-1">
+                       ※材料費などの実費が必要になりそうな場合は、円での清算を済ませたあとに、最後に感謝として Lm を贈りましょう。
+                   </p>
                </div>
 
                {/* Anonymous Option */}

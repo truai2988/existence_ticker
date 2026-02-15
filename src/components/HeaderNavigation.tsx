@@ -22,7 +22,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
         }
     }, [isMenuOpen, user]);
 
-    const handleTabChange = (tab: "home" | "history" | "profile") => {
+    const handleTabChange = (tab: AppViewMode) => {
         onTabChange(tab);
         setIsMenuOpen(false);
     };

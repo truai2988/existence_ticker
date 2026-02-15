@@ -1,23 +1,30 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Inbox, Megaphone, Sparkles } from "lucide-react";
+import { Inbox, Megaphone, Sparkles, AlertCircle } from "lucide-react";
 import { useWallet } from "../hooks/useWallet";
 import { useProfile } from "../hooks/useProfile";
-import { AlertCircle } from "lucide-react";
+import { getMillis } from "../logic/worldPhysics";
+import { AppMode } from "../hooks/useStartupMachine";
 
 interface HomeViewProps {
-  onOpenFlow: () => void; // "Help" (Inflow)
-  onOpenRequest: () => void; // "Request" (Outflow)
+    onOpenFlow: () => void; 
+    onOpenRequest: () => void;
+    ritualState: 'idle' | 'breathing' | 'blooming' | 'syncing';
+    setRitualState: (state: 'idle' | 'breathing' | 'blooming' | 'syncing') => void;
+    setTargetBalance: (val: number) => void;
+    appMode: AppMode;
 }
 
-export const HomeView: React.FC<HomeViewProps> = ({
-  onOpenFlow,
-  onOpenRequest,
+export const HomeView: React.FC<HomeViewProps> = ({ 
+    onOpenFlow, 
+    onOpenRequest, 
+    ritualState, 
+    setRitualState, 
+    setTargetBalance, 
+    appMode 
 }) => {
-  const { status, performRebirthReset, availableLm, balance } = useWallet();
+  const { performRebirthReset, availableLm, balance } = useWallet();
   const { profile, updateProfile } = useProfile();
-  const [ritualState, setRitualState] = React.useState<'idle' | 'breathing' | 'blooming' | 'syncing'>('idle');
-  const [targetBalance, setTargetBalance] = React.useState(2400);
   const [notification, setNotification] = React.useState<string | null>(null);
 
   // Monitor for interruption notifications
@@ -30,10 +37,23 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const clearNotification = async () => {
     if (!profile) return;
     setNotification(null);
-    // [Purification]: Clear the field from the user's profile immediately after acknowledgment
     await updateProfile({ pending_interruption_notification: null });
   };
 
+  // "Metamorphosis" Logic driven by State Machine
+  // RITUAL mode = Monotone World (No Color)
+  // NORMAL mode = Color World (Full Color)
+  // CRITICAL: We also hide color (and balance) if a ritual animation is Playing (ritualState !== 'idle')
+  // This prevents the "Double 2400" overlap during the First Birth or Rebirth animations.
+  const isRitualReady = appMode === 'RITUAL'; 
+  const showColor = appMode === 'NORMAL' && ritualState === 'idle'; 
+  
+  // Calculate Days
+  const cycleDays = profile?.scheduled_cycle_days || 10;
+  const cycleStartedAt = getMillis(profile?.cycle_started_at || profile?.created_at);
+  const nextReset = cycleStartedAt + (cycleDays * 24 * 60 * 60 * 1000);
+  const daysLeft = Math.max(0, Math.ceil((nextReset - Date.now()) / (1000 * 60 * 60 * 24)));
+  
   // Sound Effect: 528Hz Crystal Tone
   const playCrystalSound = () => {
       try {
@@ -64,353 +84,200 @@ export const HomeView: React.FC<HomeViewProps> = ({
       }
   };
 
-  const isRitualLocked = React.useRef(false);
-
   const handleRitual = async () => {
-      if (isRitualLocked.current || ritualState !== 'idle') return;
-      isRitualLocked.current = true;
-      
+      if (ritualState !== 'idle') return;
       try {
           setRitualState('breathing');
           playCrystalSound(); 
-          
           await new Promise(r => setTimeout(r, 1500));
-          
           const result = await performRebirthReset({ userInitiated: true });
-          
           if (result.success && result.newBalance !== undefined) {
-              setTargetBalance(result.newBalance);
-              setRitualState('blooming'); 
-              await new Promise(r => setTimeout(r, 1500));
-              setRitualState('syncing');
-              await new Promise(r => setTimeout(r, 2000));
-              setRitualState('idle'); 
-          } else {
-              setRitualState('idle');
-          }
-      } catch (e) {
-          console.error("Ritual Error", e);
-          setRitualState('idle');
-      } finally {
-          isRitualLocked.current = false;
-      }
+              setTargetBalance(result.newBalance); setRitualState('blooming'); 
+              await new Promise(r => setTimeout(r, 1500)); setRitualState('syncing');
+              await new Promise(r => setTimeout(r, 2000)); setRitualState('idle'); 
+          } else { setRitualState('idle'); }
+      } catch (e) { setRitualState('idle'); }
   };
 
-  const isRitualReady = status === 'RITUAL_READY' && ritualState === 'idle';
-  const isEmpty = status === 'EMPTY';
-
-  const loadingStyle = `
-    @keyframes breathe {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.02); }
-    }
-  `;
+  // Move randomized message logic outside of the conditional button render to follow Hooks rules
+  const ritualMessage = React.useMemo(() => Math.random() > 0.5 ? "私は、私。" : "ETの世界へ", []);
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center w-full min-h-full px-6 py-4 relative max-w-2xl mx-auto overflow-hidden">
-      <style>{loadingStyle}</style>
-
-      <div className="flex-1 flex items-center justify-center w-full relative">
-        {/* Ripple Animation Effects (Behind everything) */}
-        {!isRitualReady && !isEmpty && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-                {[1, 2, 3].map((i) => (
-                    <motion.div
-                        key={`ripple-${i}`}
-                        className="absolute rounded-full border border-slate-200/40"
-                        style={{ width: '300px', height: '300px' }}
-                        animate={{
-                            scale: [1, 1.5 + (i * 0.2)],
-                            opacity: [0.3, 0]
-                        }}
-                        transition={{
-                            duration: 4,
-                            repeat: Infinity,
-                            delay: i * 1.2,
-                            ease: "easeOut"
-                        }}
-                    />
-                ))}
-            </div>
-        )}
-
-        {/* Central Lm Display (Above ripples, below buttons) */}
-        {!isRitualReady && !isEmpty && (
-             <div className="absolute top-[10%] flex flex-col items-center z-20 pointer-events-none">
-                {availableLm > 0 && (
-                     <motion.div 
-                        initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        className="absolute bottom-[105%] flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-1.5 rounded-full border border-amber-100 shadow-sm"
-                     >
-                        <Sparkles size={12} className="text-amber-400 fill-amber-400" />
-                        <span className="text-[10px] font-bold text-slate-500 tracking-widest uppercase">
-                            分かち合える
-                        </span>
-                     </motion.div>
-                )}
-
-                <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="text-center"
-                >
-                    <div className="text-6xl font-serif font-bold text-slate-800 tracking-tighter tabular-nums leading-none">
-                       {Math.floor(availableLm).toLocaleString()}
-                    </div>
-                    <div className="text-xs text-slate-400 font-bold tracking-widest uppercase mt-2">
-                        手持ち: {Math.floor(balance).toLocaleString()}
-                    </div>
-                </motion.div>
-             </div>
-        )}
-
-        <div className="absolute inset-0 bg-slate-100/50 rounded-full blur-3xl opacity-40 z-0 pointer-events-none transform scale-110" />
-
-        <div className="relative w-[80%] max-w-[540px] aspect-square z-10">
-          <div
-            className="absolute inset-0 rounded-full shadow-2xl shadow-slate-200/50 border-4 border-white overflow-hidden bg-white"
-            style={{ animation: "breathe 8s ease-in-out infinite" }}
-          >
-            <svg
-              viewBox="0 0 100 100"
-              className="w-full h-full shape-rendering-geometricPrecision"
+    <div className="flex-1 flex flex-col items-center justify-center w-full relative pt-safe pt-20 md:pt-24">
+        {/* 1. Balance Display (Only when Alive/Color) */}
+        {showColor && (
+          <div className="absolute top-[18%] left-0 right-0 flex flex-col items-center z-20 pointer-events-none">
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              className="flex flex-col items-center gap-1"
             >
+              <span className="text-xs font-bold text-slate-500 tracking-widest uppercase whitespace-nowrap opacity-80 mb-[-4px]">
+                手持ち： {Math.floor(balance).toLocaleString()}
+                <span className="ml-1 text-slate-400 font-medium">(あと{daysLeft}日)</span>
+              </span>
+              <div className="text-6xl font-serif font-medium tracking-tighter tabular-nums leading-none bg-gradient-to-b from-[#4A4A4A] via-[#6B5A4F] to-[#8B7E74] bg-clip-text text-transparent transform drop-shadow-sm">
+                {Math.floor(availableLm).toLocaleString()}
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* 2. The Vessel (YinYang Coin) */}
+        <div className="relative w-[80%] md:w-[70%] lg:w-[45%] max-w-[540px] lg:max-w-[480px] max-h-[70vh] aspect-square z-10">
+          <motion.div 
+            className="absolute inset-0 rounded-full shadow-2xl shadow-slate-200/50 border-4 border-white overflow-hidden bg-white text-slate-900"
+            // Breathing animation only when waiting for ritual
+            animate={isRitualReady ? { opacity: [0.7, 1, 0.7], scale: [0.98, 1, 0.98] } : { opacity: 1, scale: 1 }}
+            transition={isRitualReady ? { duration: 6, repeat: Infinity, ease: "easeInOut" } : {}}
+          >
+            <svg viewBox="0 0 100 100" className="w-full h-full">
               <defs>
                 <filter id="dividerGlow">
-                  <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+                  <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
                   <feMerge>
                     <feMergeNode in="coloredBlur"/>
                     <feMergeNode in="SourceGraphic"/>
                   </feMerge>
                 </filter>
-                {/* 陽: HELP (明るい黄色) */}
-                <linearGradient id="yangGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#FEF3C7" />
-                  <stop offset="100%" stopColor="#FDE68A" />
-                </linearGradient>
-                {/* 陰: WISH (落ち着いた青色) */}
-                <linearGradient id="yinGradient" x1="0%" y1="100%" x2="0%" y2="0%">
-                  <stop offset="0%" stopColor="#BFDBFE" />
-                  <stop offset="100%" stopColor="#DBEAFE" />
-                </linearGradient>
-                <linearGradient id="porcelainGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                   <stop offset="0%" stopColor="#F8FAFC" />
-                   <stop offset="100%" stopColor="#E2E8F0" />
-                </linearGradient>
-              </defs>
 
+                {/* Visual Assets */}
+                {/* 陽: HELP (琥珀 - Amber) */}
+                <linearGradient id="yangGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#FFFBEB" /> {/* Amber 50 */}
+                  <stop offset="100%" stopColor="#FCD34D" /> {/* Amber 300 */}
+                </linearGradient>
+                {/* 陰: WISH (淡藍 - Pale Indigo) */}
+                <linearGradient id="yinGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                  <stop offset="0%" stopColor="#EEF2FF" /> {/* Indigo 50 */}
+                  <stop offset="100%" stopColor="#A5B4FC" /> {/* Indigo 300 */}
+                </linearGradient>
+                
+                <linearGradient id="cocoonLight" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stopColor="#FFFFFF" /><stop offset="100%" stopColor="#F1F5F9" /></linearGradient>
+                <linearGradient id="cocoonShadow" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stopColor="#E2E8F0" /><stop offset="100%" stopColor="#F8FAFC" /></linearGradient>
+              </defs>
               <g transform="rotate(-45 50 50)">
-                  {/* 下半分: WISH (青) */}
-                  <path
-                     d="M 0 50 A 25 25 0 0 0 50 50 A 25 25 0 0 1 100 50 A 50 50 0 0 1 0 50 Z"
-                     fill={(isRitualReady || isEmpty) ? "url(#porcelainGradient)" : "url(#yinGradient)"}
-                     stroke="none"
-                     className="transition-all duration-1000"
+                  {/* Common Shape: The fills change based on state */}
+                  
+                  {/* Left Side (Yin) */}
+                  {/* Base: Monotone Shadow (Always there) */}
+                  <path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 1 0 50 Z" fill="url(#cocoonShadow)" />
+                  {/* Layer: Blue Gradient (Fade in when Color) */}
+                  <motion.path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 1 0 50 Z" 
+                    fill="url(#yinGrad)"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: showColor ? 1 : 0 }}
+                    transition={{ duration: 1.5, ease: "easeInOut" }}
                   />
-                  {/* 上半分: HELP (黄) */}
-                  <path
-                     d="M 0 50 A 25 25 0 0 0 50 50 A 25 25 0 0 1 100 50 A 50 50 0 0 0 0 50 Z"
-                     fill={(isRitualReady || isEmpty) ? "url(#porcelainGradient)" : "url(#yangGradient)"}
-                     stroke="none"
-                     className="transition-all duration-1000"
+
+                  {/* Right Side (Yang) */}
+                  {/* Base: Monotone Light (Always there) */}
+                  <path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 0 0 50 Z" fill="url(#cocoonLight)" />
+                  {/* Layer: Yellow Gradient (Fade in when Color) */}
+                  <motion.path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 0 0 50 Z" 
+                    fill="url(#yangGrad)"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: showColor ? 1 : 0 }}
+                    transition={{ duration: 1.5, ease: "easeInOut" }}
                   />
-                  <path 
-                     d="M 0 50 A 25 25 0 0 0 50 50 A 25 25 0 0 1 100 50"
-                     fill="none" 
-                     stroke={(isRitualReady || isEmpty) ? "#94A3B8" : "white"} 
-                     strokeWidth="2.5"
-                     filter="url(#dividerGlow)"
-                     opacity="0.9"
-                     strokeLinecap="round"
-                     className="transition-colors duration-1000"
+
+                  {/* Boundary Line */}
+                  <path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50" 
+                    fill="none" 
+                    stroke={showColor ? "white" : "rgba(255,255,255,0.8)"}
+                    strokeWidth={showColor ? "1.5" : "1"} 
+                    filter={showColor ? "url(#dividerGlow)" : ""}
+                    style={{ transition: 'all 1.5s ease' }}
                   />
               </g>
             </svg>
-          </div>
-
-          <AnimatePresence>
-            {!isRitualReady && (
-             <>
-              <motion.button
-                key="btn-help"
-                onClick={onOpenFlow}
-                className="absolute top-[25%] right-[24%] flex flex-col items-end z-20 outline-none group"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                whileHover="hover"
-                whileTap="tap"
-              >
-                <motion.div
-                  className="text-amber-800 flex flex-col items-center group-hover:text-amber-700"
-                  variants={{
-                    initial: { y: 0, scale: 1 },
-                    hover: {
-                      y: -5,
-                      scale: 1.03,
-                      transition: { type: "spring", stiffness: 300, damping: 20 },
-                    },
-                    tap: { scale: 0.98 },
-                  }}
-                >
-                  <Inbox size={52} strokeWidth={2.5} className="mb-1" />
-                  <span className="text-3xl font-extrabold tracking-tight">応える</span>
-                </motion.div>
-              </motion.button>
-
-              <motion.button
-                key="btn-wish"
-                onClick={onOpenRequest}
-                className="absolute bottom-[25%] left-[24%] flex flex-col items-start z-20 outline-none group"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                whileHover="hover"
-                whileTap="tap"
-              >
-                <motion.div
-                  className="text-blue-800 flex flex-col items-center group-hover:text-blue-700"
-                  variants={{
-                    initial: { y: 0, scale: 1 },
-                    hover: {
-                      y: -5,
-                      scale: 1.03,
-                      transition: { type: "spring", stiffness: 300, damping: 20 },
-                    },
-                    tap: { scale: 0.98 },
-                  }}
-                >
-                  <span className="text-3xl font-extrabold tracking-tight">お願い</span>
-                  <Megaphone size={48} strokeWidth={2.5} className="mt-1" />
-                </motion.div>
-              </motion.button>
-             </>
-            )}
-          </AnimatePresence>
-
-          <AnimatePresence>
-            {isRitualReady && (
-                <motion.button
-                    key="btn-ritual"
-                    onClick={handleRitual}
-                    className="absolute inset-0 flex flex-col items-center justify-center z-30 outline-none text-slate-400 hover:text-slate-500 transition-colors"
-                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                >
-                    <Sparkles size={32} strokeWidth={1} className="mb-2 opacity-50" />
-                    <span className="text-2xl font-serif tracking-widest font-bold">ここにいます</span>
-                </motion.button>
-            )}
-          </AnimatePresence>
-
-        </div>
-      </div>
-
-      <AnimatePresence>
-          {ritualState !== 'idle' && (
-              <motion.div
-                  className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 1 }}
-              >
-                  <motion.div 
-                    className="absolute inset-0 bg-white/95 backdrop-blur-2xl"
-                    animate={{
-                        clipPath: ritualState === 'syncing' 
-                            ? 'circle(150% at center)' 
-                            : 'circle(0% at center)',
-                        opacity: ritualState === 'syncing' ? 0 : 1
-                    }}
-                    transition={{ 
-                        duration: ritualState === 'syncing' ? 2.5 : 1, 
-                        ease: ritualState === 'syncing' ? [0.4, 0, 0.2, 1] : "easeOut"
-                    }}
-                  />
-                  
-                  <div className="relative z-10 flex flex-col items-center justify-center text-slate-800">
-                      {ritualState === 'blooming' && (
-                          <motion.div
-                             initial={{ scale: 0.8, opacity: 0, y: 20 }}
-                             animate={{ scale: 1, opacity: 1, y: 0 }}
-                             exit={{ scale: 1.2, opacity: 0 }}
-                             transition={{ duration: 0.8, ease: "easeOut" }}
-                             className="text-center"
-                          >
-                              <div className="text-6xl font-serif font-bold text-slate-900 tracking-tighter">
-                                  2,400
-                              </div>
-                          </motion.div>
-                      )}
-
-                       {ritualState === 'syncing' && (
-                           <motion.div
-                           initial={{ scale: 1, opacity: 1 }}
-                           animate={{ scale: 1, opacity: 1 }}
-                           exit={{ opacity: 0 }}
-                           className="text-center"
-                        >
-                            <CountingNumber value={targetBalance} duration={2} />
-                        </motion.div>
-                      )}
-                  </div>
-              </motion.div>
-          )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {notification && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            className="fixed inset-x-6 top-10 z-[60] flex justify-center pointer-events-none"
-          >
-            <div className="bg-white/90 backdrop-blur-md border border-amber-100 p-6 rounded-2xl shadow-xl max-w-sm w-full pointer-events-auto flex flex-col items-center text-center">
-              <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-4">
-                <AlertCircle className="text-amber-500" size={24} />
-              </div>
-              <p className="text-sm text-slate-700 font-medium leading-relaxed mb-6 whitespace-pre-wrap">
-                {notification}
-              </p>
-              <button
-                onClick={clearNotification}
-                className="w-full py-3 bg-amber-400 hover:bg-amber-500 text-white rounded-xl text-sm font-bold tracking-widest transition-colors shadow-sm active:scale-[0.98]"
-              >
-                了解しました
-              </button>
-            </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+
+          {/* 3. Buttons (Swapping Content) */}
+          <AnimatePresence mode="wait">
+            {isRitualReady ? (
+                // Ritual Button
+                <motion.button key="btn-ritual" onClick={handleRitual} 
+                    className="absolute inset-0 flex flex-col items-center justify-center z-30 outline-none text-slate-500 hover:text-slate-600 transition-colors" 
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} 
+                    whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                >
+                    <div className="flex flex-col items-center relative">
+                      <div className="absolute inset-0 bg-white/60 blur-xl rounded-full scale-150 transform -z-10" />
+                      <Sparkles size={24} strokeWidth={1} className="mb-4 opacity-30 animate-pulse text-slate-400" />
+                      <div className="flex flex-col items-center">
+                        <span className="text-2xl font-light tracking-[0.2em] text-slate-600 mb-1 drop-shadow-sm pl-[0.8em]">
+                            {ritualMessage}
+                        </span>
+                        <span className="text-[10px] font-light tracking-[0.3em] text-slate-400 opacity-60 pl-[0.3em] uppercase">
+                            I am who I am / Into the World of ET
+                        </span>
+                      </div>
+                    </div>
+                </motion.button>
+            ) : (
+                // Normal Buttons (Only show when showColor is true)
+                showColor && (
+                 <>
+                    <motion.button 
+                      key="btn-help" 
+                      onClick={onOpenFlow} 
+                      className="absolute top-[28%] right-[24%] -translate-y-1/2 z-20 outline-none group text-amber-800"
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      transition={{ duration: 0.8, delay: 0.2 }}
+                    >
+                        <div className="flex flex-col items-center origin-center">
+                          <motion.div className="flex flex-col items-center">
+                            <Inbox size={52} strokeWidth={2.5} className="mb-2 opacity-90" />
+                            <span className="text-3xl font-extrabold tracking-tight text-shadow-sm">応える</span>
+                          </motion.div>
+                        </div>
+                    </motion.button>
+                    <motion.button 
+                      key="btn-wish" 
+                      onClick={onOpenRequest} 
+                      className="absolute bottom-[28%] left-[24%] translate-y-1/2 z-20 outline-none group text-blue-800"
+                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      transition={{ duration: 0.8, delay: 0.2 }}
+                    >
+                        <div className="flex flex-col items-center origin-center">
+                          <motion.div className="flex flex-col-reverse items-center">
+                            <Megaphone size={48} strokeWidth={2.5} className="mt-2 opacity-90" />
+                            <span className="text-3xl font-extrabold tracking-tight text-shadow-sm">お願い</span>
+                          </motion.div>
+                        </div>
+                    </motion.button>
+                 </>
+                )
+            )}
+          </AnimatePresence>
+        </div>
+
+        <AnimatePresence>
+            {notification && (
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="fixed inset-x-6 top-10 z-[100] flex justify-center pointer-events-none"
+            >
+                <div className="bg-white/90 backdrop-blur-md border border-amber-100 p-6 rounded-2xl shadow-xl max-w-sm w-full pointer-events-auto flex flex-col items-center text-center">
+                    <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-4">
+                        <AlertCircle className="text-amber-500" size={24} />
+                    </div>
+                    <p className="text-sm text-slate-700 font-medium leading-relaxed mb-6 whitespace-pre-wrap">
+                        {notification}
+                    </p>
+                    <button
+                        onClick={clearNotification}
+                        className="w-full py-3 bg-amber-400 hover:bg-amber-500 text-white rounded-xl text-sm font-bold tracking-widest transition-colors shadow-sm active:scale-[0.98]"
+                    >
+                        了解しました
+                    </button>
+                </div>
+            </motion.div>
+            )}
+        </AnimatePresence>
     </div>
   );
-};
-
-const CountingNumber: React.FC<{ value: number, duration: number }> = ({ value, duration }) => {
-    const [display, setDisplay] = React.useState(2400);
-
-    React.useEffect(() => {
-        const start = 2400;
-        const end = value;
-        const startTime = Date.now();
-        
-        const update = () => {
-            const now = Date.now();
-            const progress = Math.min((now - startTime) / (duration * 1000), 1);
-            // easeOutQuint: 1 - (1 - x)^5
-            const ease = 1 - Math.pow(1 - progress, 5);
-            const current = Math.floor(start - (start - end) * ease);
-            setDisplay(current);
-            if (progress < 1) {
-                requestAnimationFrame(update);
-            }
-        };
-        requestAnimationFrame(update);
-    }, [value, duration]);
-
-    return (
-        <div className="text-6xl font-serif font-bold text-slate-900 tracking-tighter">
-            {display.toLocaleString()}
-        </div>
-    );
 };

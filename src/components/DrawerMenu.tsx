@@ -34,7 +34,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
         { id: "profile", label: "自分", icon: User, activeModes: ["profile", "profile_edit"] },
     ] as const;
 
-    const handleNavigation = (id: "home" | "history" | "profile") => {
+    const handleNavigation = (id: AppViewMode) => {
         onTabChange(id);
         onClose();
     };
@@ -87,7 +87,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
                                 return (
                                     <button
                                         key={item.id}
-                                        onClick={() => handleNavigation(item.id)}
+                                        onClick={() => handleNavigation(item.id as AppViewMode)}
                                         className={`group flex items-center gap-6 text-left transition-all ${
                                             isActive ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'
                                         }`}
