@@ -92,6 +92,17 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
 
             {/* Mobile: Hamburger Menu & Sprout */}
             <div className="md:hidden flex h-12 items-end gap-4 relative z-50">
+                 {/* Mobile Admin Entrance - Left of Edit/Menu */}
+                 {isAdmin && (currentTab === "profile" || currentTab === "profile_edit") && !isMenuOpen && (
+                    <button
+                        onClick={() => onTabChange("admin")}
+                        className="pb-0 text-red-500 hover:text-red-700 transition-colors mb-1 animate-in fade-in"
+                        aria-label="管理コンソール"
+                    >
+                        <Shield size={24} strokeWidth={1.5} />
+                    </button>
+                )}
+
                  {/* Mobile Edit Action */}
                  {currentTab === "profile" && !isMenuOpen && (
                     <button
