@@ -25,6 +25,17 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
         <>
             {/* Desktop: Icon Navigation (md以上) - Scaled for Tablet */}
             <nav className="hidden md:flex items-end gap-6 h-12">
+                {/* PC Admin Entrance - Restricted to Profile Page, Far Left */}
+                {isAdmin && (currentTab === "profile" || currentTab === "profile_edit") && (
+                    <button
+                        onClick={() => onTabChange("admin")}
+                        className={`px-2 pt-5 pb-0 transition-colors text-red-500 hover:text-red-700 animate-in fade-in duration-500`}
+                        aria-label="管理コンソール"
+                    >
+                        <Shield size={28} strokeWidth={2} />
+                    </button>
+                )}
+
                 <button
                     onClick={onOpenOnboarding}
                     className="px-2 pt-5 pb-0 text-slate-400 hover:text-green-600 transition-colors"
@@ -35,7 +46,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                 </button>
 
                 <button
-                    onClick={() => onTabChange("home")}
+                    onClick={() => handleTabChange("home")}
                     className={`px-2 pt-5 pb-0 transition-colors ${
                         currentTab === "home" ? "text-slate-900" : "text-slate-600 hover:text-slate-800"
                     }`}
@@ -45,7 +56,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                 </button>
 
                 <button
-                    onClick={() => onTabChange("history")}
+                    onClick={() => handleTabChange("history")}
                     className={`px-2 pt-5 pb-0 transition-colors ${
                         currentTab === "history" ? "text-slate-900" : "text-slate-600 hover:text-slate-800"
                     }`}
@@ -55,7 +66,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                 </button>
 
                 <button
-                    onClick={() => onTabChange("profile")}
+                    onClick={() => handleTabChange("profile")}
                     className={`px-2 pt-5 pb-0 transition-colors ${
                         currentTab === "profile" || currentTab === "profile_edit" ? "text-slate-900" : "text-slate-600 hover:text-slate-800"
                     }`}
@@ -72,17 +83,6 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                         aria-label="プロフィール編集"
                     >
                         <Edit2 size={28} strokeWidth={2} />
-                    </button>
-                )}
-
-                {/* PC Admin Entrance */}
-                {isAdmin && (
-                    <button
-                        onClick={() => onTabChange("admin")}
-                        className={`px-2 pt-5 pb-0 transition-colors text-red-500 hover:text-red-700 animate-in fade-in duration-500`}
-                        aria-label="管理コンソール"
-                    >
-                        <Shield size={28} strokeWidth={2} />
                     </button>
                 )}
             </nav>
@@ -164,20 +164,6 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                                 <User size={20} strokeWidth={currentTab === "profile" ? 2 : 1.5} />
                                 <span className="text-sm tracking-[0.1em] font-light">プロフィール</span>
                             </button>
-
-                            {/* Mobile Admin Entrance */}
-                            {isAdmin && (
-                                <button
-                                    onClick={() => {
-                                        onTabChange("admin");
-                                        setIsMenuOpen(false);
-                                    }}
-                                    className="w-full px-5 py-3 text-left flex items-center gap-3 transition-colors rounded-xl text-red-500 bg-red-50/30 hover:bg-red-50/50 mt-2 border border-red-100"
-                                >
-                                    <Shield size={20} strokeWidth={2} />
-                                    <span className="text-sm tracking-[0.1em] font-bold">管理コンソール</span>
-                                </button>
-                            )}
                         </motion.div>
                     )}
                 </AnimatePresence>
