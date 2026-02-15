@@ -2,19 +2,20 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useWishes } from '../hooks/useWishes';
 import { WishCardList } from './WishCardList';
-import { HeaderNavigation } from './HeaderNavigation';
 import { CreateWishModal } from './CreateWishModal';
+import { HeaderNavigation } from './HeaderNavigation';
 import { AppViewMode } from '../types';
 
 interface RadianceViewProps {
     currentUserId: string;
     onTabChange?: (mode: AppViewMode) => void;
+    onOpenGuide?: () => void;
 }
 
 type TabType = 'active' | 'outbound';
 type ModalState = 'none' | 'create_wish';
 
-export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTabChange }) => {
+export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTabChange, onOpenGuide }) => {
     const { 
         userActiveWishes
     } = useWishes();
@@ -52,17 +53,12 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
     };
 
     return (
-        <div className="flex-1 flex flex-col w-full h-full">
-            {/* View Title Area (Subtle) */}
-            <div className="border-b border-slate-100/50">
-                <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between flex-nowrap gap-2">
-                    <div className="min-w-0">
-                        <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
-                            Existence Ticker
-                        </div>
-                        <h2 className="text-lg min-[375px]:text-xl font-bold tracking-widest uppercase text-slate-900 truncate">
-                            自分の願ったこと
-                        </h2>
+        <div className="flex-1 flex flex-col w-full h-full relative">
+            {/* Header */}
+            <div className="border-b border-slate-100/50 pt-safe">
+                <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between">
+                    <div>
+                        <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">Radiance</h2>
                         <p className="text-xs min-[375px]:text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">My Wishes</p>
                     </div>
                     <div className="flex h-12 items-end gap-2">
@@ -70,7 +66,8 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                             <div className="shrink-0">
                                 <HeaderNavigation 
                                     currentTab="give" 
-                                    onTabChange={(tab: AppViewMode) => onTabChange(tab)} 
+                                    onTabChange={(tab: AppViewMode) => onTabChange(tab)}
+                                    onOpenGuide={onOpenGuide}
                                 />
                             </div>
                         )}

@@ -1,0 +1,1689 @@
+commit 2e0d66f8b09ea9fed5782b5e06831e16452a12f1
+Author: truai2988 <trueeye792@gmail.com>
+Date:   Tue Feb 3 21:31:00 2026 +0900
+
+    21:30
+
+diff --git a/firestore.rules b/firestore.rules
+index 1c532d5..99118c3 100644
+--- a/firestore.rules
++++ b/firestore.rules
+@@ -72,7 +72,7 @@ service cloud.firestore {
+     // --- Transactions & Stats ---
+     match /transactions/{txId} {
+       allow read: if isSignedIn();
+-      allow create: if isSignedIn(); // Users create records of their transfers
++      allow create: if isSignedIn() && request.resource.data.type != 'GIFT'; // Users create records, but GIFT is deprecated
+     }
+     
+     match /daily_stats/{day} {
+diff --git a/package-lock.json b/package-lock.json
+index d1cdcda..0a2a3a3 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -9,14 +9,12 @@
+       "version": "0.0.0",
+       "dependencies": {
+         "@supabase/supabase-js": "^2.90.1",
+-        "@yudiel/react-qr-scanner": "^2.5.0",
+         "clsx": "^2.1.1",
+         "firebase": "^12.8.0",
+         "framer-motion": "^12.26.2",
+         "lucide-react": "^0.562.0",
+         "react": "^19.2.3",
+         "react-dom": "^19.2.3",
+-        "react-qr-code": "^2.0.18",
+         "tailwind-merge": "^3.4.0",
+         "vite-plugin-pwa": "^1.2.0"
+       },
+@@ -3546,12 +3544,6 @@
+         "@babel/types": "^7.28.2"
+       }
+     },
+-    "node_modules/@types/emscripten": {
+-      "version": "1.41.5",
+-      "resolved": "https://registry.npmjs.org/@types/emscripten/-/emscripten-1.41.5.tgz",
+-      "integrity": "sha512-cMQm7pxu6BxtHyqJ7mQZ2kXWV5SLmugybFdHCBbJ5eHzOo6VhBckEgAT3//rP5FwPHNPeEiq4SmQ5ucBwsOo4Q==",
+-      "license": "MIT"
+-    },
+     "node_modules/@types/estree": {
+       "version": "1.0.8",
+       "resolved": "https://registry.npmjs.org/@types/estree/-/estree-1.0.8.tgz",
+@@ -3864,20 +3856,6 @@
+         "vite": "^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0"
+       }
+     },
+-    "node_modules/@yudiel/react-qr-scanner": {
+-      "version": "2.5.0",
+-      "resolved": "https://registry.npmjs.org/@yudiel/react-qr-scanner/-/react-qr-scanner-2.5.0.tgz",
+-      "integrity": "sha512-wVWvm0z5kGGc3tiMcxyr2aji3C6aU5K3Q7R08MOdyFDFkvMbFMF1Hz5P5WFYW+zuuqxDPBcRZPCvmVs6jBheTQ==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "barcode-detector": "3.0.8",
+-        "webrtc-adapter": "9.0.3"
+-      },
+-      "peerDependencies": {
+-        "react": "^17 || ^18 || ^19",
+-        "react-dom": "^17 || ^18 || ^19"
+-      }
+-    },
+     "node_modules/acorn": {
+       "version": "8.15.0",
+       "resolved": "https://registry.npmjs.org/acorn/-/acorn-8.15.0.tgz",
+@@ -4154,15 +4132,6 @@
+       "integrity": "sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==",
+       "license": "MIT"
+     },
+-    "node_modules/barcode-detector": {
+-      "version": "3.0.8",
+-      "resolved": "https://registry.npmjs.org/barcode-detector/-/barcode-detector-3.0.8.tgz",
+-      "integrity": "sha512-Z9jzzE8ngEDyN9EU7lWdGgV07mcnEQnrX8W9WecXDqD2v+5CcVjt9+a134a5zb+kICvpsrDx6NYA6ay4LGFs8A==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "zxing-wasm": "2.2.4"
+-      }
+-    },
+     "node_modules/baseline-browser-mapping": {
+       "version": "2.9.15",
+       "resolved": "https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.9.15.tgz",
+@@ -6585,18 +6554,6 @@
+       "integrity": "sha512-mNAgZ1GmyNhD7AuqnTG3/VQ26o760+ZYBPKjPvugO8+nLbYfX6TVpJPseBvopbdY+qpZ/lKUnmEc1LeZYS3QAA==",
+       "license": "Apache-2.0"
+     },
+-    "node_modules/loose-envify": {
+-      "version": "1.4.0",
+-      "resolved": "https://registry.npmjs.org/loose-envify/-/loose-envify-1.4.0.tgz",
+-      "integrity": "sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "js-tokens": "^3.0.0 || ^4.0.0"
+-      },
+-      "bin": {
+-        "loose-envify": "cli.js"
+-      }
+-    },
+     "node_modules/lru-cache": {
+       "version": "5.1.1",
+       "resolved": "https://registry.npmjs.org/lru-cache/-/lru-cache-5.1.1.tgz",
+@@ -6760,6 +6717,7 @@
+       "version": "4.1.1",
+       "resolved": "https://registry.npmjs.org/object-assign/-/object-assign-4.1.1.tgz",
+       "integrity": "sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==",
++      "dev": true,
+       "license": "MIT",
+       "engines": {
+         "node": ">=0.10.0"
+@@ -7220,17 +7178,6 @@
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+     },
+-    "node_modules/prop-types": {
+-      "version": "15.8.1",
+-      "resolved": "https://registry.npmjs.org/prop-types/-/prop-types-15.8.1.tgz",
+-      "integrity": "sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "loose-envify": "^1.4.0",
+-        "object-assign": "^4.1.1",
+-        "react-is": "^16.13.1"
+-      }
+-    },
+     "node_modules/protobufjs": {
+       "version": "7.5.4",
+       "resolved": "https://registry.npmjs.org/protobufjs/-/protobufjs-7.5.4.tgz",
+@@ -7264,12 +7211,6 @@
+         "node": ">=6"
+       }
+     },
+-    "node_modules/qr.js": {
+-      "version": "0.0.0",
+-      "resolved": "https://registry.npmjs.org/qr.js/-/qr.js-0.0.0.tgz",
+-      "integrity": "sha512-c4iYnWb+k2E+vYpRimHqSu575b1/wKl4XFeJGpFmrJQz5I88v9aY2czh7s0w36srfCM1sXgC/xpoJz5dJfq+OQ==",
+-      "license": "MIT"
+-    },
+     "node_modules/queue-microtask": {
+       "version": "1.2.3",
+       "resolved": "https://registry.npmjs.org/queue-microtask/-/queue-microtask-1.2.3.tgz",
+@@ -7323,25 +7264,6 @@
+         "react": "^19.2.3"
+       }
+     },
+-    "node_modules/react-is": {
+-      "version": "16.13.1",
+-      "resolved": "https://registry.npmjs.org/react-is/-/react-is-16.13.1.tgz",
+-      "integrity": "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==",
+-      "license": "MIT"
+-    },
+-    "node_modules/react-qr-code": {
+-      "version": "2.0.18",
+-      "resolved": "https://registry.npmjs.org/react-qr-code/-/react-qr-code-2.0.18.tgz",
+-      "integrity": "sha512-v1Jqz7urLMhkO6jkgJuBYhnqvXagzceg3qJUWayuCK/c6LTIonpWbwxR1f1APGd4xrW/QcQEovNrAojbUz65Tg==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "prop-types": "^15.8.1",
+-        "qr.js": "0.0.0"
+-      },
+-      "peerDependencies": {
+-        "react": "*"
+-      }
+-    },
+     "node_modules/react-refresh": {
+       "version": "0.17.0",
+       "resolved": "https://registry.npmjs.org/react-refresh/-/react-refresh-0.17.0.tgz",
+@@ -7693,12 +7615,6 @@
+       "integrity": "sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==",
+       "license": "MIT"
+     },
+-    "node_modules/sdp": {
+-      "version": "3.2.1",
+-      "resolved": "https://registry.npmjs.org/sdp/-/sdp-3.2.1.tgz",
+-      "integrity": "sha512-lwsAIzOPlH8/7IIjjz3K0zYBk7aBVVcvjMwt3M4fLxpjMYyy7i3I97SLHebgn4YBjirkzfp3RvRDWSKsh/+WFw==",
+-      "license": "MIT"
+-    },
+     "node_modules/semver": {
+       "version": "7.7.3",
+       "resolved": "https://registry.npmjs.org/semver/-/semver-7.7.3.tgz",
+@@ -8170,18 +8086,6 @@
+         "url": "https://github.com/sponsors/ljharb"
+       }
+     },
+-    "node_modules/tagged-tag": {
+-      "version": "1.0.0",
+-      "resolved": "https://registry.npmjs.org/tagged-tag/-/tagged-tag-1.0.0.tgz",
+-      "integrity": "sha512-yEFYrVhod+hdNyx7g5Bnkkb0G6si8HJurOoOEgC8B/O0uXLHlaey/65KRv6cuWBNhBgHKAROVpc7QyYqE5gFng==",
+-      "license": "MIT",
+-      "engines": {
+-        "node": ">=20"
+-      },
+-      "funding": {
+-        "url": "https://github.com/sponsors/sindresorhus"
+-      }
+-    },
+     "node_modules/tailwind-merge": {
+       "version": "3.4.0",
+       "resolved": "https://registry.npmjs.org/tailwind-merge/-/tailwind-merge-3.4.0.tgz",
+@@ -8776,19 +8680,6 @@
+       "integrity": "sha512-YQ+BmxuTgd6UXZW3+ICGfyqRyHXVlD5GtQr5+qjiNW7bF0cqrzX500HVXPBOvgXb5YnzDd+h0zqyv61KUD7+Sg==",
+       "license": "BSD-2-Clause"
+     },
+-    "node_modules/webrtc-adapter": {
+-      "version": "9.0.3",
+-      "resolved": "https://registry.npmjs.org/webrtc-adapter/-/webrtc-adapter-9.0.3.tgz",
+-      "integrity": "sha512-5fALBcroIl31OeXAdd1YUntxiZl1eHlZZWzNg3U4Fn+J9/cGL3eT80YlrsWGvj2ojuz1rZr2OXkgCzIxAZ7vRQ==",
+-      "license": "BSD-3-Clause",
+-      "dependencies": {
+-        "sdp": "^3.2.0"
+-      },
+-      "engines": {
+-        "node": ">=6.0.0",
+-        "npm": ">=3.10.0"
+-      }
+-    },
+     "node_modules/websocket-driver": {
+       "version": "0.7.4",
+       "resolved": "https://registry.npmjs.org/websocket-driver/-/websocket-driver-0.7.4.tgz",
+@@ -9428,34 +9319,6 @@
+       "funding": {
+         "url": "https://github.com/sponsors/sindresorhus"
+       }
+-    },
+-    "node_modules/zxing-wasm": {
+-      "version": "2.2.4",
+-      "resolved": "https://registry.npmjs.org/zxing-wasm/-/zxing-wasm-2.2.4.tgz",
+-      "integrity": "sha512-1gq5zs4wuNTs5umWLypzNNeuJoluFvwmvjiiT3L9z/TMlVveeJRWy7h90xyUqCe+Qq0zL0w7o5zkdDMWDr9aZA==",
+-      "license": "MIT",
+-      "dependencies": {
+-        "@types/emscripten": "^1.41.5",
+-        "type-fest": "^5.2.0"
+-      },
+-      "peerDependencies": {
+-        "@types/emscripten": ">=1.39.6"
+-      }
+-    },
+-    "node_modules/zxing-wasm/node_modules/type-fest": {
+-      "version": "5.4.1",
+-      "resolved": "https://registry.npmjs.org/type-fest/-/type-fest-5.4.1.tgz",
+-      "integrity": "sha512-xygQcmneDyzsEuKZrFbRMne5HDqMs++aFzefrJTgEIKjQ3rekM+RPfFCVq2Gp1VIDqddoYeppCj4Pcb+RZW0GQ==",
+-      "license": "(MIT OR CC0-1.0)",
+-      "dependencies": {
+-        "tagged-tag": "^1.0.0"
+-      },
+-      "engines": {
+-        "node": ">=20"
+-      },
+-      "funding": {
+-        "url": "https://github.com/sponsors/sindresorhus"
+-      }
+     }
+   }
+ }
+diff --git a/package.json b/package.json
+index b3e06aa..fce41fe 100644
+--- a/package.json
++++ b/package.json
+@@ -11,14 +11,12 @@
+   },
+   "dependencies": {
+     "@supabase/supabase-js": "^2.90.1",
+-    "@yudiel/react-qr-scanner": "^2.5.0",
+     "clsx": "^2.1.1",
+     "firebase": "^12.8.0",
+     "framer-motion": "^12.26.2",
+     "lucide-react": "^0.562.0",
+     "react": "^19.2.3",
+     "react-dom": "^19.2.3",
+-    "react-qr-code": "^2.0.18",
+     "tailwind-merge": "^3.4.0",
+     "vite-plugin-pwa": "^1.2.0"
+   },
+diff --git a/src/App.tsx b/src/App.tsx
+index b76c1dc..9ce2642 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -104,12 +104,16 @@ function App() {
+   }
+ 
+   return (
+-    <div className="bg-slate-50 min-h-screen font-sans selection:bg-yellow-500/30 overflow-hidden flex flex-col relative text-slate-900">
++    <div className="bg-slate-50 h-screen font-sans selection:bg-yellow-500/30 overflow-hidden flex flex-col relative text-slate-900">
+       {/* HEADER (Always visible except maybe Admin?) */}
+       <Header onOpenWishHub={handleOpenWishHub} viewMode={viewMode} />
+ 
+       {/* MAIN CONTENT */}
+-      <main className="flex-1 relative overflow-y-auto no-scrollbar scroll-smooth pb-24 flex flex-col">
++      <main
++        className={`flex-1 relative overflow-y-auto no-scrollbar scroll-smooth flex flex-col ${
++          viewMode === "home" ? "pb-16" : "pb-24"
++        }`}
++      >
+         <Suspense fallback={<ScreenLoader />}>
+           <MainContent
+             viewMode={viewMode}
+diff --git a/src/components/DonationModal.tsx b/src/components/DonationModal.tsx
+deleted file mode 100644
+index fd3a335..0000000
+--- a/src/components/DonationModal.tsx
++++ /dev/null
+@@ -1,159 +0,0 @@
+-import React from 'react';
+-import { motion } from 'framer-motion';
+-import { Gift, Heart, Sparkles, User, X, AlertCircle } from 'lucide-react';
+-import { useWallet } from '../hooks/useWallet';
+-import { UNIT_LABEL } from '../constants';
+-
+-interface DonationModalProps {
+-  targetUserName: string;
+-  onSelectAmount: (amount: number) => void;
+-  onCancel: () => void;
+-}
+-
+-type PaymentPreset = {
+-    id: 'light' | 'medium' | 'heavy';
+-    amount: number;
+-    label: string;
+-    subLabel: string;
+-    icon: React.ReactNode;
+-    color: string;
+-    bg: string;
+-};
+-
+-const PRESETS: PaymentPreset[] = [
+-    { 
+-        id: 'light', 
+-        amount: 100, 
+-        label: '軽いお礼', 
+-        subLabel: 'ささやかな感謝',
+-        icon: <Gift size={18} />, 
+-        color: 'text-amber-500',
+-        bg: 'bg-amber-100'
+-    },
+-    { 
+-        id: 'medium', 
+-        amount: 500, 
+-        label: 'しっかりしたお礼', 
+-        subLabel: '心からの敬意',
+-        icon: <Heart size={18} />, 
+-        color: 'text-pink-500',
+-        bg: 'bg-pink-100'
+-    },
+-    { 
+-        id: 'heavy', 
+-        amount: 1000, 
+-        label: '特別な感謝', 
+-        subLabel: '深い愛と祝福',
+-        icon: <Sparkles size={18} />, 
+-        color: 'text-purple-500',
+-        bg: 'bg-purple-100'
+-    },
+-];
+-
+-export const DonationModal: React.FC<DonationModalProps> = ({ targetUserName, onSelectAmount, onCancel }) => {
+-  const { availableLm } = useWallet();
+-  
+-  return (
+-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+-        {/* Backdrop */}
+-        <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" onClick={onCancel}></div>
+-        
+-        <motion.div
+-            initial={{ y: 20, opacity: 0 }}
+-            animate={{ y: 0, opacity: 1 }}
+-            exit={{ y: 20, opacity: 0 }}
+-            className="w-full max-w-sm relative z-10 bg-white rounded-2xl p-6 shadow-2xl flex flex-col gap-6"
+-        >
+-            <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+-                <div className="flex items-center gap-2">
+-                    <div className="p-2 bg-slate-50 rounded-full text-slate-400">
+-                        <Gift size={20} />
+-                    </div>
+-                    <span className="font-bold text-slate-800">Lmを贈る</span>
+-                </div>
+-                <button onClick={onCancel} className="p-2 text-slate-400 hover:bg-slate-50 rounded-full transition-colors">
+-                    <X size={20} />
+-                </button>
+-            </div>
+-
+-            <div className="w-full">
+-                {/* Recipient Info */}
+-                <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl mb-4 border border-slate-100">
+-                    <div className="p-2 bg-white rounded-full shadow-sm">
+-                        <User size={16} className="text-slate-500" />
+-                    </div>
+-                    <div className="flex flex-col">
+-                        <span className="text-[11px] uppercase font-bold text-slate-400 tracking-wider">宛先</span>
+-                        <span className="text-sm font-bold text-slate-700">{targetUserName}</span>
+-                    </div>
+-                </div>
+-
+-                {/* Available Info */}
+-                <p className="text-xs text-slate-500 mb-2 text-center">
+-                    現在分かち合えるのは <span className="font-mono font-bold text-orange-600">{Math.floor(availableLm).toLocaleString()} {UNIT_LABEL}</span> までです
+-                </p>
+-
+-                {/* Warning if any amount exceeds available */}
+-                {PRESETS.some(p => p.amount > availableLm) && (
+-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-xs text-orange-800 leading-relaxed flex items-start gap-2 mb-3">
+-                        <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+-                        <span>器のゆとりを超えた約束はできません</span>
+-                    </div>
+-                )}
+-
+-                <div className="grid grid-cols-1 gap-3 mb-4">
+-                {PRESETS.map(preset => {
+-                    const exceedsAvailable = preset.amount > availableLm;
+-                    
+-                    return (
+-                        <button
+-                            key={preset.id}
+-                            onClick={() => !exceedsAvailable && onSelectAmount(preset.amount)}
+-                            disabled={exceedsAvailable}
+-                            className={`relative flex items-center justify-between p-4 rounded-xl border transition-all group active:scale-[0.99] ${
+-                                exceedsAvailable 
+-                                    ? 'border-slate-100 bg-slate-50 opacity-50 cursor-not-allowed' 
+-                                    : 'border-slate-200 hover:border-blue-400 hover:shadow-md hover:bg-white bg-white'
+-                            }`}
+-                        >
+-                            <div className="flex items-center gap-4">
+-                                <div className={`p-3 rounded-full flex items-center justify-center ${preset.bg} ${preset.color}`}>
+-                                    {preset.icon}
+-                                </div>
+-                                <div className="text-left flex flex-col">
+-                                    <span className={`text-sm font-bold transition-colors ${
+-                                        exceedsAvailable ? 'text-slate-400' : 'text-slate-800 group-hover:text-blue-600'
+-                                    }`}>
+-                                        {preset.label}
+-                                    </span>
+-                                    <span className="text-[11px] text-slate-500">
+-                                        {preset.subLabel}
+-                                    </span>
+-                                </div>
+-                            </div>
+-                            <span className={`font-mono font-bold transition-colors ${
+-                                exceedsAvailable ? 'text-slate-300' : 'text-slate-900 group-hover:text-blue-600'
+-                            }`}>
+-                                {preset.amount} <span className="text-[11px] font-sans text-slate-400">{UNIT_LABEL}</span>
+-                            </span>
+-                        </button>
+-                    );
+-                })}
+-                </div>
+-
+-                {/* Warning if any amount exceeds available */}
+-                {PRESETS.some(p => p.amount > availableLm) && (
+-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-xs text-orange-800 leading-relaxed flex items-start gap-2 mb-3">
+-                        <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+-                        <span>すでに約束している分があるため、一部の金額は選択できません</span>
+-                    </div>
+-                )}
+-                
+-                <p className="text-center text-[11px] text-slate-400">
+-                    選択すると即座に送金されます
+-                </p>
+-            </div>
+-        </motion.div>
+-    </div>
+-  );
+-};
+diff --git a/src/components/GiveMenu.tsx b/src/components/GiveMenu.tsx
+deleted file mode 100644
+index 056f5ac..0000000
+--- a/src/components/GiveMenu.tsx
++++ /dev/null
+@@ -1,99 +0,0 @@
+-import React, { useState } from 'react';
+-import { motion } from 'framer-motion';
+-import { Send, Type } from 'lucide-react';
+-import { DonationModal } from './DonationModal';
+-import { ScannerView } from './ScannerView'; 
+-import { CreateWishModal } from './CreateWishModal';
+-import { AnimatePresence } from 'framer-motion';
+-
+-interface GiveMenuProps {
+-    onClose: () => void;
+-    currentUserId: string;
+-}
+-
+-export const GiveMenu: React.FC<GiveMenuProps> = ({ onClose, currentUserId }) => {
+-    // Suppress unused warning for now
+-    void currentUserId;
+-    const [subState, setSubState] = useState<'menu' | 'scan' | 'gift_amount' | 'create_wish'>('menu');
+-    const [recipient, setRecipient] = useState<{ id: string, name: string } | null>(null);
+-
+-    // 1. Menu Selection
+-    if (subState === 'menu') {
+-        return (
+-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+-                <motion.div 
+-                    initial={{ scale: 0.9, opacity: 0 }}
+-                    animate={{ scale: 1, opacity: 1 }}
+-                    className="flex gap-6 pointer-events-auto"
+-                    onClick={(e) => e.stopPropagation()}
+-                >
+-                    {/* Make a Wish */}
+-                    <button 
+-                        onClick={() => setSubState('create_wish')}
+-                        className="w-40 h-40 rounded-2xl bg-slate-900 border border-slate-700 hover:border-gold-500/50 hover:bg-slate-800 flex flex-col items-center justify-center gap-4 group transition-all"
+-                    >
+-                        <div className="p-4 rounded-full bg-black border border-slate-800 group-hover:border-gold-400">
+-                             <Type className="text-gold-500" />
+-                        </div>
+-                        <span className="text-sm font-bold text-slate-300 group-hover:text-white">願いを放つ</span>
+-                        <span className="text-[11px] text-slate-500">Create Wish</span>
+-                    </button>
+-
+-                    {/* Give Light (Gift) */}
+-                    <button 
+-                        onClick={() => setSubState('scan')}
+-                        className="w-40 h-40 rounded-2xl bg-slate-900 border border-slate-700 hover:border-blue-500/50 hover:bg-slate-800 flex flex-col items-center justify-center gap-4 group transition-all"
+-                    >
+-                        <div className="p-4 rounded-full bg-black border border-slate-800 group-hover:border-blue-400">
+-                             <Send className="text-blue-500" />
+-                        </div>
+-                        <span className="text-sm font-bold text-slate-300 group-hover:text-white">光を贈る</span>
+-                        <span className="text-[11px] text-slate-500">Direct Gift</span>
+-                    </button>
+-                </motion.div>
+-            </div>
+-        );
+-    }
+-
+-    // 2. Scan to find Recipient (for Gift)
+-    if (subState === 'scan') {
+-        return (
+-            <ScannerView 
+-                onClose={onClose} 
+-                onScan={async (scannedId) => {
+-                    // Mock user lookup for now, or assume ID is valid
+-                    // In real app, we fetch user name here.
+-                    setRecipient({ id: scannedId, name: "Unknown Soul" });
+-                    setSubState('gift_amount');
+-                }} 
+-            />
+-        );
+-    }
+-
+-    // 3. Amount Selection (DonationModal)
+-    if (subState === 'gift_amount' && recipient) {
+-        return (
+-            <DonationModal
+-                targetUserName={recipient.name}
+-                onSelectAmount={(amount) => {
+-                    // Trigger actual transfer in App or Context
+-                    // For now just alert and close
+-                    alert(`Stub: Transfering ${amount} to ${recipient.id}`);
+-                    onClose();
+-                }}
+-                onCancel={() => setSubState('menu')} 
+-            />
+-        );
+-    }
+-    
+-    // 4. Create Wish (Modal)
+-    if (subState === 'create_wish') {
+-        return (
+-            <AnimatePresence>
+-                <CreateWishModal onClose={onClose} />
+-            </AnimatePresence>
+-        );
+-    }
+-
+-    return null;
+-};
+diff --git a/src/components/HomeView.tsx b/src/components/HomeView.tsx
+index 2ef9e48..20639f2 100644
+--- a/src/components/HomeView.tsx
++++ b/src/components/HomeView.tsx
+@@ -1,28 +1,18 @@
+ import React from "react";
+ import { motion } from "framer-motion";
+-import {
+-  Inbox,
+-  Megaphone,
+-  User,
+-  X
+-} from "lucide-react";
+-import { useProfile } from "../hooks/useProfile";
+-import { getTrustRank } from "../utils/trustRank";
++import { Inbox, Megaphone } from "lucide-react";
+ 
+ interface HomeViewProps {
+   onOpenFlow: () => void; // "Help" (Inflow)
+   onOpenRequest: () => void; // "Request" (Outflow)
+-  onOpenProfileEdit: () => void;
+ }
+ 
+ export const HomeView: React.FC<HomeViewProps> = ({
+   onOpenFlow,
+   onOpenRequest,
+-  onOpenProfileEdit,
+ }) => {
+-  const { profile } = useProfile();
+-  const trustRank = getTrustRank(profile);
+-  const [isDismissed, setIsDismissed] = React.useState(false);
++
++
+ 
+   // Pure CSS Animation for "Breathing" to offload JS thread
+   // Added directly into style block for zero overhead
+@@ -34,126 +24,149 @@ export const HomeView: React.FC<HomeViewProps> = ({
+   `;
+ 
+   return (
+-    <div className="flex-1 flex flex-col items-center w-full min-h-full p-4 relative max-w-md mx-auto overflow-hidden">
++    <div className="flex-1 flex flex-col items-center justify-center w-full min-h-full p-4 relative max-w-md mx-auto overflow-hidden">
+       <style>{loadingStyle}</style>
+ 
+-
+-
+       {/* 2. CORE VESSEL: YIN-YANG INTERFACE */}
+-      <div className="flex-1 flex items-center justify-center w-full my-4 relative">
++      <div className="flex-1 flex items-center justify-center w-full relative">
+         {/* Simplified Background Aura - Pure CSS Opacity */}
+         <div className="absolute inset-0 bg-slate-100/50 rounded-full blur-2xl opacity-30 z-0 pointer-events-none" />
+ 
+         {/* CONTAINER: 288px (w-72) */}
+         <div className="relative w-72 h-72 z-10">
+-            
+-            {/* A. BACKGROUND LAYER (The Breathing Shape - Pure CSS) */}
+-            <div
+-              className="absolute inset-0 rounded-full shadow-2xl shadow-slate-200/50 border-4 border-white overflow-hidden bg-white"
+-              style={{ animation: 'breathe 8s ease-in-out infinite' }}
++          {/* A. BACKGROUND LAYER (The Breathing Shape - Pure CSS) */}
++          <div
++            className="absolute inset-0 rounded-full shadow-2xl shadow-slate-200/50 border-4 border-white overflow-hidden bg-white"
++            style={{ animation: "breathe 8s ease-in-out infinite" }}
++          >
++            <svg
++              viewBox="0 0 100 100"
++              className="w-full h-full shape-rendering-geometricPrecision"
+             >
+-                 <svg viewBox="0 0 100 100" className="w-full h-full shape-rendering-geometricPrecision">
+-                    <defs>
+-                        <linearGradient id="yangGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+-                        <stop offset="0%" stopColor="#DBEAFE" /> {/* blue-100 */}
+-                        <stop offset="100%" stopColor="#BFDBFE" /> {/* blue-200 */}
+-                        </linearGradient>
+-                        <linearGradient id="yinGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+-                        <stop offset="0%" stopColor="#FEF3C7" /> {/* amber-100 */}
+-                        <stop offset="100%" stopColor="#FDE68A" /> {/* amber-200 */}
+-                        </linearGradient>
+-                    </defs>
++              <defs>
++                {/* 境界線等のフィルタ */}
++                <filter id="dividerGlow">
++                  <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
++                  <feMerge>
++                    <feMergeNode in="coloredBlur"/>
++                    <feMergeNode in="SourceGraphic"/>
++                  </feMerge>
++                </filter>
+ 
+-                    {/* YANG (Heaven/Top) */}
+-                    <path 
+-                        d="M 0 50 C 30 80, 70 20, 100 50 A 50 50 0 0 0 0 50 Z" 
+-                        fill="url(#yangGradient)" 
+-                        stroke="none"
+-                    />
++                {/* グラデーション定義 */}
++                {/* Yang (Blue): Top Area */}
++                <linearGradient id="yangGradient" x1="0%" y1="100%" x2="0%" y2="0%">
++                  <stop offset="0%" stopColor="#BFDBFE" /> {/* blue-200 */}
++                  <stop offset="100%" stopColor="#DBEAFE" /> {/* blue-100 */}
++                </linearGradient>
++                
++                {/* Yin (Yellow): Bottom Area */}
++                <linearGradient id="yinGradient" x1="0%" y1="0%" x2="0%" y2="100%">
++                  <stop offset="0%" stopColor="#FEF3C7" /> {/* amber-100 */}
++                  <stop offset="100%" stopColor="#FDE68A" /> {/* amber-200 */}
++                </linearGradient>
++              </defs>
+ 
+-                    {/* YIN (Earth/Bottom) */}
+-                    <path 
+-                        d="M 0 50 C 30 80, 70 20, 100 50 A 50 50 0 0 1 0 50 Z" 
+-                        fill="url(#yinGradient)"
+-                        stroke="none"
+-                    />
+-                    
+-                     {/* Divider Line */}
+-                    <path 
+-                        d="M 0 50 C 30 80, 70 20, 100 50" 
+-                        fill="none" 
+-                        stroke="white" 
+-                        strokeWidth="2"
+-                    />
+-                 </svg>
+-            </div>
++              {/* GROUP ROTATION: -45 degrees (Counter-Clockwise) */}
++              {/* Rotates horizontal layout (Left=Start, Right=End) to Diagonal (Left-Bottom to Right-Top) */}
++              {/* Creates a POSITIVE slope (/) */}
++              <g transform="rotate(-45 50 50)">
++                  
++                  {/* YIN (Yellow) - Bottom Half */}
++                  {/* Path: Outer circle bottom half + S-curve boundary (Left=Valley, Right=Mountain) */}
++                  <path
++                     d="M 0 50 A 25 25 0 0 0 50 50 A 25 25 0 0 1 100 50 A 50 50 0 0 1 0 50 Z"
++                     fill="url(#yinGradient)"
++                     stroke="none"
++                  />
+ 
+-            {/* B. INTERACTIVE LAYER (Static Text, Glow Hover) */}
+-            
+-            {/* Top Content (Yang) */}
+-            <motion.button
+-                onClick={onOpenFlow}
+-                className="absolute top-0 left-0 w-full h-[50%] flex flex-col items-center justify-center pt-6 z-20 outline-none group"
+-                whileTap={{ scale: 0.98 }}
+-            >
+-                <div className="text-blue-600 flex flex-col items-center drop-shadow-sm group-hover:text-blue-500 group-hover:drop-shadow-md transition-all duration-300 transform group-hover:scale-110">
+-                    <Inbox size={28} strokeWidth={2.5} className="mb-1" />
+-                    <span className="text-xs font-bold tracking-[0.2em] opacity-80">HELP</span>
+-                    <span className="text-lg font-bold">手伝う</span>
+-                </div>
+-            </motion.button>
+-            
+-            {/* Bottom Content (Yin) */}
+-            <motion.button
+-                onClick={onOpenRequest}
+-                className="absolute bottom-0 left-0 w-full h-[50%] flex flex-col items-center justify-center pb-6 z-20 outline-none group"
+-                whileTap={{ scale: 0.98 }}
+-            >
+-                <div className="text-amber-700 flex flex-col items-center drop-shadow-sm group-hover:text-amber-600 group-hover:drop-shadow-md transition-all duration-300 transform group-hover:scale-110">
+-                    <span className="text-lg font-bold">頼む</span>
+-                    <span className="text-xs font-bold tracking-[0.2em] opacity-80 mt-0.5">WISH</span>
+-                    <Megaphone size={24} strokeWidth={2.5} className="mt-1" />
+-                </div>
+-            </motion.button>
+-        </div>
+-      </div>
++                  {/* YANG (Blue) - Top Half */}
++                  {/* Path: Outer circle top half + S-curve boundary (Left=Valley, Right=Mountain) */}
++                  <path
++                     d="M 0 50 A 25 25 0 0 0 50 50 A 25 25 0 0 1 100 50 A 50 50 0 0 0 0 50 Z"
++                     fill="url(#yangGradient)"
++                     stroke="none"
++                  />
++                  
++                  {/* Divider Line (S-curve) */}
++                  {/* Left(0,50) -> Valley -> Center -> Mountain -> Right(100,50) */}
++                  {/* This ensures "Rising" flow when rotated -45 deg */}
++                  <path 
++                     d="M 0 50 A 25 25 0 0 0 50 50 A 25 25 0 0 1 100 50"
++                     fill="none" 
++                     stroke="white" 
++                     strokeWidth="2.5"
++                     filter="url(#dividerGlow)"
++                     opacity="0.9"
++                     strokeLinecap="round"
++                  />
++              </g>
++            </svg>
++          </div>
+ 
++          {/* B. INTERACTIVE LAYER (Static Text, Glow Hover) */}
+ 
++          {/* Right-Top Content (Yang) - 手伝う / HELP */}
++          {/* Right-Top Content (Yang) - 手伝う / HELP */}
++          {/* Right-Top Content (Yang) - 手伝う / HELP */}
++          <motion.button
++            onClick={onOpenFlow}
++            className="absolute top-[22%] right-[22%] flex flex-col items-end z-20 outline-none group"
++            initial="initial"
++            whileHover="hover"
++            whileTap="tap"
++          >
++            <motion.div
++              className="text-blue-700 flex flex-col items-end group-hover:text-blue-600"
++              variants={{
++                initial: { y: 0, scale: 1 },
++                hover: {
++                  y: -5,
++                  scale: 1.03,
++                  transition: { type: "spring", stiffness: 300, damping: 20 },
++                },
++                tap: { scale: 0.98 },
++              }}
++            >
++              <Inbox size={32} strokeWidth={2.5} className="mb-1" />
++              <span className="text-xs font-extrabold tracking-[0.2em] opacity-90">
++                HELP
++              </span>
++              <span className="text-xl font-extrabold">手伝う</span>
++            </motion.div>
++          </motion.button>
+ 
+-      {/* 4. ONBOARDING BANNER */}
+-      {!trustRank.isVerified && !isDismissed && (
+-        <div className="w-full max-w-sm mx-auto z-20 bg-white border border-slate-100 shadow-xl shadow-slate-200/50 rounded-2xl p-4 flex flex-col gap-3 animate-fade-in-down mb-6 relative mt-12">
+-             <div className="flex justify-between items-start">
+-                  <div className="flex items-center gap-3">
+-                    <div className="p-2 bg-slate-50 rounded-full text-slate-400 border border-slate-100 shrink-0">
+-                      <User size={16} />
+-                    </div>
+-                    <div>
+-                      <h3 className="text-xs font-bold text-slate-800">
+-                        プロフィールを充実させて、信頼を高めましょう
+-                      </h3>
+-                      <p className="text-[11px] text-slate-500 font-medium">
+-                        あなたの誠実さがより伝わりやすくなります
+-                      </p>
+-                    </div>
+-                  </div>
+-                   <button
+-                    onClick={() => setIsDismissed(true)}
+-                    className="p-1 hover:bg-slate-100 rounded-full transition-colors shrink-0"
+-                    aria-label="閉じる"
+-                  >
+-                    <X size={14} className="text-slate-400" />
+-                  </button>
+-             </div>
+-          
+-          <button
+-            onClick={onOpenProfileEdit}
+-            className="w-full text-xs font-bold bg-slate-900 text-white px-4 py-2.5 rounded-xl hover:bg-slate-800 transition-all shadow-md active:scale-95 flex items-center justify-center gap-2"
++          {/* Left-Bottom Content (Yin) - 頼む / WISH */}
++          <motion.button
++            onClick={onOpenRequest}
++            className="absolute bottom-[22%] left-[22%] flex flex-col items-start z-20 outline-none group"
++            initial="initial"
++            whileHover="hover"
++            whileTap="tap"
+           >
+-            プロフィールを編集
+-          </button>
++            <motion.div
++              className="text-amber-800 flex flex-col items-start group-hover:text-amber-700"
++              variants={{
++                initial: { y: 0, scale: 1 },
++                hover: {
++                  y: -5,
++                  scale: 1.03,
++                  transition: { type: "spring", stiffness: 300, damping: 20 },
++                },
++                tap: { scale: 0.98 },
++              }}
++            >
++              <span className="text-xl font-extrabold">頼む</span>
++              <span className="text-xs font-extrabold tracking-[0.2em] opacity-90 mt-0.5">
++                WISH
++              </span>
++              <Megaphone size={28} strokeWidth={2.5} className="mt-1" />
++            </motion.div>
++          </motion.button>
+         </div>
+-      )}
++      </div>
++
++      
+     </div>
+   );
+ };
+diff --git a/src/components/JournalView.tsx b/src/components/JournalView.tsx
+index e782c38..15a8559 100644
+--- a/src/components/JournalView.tsx
++++ b/src/components/JournalView.tsx
+@@ -182,15 +182,15 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
+         if (isSender) {
+             // [ギフト送付]
+             icon = <Heart size={14} className="text-pink-500 fill-pink-50" />;
+-            title = `${partnerName}さんに光を贈りました（ギフト）`;
+-            metaColor = "bg-pink-50 border-pink-200";
++            title = `${partnerName}さんに光を贈りました（旧機能）`;
++            metaColor = "bg-slate-50 border-slate-200 grayscale";
+             amountPrefix = ""; // No negative sign requested
+             amountColor = "text-slate-400"; // Neutral for "Sharing"
+         } else {
+             // [ギフト受取]
+             icon = <Sparkles size={14} className="text-cyan-500 fill-cyan-50" />;
+-            title = `${partnerName}さんから光を預かりました（ギフト）`;
+-            metaColor = "bg-cyan-50 border-cyan-200";
++            title = `${partnerName}さんから光を預かりました（旧機能）`;
++            metaColor = "bg-slate-50 border-slate-200 grayscale";
+             amountPrefix = "+";
+             amountColor = "text-cyan-600";
+         }
+diff --git a/src/components/ProfileView.tsx b/src/components/ProfileView.tsx
+index c8cb44c..1eb1f12 100644
+--- a/src/components/ProfileView.tsx
++++ b/src/components/ProfileView.tsx
+@@ -3,14 +3,11 @@ import { motion, AnimatePresence } from "framer-motion";
+ import {
+   X,
+   ChevronRight,
+-  ChevronDown,
+-  QrCode,
+   LogOut,
+   Trash2,
+   KeyRound,
+   Sun,
+   Wallet,
+-  Heart,
+   Star,
+   Handshake,
+   Megaphone,
+@@ -21,7 +18,6 @@ import {
+   ShieldCheck,
+   Settings,
+ } from "lucide-react";
+-import QRCode from "react-qr-code";
+ import { useProfile } from "../hooks/useProfile";
+ import { calculateDecayedValue } from "../logic/worldPhysics";
+ import { UNIT_LABEL, ADMIN_UIDS, SURVIVAL_CONSTANTS } from "../constants";
+@@ -90,7 +86,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
+ 
+   // UI States
+   const [isEditingProfile, setIsEditingProfile] = useState(initialEditMode);
+-  const [isQrOpen, setIsQrOpen] = useState(false);
+ 
+   // Auth Flow States (Link/Password/Delete)
+   const [showLinkModal, setShowLinkModal] = useState(false);
+@@ -113,7 +108,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
+ 
+   // Stats Logic
+   const xp = profile?.xp || 0;
+-  const warmth = profile?.warmth || 0;
++
+   const currentName = profile?.name || "名もなき旅人";
+   const helpfulCount = profile?.completed_contracts || 0;
+   const requestCount = profile?.completed_requests || 0;
+@@ -271,6 +266,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
+             </div>
+ 
+             <div className="flex flex-col items-center gap-2">
++              {/* Profile Completion Hint */}
++              {(!profile?.bio || !profile?.avatarUrl) && (
++                <button
++                  onClick={() => setIsEditingProfile(true)}
++                  className="mt-1 text-xs text-blue-500 font-bold hover:text-blue-600 hover:underline transition-colors animate-pulse"
++                >
++                  自己紹介を入力して信頼を高めましょう
++                </button>
++              )}
++
+               {/* Rank Badge */}
+               <div
+                 className={`text-xs font-bold px-3 py-1 rounded-full ${rank.bg} ${rank.color} flex items-center gap-1.5 shadow-sm`}
+@@ -403,44 +408,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
+               </div>
+ 
+               <div className="border-t border-slate-100">
+-                <button
+-                  onClick={() => setIsQrOpen(!isQrOpen)}
+-                  className="w-full flex items-center justify-between p-4 hover:bg-slate-50 transition-colors"
+-                >
+-                  <div className="flex items-center gap-3">
+-                    <div className="p-2 bg-slate-100 rounded-full">
+-                      <QrCode size={16} className="text-slate-500" />
+-                    </div>
+-                    <span className="text-sm font-medium text-slate-700">
+-                      受取用QRコード
+-                    </span>
+-                  </div>
+-                  {isQrOpen ? (
+-                    <ChevronDown size={16} className="text-slate-300" />
+-                  ) : (
+-                    <ChevronRight size={16} className="text-slate-300" />
+-                  )}
+-                </button>
+-
+-                <AnimatePresence>
+-                  {isQrOpen && (
+-                    <motion.div
+-                      initial={{ height: 0, opacity: 0 }}
+-                      animate={{ height: "auto", opacity: 1 }}
+-                      exit={{ height: 0, opacity: 0 }}
+-                      className="overflow-hidden bg-slate-50"
+-                    >
+-                      <div className="p-6 flex flex-col items-center justify-center border-t border-slate-100">
+-                        <div className="p-2 bg-white rounded-lg shadow-sm border border-slate-200 mb-2">
+-                          <QRCode value={profile?.id || "loading"} size={160} />
+-                        </div>
+-                        <p className="text-[11px] text-slate-400">
+-                          相手にスキャンしてもらってください
+-                        </p>
+-                      </div>
+-                    </motion.div>
+-                  )}
+-                </AnimatePresence>
++                {/* No actions here for now */}
+               </div>
+             </div>
+ 
+@@ -474,14 +442,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
+                   iconColor="text-amber-500"
+                   iconBg="bg-amber-50"
+                 />
+-                <ListItem
+-                  icon={Heart}
+-                  label="贈られた総額"
+-                  value={`${warmth.toLocaleString()} ${UNIT_LABEL}`}
+-                  hasArrow={false}
+-                  iconColor="text-pink-500"
+-                  iconBg="bg-pink-50"
+-                />
++
+               </div>
+             </div>
+ 
+diff --git a/src/components/QrDisplayModal.tsx b/src/components/QrDisplayModal.tsx
+deleted file mode 100644
+index 0fa9456..0000000
+--- a/src/components/QrDisplayModal.tsx
++++ /dev/null
+@@ -1,50 +0,0 @@
+-import React from 'react';
+-import { motion } from 'framer-motion';
+-import { X } from 'lucide-react';
+-import QRCode from "react-qr-code";
+-
+-interface QrDisplayModalProps {
+-  onClose: () => void;
+-  userId?: string;
+-}
+-
+-export const QrDisplayModal: React.FC<QrDisplayModalProps> = ({ onClose, userId = "user-id-mock-for-mvp" }) => {
+-  return (
+-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-md animate-fade-in">
+-        <motion.div
+-            initial={{ scale: 0.9, opacity: 0 }}
+-            animate={{ scale: 1, opacity: 1 }}
+-            exit={{ scale: 0.9, opacity: 0 }}
+-            className="flex flex-col items-center gap-6 relative w-full max-w-sm"
+-        >
+-             <button onClick={onClose} className="absolute -top-12 right-0 p-2 text-gray-500 hover:text-white z-10">
+-                <X size={24} />
+-            </button>
+-
+-            <h3 className="text-gold-200 text-sm tracking-widest uppercase">あなたの存在 (光)</h3>
+-            
+-            <div className="p-6 bg-gray-900/80 rounded-2xl border border-gold-400/30 shadow-[0_0_50px_rgba(251,192,45,0.15)] relative">
+-                {/* Glow effect behind QR */}
+-                <div className="absolute inset-0 bg-gold-400/10 blur-xl rounded-xl"></div>
+-                <div className="relative z-10 bg-white p-2 rounded-lg">
+-                    <QRCode 
+-                        value={userId} 
+-                        size={200}
+-                        fgColor="#000000"
+-                        bgColor="#FFFFFF"
+-                    />
+-                </div>
+-            </div>
+-            
+-            <p className="text-xs text-gray-400 max-w-xs text-center font-serif leading-relaxed">
+-                この輝きを、誰かが見つけるのを待っています。<br/>
+-                <span className="text-gold-500/50">ID: {userId}</span>
+-            </p>
+-
+-            <button onClick={onClose} className="text-gray-500 text-sm hover:text-white mt-4 border border-white/10 px-6 py-2 rounded-full">
+-                閉じる
+-            </button>
+-        </motion.div>
+-    </div>
+-  );
+-};
+diff --git a/src/components/ScannerView.tsx b/src/components/ScannerView.tsx
+deleted file mode 100644
+index 247b47a..0000000
+--- a/src/components/ScannerView.tsx
++++ /dev/null
+@@ -1,100 +0,0 @@
+-import React from 'react';
+-import { createPortal } from 'react-dom';
+-import { motion } from 'framer-motion';
+-import { X, QrCode } from 'lucide-react';
+-import { Scanner } from '@yudiel/react-qr-scanner';
+-
+-interface ScannerViewProps {
+-  onClose: () => void;
+-  onScan: (scannedValue: string) => void;
+-}
+-
+-interface IScanResult {
+-    rawValue: string;
+-    format?: string;
+-}
+-
+-export const ScannerView: React.FC<ScannerViewProps> = ({ onClose, onScan }) => {
+-  
+-  const handleScanLogic = (detected: IScanResult[]) => {
+-      if (detected && detected.length > 0) {
+-          const val = detected[0].rawValue;
+-          if (val) onScan(val);
+-      }
+-  };
+-
+-  return createPortal(
+-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black animate-fade-in">
+-        
+-        {/* Main Layout Container */}
+-        <div className="relative w-full h-full flex flex-col justify-between p-6 pt-safe pb-safe z-10">
+-            
+-            {/* Header */}
+-            <div className="flex justify-between items-center pt-8">
+-                <div className="flex items-center gap-2">
+-                    <div className="p-2 bg-white rounded-full shadow-sm">
+-                        <QrCode size={20} className="text-slate-700" />
+-                    </div>
+-                    <div>
+-                        <h3 className="text-white font-bold text-lg leading-tight drop-shadow-md">相手を読み取る</h3>
+-                        <p className="text-xs text-white/90 font-medium tracking-wide drop-shadow-md">SCANNER</p>
+-                    </div>
+-                </div>
+-                <button 
+-                    onClick={onClose} 
+-                    className="p-3 rounded-full bg-white shadow-md text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-all cursor-pointer"
+-                >
+-                    <X size={24} />
+-                </button>
+-            </div>
+-
+-            {/* Center Area with Viewfinder & Camera */}
+-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-6 w-full max-w-xs pointer-events-none">
+-                
+-                {/* 
+-                   THE VIEWFINDER BOX 
+-                */}
+-                <div className="relative w-64 h-64 rounded-3xl overflow-hidden bg-black shadow-2xl border-2 border-white/10">
+-                    
+-                    {/* Camera Feed */}
+-                    <div className="absolute inset-0 z-0">
+-                        <Scanner 
+-                            onScan={(detected) => handleScanLogic(detected as IScanResult[])}
+-                            onError={(error) => console.error("Scanner Error:", error)}
+-                            components={{ finder: false }}
+-                            styles={{ 
+-                                container: { width: '100%', height: '100%' },
+-                                video: { objectFit: 'cover' } 
+-                            }}
+-                        />
+-                    </div>
+-
+-                    {/* Overlays (Corners & Scan Line) */}
+-                    <div className="absolute inset-0 z-10 pointer-events-none">
+-                        {/* Corners Frame - White/Clear */}
+-                         <div className="absolute top-4 left-4 w-6 h-6 border-t-4 border-l-4 border-white rounded-tl-lg drop-shadow-md"></div>
+-                         <div className="absolute top-4 right-4 w-6 h-6 border-t-4 border-r-4 border-white rounded-tr-lg drop-shadow-md"></div>
+-                         <div className="absolute bottom-4 left-4 w-6 h-6 border-b-4 border-l-4 border-white rounded-bl-lg drop-shadow-md"></div>
+-                         <div className="absolute bottom-4 right-4 w-6 h-6 border-b-4 border-r-4 border-white rounded-br-lg drop-shadow-md"></div>
+-
+-                        {/* Scan Line */}
+-                        <motion.div 
+-                            className="absolute left-6 right-6 h-[2px] bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
+-                            animate={{ top: ['15%', '85%', '15%'] }}
+-                            transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+-                        />
+-                    </div>
+-                </div>
+-
+-                {/* Instruction Pill */}
+-                <p className="text-slate-800 font-bold text-sm bg-white/90 px-6 py-3 rounded-full shadow-lg border border-white/20 backdrop-blur-md">
+-                    相手のQRコードを枠内に合わせてください
+-                </p>
+-            </div>
+-            
+-            {/* Debug Buttons Removed */}
+-        </div>
+-    </div>,
+-    document.body
+-  );
+-};
+\ No newline at end of file
+diff --git a/src/components/TransferModal.tsx b/src/components/TransferModal.tsx
+deleted file mode 100644
+index e834163..0000000
+--- a/src/components/TransferModal.tsx
++++ /dev/null
+@@ -1,360 +0,0 @@
+-import React, { useState, useEffect } from 'react';
+-import { motion, AnimatePresence } from 'framer-motion';
+-import { Scan, QrCode, ArrowLeftRight, X, Sparkles, Star, Sun, Zap } from 'lucide-react';
+-import QRCode from "react-qr-code";
+-import { Scanner } from '@yudiel/react-qr-scanner';
+-
+-interface TransferModalProps {
+-  isOpen: boolean;
+-  onClose: () => void;
+-  onTransfer: (amount: number, target: string) => void;
+-  totalAvailable: number;
+-  initialTargetId?: string; // Optional: If opening from Wishes
+-}
+-
+-interface IScanResult {
+-    rawValue: string;
+-    format?: string;
+-}
+-
+-type PaymentPreset = {
+-    id: 'light' | 'medium' | 'heavy';
+-    amount: number;
+-    label: string;
+-    icon: React.ReactNode;
+-    color: string;
+-};
+-
+-const PRESETS: PaymentPreset[] = [
+-    { id: 'light', amount: 100, label: '淡い光', icon: <Sparkles size={16} />, color: 'shadow-blue-500/50 hover:shadow-blue-500/80' },
+-    { id: 'medium', amount: 500, label: '確かな輝き', icon: <Star size={16} />, color: 'shadow-gold-500/50 hover:shadow-gold-500/80' },
+-    { id: 'heavy', amount: 1000, label: '太陽の恵み', icon: <Sun size={16} />, color: 'shadow-orange-500/50 hover:shadow-orange-500/80' },
+-];
+-
+-export const TransferModal: React.FC<TransferModalProps> = ({ isOpen, onClose, onTransfer, totalAvailable, initialTargetId }) => {
+-  const [mode, setMode] = useState<'menu' | 'give' | 'receive' | 'confirm' | 'success'>('menu');
+-  const [scannedData, setScannedData] = useState<string | null>(null);
+-  const [amount, setAmount] = useState<number>(0);
+-  const [feedback, setFeedback] = useState<{balance: number, mint: number, xp: number} | null>(null);
+-  const [sourceType, setSourceType] = useState<'balance' | 'mint' | 'mixed'>('mixed');
+-
+-  // Reset state when opened
+-  useEffect(() => {
+-    if (isOpen) {
+-        if (initialTargetId) {
+-            setScannedData(initialTargetId);
+-            setMode('confirm');
+-        } else {
+-            setMode('menu');
+-            setScannedData(null);
+-        }
+-        setFeedback(null);
+-        setSourceType('mixed');
+-    }
+-  }, [isOpen, initialTargetId]);
+-
+-
+-  const handleScan = (detected: IScanResult[]) => {
+-    if (detected && detected.length > 0) {
+-        const value = detected[0].rawValue;
+-        if (value && !scannedData) {
+-            setScannedData(value);
+-            // Instead of auto-transfer, go to "Confirm/Select Amount" mode for P2P flow
+-            setMode('confirm');
+-        }
+-    }
+-  };
+-
+-  const handlePresetSelect = (preset: PaymentPreset) => {
+-    // Dual-Source Logic Simulation
+-    const cost = preset.amount;
+-    const fromBalance = Math.min(totalAvailable, cost); // Deduct from balance first
+-    const fromMint = cost - fromBalance; // Mint the rest
+-    
+-    // Determine animation type
+-    if (fromMint === 0) setSourceType('balance');
+-    else if (fromBalance === 0) setSourceType('mint');
+-    else setSourceType('mixed'); // Mostly treated as balance visually + mint flash? Let's simplify: Dominant source?
+-    
+-    // Simplification for user requested "Distinct" feeling:
+-    // If ANY minting happens, it's a Creation act (White Flash).
+-    // If PURE balance, it's a Sacrifice act (Gold Flow).
+-    if (fromMint > 0) setSourceType('mint');
+-    else setSourceType('balance');
+-
+-    setAmount(cost);
+-    setFeedback({
+-        balance: fromBalance,
+-        mint: fromMint,
+-        xp: Math.floor(fromBalance) // XP = Balance used
+-    });
+-
+-    // Execute Transfer
+-    onTransfer(cost, scannedData || 'unknown');
+-    setMode('success');
+-  };
+-
+-
+-  if (!isOpen) return null;
+-
+-  return (
+-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+-      <motion.div 
+-        initial={{ scale: 0.9, opacity: 0 }}
+-        animate={{ scale: 1, opacity: 1 }}
+-        exit={{ scale: 0.9, opacity: 0 }}
+-        className="w-full max-w-sm relative overflow-hidden flex flex-col items-center"
+-      >
+-        <button onClick={onClose} className="absolute top-0 right-0 p-2 text-gray-500 hover:text-white z-10">
+-            <X size={24} />
+-        </button>
+-
+-        <AnimatePresence mode='wait'>
+-            {/* MENU MODE */}
+-            {mode === 'menu' && (
+-                <motion.div 
+-                    key="menu"
+-                    initial={{ opacity: 0, y: 20 }}
+-                    animate={{ opacity: 1, y: 0 }}
+-                    exit={{ opacity: 0, y: -20 }}
+-                    className="flex flex-col gap-6 w-full items-center"
+-                >
+-                    <h2 className="text-gold-100 text-xl font-thin tracking-widest uppercase">The Flow</h2>
+-                    
+-                    <button 
+-                        onClick={() => setMode('receive')}
+-                        className="w-full py-6 bg-gray-900/50 border border-gold-400/30 rounded-xl flex flex-col items-center gap-3 hover:bg-gold-900/20 transition-all group"
+-                    >
+-                        <QrCode className="w-8 h-8 text-gold-400 group-hover:scale-110 transition-transform" />
+-                        <span className="text-sm font-bold text-gray-300">存在を顕現させる</span>
+-                        <span className="text-xs text-gray-500">光を放つ (受け取る)</span>
+-                    </button>
+-
+-                    <button 
+-                        onClick={() => setMode('give')}
+-                        className="w-full py-6 bg-gray-900/50 border border-white/10 rounded-xl flex flex-col items-center gap-3 hover:bg-white/5 transition-all group"
+-                    >
+-                        <Scan className="w-8 h-8 text-white group-hover:scale-110 transition-transform" />
+-                        <span className="text-sm font-bold text-gray-300">魂を探す</span>
+-                        <span className="text-xs text-gray-500">光を探す (贈る)</span>
+-                    </button>
+-                    
+-                    <div className="text-center mt-4">
+-                        <p className="text-xs text-gray-500 font-mono">所持エネルギー: {Math.floor(totalAvailable)} Pt</p>
+-                    </div>
+-                </motion.div>
+-            )}
+-
+-            {/* RECEIVE MODE (QR Display) */}
+-            {mode === 'receive' && (
+-                <motion.div
+-                    key="receive"
+-                    initial={{ opacity: 0 }}
+-                    animate={{ opacity: 1 }}
+-                    exit={{ opacity: 0 }}
+-                    className="flex flex-col items-center gap-6"
+-                >
+-                    <h3 className="text-gold-200 text-sm tracking-widest">あなたの光</h3>
+-                    <div className="p-4 bg-gray-900/80 rounded-xl border border-gold-400/30 shadow-[0_0_50px_rgba(251,192,45,0.15)] relative">
+-                        {/* Glow effect behind QR */}
+-                        <div className="absolute inset-0 bg-gold-400/10 blur-xl rounded-xl"></div>
+-                        <div className="relative z-10">
+-                            <QRCode 
+-                                value="user-id-mock-for-mvp" 
+-                                size={200}
+-                                fgColor="#FBBF24" // Gold 400
+-                                bgColor="transparent"
+-                            />
+-                        </div>
+-                    </div>
+-                    <p className="text-xs text-gray-400 max-w-xs text-center">
+-                        この輝きを、誰かが見つけるのを待っています。
+-                    </p>
+-                    <button onClick={() => setMode('menu')} className="text-gray-500 text-sm hover:text-white mt-4">
+-                        戻る
+-                    </button>
+-                </motion.div>
+-            )}
+-
+-            {/* GIVE MODE (Scanner) */}
+-            {mode === 'give' && (
+-                <motion.div
+-                    key="give"
+-                    initial={{ opacity: 0 }}
+-                    animate={{ opacity: 1 }}
+-                    exit={{ opacity: 0 }}
+-                    className="flex flex-col items-center gap-6 w-full"
+-                >
+-                    <h3 className="text-white text-sm tracking-widest animate-pulse">魂を探しています...</h3>
+-                    
+-                    <div className="w-64 h-64 border-2 border-gold-400/50 rounded-xl overflow-hidden relative shadow-[0_0_20px_rgba(251,192,45,0.2)]">
+-                         <Scanner 
+-                             onScan={(detected) => handleScan(detected as IScanResult[])}
+-                         />
+-                        {/* Custom Finder Overlay */}
+-                        <div className="absolute inset-0 border-2 border-gold-400 opacity-50 scale-75 animate-pulse"></div>
+-                    </div>
+-
+-                    <div className="flex flex-col gap-2 items-center">
+-                        <p className="text-xs text-gray-500 text-center">
+-                            相手の「光」をフレームに収めてください。
+-                        </p>
+-                        {/* Debug/Manual Trigger for non-camera environments */}
+-                        <button 
+-                            onClick={() => handleScan([{rawValue: 'debug-target-user-id'}])}
+-                            className="mt-2 px-3 py-1 bg-gray-800 text-xs text-gray-500 rounded border border-gray-700 hover:text-white"
+-                        >
+-                            [DEBUG] 光を検知 (疑似スキャン)
+-                        </button>
+-                    </div>
+-
+-                    <button onClick={() => setMode('menu')} className="text-gray-500 text-sm hover:text-white mt-4">
+-                        戻る
+-                    </button>
+-                </motion.div>
+-            )}
+-
+-            {/* CONFIRM / PAYMENT MODE */}
+-            {mode === 'confirm' && (
+-                 <motion.div
+-                    key="confirm"
+-                    initial={{ y: 20, opacity: 0 }}
+-                    animate={{ y: 0, opacity: 1 }}
+-                    exit={{ y: -20, opacity: 0 }}
+-                    className="text-center w-full"
+-                 >
+-                     <h3 className="text-lg font-serif text-white mb-2">感謝を贈る</h3>
+-                     <p className="text-xs text-gray-500 mb-8 font-mono">To: {scannedData}</p>
+-
+-                     <div className="grid grid-cols-1 gap-4 mb-6">
+-                        {PRESETS.map(preset => (
+-                            <button
+-                                key={preset.id}
+-                                onClick={() => handlePresetSelect(preset)}
+-                                className="relative flex items-center justify-between p-4 rounded-xl border border-white/10 hover:border-gold-400/50 bg-white/5 hover:bg-white/10 transition-all group"
+-                            >
+-                                <div className="flex items-center gap-4">
+-                                    <div className={`p-3 rounded-full bg-black border border-white/10 shadow-[0_0_10px_rgba(255,255,255,0.1)] ${preset.color} group-hover:scale-110 transition-transform duration-500`}>
+-                                        {preset.icon}
+-                                    </div>
+-                                    <div className="text-left">
+-                                        <span className="block text-sm font-medium text-gray-200">{preset.label}</span>
+-                                        <span className="text-[11px] text-gray-500">
+-                                            {preset.id === 'light' ? 'ささやかな感謝' : preset.id === 'medium' ? '心からの敬意' : '深い愛と祝福'}
+-                                        </span>
+-                                    </div>
+-                                </div>
+-                                <span className="font-mono text-gold-400">{preset.amount} Pt</span>
+-                            </button>
+-                        ))}
+-                     </div>
+-                     
+-                     <button onClick={() => setMode('menu')} className="text-gray-500 text-sm hover:text-white">
+-                        キャンセル
+-                     </button>
+-                 </motion.div>
+-            )}
+-
+-            {/* SUCCESS MODE */}
+-            {mode === 'success' && (
+-                <motion.div 
+-                    key="success"
+-                    className="flex flex-col items-center text-center gap-6 w-full relative"
+-                >
+-                     {/* ANIMATION A: SACRIFICE (Gold Flow) */}
+-                     {sourceType === 'balance' && (
+-                         <div className="w-24 h-24 rounded-full bg-gold-400/10 flex items-center justify-center relative shadow-[0_0_30px_rgba(251,192,45,0.4)]">
+-                            <motion.div 
+-                                initial={{ scale: 0 }} animate={{ scale: 1.5, opacity: 0 }} transition={{ duration: 1.5, repeat: Infinity }}
+-                                className="absolute inset-0 border border-gold-400/50 rounded-full"
+-                            ></motion.div>
+-                            <ArrowLeftRight className="w-10 h-10 text-gold-400 relative z-10" />
+-                            {/* Particles */}
+-                            <div className="absolute inset-0 flex items-center justify-center">
+-                                <motion.div initial={{ y: 0, opacity: 1 }} animate={{ y: -50, opacity: 0 }} transition={{ duration: 1 }} className="absolute w-1 h-1 bg-gold-400 rounded-full"></motion.div>
+-                                <motion.div initial={{ x: 0, opacity: 1 }} animate={{ x: 50, opacity: 0 }} transition={{ duration: 1.2 }} className="absolute w-1 h-1 bg-gold-400 rounded-full"></motion.div>
+-                                <motion.div initial={{ x: 0, opacity: 1 }} animate={{ x: -50, opacity: 0 }} transition={{ duration: 0.8 }} className="absolute w-1 h-1 bg-gold-400 rounded-full"></motion.div>
+-                            </div>
+-                         </div>
+-                     )}
+-
+-                     {/* ANIMATION B: CREATION (White Flash / Big Bang) */}
+-                     {sourceType === 'mint' && (
+-                         <div className="w-24 h-24 rounded-full bg-white flex items-center justify-center relative shadow-[0_0_50px_rgba(255,255,255,0.8)]">
+-                            <motion.div 
+-                                initial={{ scale: 0, opacity: 1 }} animate={{ scale: 20, opacity: 0 }} transition={{ duration: 0.8, ease: "easeOut" }}
+-                                className="absolute inset-0 bg-white rounded-full z-0"
+-                            ></motion.div>
+-                            <Zap className="w-10 h-10 text-black relative z-10" />
+-                         </div>
+-                     )}
+-
+-                     <h3 className={`text-2xl font-thin mb-2 tracking-widest ${sourceType === 'mint' ? 'text-white drop-shadow-[0_0_10px_white]' : 'text-gold-100'}`}>
+-                        {sourceType === 'mint' ? '新たな光の誕生' : '循環完了'}
+-                     </h3>
+-                     
+-                     {/* Feedback Toast */}
+-                     {feedback && (
+-                         <div className="mt-2 bg-gray-900/90 border border-white/10 rounded-lg p-4 w-full text-left space-y-2 relative overflow-hidden">
+-                            {/* Rank Up Highlight for Sacrifice */}
+-                            {sourceType === 'balance' && (
+-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-gold-500 via-white to-gold-500 animate-pulse"></div>
+-                            )}
+-
+-                            <div className="flex justify-between items-center text-xs border-b border-white/5 pb-2 mb-2">
+-                                <span className="text-gray-400">Total Gift</span>
+-                                <span className={`font-mono text-sm font-bold ${sourceType === 'mint' ? 'text-white' : 'text-gold-400'}`}>{amount} Pt</span>
+-                            </div>
+-                            
+-                            {feedback.balance > 0 && (
+-                                <div className="flex justify-between items-center text-[11px]">
+-                                    <span className="text-gold-500">あなたの光 (Balance)</span>
+-                                    <span className="font-mono text-gold-500">-{feedback.balance}</span>
+-                                </div>
+-                            )}
+-                            {feedback.mint > 0 && (
+-                                <div className="flex justify-between items-center text-[11px]">
+-                                    <span className="text-blue-300">新たな光 (Mint)</span>
+-                                    <span className="font-mono text-blue-300">+{feedback.mint}</span>
+-                                </div>
+-                            )}
+-
+-                            {/* Rank XP only visible/highlighted for Balance payment */}
+-                            {feedback.xp > 0 ? (
+-                                <div className="pt-2 mt-2 border-t border-dashed border-white/10 flex justify-between items-center">
+-                                    <span className="text-[11px] tracking-widest text-gray-400 uppercase">Contribution XP</span>
+-                                    <motion.span 
+-                                        initial={{ scale: 1 }} animate={{ scale: [1, 1.2, 1] }} transition={{ repeat: Infinity, duration: 2 }}
+-                                        className="text-xs font-bold text-green-400 flex items-center gap-1"
+-                                    >
+-                                        <Sparkles size={10} />
+-                                        +{feedback.xp} XP (Rank Up!)
+-                                    </motion.span>
+-                                </div>
+-                            ) : (
+-                                <div className="pt-2 mt-2 text-center text-[11px] text-gray-600 font-mono italic">
+-                                    作成された光は徳になりません
+-                                </div>
+-                            )}
+-                         </div>
+-                     )}
+-                     
+-                     <div className="flex flex-col items-center mt-4 gap-1">
+-                        <span className="text-xs text-gold-500/80 uppercase tracking-widest">残存エネルギー</span>
+-                        <span className="text-3xl font-thin text-gold-100 tabular-nums drop-shadow-[0_0_10px_rgba(251,192,45,0.5)]">
+-                            {Math.max(0, totalAvailable - (feedback?.balance || 0)).toLocaleString()}
+-                        </span>
+-                     </div>
+-
+-                     <button onClick={onClose} className="mt-8 px-8 py-3 bg-white/5 border border-white/10 rounded-full text-xs text-gray-300 hover:bg-white/10 transition-colors">
+-                        閉じる
+-                     </button>
+-                </motion.div>
+-            )}
+-
+-
+-        </AnimatePresence>
+-      </motion.div>
+-    </div>
+-  );
+-};
+diff --git a/src/hooks/useWallet.ts b/src/hooks/useWallet.ts
+index c997668..6a8d38a 100644
+--- a/src/hooks/useWallet.ts
++++ b/src/hooks/useWallet.ts
+@@ -311,140 +311,7 @@ export const useWallet = () => {
+     }
+   };
+ 
+-  const transferLumen = async (
+-    recipientId: string,
+-    amount: number,
+-  ): Promise<boolean> => {
+-    if (!user || !db) return false;
+-    if (amount <= 0) return false;
+-
+-    const senderRef = doc(db, "users", user.uid);
+-    const recipientRef = doc(db, "users", recipientId);
+-
+-    // Create specific reference for transaction record to ensure it is part of atomic write if needed
+-    // However, runTransaction usually handles reads then writes.
+-    // We will generate a new ID for the transaction record.
+-    const newTxRef = doc(collection(db, "transactions"));
+-
+-    try {
+-      await runTransaction(db, async (txn) => {
+-        // 1. Get Sender
+-        const senderDoc = await txn.get(senderRef);
+-        if (!senderDoc.exists()) throw "Sender not found";
+-
+-        const senderData = senderDoc.data();
+-        const senderBalance = calculateDecayedValue(
+-          senderData.balance || 0,
+-          senderData.last_updated,
+-        );
+-
+-        // === STRICT COMMITMENT CHECK ===
+-        // 凍結リスク回避のため、約束中のLm（committedLm）を考慮して残高を確認する
+-        // トランザクション内でActive Wishを取得して計算
+-        const wishesRef = collection(db!, "wishes");
+-        const q = query(
+-            wishesRef,
+-            where("requester_id", "==", user.uid),
+-            where("status", "in", ["open", "in_progress"])
+-        );
+-        // Note: Transactional query is not supported directly with query() in some SDKs, 
+-        // but getDocs(q) inside runTransaction will read consistently if indices are set.
+-        // However, to be purely atomic on the *same* read time, simply querying is usually sufficient for "read" consistency in Firestore.
+-        const wishesSnapshot = await getDocs(q);
+-        
+-        let txCommittedLm = 0;
+-        wishesSnapshot.forEach(doc => {
+-            const w = doc.data();
+-            txCommittedLm += calculateDecayedValue(w.cost || 0, w.created_at);
+-        });
+ 
+-        const available = senderBalance - txCommittedLm;
+-
+-        if (available < amount) {
+-            throw new Error(`Insufficient available funds. (Available: ${Math.floor(available)}, Required: ${amount})`);
+-        }
+-
+-        // 2. Get Recipient
+-        const recipientDoc = await txn.get(recipientRef);
+-        if (!recipientDoc.exists()) throw "Recipient not found";
+-
+-        // 3. Get Global Capacity (for capping)
+-        let globalCapacity = WORLD_CONSTANTS.REBIRTH_AMOUNT;
+-        try {
+-          const settingsRef = doc(db!, "system_settings", "stats");
+-          const settingsDoc = await txn.get(settingsRef);
+-          if (settingsDoc.exists()) {
+-            const val = settingsDoc.data().global_capacity;
+-            if (typeof val === "number") globalCapacity = val;
+-          }
+-        } catch (e) {
+-          console.warn("Using default capacity", e);
+-        }
+-
+-        // 4. Calculate Recipient New Balance
+-        const recipientData = recipientDoc.data();
+-        const recipientCurrentReal = calculateDecayedValue(
+-          recipientData.balance || 0,
+-          recipientData.last_updated,
+-        );
+-
+-        // Cap at globalCapacity
+-        const newRecipientBalance = Math.min(
+-          recipientCurrentReal + amount,
+-          globalCapacity,
+-        );
+-
+-        // 5. Writes
+-        // Deduct from Sender
+-        txn.update(senderRef, {
+-          balance: senderBalance - amount,
+-          last_updated: serverTimestamp(),
+-        });
+-
+-        // Add to Recipient
+-        txn.update(recipientRef, {
+-          balance: newRecipientBalance,
+-          last_updated: serverTimestamp(),
+-        });
+-
+-        // Record Transaction
+-        txn.set(newTxRef, {
+-          type: "GIFT",
+-          sender_id: user.uid,
+-          sender_name: senderData.name || 'Unknown', // Log Name
+-          recipient_id: recipientId,
+-          recipient_name: recipientData.name || 'Unknown', // Log Name
+-          amount: amount,
+-          overflow_loss: recipientCurrentReal + amount - newRecipientBalance, 
+-          created_at: serverTimestamp(),
+-        });
+-
+-        // Record Daily Stats
+-        const today = new Date().toISOString().split("T")[0];
+-        const dailyStatsRef = doc(db!, "daily_stats", today);
+-
+-        const overflowAmount =
+-          recipientCurrentReal + amount - newRecipientBalance;
+-
+-        txn.set(
+-          dailyStatsRef,
+-          {
+-            volume: increment(amount),
+-            gift_volume: increment(amount),
+-            overflow_volume: increment(overflowAmount > 0 ? overflowAmount : 0),
+-            updated_at: serverTimestamp(),
+-          },
+-          { merge: true },
+-        );
+-      });
+-
+-      console.log(`Transferred ${amount} to ${recipientId}`);
+-      return true;
+-    } catch (e) {
+-      console.error("Transfer failed:", e);
+-      return false;
+-    }
+-  };
+ 
+   // === 凍結方針（Freeze Policy）===
+   // committedLm > balance の状態を検出し、警告を表示する（自動キャンセルは行わない）
+@@ -471,7 +338,6 @@ export const useWallet = () => {
+     committedLm,
+     availableLm,
+     pay,
+-    transferLumen,
+     checkLunarPhase,
+     refundUnfairDeductions, // 返金機能をエクスポート
+     isLoading: profileLoading,

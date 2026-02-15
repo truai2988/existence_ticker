@@ -7,20 +7,7 @@ import { HeaderNavigation } from './HeaderNavigation';
 import { AppViewMode } from '../types';
 import { Sun, Heart, Sparkles, CheckCircle2, Archive, Slash } from 'lucide-react';
 
-/**
- * JournalView: Existence Ticker 最後の「理」
- * 
- * 1. 概念の再定義（ルックアップの禁止）:
- *    取引が発生した瞬間のデータ（transactions ドキュメント）のみを正義とし、
- *    外部への動的な参照（users コレクション等）を一切行いません。
- * 
- * 2. 単一ソースの法則:
- *    ドキュメントに刻まれた名前をそのまま表示します。
- * 
- * 3. 救済措置（レガシーデータのみ）:
- *    機能実装前の名前が欠損しているデータに限り、「かつての隣人」として
- *    静的に表示し、不必要な通信を発生させません。
- */
+// ... (comments omitted)
 
 type TransactionLog = {
   id: string;
@@ -39,7 +26,7 @@ type TransactionLog = {
 
 interface JournalViewProps {
   onTabChange?: (mode: AppViewMode) => void;
-  onOpenOnboarding?: () => void;
+  onOpenOnboarding: () => void;
 }
 
 const parseDate = (val: TransactionLog['created_at']): Date => {
@@ -126,23 +113,23 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
      return () => { u1(); u2(); };
   }, [user]);
 
-   return (
+  return (
     <div className="flex-1 flex flex-col w-full h-full relative">
-        <div className="border-b border-slate-100/50">
-<div className="max-w-2xl mx-auto px-6 py-4 md:py-6">
-                <div className="flex items-start justify-between">
-                    <div>
-                        <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">Journal</h2>
-                        <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1">あなたの歩みの記録</p>
-                    </div>
-                    {onTabChange && (
-                        <div className="flex h-12 items-end gap-4">
-                            <div>
-                                <HeaderNavigation currentTab="history" onTabChange={(tab: AppViewMode) => onTabChange(tab)} onOpenOnboarding={onOpenOnboarding} />
-                            </div>
-                        </div>
-                    )}
+        <div className="border-b border-slate-100/50 pt-safe">
+            <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between">
+                 <div>
+                    <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">Journal</h2>
+                    <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1">あなたの歩みの記録</p>
                 </div>
+                {onTabChange && (
+                    <div className="flex h-12 items-end gap-2 shrink-0">
+                        <HeaderNavigation 
+                            currentTab="history" 
+                            onTabChange={(tab: AppViewMode) => onTabChange(tab)} 
+                            onOpenOnboarding={onOpenOnboarding} 
+                        />
+                    </div>
+                )}
             </div>
         </div>
 

@@ -36,16 +36,15 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                     </button>
                 )}
 
-                {onOpenOnboarding && (
-                    <button
-                        onClick={onOpenOnboarding}
-                        className="px-2 pt-5 pb-0 text-slate-400 hover:text-green-600 transition-colors"
-                        aria-label="ガイド"
-                        title="お裾分けの目安とお作法"
-                    >
-                        <Sprout size={28} strokeWidth={2} />
-                    </button>
-                )}
+                <button
+                    onClick={onOpenOnboarding}
+                    className="px-2 pt-5 pb-0 text-slate-400 hover:text-green-600 transition-colors"
+                    aria-label="ガイド"
+                    title="お裾分けの目安とお作法"
+                >
+                    <Sprout size={28} strokeWidth={2} />
+                </button>
+
                 <button
                     onClick={() => onTabChange("home")}
                     className={`px-2 pt-5 pb-0 transition-colors ${
@@ -101,7 +100,6 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                     </button>
                 )}
 
-
                 <button
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
                     className="p-2 -mb-1 text-slate-600 hover:text-slate-900 transition-colors"
@@ -127,20 +125,18 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                                     Existence Ticker
                                 </div>
                             </div>
-
-                            {onOpenOnboarding && (
-                                <button
-                                    onClick={() => {
-                                        onOpenOnboarding();
-                                        setIsMenuOpen(false);
-                                    }}
-                                    className="w-full px-5 py-3 text-left flex items-center gap-3 transition-colors rounded-xl text-slate-500 hover:bg-slate-50/50 hover:text-green-600"
-                                >
-                                    <Sprout size={20} strokeWidth={2} />
-                                    <span className="text-sm tracking-[0.1em] font-light">ガイドをみる</span>
-                                </button>
-                            )}
-
+                            
+                            <button
+                                onClick={() => {
+                                    onOpenOnboarding?.();
+                                    setIsMenuOpen(false);
+                                }}
+                                className="w-full px-5 py-3 text-left flex items-center gap-3 transition-colors rounded-xl text-slate-500 hover:bg-slate-50/50 hover:text-green-600"
+                            >
+                                <Sprout size={20} strokeWidth={2} />
+                                <span className="text-sm tracking-[0.1em] font-light">ガイドをみる</span>
+                            </button>
+                            
                             <button
                                 onClick={() => handleTabChange("home")}
                                 className={`w-full px-5 py-3 text-left flex items-center gap-3 transition-colors rounded-xl ${

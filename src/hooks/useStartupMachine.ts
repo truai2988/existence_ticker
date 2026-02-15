@@ -1,16 +1,14 @@
 import { useAuth } from "./useAuthHook";
 import { useProfile } from "./useProfile";
 import { useWallet } from "./useWallet";
-import { useSeasonalEvent, SeasonalEventData } from "./useSeasonalEvent";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo } from "react";
 import { User } from 'firebase/auth';
 import { UserProfile } from '../types';
 
-// The 4 Discrete Views of Existence (GHOST removed - brain handles it)
+// The 3 Discrete Views of Existence
 export type StartupView = 
   | 'LOADING'   // White Void (Booting / Checking)
   | 'GATE'      // Entrance (Unauthenticated)
-  | 'EVENT'     // Seasonal Revelation
   | 'APP';      // The World (Main Application)
 
 // The Two Modes of the App
@@ -23,114 +21,46 @@ interface StartupResult {
         user: User | null;
         profile: UserProfile | null;
         isAdmin: boolean;
-        eventData: SeasonalEventData | null;
         message?: string;
     };
     actions: {
         signOut: () => Promise<void>;
-        completeEvent: () => Promise<void>;
         deleteAccount: () => Promise<void>;
     };
 }
 
 export const useStartupMachine = () => {
-    // 1. Ingest all raw signals from sensors (no judgment)
+    // 1. Ingest raw signals
     const { user, isAdmin, loading: authLoading, signOut, deleteAccount, isRegistering } = useAuth();
     const { profile, isLoading: profileLoading } = useProfile();
     const { status: walletStatus } = useWallet(); 
-    const { eventData, isChecking: eventChecking, completeEvent } = useSeasonalEvent();
 
-    // 2. Brain-exclusive state: GHOST detection
-    const [isGhostGracePeriod, setIsGhostGracePeriod] = useState(false);
-
-    // 3. GHOST Detection Logic (Passive Observation)
-    useEffect(() => {
-        // Condition: Auth loaded, Profile loaded, user exists, but profile is null
-        // CRITICAL PROTECTION: 
-        // 1. Only anonymous users can be considered ghosts (registered users always have profiles, even if slow to load)
-        // 2. Admin users are NEVER purged even if anonymous (extra safety)
-        const isGhostDetected = 
-            !authLoading && 
-            !profileLoading && 
-            user && 
-            !profile && 
-            user.isAnonymous &&
-            !isAdmin;
-        
-        if (isGhostDetected) {
-            console.log(`[StateMachine] Ghost detected (UID: ${user.uid}, Anonymous: ${user.isAnonymous}) - Passive state initiated.`);
-            setIsGhostGracePeriod(true); // Re-using state to signal ghost presence to UI
-        } else {
-            setIsGhostGracePeriod(false);
-        }
-        
-    }, [authLoading, profileLoading, user, profile, isAdmin]);
-
-    // 4. The Deterministic State Machine
-    // We derive the current visual state purely from the inputs.
-    // Order of operations is CRITICAL.
-    
+    // 2. The Deterministic State Machine
     return useMemo((): StartupResult => {
         // PHASE 1: LOADING
-        // If any core system is loading, show LOADING
-        if (authLoading || profileLoading || eventChecking) {
+        if (authLoading || profileLoading) {
             return {
                 view: 'LOADING' as StartupView,
                 appMode: 'NORMAL' as AppMode,
-                data: { 
-                    user: null, 
-                    profile: null, 
-                    isAdmin: false,
-                    eventData: null,
-                },
-                actions: { signOut, completeEvent, deleteAccount }
+                data: { user: null, profile: null, isAdmin: false },
+                actions: { signOut, deleteAccount }
             };
         }
 
         // PHASE 2: AUTHENTICATION CHECK
-        // Loading is done. Do we have a user?
         if (!user) {
             return {
                 view: 'GATE' as StartupView,
                 appMode: 'NORMAL' as AppMode,
-                data: { user: null, profile: null, isAdmin: false, eventData: null, message: undefined },
-                actions: { signOut, completeEvent, deleteAccount }
+                data: { user: null, profile: null, isAdmin: false },
+                actions: { signOut, deleteAccount }
             };
         }
 
-        // PHASE 3: GHOST GRACE PERIOD
-        // We have user but no profile - if timer is active, stay in LOADING
-        if (!profile && isGhostGracePeriod) {
-            return {
-                view: 'LOADING' as StartupView,
-                appMode: 'NORMAL' as AppMode,
-                data: { 
-                    user, 
-                    profile: null, 
-                    isAdmin: false,
-                    eventData: null,
-                },
-                actions: { signOut, completeEvent, deleteAccount }
-            };
-        }
-
-        // PHASE 4: SEASONAL INTERVENTION
-        // Profile exists. Is there a mandatory event?
-        if (eventData && profile) {
-            return {
-                view: 'EVENT' as StartupView,
-                appMode: 'NORMAL' as AppMode,
-                data: { user, profile, isAdmin, eventData, message: undefined },
-                actions: { signOut, completeEvent, deleteAccount }
-            };
-        }
-
-        // PHASE 5: EXISTENCE (The App)
-        // All checks passed. We are ready to render the world.
-        
+        // PHASE 3: GHOST / PENDING PROFILE
         if (!profile) {
-            // Edge case: profile is null but no timer
-            // This happens during active registration or if profile sync is slow.
+            // If it's a known ghost or we're in the middle of registering
+            // stay in LOADING to avoid showing GATE or broken APP
             return {
                 view: 'LOADING' as StartupView,
                 appMode: 'NORMAL' as AppMode,
@@ -138,29 +68,27 @@ export const useStartupMachine = () => {
                     user, 
                     profile: null, 
                     isAdmin,
-                    eventData: null,
-                    message: (isRegistering || (window as { __isRegistering?: boolean }).__isRegistering) ? "新しい存在を刻んでいます..." : "再接続を待っています..."
+                    message: (isRegistering || (window as { __isRegistering?: boolean }).__isRegistering) ? "新しい存在を刻んでいます..." : "接続を確認しています..."
                 },
-                actions: { signOut, completeEvent, deleteAccount }
+                actions: { signOut, deleteAccount }
             };
         }
 
+        // PHASE 4: EXISTENCE (The App)
         const appMode: AppMode = walletStatus === 'RITUAL_READY' ? 'RITUAL' : 'NORMAL';
 
         return {
             view: 'APP' as StartupView,
             appMode,
-            data: { user, profile, isAdmin, eventData: null, message: undefined },
-            actions: { signOut, completeEvent, deleteAccount }
+            data: { user, profile, isAdmin, message: undefined },
+            actions: { signOut, deleteAccount }
         };
 
     }, [
-        authLoading, profileLoading, eventChecking,
+        authLoading, profileLoading,
         user, profile, isAdmin,
-        eventData,
         walletStatus,
-        isGhostGracePeriod,
         isRegistering,
-        signOut, completeEvent, deleteAccount
+        signOut, deleteAccount
     ]);
 };
