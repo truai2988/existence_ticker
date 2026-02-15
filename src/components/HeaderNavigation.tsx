@@ -1,6 +1,6 @@
+import React, { useState } from 'react';
 import { Home, History, User, Menu, X, Shield, Sprout, Edit2 } from 'lucide-react';
 import { AppViewMode } from '../types';
-import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuthHook';
 

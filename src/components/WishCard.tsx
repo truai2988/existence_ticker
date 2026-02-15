@@ -241,7 +241,7 @@ export const WishCard: React.FC<WishCardProps> = ({
   // Recalculate whenever tick changes (every 10 seconds)
   const displayValue = React.useMemo(() => {
     const elapsedSec = ((Date.now() - wish.created_at) / 1000) | 0;
-    const decayedMilli = calculateDecayedValue(toMilli(initialCost), elapsedSec, cycleDays);
+    const decayedMilli = calculateDecayedValue(toMilli(initialCost), elapsedSec);
     return fromMilli(decayedMilli);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tick, initialCost, wish.created_at, cycleDays]);
