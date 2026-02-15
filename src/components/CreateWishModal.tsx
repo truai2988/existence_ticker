@@ -95,20 +95,20 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                
                 {/* Reward Selector Section */}
                <div className="space-y-4">
-                   <div className="flex items-center justify-between">
-                       <div className="flex items-center gap-3">
-                           <label className="block text-sm font-bold text-slate-700">
-                               お裾分けする Lm (元気)
+                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-1">
+                       <div className="flex items-baseline flex-wrap gap-x-3 gap-y-1">
+                           <label className="text-sm font-bold text-slate-800 shrink-0">
+                               お裾分けする Lm <span className="text-xs font-normal text-slate-400 ml-0.5">(元気)</span>
                            </label>
                            <button 
                              type="button"
                              onClick={() => setShowGuide(true)}
-                             className="text-xs text-slate-500 hover:text-slate-800 underline underline-offset-4 transition-colors font-serif tracking-wider"
+                             className="text-[10px] text-slate-400 hover:text-indigo-600 underline underline-offset-4 transition-colors whitespace-nowrap"
                            >
                              お裾分けの目安とお作法
                            </button>
                        </div>
-                       <span className="text-xs font-medium text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-100">
+                       <span className="self-start sm:self-center text-[10px] font-bold text-amber-600 bg-amber-50/50 px-3 py-1 rounded-full border border-amber-100/50 tracking-wider">
                            感謝としてお贈りします
                        </span>
                    </div>
