@@ -1,8 +1,6 @@
 import { MapPin, Users } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-// import { UNIT_LABEL } from '../constants';
-// import { WORLD_CONSTANTS } from '../logic/worldPhysics';
 import { useWallet } from "../hooks/useWallet";
 import { useProfile } from "../hooks/useProfile";
 import { doc, getDoc } from "firebase/firestore";
@@ -17,9 +15,10 @@ import { AnimatePresence } from "framer-motion";
 interface HeaderProps {
   viewMode?: AppViewMode;
   onTabChange: (tab: AppViewMode) => void;
+  onOpenGuide: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
+export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenGuide }) => {
   const { availableLm, committedLm } = useWallet();
   const { profile } = useProfile();
   const [showPresenceModal, setShowPresenceModal] = useState(false);
@@ -133,12 +132,11 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                   </div>
 
                   {/* Navigation - No longer needs margin-top, aligned by items-end */}
-                  <div>
-                    <HeaderNavigation
-                      currentTab={viewMode || "home"}
-                      onTabChange={onTabChange}
-                    />
-                  </div>
+                  <HeaderNavigation
+                    currentTab={viewMode || "home"}
+                    onTabChange={onTabChange}
+                    onOpenGuide={onOpenGuide}
+                  />
                 </div>
               </div>
             </div>

@@ -25,6 +25,7 @@ interface ProfileViewProps {
   userId?: string;
   initialEditMode?: boolean;
   onTabChange?: (mode: AppViewMode) => void;
+  onOpenGuide?: () => void;
 }
 
 interface ListItemProps {
@@ -73,6 +74,7 @@ const ListItem: React.FC<ListItemProps> = ({
 export const ProfileView: React.FC<ProfileViewProps> = ({
   initialEditMode = false,
   onTabChange,
+  onOpenGuide,
 }) => {
   const { profile, isLoading: isProfileLoading } = useProfile();
   const { user, isAdmin, signOut, linkEmail, deleteAccount, updateUserPassword, reauthenticate } =
@@ -191,7 +193,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   return (
     <div className="flex-1 flex flex-col w-full h-full">
       {/* Subtle Section Header */}
-      <div className="border-b border-slate-100/50">
+      <div className="border-b border-slate-100/50 pt-safe">
           <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between flex-nowrap gap-2">
               <div className="min-w-0">
                   <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
@@ -221,6 +223,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                         <HeaderNavigation 
                             currentTab={initialEditMode ? "profile_edit" : "profile"} 
                             onTabChange={(tab: AppViewMode) => onTabChange(tab)} 
+                            onOpenGuide={onOpenGuide}
                         />
                     </div>
                   )}

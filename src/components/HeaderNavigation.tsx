@@ -1,4 +1,4 @@
-import { Home, History, User, Menu, X } from 'lucide-react';
+import { Home, History, User, Menu, X, Sprout } from 'lucide-react';
 import { AppViewMode } from '../types';
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -7,9 +7,10 @@ import { useAuth } from '../hooks/useAuthHook';
 interface HeaderNavigationProps {
     currentTab: AppViewMode;
     onTabChange: (tab: AppViewMode) => void;
+    onOpenGuide?: () => void;
 }
 
-export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, onTabChange }) => {
+export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, onTabChange, onOpenGuide }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const { user } = useAuth();
 
@@ -27,10 +28,28 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
         setIsMenuOpen(false);
     };
 
+    const handleOpenGuide = () => {
+        if (onOpenGuide) {
+            onOpenGuide();
+            setIsMenuOpen(false);
+        }
+    }
+
     return (
         <>
             {/* Desktop: Icon Navigation (md以上) - Scaled for Tablet */}
             <nav className="hidden md:flex items-end gap-6 h-12">
+                {onOpenGuide && (
+                    <button
+                        onClick={onOpenGuide}
+                        className="px-2 pt-5 pb-0 transition-colors text-slate-400 hover:text-emerald-500"
+                        aria-label="ガイド（初心者）"
+                        title="ガイドを見直す"
+                    >
+                        <Sprout size={28} strokeWidth={2} />
+                    </button>
+                )}
+
                 <button
                     onClick={() => onTabChange("home")}
                     className={`px-2 pt-5 pb-0 transition-colors ${
@@ -64,7 +83,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
             </nav>
 
             {/* Mobile: Hamburger Menu */}
-            <div className="md:hidden flex h-12 items-end">
+            <div className="md:hidden flex h-12 items-end relative">
                 <button
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
                     className="p-2 -mb-1 text-slate-600 hover:text-slate-900 transition-colors"
@@ -90,6 +109,17 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                                     Existence Ticker
                                 </div>
                             </div>
+                            
+                            {/* Guide Button for Mobile */}
+                            {onOpenGuide && (
+                                <button
+                                    onClick={handleOpenGuide}
+                                    className="w-full px-5 py-3 text-left flex items-center gap-3 transition-colors rounded-xl text-slate-500 hover:bg-emerald-50/50 hover:text-emerald-600"
+                                >
+                                    <Sprout size={20} strokeWidth={1.5} />
+                                    <span className="text-sm tracking-[0.1em] font-light">ガイド（初心者）</span>
+                                </button>
+                            )}
 
                             <button
                                 onClick={() => handleTabChange("home")}

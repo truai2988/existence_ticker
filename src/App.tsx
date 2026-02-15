@@ -2,50 +2,90 @@ import React, { useState, Suspense, lazy, useEffect } from "react";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthScreen } from "./components/AuthScreen";
-import { GateScreen } from "./components/GateScreen";
 import { Header } from "./components/Header";
-// import { AlertCircle, Inbox, Megaphone, Sparkles } from "lucide-react"; 
-// import { useWallet } from "./hooks/useWallet";
 import { ProfileView } from './components/ProfileView';
 import { JournalView } from './components/JournalView';
 import { HomeView } from './components/HomeView';
-// import { AdminDashboard as AdminComp } from './components/AdminDashboard'; // REMOVED FOR SECURITY
 import { RadianceView } from './components/RadianceView';
 import { FlowView } from './components/FlowView';
 import { SeasonalRevelation } from './components/SeasonalRevelation';
+import { OnboardingStory } from './components/OnboardingStory';
 import { AppViewMode } from "./types";
-// import { useProfile } from "./hooks/useProfile";
 import { useStartupMachine, AppMode } from "./hooks/useStartupMachine";
-// import { getMillis } from "./logic/worldPhysics";
+import { useWallet } from "./hooks/useWallet";
 
 
-// カウントアップ演出
-const CountingNumber: React.FC<{ value: number; duration: number }> = ({ value, duration }) => {
+// カウントアップ・ダウン演出
+const CountingNumber: React.FC<{ value: number, duration: number }> = ({ value, duration }) => {
     const [display, setDisplay] = useState(2400);
+
     useEffect(() => {
-        const start = 2400; const end = value; const startTime = Date.now();
+        const start = 2400;
+        const end = value;
+        const startTime = Date.now();
+        
         const update = () => {
             const now = Date.now();
             const progress = Math.min((now - startTime) / (duration * 1000), 1);
+            // Ease out quint (Yesterday's Logic)
             const ease = 1 - Math.pow(1 - progress, 5);
+            
             const current = Math.floor(start - (start - end) * ease);
             setDisplay(current);
-            if (progress < 1) requestAnimationFrame(update);
+            
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            }
         };
+        
         requestAnimationFrame(update);
     }, [value, duration]);
-    return <div className="text-6xl font-serif font-bold text-slate-900 tracking-tighter">{display.toLocaleString()}</div>;
+
+    return (
+        <div className="text-6xl font-serif font-bold text-slate-900 tracking-tighter">
+            {display.toLocaleString()}
+        </div>
+    );
 };
 
 // 1. Ritual Overlay (Global Layer)
 const RitualOverlay = ({ state, targetBalance }: { state: string, targetBalance: number }) => (
   <AnimatePresence>
       {state !== 'idle' && (
-          <motion.div className="fixed inset-0 z-[1000] flex items-center justify-center pointer-events-none" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 1 }}>
-              <motion.div className="absolute inset-0 bg-white/95 backdrop-blur-2xl" animate={{ clipPath: state === 'syncing' ? 'circle(150% at center)' : 'circle(0% at center)', opacity: state === 'syncing' ? 0 : 1 }} transition={{ duration: state === 'syncing' ? 2.5 : 1, ease: state === 'syncing' ? [0.4, 0, 0.2, 1] : "easeOut" }} />
+          <motion.div 
+            className="fixed inset-0 z-[1000] flex items-center justify-center pointer-events-none" 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            exit={{ opacity: 0 }} 
+            transition={{ duration: 1 }}
+          >
+              {/* Backdrop Blur & Brightness: Restored exact classes from original */}
+              <div className={`absolute inset-0 bg-white/90 backdrop-blur-xl transition-all duration-1000 ${state === 'syncing' ? 'opacity-0' : 'opacity-100'}`} />
+              
               <div className="relative z-10 flex flex-col items-center justify-center text-slate-800">
-                  {state === 'blooming' && ( <motion.div initial={{ scale: 0.8, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 1.2, opacity: 0 }} transition={{ duration: 0.8, ease: "easeOut" }} className="text-center"> <div className="text-6xl font-serif font-bold text-slate-900 tracking-tighter">2,400</div> </motion.div> )}
-                  {state === 'syncing' && ( <motion.div initial={{ scale: 1, opacity: 1 }} animate={{ scale: 1, opacity: 1 }} exit={{ opacity: 0 }} className="text-center"> <CountingNumber value={targetBalance} duration={2} /> </motion.div> )}
+                  {state === 'blooming' && ( 
+                      <motion.div 
+                        initial={{ scale: 0.8, opacity: 0, y: 20 }} 
+                        animate={{ scale: 1, opacity: 1, y: 0 }} 
+                        exit={{ scale: 1.2, opacity: 0 }} 
+                        transition={{ duration: 0.8, ease: "easeOut" }} 
+                        className="text-center"
+                      > 
+                        <div className="text-6xl font-serif font-bold text-slate-900 tracking-tighter">2,400</div> 
+                        <div className="text-sm tracking-[0.5em] mt-2 text-slate-500 uppercase">Light Restored</div>
+                      </motion.div> 
+                   )}
+                  {state === 'syncing' && ( 
+                      <motion.div 
+                        initial={{ scale: 1, opacity: 1 }} 
+                        animate={{ scale: 1, opacity: 1 }} 
+                        exit={{ opacity: 0 }} 
+                        className="text-center"
+                      > 
+                        <CountingNumber value={targetBalance} duration={2} /> 
+                        <div className="text-sm tracking-[0.5em] mt-2 text-slate-500 uppercase">Time Synced</div>
+                      </motion.div> 
+                  )}
               </div>
           </motion.div>
       )}
@@ -54,7 +94,7 @@ const RitualOverlay = ({ state, targetBalance }: { state: string, targetBalance:
 
 
 // メインコンテンツの切り替えレイヤー
-const MainContent = ({ viewMode, setViewMode, isAdmin, currentUserId, onGoHome, ritualState, setRitualState, setTargetBalance, appMode }: { 
+const MainContent = ({ viewMode, setViewMode, isAdmin, currentUserId, onGoHome, ritualState, setRitualState, setTargetBalance, appMode, onOpenGuide }: { 
     viewMode: AppViewMode; 
     setViewMode: (mode: AppViewMode) => void; 
     isAdmin: boolean;
@@ -64,6 +104,7 @@ const MainContent = ({ viewMode, setViewMode, isAdmin, currentUserId, onGoHome, 
     setRitualState: (state: 'idle' | 'breathing' | 'blooming' | 'syncing') => void;
     setTargetBalance: (val: number) => void;
     appMode: AppMode;
+    onOpenGuide: () => void;
 }) => {
     // 3. Normal Mode: Fade in the main content (HomeView, etc.)
     const withTransition = (component: React.ReactNode, key: string) => (
@@ -75,11 +116,11 @@ const MainContent = ({ viewMode, setViewMode, isAdmin, currentUserId, onGoHome, 
     const renderContent = () => {
         switch (viewMode) {
             case 'home': return withTransition(<HomeView onOpenFlow={() => setViewMode('flow')} onOpenRequest={() => setViewMode('give')} ritualState={ritualState} setRitualState={setRitualState} setTargetBalance={setTargetBalance} appMode={appMode} />, 'home');
-            case 'profile': return withTransition(<ProfileView onTabChange={setViewMode} />, 'profile');
-            case 'profile_edit': return withTransition(<ProfileView initialEditMode={true} onTabChange={setViewMode} />, 'profile_edit');
-            case 'history': return withTransition(<JournalView onTabChange={setViewMode} />, 'history');
-            case 'flow': return withTransition(<FlowView currentUserId={currentUserId} onOpenProfile={() => setViewMode('profile_edit')} onTabChange={setViewMode} />, 'flow');
-            case 'give': return withTransition(<RadianceView currentUserId={currentUserId} onTabChange={setViewMode} />, 'give');
+            case 'profile': return withTransition(<ProfileView onTabChange={setViewMode} onOpenGuide={onOpenGuide} />, 'profile');
+            case 'profile_edit': return withTransition(<ProfileView initialEditMode={true} onTabChange={setViewMode} onOpenGuide={onOpenGuide} />, 'profile_edit');
+            case 'history': return withTransition(<JournalView onTabChange={setViewMode} onOpenGuide={onOpenGuide} />, 'history');
+            case 'flow': return withTransition(<FlowView currentUserId={currentUserId} onOpenProfile={() => setViewMode('profile_edit')} onTabChange={setViewMode} onOpenGuide={onOpenGuide} />, 'flow');
+            case 'give': return withTransition(<RadianceView currentUserId={currentUserId} onTabChange={setViewMode} onOpenGuide={onOpenGuide} />, 'give');
             case 'admin': 
                 if (!isAdmin) return withTransition(<HomeView onOpenFlow={() => setViewMode('flow')} onOpenRequest={() => setViewMode('give')} ritualState={ritualState} setRitualState={setRitualState} setTargetBalance={setTargetBalance} appMode={appMode} />, 'home');
                 return withTransition(<AdminDashboard onClose={onGoHome} />, 'admin');
@@ -142,21 +183,103 @@ const ScreenLoader = ({ message }: { message?: string }) => (
 function App() {
   // THE MACHINE (Single Source of Truth)
   const { view, appMode, data, actions } = useStartupMachine();
-
-
+  
+  // Need performRebirthReset for the Blessing Trigger
+  const { performRebirthReset } = useWallet();
 
   // Lifted Ritual State to control Global UI (Header/Background)
   const [ritualState, setRitualState] = useState<'idle' | 'breathing' | 'blooming' | 'syncing'>('idle');
   const [targetBalance, setTargetBalance] = useState(2400); // Lifted for Overlay
-
-  const [viewMode, setViewMode] = useState<AppViewMode>("home");
-  const [showAdmin, setShowAdmin] = useState(false);
-  const [gateOpened, setGateOpened] = useState(() => sessionStorage.getItem('gateOpened') === 'true');
   
-  const handleGateOpen = () => {
-    setGateOpened(true);
-    sessionStorage.setItem('gateOpened', 'true');
+  const [viewMode, setViewMode] = useState<AppViewMode>("home");
+
+  // Onboarding Guide State
+  const [showGuide, setShowGuide] = useState(false);
+  const [guideMode, setGuideMode] = useState<'onboarding' | 'reference'>('reference');
+
+  // Auto-show Story Guide on first visit (Lifted from HomeView)
+  useEffect(() => {
+    // Check localStorage (User Flow)
+    const hasSeenGuide = localStorage.getItem('has_seen_story_guide_v1');
+    if (!hasSeenGuide && viewMode === 'home') {
+      // Small delay to allow fade-in
+      setTimeout(() => {
+        setGuideMode('onboarding');
+        setShowGuide(true);
+        // Save flag
+        localStorage.setItem('has_seen_story_guide_v1', 'true');
+      }, 1000);
+    }
+  }, [viewMode]);
+  const [showAdmin, setShowAdmin] = useState(false);
+  
+  // Handle Manual Guide Open
+  const handleOpenGuide = () => {
+      setGuideMode('reference');
+      setShowGuide(true);
   };
+
+  // Sound Effect: 528Hz Crystal Tone (Restored from HomeView.tsx)
+  const playCrystalSound = () => {
+      try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+          if (!AudioContext) return;
+          const ctx = new AudioContext();
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(528, ctx.currentTime); 
+          
+          gain.gain.setValueAtTime(0, ctx.currentTime);
+          gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.5); 
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 4); 
+          
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          
+          osc.start();
+          osc.stop(ctx.currentTime + 4.5);
+      } catch (e) {
+          console.error("Audio Playback Failed", e);
+      }
+  };
+
+  // Handle Blessing / Onboarding Complete
+  const handleOnboardingComplete = async () => {
+      // 1. Close Guide
+      setShowGuide(false);
+      
+      // 2. Play Blessing Animation (Exact Sequence Restoration)
+      // Phase 1: Whiteout & Breath (1.5s)
+      setRitualState('breathing');
+      playCrystalSound(); 
+      await new Promise(r => setTimeout(r, 1500));
+      
+      // Phase 2: Bloom (Show 2400) (1.5s)
+      setRitualState('blooming'); 
+      
+      try {
+        // 3. Grant Lm (using performRebirthReset which sets balance to 2400)
+        const result = await performRebirthReset({ userInitiated: false }); // Auto-reset
+        if (result.success && result.newBalance !== undefined) {
+             setTargetBalance(result.newBalance);
+        }
+      } catch (e) {
+          console.error("Blessing failed:", e);
+      }
+
+      // Wait for Bloom
+      await new Promise(r => setTimeout(r, 1500)); 
+      
+      // Phase 3: Sync (Countdown & Fade Out) (2.0s)
+      setRitualState('syncing'); 
+      await new Promise(r => setTimeout(r, 2000));
+       
+      setRitualState('idle'); // Show Dashboard
+  };
+
     const handleTabChange = (tab: AppViewMode) => setViewMode(tab);
   const handleGoHome = () => setViewMode("home");
 
@@ -166,7 +289,7 @@ function App() {
           return <ScreenLoader message={data.message} />;
       
       case 'GATE':
-          if (!gateOpened) return <GateScreen onOpen={handleGateOpen} />;
+          // Replaced GateScreen with direct AuthScreen
           return (
             <ErrorBoundary>
                 <AuthScreen onSuccess={() => setViewMode("home")} />
@@ -196,17 +319,17 @@ function App() {
             <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
             <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
 
-            {/* Header: Only show if NOT in Ritual Mode AND Ritual Animation is idle */}
+            {/* Header: Only show if in Home Mode AND NOT in Ritual Mode AND Ritual Animation is idle */}
             <AnimatePresence>
                 {viewMode === 'home' && !isRitual && ritualState === 'idle' && (
                     <motion.div 
                         initial={{ opacity: 0 }} 
                         animate={{ opacity: 1 }} 
-                        exit={{ opacity: 0 }} 
-                        transition={{ duration: 0.8, ease: "easeOut" }} 
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
                         className="absolute top-0 left-0 right-0 z-50"
                     >
-                        <Header viewMode={viewMode} onTabChange={handleTabChange} />
+                        <Header viewMode={viewMode} onTabChange={handleTabChange} onOpenGuide={handleOpenGuide} />
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -227,22 +350,31 @@ function App() {
                         setRitualState={setRitualState}
                         setTargetBalance={setTargetBalance}
                         appMode={appMode}
+                        onOpenGuide={handleOpenGuide}
                     />
                 </motion.div>
                 </Suspense>
             </main>
             
-            {/* Ritual Animation Overlay */}
-            <RitualOverlay state={ritualState} targetBalance={targetBalance} />
+          {/* Ritual Animation Overlay */}
+          <RitualOverlay state={ritualState} targetBalance={targetBalance} />
 
-            {showAdmin && (
-                <Suspense fallback={null}>
-                <AdminDashboard onClose={() => setShowAdmin(false)} />
-                </Suspense>
-            )}
-            </div>
-        );
-      }
+          {/* Global Onboarding Story */}
+          <OnboardingStory 
+            isOpen={showGuide} 
+            mode={guideMode}
+            onClose={() => setShowGuide(false)} 
+            onComplete={handleOnboardingComplete}
+          />
+
+          {showAdmin && (
+              <Suspense fallback={null}>
+              <AdminDashboard onClose={() => setShowAdmin(false)} />
+              </Suspense>
+          )}
+          </div>
+      );
+    }
   }
 }
 export default App;

@@ -19,9 +19,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
     onOpenFlow, 
     onOpenRequest, 
     ritualState, 
-    setRitualState, 
-    setTargetBalance, 
-    appMode 
+    setRitualState,
+    setTargetBalance,
+    appMode
 }) => {
   const { performRebirthReset, availableLm, balance } = useWallet();
   const { profile, updateProfile } = useProfile();
@@ -278,6 +278,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </motion.div>
             )}
         </AnimatePresence>
+
     </div>
   );
 };
