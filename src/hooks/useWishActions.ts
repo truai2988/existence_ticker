@@ -601,6 +601,7 @@ export const useWishActions = () => {
   const fulfillWish = async (
     wishId: string,
     fulfillerId: string,
+    message?: string, // Added message parameter
   ): Promise<boolean> => {
     if (!db) return false;
     setIsSubmitting(true);
@@ -744,7 +745,8 @@ export const useWishActions = () => {
           recipient_id: fulfillerId,
           recipient_name: fulfillerDoc.data()?.name || wishData.helper_name || "Anonymous Helper",
           tags: tags,
-          description: isBankruptcy ? "wish_fulfilled (Bankruptcy Partial Payment) [Crystallized]" : "wish_fulfilled [Crystallized]"
+          description: isBankruptcy ? "wish_fulfilled (Bankruptcy Partial Payment) [Crystallized]" : "wish_fulfilled [Crystallized]",
+          message: message || null // Save the message
         });
 
         const today = new Date().toISOString().split("T")[0];
