@@ -184,6 +184,7 @@ export const WishCard: React.FC<WishCardProps> = ({
   const { profile: myProfile } = useProfile();
   const { showToast } = useToast();
 
+  const isMyWish = wish.requester_id === currentUserId;
   const [isLoading, setIsLoading] = useState(false);
 
   const [showApplicants, setShowApplicants] = useState(false);
@@ -229,13 +230,16 @@ export const WishCard: React.FC<WishCardProps> = ({
     return () => clearInterval(timer);
   }, []);
 
+  // Determine Cycle Days (Creator's metabolism)
+  const cycleDays = (isMyWish ? myProfile?.scheduled_cycle_days : requesterProfile?.scheduled_cycle_days) || 10;
+
   // Recalculate whenever tick changes (every 10 seconds)
   const displayValue = React.useMemo(() => {
     const elapsedSec = ((Date.now() - wish.created_at) / 1000) | 0;
-    const decayedMilli = calculateDecayedValue(toMilli(initialCost), elapsedSec);
+    const decayedMilli = calculateDecayedValue(toMilli(initialCost), elapsedSec, cycleDays);
     return fromMilli(decayedMilli);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tick, initialCost, wish.created_at]);
+  }, [tick, initialCost, wish.created_at, cycleDays]);
 
   // 期限切れ判定
   const isExpired =
@@ -244,7 +248,7 @@ export const WishCard: React.FC<WishCardProps> = ({
       wish.status === "in_progress" ||
       wish.status === "review_pending");
 
-  const isMyWish = wish.requester_id === currentUserId;
+  // const isMyWish = wish.requester_id === currentUserId; // Moved to top
   const applicants = wish.applicants || [];
   const hasApplied = applicants.some((a: { id: string }) => a.id === currentUserId);
 
