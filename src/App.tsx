@@ -8,7 +8,6 @@ import { JournalView } from './components/JournalView';
 import { HomeView } from './components/HomeView';
 import { RadianceView } from './components/RadianceView';
 import { FlowView } from './components/FlowView';
-import { SeasonalRevelation } from './components/SeasonalRevelation';
 import { OnboardingStory } from './components/OnboardingStory';
 import { AppViewMode } from "./types";
 import { useStartupMachine, AppMode } from "./hooks/useStartupMachine";
@@ -182,7 +181,7 @@ const ScreenLoader = ({ message }: { message?: string }) => (
 
 function App() {
   // THE MACHINE (Single Source of Truth)
-  const { view, appMode, data, actions } = useStartupMachine();
+  const { view, appMode, data } = useStartupMachine();
   
   // Need performRebirthReset for the Blessing Trigger
   const { performRebirthReset } = useWallet();
@@ -280,7 +279,7 @@ function App() {
       setRitualState('idle'); // Show Dashboard
   };
 
-    const handleTabChange = (tab: AppViewMode) => setViewMode(tab);
+  const handleTabChange = (tab: AppViewMode) => setViewMode(tab);
   const handleGoHome = () => setViewMode("home");
 
   // --- THE DETERMINISTIC SWITCH ---
@@ -297,9 +296,6 @@ function App() {
           );
       
       
-      case 'EVENT':
-          return <SeasonalRevelation eventData={data.eventData!} onComplete={actions.completeEvent} />;
-
       case 'APP': {
         // The World is Open.
         // We render the Header and MainContent based on internal routing (viewMode), 
