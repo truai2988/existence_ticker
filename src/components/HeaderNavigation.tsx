@@ -1,28 +1,22 @@
-import { Home, History, User, Menu, X } from 'lucide-react';
+import { Home, History, User, Menu, X, Shield, Sprout, Edit2 } from 'lucide-react';
 import { AppViewMode } from '../types';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuthHook';
 
 interface HeaderNavigationProps {
     currentTab: AppViewMode;
     onTabChange: (tab: AppViewMode) => void;
+    onOpenOnboarding?: () => void;
 }
 
-export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, onTabChange }) => {
+export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, onTabChange, onOpenOnboarding }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const { user } = useAuth();
+    const { isAdmin } = useAuth();
 
-    // Silent Sync: Refresh token globally when menu is interacted with (Mobile)
-    // AND once on mount (for PC users who don't have a hamburger)
-    useEffect(() => {
-        if ((isMenuOpen || !window.matchMedia("(max-width: 768px)").matches) && user) {
-            user.getIdToken(true)
-                .catch(e => console.error("[HeaderNavigation] Silent Sync: Failed", e));
-        }
-    }, [isMenuOpen, user]);
 
-    const handleTabChange = (tab: AppViewMode) => {
+
+    const handleTabChange = (tab: "home" | "history" | "profile") => {
         onTabChange(tab);
         setIsMenuOpen(false);
     };
@@ -31,6 +25,27 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
         <>
             {/* Desktop: Icon Navigation (md以上) - Scaled for Tablet */}
             <nav className="hidden md:flex items-end gap-6 h-12">
+                 {/* Profile Edit Action (Left) */}
+                 {currentTab === "profile" && (
+                    <button
+                        onClick={() => onTabChange("profile_edit")}
+                        className={`px-2 pt-5 pb-0 transition-colors text-slate-400 hover:text-slate-600 animate-in fade-in duration-300`}
+                        aria-label="プロフィール編集"
+                    >
+                        <Edit2 size={28} strokeWidth={1.5} />
+                    </button>
+                )}
+
+                {onOpenOnboarding && (
+                    <button
+                        onClick={onOpenOnboarding}
+                        className="px-2 pt-5 pb-0 text-slate-400 hover:text-green-600 transition-colors"
+                        aria-label="ガイド"
+                        title="お裾分けの目安とお作法"
+                    >
+                        <Sprout size={28} strokeWidth={2} />
+                    </button>
+                )}
                 <button
                     onClick={() => onTabChange("home")}
                     className={`px-2 pt-5 pb-0 transition-colors ${
@@ -38,7 +53,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                     }`}
                     aria-label="ホーム"
                 >
-                    <Home size={28} strokeWidth={currentTab === "home" ? 2.5 : 2} />
+                    <Home size={28} strokeWidth={2} />
                 </button>
 
                 <button
@@ -48,7 +63,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                     }`}
                     aria-label="履歴"
                 >
-                    <History size={28} strokeWidth={currentTab === "history" ? 2.5 : 2} />
+                    <History size={28} strokeWidth={2} />
                 </button>
 
                 <button
@@ -58,13 +73,35 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                     }`}
                     aria-label="プロフィール"
                 >
-                    <User size={28} strokeWidth={currentTab === "profile" ? 2.5 : 2} />
+                    <User size={28} strokeWidth={2} />
                 </button>
 
+                {/* PC Admin Entrance (Hidden until synced) */}
+                {isAdmin && (
+                    <button
+                        onClick={() => onTabChange("admin")}
+                        className={`px-2 pt-5 pb-0 transition-colors text-red-500 hover:text-red-600 animate-in fade-in duration-500`}
+                        aria-label="管理コンソール"
+                    >
+                        <Shield size={28} strokeWidth={2.5} />
+                    </button>
+                )}
             </nav>
 
-            {/* Mobile: Hamburger Menu */}
-            <div className="md:hidden flex h-12 items-end">
+            {/* Mobile: Hamburger Menu & Sprout */}
+            <div className="md:hidden flex h-12 items-end gap-4 relative z-50">
+                 {/* Mobile Edit Action */}
+                 {currentTab === "profile" && !isMenuOpen && (
+                    <button
+                        onClick={() => onTabChange("profile_edit")}
+                        className="pb-0 text-slate-400 hover:text-slate-600 transition-colors mb-1 animate-in fade-in"
+                        aria-label="プロフィール編集"
+                    >
+                        <Edit2 size={24} strokeWidth={1.5} />
+                    </button>
+                )}
+
+
                 <button
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
                     className="p-2 -mb-1 text-slate-600 hover:text-slate-900 transition-colors"
@@ -90,6 +127,19 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                                     Existence Ticker
                                 </div>
                             </div>
+
+                            {onOpenOnboarding && (
+                                <button
+                                    onClick={() => {
+                                        onOpenOnboarding();
+                                        setIsMenuOpen(false);
+                                    }}
+                                    className="w-full px-5 py-3 text-left flex items-center gap-3 transition-colors rounded-xl text-slate-500 hover:bg-slate-50/50 hover:text-green-600"
+                                >
+                                    <Sprout size={20} strokeWidth={2} />
+                                    <span className="text-sm tracking-[0.1em] font-light">ガイドをみる</span>
+                                </button>
+                            )}
 
                             <button
                                 onClick={() => handleTabChange("home")}
@@ -119,6 +169,19 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                                 <span className="text-sm tracking-[0.1em] font-light">プロフィール</span>
                             </button>
 
+                            {/* Mobile Admin Entrance */}
+                            {isAdmin && (
+                                <button
+                                    onClick={() => {
+                                        onTabChange("admin");
+                                        setIsMenuOpen(false);
+                                    }}
+                                    className="w-full px-5 py-3 text-left flex items-center gap-3 transition-colors rounded-xl text-red-500 bg-red-50/30 hover:bg-red-50/50 mt-2 border border-red-100"
+                                >
+                                    <Shield size={20} strokeWidth={2} />
+                                    <span className="text-sm tracking-[0.1em] font-bold">管理コンソール</span>
+                                </button>
+                            )}
                         </motion.div>
                     )}
                 </AnimatePresence>

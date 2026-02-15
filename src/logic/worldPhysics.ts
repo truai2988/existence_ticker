@@ -7,7 +7,7 @@ import { UserProfile } from '../types';
 export const WORLD_CONSTANTS = {
   REBIRTH_AMOUNT: 2400, // 器（Vessel）の最大容量
   MAX_VESSEL_CAPACITY_MILLI: 2400000, // 2,400 Lm = 絶対的な壁
-  DECAY_RATE_HOURLY: 10, // 減価レート (Lumens per Hour)
+  DECAY_RATE_MLLM_PER_HOUR: 10000, // 宇宙定数: 10 Lm/h (絶対不変)
   MAX_STREAK_FOR_REPAIR: 2, // 穢れ（Crack）を修復するために必要な連続誠実回数
   GLOBAL_METABOLISM_PATH: 'stats/global_metabolism',
 };
@@ -52,25 +52,24 @@ export const fromMilli = (milli: number): number => milli / 1000;
 // =========================================================================================
 
 /**
- * 時間経過による価値の減少を計算する (Pure Mathematical Truth)
+ * 時間経過による価値の減少を計算する (Universal Physical Law)
+ * 減価率は 10 Lm/h (10,000 mLm/h) 固定であり、いかなる変数（サイクル期間等）の影響も受けない。
+ * 
  * @param initialMilli 初期値 (milli-Lm)
  * @param elapsedSec 経過時間 (秒)
- * @param cycleDays リセット周期 (日) - デフォルトは10日
  * @returns 減少後の値 (milli-Lm)
  */
-export const calculateDecayedValue = (initialMilli: number, elapsedSec: number, cycleDays: number = 10): number => {
+export const calculateDecayedValue = (initialMilli: number, elapsedSec: number): number => {
   // Positive elapsed only
   const s = elapsedSec < 0 ? 0 : elapsedSec;
   
-  // Dynamic Decay Rate Law:
-  // Rate (Lm/hour) = 2400 / (cycleDays * 24) = 100 / cycleDays
-  // Rate (milli-Lm/sec) = (100 / cycleDays) * 1000 / 3600
-  //                    = 100000 / (cycleDays * 3600)
-  //                    = 250 / (cycleDays * 9)
+  // FIXED Decay Rate: 10 Lm/hour (10,000 mLm/hour)
+  // Rate (milli-Lm/sec) = 10000 / 3600 = 100 / 36 = 25 / 9
   
-  const num = 250;
-  const den = cycleDays * 9;
+  const num = 25;
+  const den = 9;
   
+  // (s * 10000 / 3600) -> (s * 25 / 9)
   const decay = ((s * num) / den) | 0;
   const result = initialMilli - decay;
   return result < 0 ? 0 : result;
@@ -83,9 +82,9 @@ export const calculateDecayedValue = (initialMilli: number, elapsedSec: number, 
  * @param endMs 終了時間 (ms)
  * @returns 算出値 (milli-Lm)
  */
-export const calculateHistoricalValue = (initialMilli: number, startMs: number, endMs: number, cycleDays: number = 10): number => {
+export const calculateHistoricalValue = (initialMilli: number, startMs: number, endMs: number): number => {
     const elapsedSec = ((endMs - startMs) / 1000) | 0;
-    return calculateDecayedValue(initialMilli, elapsedSec, cycleDays);
+    return calculateDecayedValue(initialMilli, elapsedSec);
 };
 
 // =========================================================================================

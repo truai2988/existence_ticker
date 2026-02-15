@@ -54,7 +54,7 @@ const RitualOverlay = ({ state, targetBalance }: { state: string, targetBalance:
 
 
 // メインコンテンツの切り替えレイヤー
-const MainContent = ({ viewMode, setViewMode, isAdmin, currentUserId, onGoHome, ritualState, setRitualState, setTargetBalance, appMode }: { 
+const MainContent = ({ viewMode, setViewMode, isAdmin, currentUserId, onGoHome, ritualState, setRitualState, setTargetBalance, appMode, onOpenOnboarding }: { 
     viewMode: AppViewMode; 
     setViewMode: (mode: AppViewMode) => void; 
     isAdmin: boolean;
@@ -64,6 +64,7 @@ const MainContent = ({ viewMode, setViewMode, isAdmin, currentUserId, onGoHome, 
     setRitualState: (state: 'idle' | 'breathing' | 'blooming' | 'syncing') => void;
     setTargetBalance: (val: number) => void;
     appMode: AppMode;
+    onOpenOnboarding: () => void;
 }) => {
     // 3. Normal Mode: Fade in the main content (HomeView, etc.)
     const withTransition = (component: React.ReactNode, key: string) => (
@@ -75,9 +76,9 @@ const MainContent = ({ viewMode, setViewMode, isAdmin, currentUserId, onGoHome, 
     const renderContent = () => {
         switch (viewMode) {
             case 'home': return withTransition(<HomeView onOpenFlow={() => setViewMode('flow')} onOpenRequest={() => setViewMode('give')} ritualState={ritualState} setRitualState={setRitualState} setTargetBalance={setTargetBalance} appMode={appMode} />, 'home');
-            case 'profile': return withTransition(<ProfileView onTabChange={setViewMode} />, 'profile');
-            case 'profile_edit': return withTransition(<ProfileView initialEditMode={true} onTabChange={setViewMode} />, 'profile_edit');
-            case 'history': return withTransition(<JournalView onTabChange={setViewMode} />, 'history');
+            case 'profile': return withTransition(<ProfileView onTabChange={setViewMode} onOpenOnboarding={onOpenOnboarding} />, 'profile');
+            case 'profile_edit': return withTransition(<ProfileView initialEditMode={true} onTabChange={setViewMode} onOpenOnboarding={onOpenOnboarding} />, 'profile_edit');
+            case 'history': return withTransition(<JournalView onTabChange={setViewMode} onOpenOnboarding={onOpenOnboarding} />, 'history');
             case 'flow': return withTransition(<FlowView currentUserId={currentUserId} onOpenProfile={() => setViewMode('profile_edit')} onTabChange={setViewMode} />, 'flow');
             case 'give': return withTransition(<RadianceView currentUserId={currentUserId} onTabChange={setViewMode} />, 'give');
             case 'admin': 
@@ -106,6 +107,10 @@ const AdminDashboard = lazy(() =>
     default: module.AdminDashboard as React.ComponentType<{ onClose: () => void }>,
   })),
 );
+
+// Import the GuideModal (Lazy load not strictly necessary but good for modal)
+import { GuideModal } from "./components/GuideModal";
+import { OnboardingSlides } from "./components/OnboardingSlides";
 
 // ローダー（白磁の美学）
 const ScreenLoader = ({ message }: { message?: string }) => (
@@ -151,7 +156,10 @@ function App() {
 
   const [viewMode, setViewMode] = useState<AppViewMode>("home");
   const [showAdmin, setShowAdmin] = useState(false);
+
   const [gateOpened, setGateOpened] = useState(() => sessionStorage.getItem('gateOpened') === 'true');
+  const [showGuide, setShowGuide] = useState(false); // Legacy Text Guide (via CreateWish)
+  const [showOnboarding, setShowOnboarding] = useState(false); // Mission 15: 5-Slide Story (via Sprout)
   
   const handleGateOpen = () => {
     setGateOpened(true);
@@ -206,7 +214,11 @@ function App() {
                         transition={{ duration: 0.8, ease: "easeOut" }} 
                         className="absolute top-0 left-0 right-0 z-50"
                     >
-                        <Header viewMode={viewMode} onTabChange={handleTabChange} />
+                        <Header 
+                            viewMode={viewMode} 
+                            onTabChange={handleTabChange} 
+                            onOpenOnboarding={() => setShowOnboarding(true)} 
+                        />
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -227,6 +239,7 @@ function App() {
                         setRitualState={setRitualState}
                         setTargetBalance={setTargetBalance}
                         appMode={appMode}
+                        onOpenOnboarding={() => setShowOnboarding(true)}
                     />
                 </motion.div>
                 </Suspense>
@@ -240,6 +253,20 @@ function App() {
                 <AdminDashboard onClose={() => setShowAdmin(false)} />
                 </Suspense>
             )}
+
+            {/* Mission 17: Global Guide Modal (Legacy Text) */}
+            <AnimatePresence>
+                {showGuide && (
+                    <GuideModal isOpen={showGuide} onClose={() => setShowGuide(false)} />
+                )}
+            </AnimatePresence>
+
+            {/* Mission 15: Onboarding Slides (New User & Sprout) */}
+            <AnimatePresence>
+                {showOnboarding && (
+                    <OnboardingSlides isOpen={showOnboarding} onClose={() => setShowOnboarding(false)} />
+                )}
+            </AnimatePresence>
             </div>
         );
       }

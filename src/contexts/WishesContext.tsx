@@ -95,7 +95,7 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             setWishes(valid);
             setIsLoading(false);
         }, (err) => {
-            console.error("Feed subscription error:", err);
+            // console.warn("Feed subscription error:", err);
             setError(err as Error);
             setIsLoading(false);
         });
@@ -132,7 +132,7 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
              });
              // Sort client-side
              setUserActiveWishes(data.sort((a,b) => b.created_at - a.created_at));
-        });
+        }, () => {});
 
         // 3. Involved Active Wishes (Helper: InProgress/Review/Open(Applied))
         // This is tricky for "Applied". For now, we track where helper_id == me OR applicants contains me.
@@ -182,7 +182,7 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                     cancelled_at: raw.cancelled_at ? getMillis(raw.cancelled_at) : undefined,
                 } as Wish;
              }), 'helper');
-        });
+        }, () => {});
         const unsubApplied = onSnapshot(qApplied, (snap) => {
              updateInvolvedState(snap.docs.map(d => {
                 const raw = d.data();
@@ -195,7 +195,7 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                     cancelled_at: raw.cancelled_at ? getMillis(raw.cancelled_at) : undefined,
                 } as Wish;
              }), 'applicant');
-        });
+        }, () => {});
 
         return () => {
             unsubUser();

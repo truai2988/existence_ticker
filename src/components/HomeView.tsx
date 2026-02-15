@@ -116,7 +116,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 手持ち： {Math.floor(balance).toLocaleString()}
                 <span className="ml-1 text-slate-400 font-medium">(あと{daysLeft}日)</span>
               </span>
-              <div className="text-6xl font-serif font-medium tracking-tighter tabular-nums leading-none bg-gradient-to-b from-[#4A4A4A] via-[#6B5A4F] to-[#8B7E74] bg-clip-text text-transparent transform drop-shadow-sm">
+<div className="text-6xl font-serif font-medium tracking-tighter tabular-nums leading-tight pb-2 bg-gradient-to-b from-[#4A4A4A] via-[#6B5A4F] to-[#8B7E74] bg-clip-text text-transparent transform drop-shadow-sm">
                 {Math.floor(availableLm).toLocaleString()}
               </div>
             </motion.div>

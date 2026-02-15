@@ -10,7 +10,6 @@ import {
   Megaphone,
   MapPin,
   Camera,
-  Edit2,
   ShieldCheck,
   Shield,
 } from "lucide-react";
@@ -25,6 +24,7 @@ interface ProfileViewProps {
   userId?: string;
   initialEditMode?: boolean;
   onTabChange?: (mode: AppViewMode) => void;
+  onOpenOnboarding?: () => void;
 }
 
 interface ListItemProps {
@@ -73,6 +73,7 @@ const ListItem: React.FC<ListItemProps> = ({
 export const ProfileView: React.FC<ProfileViewProps> = ({
   initialEditMode = false,
   onTabChange,
+  onOpenOnboarding,
 }) => {
   const { profile, isLoading: isProfileLoading } = useProfile();
   const { user, isAdmin, signOut, linkEmail, deleteAccount, updateUserPassword, reauthenticate } =
@@ -192,38 +193,35 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     <div className="flex-1 flex flex-col w-full h-full">
       {/* Subtle Section Header */}
       <div className="border-b border-slate-100/50">
-          <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between flex-nowrap gap-2">
-              <div className="min-w-0">
-                  <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
-                      Existence Ticker
+<div className="max-w-2xl mx-auto px-6 py-4 md:py-6">
+              <div className="flex items-start justify-between flex-nowrap gap-2">
+                  <div className="min-w-0">
+                      <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
+                          Existence Ticker
+                      </div>
+                      <h2 className="text-lg min-[375px]:text-xl font-bold tracking-widest uppercase text-slate-900 truncate">Profile</h2>
+                      <p className="text-xs min-[375px]:text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">あなたの記録</p>
                   </div>
-                  <h2 className="text-lg min-[375px]:text-xl font-bold tracking-widest uppercase text-slate-900 truncate">Profile</h2>
-                  <p className="text-xs min-[375px]:text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">あなたの記録</p>
-              </div>
-              <div className="flex h-12 items-end gap-2">
-                  {isAdmin && (
-                      <button
-                        onClick={() => onTabChange?.("admin")}
-                        className="p-2 pb-0 hover:bg-red-50 rounded-full transition-colors text-red-500 animate-in fade-in zoom-in duration-300"
-                        aria-label="管理コンソール"
-                      >
-                         <Shield size={28} strokeWidth={2} />
-                      </button>
-                  )}
-                  <button
-                    onClick={() => setIsEditingProfile(true)}
-                    className="p-2 pb-0 hover:bg-slate-100 rounded-full transition-colors text-slate-400"
-                  >
-                     <Edit2 size={28} strokeWidth={1.5} />
-                  </button>
-                  {onTabChange && (
-                    <div className="shrink-0">
-                        <HeaderNavigation 
-                            currentTab={initialEditMode ? "profile_edit" : "profile"} 
-                            onTabChange={(tab: AppViewMode) => onTabChange(tab)} 
-                        />
-                    </div>
-                  )}
+                  <div className="flex h-12 items-end gap-4">
+                      {isAdmin && (
+                          <button
+                            onClick={() => onTabChange?.("admin")}
+                            className="p-2 pb-0 hover:bg-red-50 rounded-full transition-colors text-red-500 animate-in fade-in zoom-in duration-300"
+                            aria-label="管理コンソール"
+                          >
+                             <Shield size={28} strokeWidth={2} />
+                          </button>
+                      )}
+                      {onTabChange && (
+                        <div>
+                            <HeaderNavigation 
+                                currentTab={initialEditMode ? "profile_edit" : "profile"} 
+                                onTabChange={(tab: AppViewMode) => onTabChange(tab)} 
+                                onOpenOnboarding={onOpenOnboarding}
+                            />
+                        </div>
+                      )}
+                  </div>
               </div>
           </div>
       </div>

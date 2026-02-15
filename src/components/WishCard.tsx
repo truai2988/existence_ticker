@@ -32,6 +32,7 @@ import { useProfile } from "../hooks/useProfile";
 import { isProfileComplete } from "../utils/profileCompleteness";
 import { useToast } from "../contexts/ToastContext";
 import { useWishesContext } from "../contexts/WishesContext";
+import { CompleteWishModal } from "./CompleteWishModal";
 
 // Internal Component: Individual Applicant Row with Real-time Data
 const ApplicantItem: React.FC<{
@@ -202,6 +203,9 @@ export const WishCard: React.FC<WishCardProps> = ({
   } | null>(null);
   const [contactNote, setContactNote] = useState("");
   const [isCopied, setIsCopied] = useState(false);
+  
+  // Mission 2: Complete Wish Modal State
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
 
 
   // Anti-Gravity: Universal Decay Logic (静的計算)
@@ -229,6 +233,7 @@ export const WishCard: React.FC<WishCardProps> = ({
     return () => clearInterval(timer);
   }, []);
 
+  // Recalculate whenever tick changes (every 10 seconds)
   // Recalculate whenever tick changes (every 10 seconds)
   const displayValue = React.useMemo(() => {
     const elapsedSec = ((Date.now() - wish.created_at) / 1000) | 0;
@@ -1373,6 +1378,34 @@ export const WishCard: React.FC<WishCardProps> = ({
         </div>
       )}
 
+
+
+      {/* Mission 2: Complete Wish Modal Integration */}
+      {showCompleteModal && (
+        <CompleteWishModal
+          wishTitle={wish.content}
+          helperName={
+            helperProfile?.name || wish.helper_name || "名無しのヘルパー"
+          }
+          preset={wish.gratitude_preset}
+          cost={toMilli(initialCost)} // Pass full milli if needed, but Modal expects number. Let's verify modal props. 
+          // Wait, Modal expects `cost: number` (display value). `initialCost` is likely currently number (e.g. 100).
+          // `wish.cost` is number. Let's pass `initialCost`.
+          onConfirm={async () => {
+              setShowCompleteModal(false);
+              setIsLoading(true);
+              const success = await fulfillWish(wish.id, currentUserId); // Text message is removed as per user request
+              setIsLoading(false);
+              if (success) {
+                  showToast("感謝を届けました", "success");
+                  if (onActionComplete) onActionComplete("completed");
+              } else {
+                  showToast("完了報告に失敗しました", "error");
+              }
+          }}
+          onCancel={() => setShowCompleteModal(false)}
+        />
+      )}
     </div>
   );
 };

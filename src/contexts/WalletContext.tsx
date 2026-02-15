@@ -29,7 +29,7 @@ import { WalletContext } from "./WalletContextDefinition";
 export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
-  const { userActiveWishes, isLoading: wishesLoading } = useWishesContext();
+  const { isLoading: wishesLoading } = useWishesContext();
 
   // 1-Hour Silence: Live Ticker for live decay updates (1 hour)
   const [localTick, setLocalTick] = useState(0);
@@ -46,32 +46,30 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   // Chain 1: Total Balance (Decayed Base)
   const balance = useMemo(() => {
     const rawBalance = profile?.balance ?? 0;
-    const cycleDays = profile?.scheduled_cycle_days || 10;
+
     const lastUpdated = getMillis(profile?.last_updated ?? Date.now());
     const elapsedSec = ((Date.now() - lastUpdated) / 1000) | 0;
-    const decayedBaseMilli = calculateDecayedValue(toMilli(rawBalance), elapsedSec, cycleDays);
+    const decayedBaseMilli = calculateDecayedValue(toMilli(rawBalance), elapsedSec);
     return fromMilli(decayedBaseMilli) + optimisticBalanceOffset;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.balance, profile?.last_updated, profile?.scheduled_cycle_days, localTick, optimisticBalanceOffset]);
+  }, [profile?.balance, profile?.last_updated, localTick, optimisticBalanceOffset]);
 
-  // Chain 2: Committed Lm (Source of Truth: DB Record + Decay) - O(1)
-  // Chain 2: Committed Lm (LIVE SUM: Aggregated from active wishes)
+  // Chain 2: Committed Lm (Live Sum + Decay)
   const committedLm = useMemo(() => {
-    const cycleDays = profile?.scheduled_cycle_days || 10;
-    const now = Date.now();
-    
-    // Physical Truth: Instead of decaying a bucket, we sum the actual objects.
-    let totalCommittedMilli = 0;
-    userActiveWishes.forEach(wish => {
-        const wishCreatedAt = getMillis(wish.created_at);
-        const elapsedSec = Math.max(0, ((now - wishCreatedAt) / 1000) | 0);
-        const wishDecayedMilli = calculateDecayedValue(toMilli(wish.cost || 0), elapsedSec, cycleDays);
-        totalCommittedMilli += wishDecayedMilli;
-    });
+    // Physical Truth 2.0: Single Gravity (10 Lm/h per Person)
+    // We treat "Committed Lm" as a single mass that decays exactly like Balance.
+    // This ensures Available (= Balance - Committed) is invariant (Time cancels out).
+    const rawCommitted = profile?.committed_lm ?? 0;
 
-    return fromMilli(totalCommittedMilli) + optimisticCommittedOffset;
+    const lastUpdated = getMillis(profile?.last_updated ?? Date.now());
+    const elapsedSec = ((Date.now() - lastUpdated) / 1000) | 0;
+    
+    // Apply the same Global Gravity as Balance
+    const decayedCommittedMilli = calculateDecayedValue(toMilli(rawCommitted), elapsedSec);
+
+    return fromMilli(decayedCommittedMilli) + optimisticCommittedOffset;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userActiveWishes, profile?.scheduled_cycle_days, localTick, optimisticCommittedOffset]);
+  }, [profile?.committed_lm, profile?.last_updated, localTick, optimisticCommittedOffset]);
 
   // Chain 3: Available Lm (The Result)
   const availableLm = useMemo(() => {
@@ -144,8 +142,8 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         const userRef = doc(db!, "users", user.uid);
         const userDoc = await transaction.get(userRef);
         
-        const settingsRef = doc(db!, "system_settings", "global");
-        const settingsDoc = await transaction.get(settingsRef);
+
+
 
         const wishesRef = collection(db!, 'wishes');
         const activeQ = query(wishesRef, where('requester_id', '==', user.uid), where('status', 'in', ['open', 'in_progress']));
@@ -177,8 +175,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         const exactElapsedSec = Math.floor((now - newAnchorTimeMillis) / 1000);
         // Pure integer math for rebirth decay (Using NEW law for the coming cycle)
-        const nextCycleDays = settingsDoc.exists() ? (settingsDoc.data().cycleDays || 10) : 10;
-        const milliDecay = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), exactElapsedSec, nextCycleDays);
+        const milliDecay = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), exactElapsedSec);
         resultBalance = fromMilli(milliDecay);
 
         const txId = `rebirth_${user.uid}_${newAnchorTimeMillis}`;
@@ -196,8 +193,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             // NOT 'now'. The UI will handle the decay from anchor to now.
             const wElapsedSecAtAnchor = Math.max(0, ((newAnchorTimeMillis - getMillis(w.created_at)) / 1000) | 0);
             
-            // Note: During ritual, we use nextCycleDays for future decay consistency
-            const decayedMilliAtAnchor = calculateDecayedValue(toMilli(w.cost || 0), wElapsedSecAtAnchor, nextCycleDays);
+            const decayedMilliAtAnchor = calculateDecayedValue(toMilli(w.cost || 0), wElapsedSecAtAnchor);
             newCommittedMilli += decayedMilliAtAnchor;
         });
 
@@ -208,7 +204,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             committed_lm: fromMilli(newCommittedMilli),
             last_updated: anchorDate,
             cycle_started_at: anchorDate,
-            scheduled_cycle_days: nextCycleDays
+            scheduled_cycle_days: data.scheduled_cycle_days || 10
         });
 
         transaction.set(txRef, {
@@ -247,10 +243,10 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         if (!userDoc.exists()) throw "Missing Soul";
 
         const data = userDoc.data();
-        const cycleDays = data.scheduled_cycle_days || 10;
+
         const lastUpdated = getMillis(data.last_updated);
         const elapsedSec = ((Date.now() - lastUpdated) / 1000) | 0;
-        const currentRealMilli = calculateDecayedValue(toMilli(data.balance), elapsedSec, cycleDays);
+        const currentRealMilli = calculateDecayedValue(toMilli(data.balance), elapsedSec);
         const currentRealBalance = fromMilli(currentRealMilli);
 
         if (currentRealBalance < amount) throw "Insufficient Energy";

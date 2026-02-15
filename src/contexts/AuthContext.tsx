@@ -43,14 +43,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 unsubscribeFirestore = onSnapshot(userRef, (snap) => {
                     isDocAdmin = snap.exists() && snap.data()?.role === 'admin';
                     updateAdminState();
-                });
+                }, () => {});
 
                 // 2. Super Admin Status (UID keyed)
                 const superRef = doc(db!, 'super_admins', currentUser.uid);
                 unsubscribeSuperAdmin = onSnapshot(superRef, (snap) => {
                     isDynamicSuper = snap.exists() && snap.data()?.is_super === true;
                     updateAdminState();
-                });
+                }, () => {});
 
                 updateAdminState();
             } else {
@@ -59,8 +59,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             
             setUser(currentUser);
             setLoading(false);
-        }, (error) => {
-            console.error("[AuthProvider] Auth error:", error);
+        }, () => {
+            // console.warn("[AuthProvider] Auth error:", error);
             setLoading(false);
         });
 

@@ -48,8 +48,8 @@ export const useProfile = () => {
         }
         setIsLoading(false);
       },
-      (error) => {
-        console.error("[useProfile] Profile sync error:", error);
+      () => {
+        // console.warn("[useProfile] Profile sync error (likely permission/init):", error);
         setProfile(null);
         setIsLoading(false);
       },
@@ -64,6 +64,7 @@ export const useProfile = () => {
       console.log("[useProfile] Missing email in Firestore. Self-repairing from Auth state...");
       updateProfile({ email: user.email });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, profile, isLoading]);
 
   const updateProfile = async (updates: Partial<UserProfile>) => {

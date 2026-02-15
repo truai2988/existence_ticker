@@ -39,6 +39,7 @@ type TransactionLog = {
 
 interface JournalViewProps {
   onTabChange?: (mode: AppViewMode) => void;
+  onOpenOnboarding?: () => void;
 }
 
 const parseDate = (val: TransactionLog['created_at']): Date => {
@@ -63,7 +64,7 @@ const formatDate = (date: Date): string => {
     return `${date.getMonth() + 1}/${date.getDate()}`;
 };
 
-export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
+export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnboarding }) => {
   const { user } = useAuth();
   const [logs, setLogs] = useState<TransactionLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -107,10 +108,20 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
      const u1 = onSnapshot(qSent, (snap) => {
          sentData = snap.docs.map(d => ({ id: d.id, ...d.data() } as TransactionLog));
          updateState();
+     }, () => {
+         // Silently ignore permission errors during init
+         // console.warn("[JournalView] Sent logs sync error:", error);
+         setIsLoading(false);
+         setLogs([]);
      });
      const u2 = onSnapshot(qReceived, (snap) => {
          receivedData = snap.docs.map(d => ({ id: d.id, ...d.data() } as TransactionLog));
          updateState();
+     }, () => {
+         // Silently ignore permission errors during init
+         // console.warn("[JournalView] Received logs sync error:", error);
+         setIsLoading(false);
+         setLogs([]);
      });
      return () => { u1(); u2(); };
   }, [user]);
@@ -118,16 +129,20 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange }) => {
    return (
     <div className="flex-1 flex flex-col w-full h-full relative">
         <div className="border-b border-slate-100/50">
-            <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between">
-                 <div>
-                    <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">Journal</h2>
-                    <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1">あなたの歩みの記録</p>
-                </div>
-                {onTabChange && (
-                    <div className="shrink-0">
-                        <HeaderNavigation currentTab="history" onTabChange={(tab: AppViewMode) => onTabChange(tab)} />
+<div className="max-w-2xl mx-auto px-6 py-4 md:py-6">
+                <div className="flex items-start justify-between">
+                    <div>
+                        <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">Journal</h2>
+                        <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1">あなたの歩みの記録</p>
                     </div>
-                )}
+                    {onTabChange && (
+                        <div className="flex h-12 items-end gap-4">
+                            <div>
+                                <HeaderNavigation currentTab="history" onTabChange={(tab: AppViewMode) => onTabChange(tab)} onOpenOnboarding={onOpenOnboarding} />
+                            </div>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
 

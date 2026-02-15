@@ -43,7 +43,7 @@ export const useSeasonalEvent = () => {
           }
         }
       } catch (error) {
-        console.error("Failed to check seasonal event:", error);
+        // console.warn("Seasonal event sync skipped (likely permission/offline)");
       } finally {
         setIsChecking(false);
       }

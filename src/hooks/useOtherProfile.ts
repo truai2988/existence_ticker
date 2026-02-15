@@ -34,8 +34,8 @@ export const useOtherProfile = (userId: string | null) => {
                 setProfile(null);
             }
             setLoading(false);
-        }, (err) => {
-            console.error("Profile fetch error:", err);
+        }, () => {
+            // console.warn("Profile fetch error:", err);
             setLoading(false);
         });
 

@@ -17,9 +17,10 @@ import { AnimatePresence } from "framer-motion";
 interface HeaderProps {
   viewMode?: AppViewMode;
   onTabChange: (tab: AppViewMode) => void;
+  onOpenOnboarding?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
+export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnboarding }) => {
   const { availableLm, committedLm } = useWallet();
   const { profile } = useProfile();
   const [showPresenceModal, setShowPresenceModal] = useState(false);
@@ -73,30 +74,54 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
             <div className="w-full max-w-2xl mx-auto px-6 py-4 md:py-6">
               <div className="flex items-start justify-between">
                 {/* Left: Title and Location */}
+                {/* Left: Dynamic Content based on ViewMode */}
                 <div>
-                  <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
-                    Existence Ticker
-                  </div>
-                  <button
-                    onClick={() => setShowPresenceModal(true)}
-                    className="flex items-center gap-1.5 text-left hover:opacity-70 transition-opacity group"
-                  >
-                    <MapPin
-                      size={16}
-                      className="text-slate-500 group-hover:text-slate-700 transition-colors"
-                    />
-                    <span className="text-sm min-[375px]:text-base text-slate-600 font-mono tracking-wider uppercase group-hover:text-slate-900 transition-colors truncate max-w-[100px] min-[375px]:max-w-[160px]">
-                      {getLocationText()}
-                    </span>
-                    <span className="text-xs text-slate-400 mx-1">|</span>
-                    <Users
-                      size={16}
-                      className="text-slate-500 group-hover:text-slate-700 transition-colors"
-                    />
-                    <span className="text-sm min-[375px]:text-base text-slate-600 font-mono tracking-wider group-hover:text-slate-900 transition-colors whitespace-nowrap">
-                      {getUserCountText()}
-                    </span>
-                  </button>
+                  {viewMode === 'history' ? (
+                    <div className="flex flex-col">
+                      <div className="text-xl font-bold tracking-widest text-slate-800 uppercase font-['Inter']">
+                        JOURNAL
+                      </div>
+                      <div className="text-xs text-slate-500 font-light tracking-wide">
+                        あなたの歩みの記録
+                      </div>
+                    </div>
+                  ) : viewMode === 'profile' ? (
+                    <div className="flex flex-col">
+                      <div className="text-xl font-bold tracking-widest text-slate-800 uppercase font-['Inter']">
+                        PROFILE
+                      </div>
+                      <div className="text-xs text-slate-500 font-light tracking-wide">
+                        あなたの記録
+                      </div>
+                    </div>
+                  ) : (
+                    /* Default Home View */
+                    <>
+                      <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
+                        Existence Ticker
+                      </div>
+                      <button
+                        onClick={() => setShowPresenceModal(true)}
+                        className="flex items-center gap-1.5 text-left hover:opacity-70 transition-opacity group"
+                      >
+                        <MapPin
+                          size={16}
+                          className="text-slate-500 group-hover:text-slate-700 transition-colors"
+                        />
+                        <span className="text-sm min-[375px]:text-base text-slate-600 font-mono tracking-wider uppercase group-hover:text-slate-900 transition-colors truncate max-w-[100px] min-[375px]:max-w-[160px]">
+                          {getLocationText()}
+                        </span>
+                        <span className="text-xs text-slate-400 mx-1">|</span>
+                        <Users
+                          size={16}
+                          className="text-slate-500 group-hover:text-slate-700 transition-colors"
+                        />
+                        <span className="text-sm min-[375px]:text-base text-slate-600 font-mono tracking-wider group-hover:text-slate-900 transition-colors whitespace-nowrap">
+                          {getUserCountText()}
+                        </span>
+                      </button>
+                    </>
+                  )}
                 </div>
 
                 {/* Right Cluster: Clock & Navigation - Aligned to Bottom Baseline */}
@@ -137,6 +162,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange }) => {
                     <HeaderNavigation
                       currentTab={viewMode || "home"}
                       onTabChange={onTabChange}
+                      onOpenOnboarding={onOpenOnboarding}
                     />
                   </div>
                 </div>
