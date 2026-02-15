@@ -75,9 +75,12 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
             {/* Header */}
             <div className="border-b border-slate-100/50 pt-safe">
                 <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between">
-                    <div>
-                        <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">Flow</h2>
-                        <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1">巡る願い</p>
+                     <div className="min-w-0">
+                        <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
+                            Existence Ticker
+                        </div>
+                        <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">Provider</h2>
+                        <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1">応える</p>
                     </div>
                     <div className="flex h-12 items-end gap-2 shrink-0">
                         <HeaderNavigation 
