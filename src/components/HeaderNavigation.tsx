@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, History, User, Menu, X, Shield, Sprout, Edit2 } from 'lucide-react';
+import { Home, History as HistoryIcon, User, Menu, X, Shield, Sprout, Edit2 } from 'lucide-react';
 import { AppViewMode } from '../types';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuthHook';
@@ -25,17 +25,6 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
         <>
             {/* Desktop: Icon Navigation (md以上) - Scaled for Tablet */}
             <nav className="hidden md:flex items-end gap-6 h-12">
-                 {/* Profile Edit Action (Left) */}
-                 {currentTab === "profile" && (
-                    <button
-                        onClick={() => onTabChange("profile_edit")}
-                        className={`px-2 pt-5 pb-0 transition-colors text-slate-400 hover:text-slate-600 animate-in fade-in duration-300`}
-                        aria-label="プロフィール編集"
-                    >
-                        <Edit2 size={28} strokeWidth={1.5} />
-                    </button>
-                )}
-
                 <button
                     onClick={onOpenOnboarding}
                     className="px-2 pt-5 pb-0 text-slate-400 hover:text-green-600 transition-colors"
@@ -62,27 +51,38 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                     }`}
                     aria-label="履歴"
                 >
-                    <History size={28} strokeWidth={2} />
+                    <HistoryIcon size={28} strokeWidth={2} />
                 </button>
 
                 <button
                     onClick={() => onTabChange("profile")}
                     className={`px-2 pt-5 pb-0 transition-colors ${
-                        currentTab === "profile" ? "text-slate-900" : "text-slate-600 hover:text-slate-800"
+                        currentTab === "profile" || currentTab === "profile_edit" ? "text-slate-900" : "text-slate-600 hover:text-slate-800"
                     }`}
                     aria-label="プロフィール"
                 >
                     <User size={28} strokeWidth={2} />
                 </button>
 
-                {/* PC Admin Entrance (Hidden until synced) */}
+                 {/* Profile Edit Action (Adjacent to Profile) */}
+                 {currentTab === "profile" && (
+                    <button
+                        onClick={() => onTabChange("profile_edit")}
+                        className={`px-2 pt-5 pb-0 transition-colors text-slate-400 hover:text-slate-600 animate-in fade-in duration-300`}
+                        aria-label="プロフィール編集"
+                    >
+                        <Edit2 size={28} strokeWidth={2} />
+                    </button>
+                )}
+
+                {/* PC Admin Entrance */}
                 {isAdmin && (
                     <button
                         onClick={() => onTabChange("admin")}
-                        className={`px-2 pt-5 pb-0 transition-colors text-red-500 hover:text-red-600 animate-in fade-in duration-500`}
+                        className={`px-2 pt-5 pb-0 transition-colors text-red-500 hover:text-red-700 animate-in fade-in duration-500`}
                         aria-label="管理コンソール"
                     >
-                        <Shield size={28} strokeWidth={2.5} />
+                        <Shield size={28} strokeWidth={2} />
                     </button>
                 )}
             </nav>
@@ -152,7 +152,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                                     currentTab === "history" ? "text-slate-900 bg-slate-50" : "text-slate-500 hover:bg-slate-50/50"
                                 }`}
                             >
-                                <History size={20} strokeWidth={currentTab === "history" ? 2 : 1.5} />
+                                <HistoryIcon size={20} strokeWidth={currentTab === "history" ? 2 : 1.5} />
                                 <span className="text-sm tracking-[0.1em] font-light">履歴</span>
                             </button>
                             <button
