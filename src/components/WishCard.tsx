@@ -1379,22 +1379,16 @@ export const WishCard: React.FC<WishCardProps> = ({
                  <span className="text-sm text-slate-400">Lm</span>
               </div>
 
-              <p className="text-xs text-slate-500 text-center mb-6 leading-relaxed">
-                時間が経つにつれて、このLmは少しずつ<br/>
-                次の誰かのために巡っていきます。<br/>
-                <span className="text-slate-400 mt-1 block">（早めにお渡しすることで、より多くの感謝が届きます）</span>
-              </p>
-
-              <div className="w-full mb-6">
+              <div className="w-full mb-6 mt-4">
                 <label className="text-xs font-bold text-slate-500 mb-2 block ml-1">
-                  メッセージを添える (任意)
+                  メッセージを添える <span className="text-pink-500">(必須)</span>
                 </label>
                 <textarea
                   value={fulfillmentMessage}
                   onChange={(e) => setFulfillmentMessage(e.target.value)}
-                  placeholder="例：今日はありがとうございました。材料費の〇〇円は別途手渡ししますね。"
+                  placeholder={'例：本日は助かりました！\n\n・お礼のLmとは別に、材料費の1,000円は今度手渡ししますね。\n・遠くから来てくれて感謝です。交通費として2,000円包んでおきました！'}
                   maxLength={100}
-                  className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-pink-100 focus:border-pink-300 outline-none resize-none min-h-[100px] shadow-inner placeholder:text-slate-300"
+                  className="w-full p-4 bg-white border border-slate-200 rounded-2xl text-sm focus:ring-2 focus:ring-pink-100 focus:border-pink-300 outline-none resize-none min-h-[120px] shadow-inner placeholder:text-slate-400"
                 />
                 <div className="text-right text-[10px] text-slate-300 mt-1 pr-1">
                   {fulfillmentMessage.length}/100
@@ -1417,8 +1411,8 @@ export const WishCard: React.FC<WishCardProps> = ({
                        showToast("送信に失敗しました", "error");
                     }
                   }}
-                  disabled={isLoading}
-                  className="w-full py-4 rounded-2xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2 group"
+                  disabled={isLoading || !fulfillmentMessage.trim()}
+                  className="w-full py-4 rounded-2xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200 transition-all active:scale-[0.98] flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
