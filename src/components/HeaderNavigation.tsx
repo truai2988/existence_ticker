@@ -27,13 +27,26 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
             <nav className="hidden md:flex items-end gap-6 h-12">
                 {/* PC Admin Entrance - Restricted to Profile Page, Far Left */}
                 {isAdmin && (currentTab === "profile" || currentTab === "profile_edit") && (
-                    <button
-                        onClick={() => onTabChange("admin")}
-                        className={`px-2 pt-5 pb-0 transition-colors text-red-500 hover:text-red-700 animate-in fade-in duration-500`}
-                        aria-label="管理コンソール"
-                    >
-                        <Shield size={28} strokeWidth={2} />
-                    </button>
+                    <div className="flex items-end gap-2">
+                        <button
+                            onClick={() => onTabChange("admin")}
+                            className={`px-2 pt-5 pb-0 transition-colors text-red-500 hover:text-red-700 animate-in fade-in duration-500`}
+                            aria-label="管理コンソール"
+                        >
+                            <Shield size={28} strokeWidth={2} />
+                        </button>
+
+                         {/* Profile Edit Action (Adjacent to Admin) */}
+                        {currentTab === "profile" && (
+                            <button
+                                onClick={() => onTabChange("profile_edit")}
+                                className={`px-2 pt-5 pb-0 transition-colors text-slate-400 hover:text-slate-600 animate-in fade-in duration-300`}
+                                aria-label="プロフィール編集"
+                            >
+                                <Edit2 size={28} strokeWidth={2} />
+                            </button>
+                        )}
+                    </div>
                 )}
 
                 <button
@@ -75,16 +88,6 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                     <User size={28} strokeWidth={2} />
                 </button>
 
-                 {/* Profile Edit Action (Adjacent to Profile) */}
-                 {currentTab === "profile" && (
-                    <button
-                        onClick={() => onTabChange("profile_edit")}
-                        className={`px-2 pt-5 pb-0 transition-colors text-slate-400 hover:text-slate-600 animate-in fade-in duration-300`}
-                        aria-label="プロフィール編集"
-                    >
-                        <Edit2 size={28} strokeWidth={2} />
-                    </button>
-                )}
             </nav>
 
             {/* Mobile: Hamburger Menu & Sprout */}

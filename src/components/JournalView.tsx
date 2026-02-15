@@ -117,7 +117,10 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
     <div className="flex-1 flex flex-col w-full h-full relative">
         <div className="border-b border-slate-100/50 pt-safe">
             <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between">
-                 <div>
+                 <div className="min-w-0">
+                    <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
+                        Existence Ticker
+                    </div>
                     <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">Journal</h2>
                     <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1">あなたの歩みの記録</p>
                 </div>
