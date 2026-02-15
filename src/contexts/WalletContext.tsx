@@ -202,7 +202,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         transaction.update(userRef, {
             balance: WORLD_CONSTANTS.REBIRTH_AMOUNT,
             committed_lm: fromMilli(newCommittedMilli),
-            last_updated: anchorDate,
+            last_updated: anchorDate, // Aligned with cycle start
             cycle_started_at: anchorDate,
             scheduled_cycle_days: data.scheduled_cycle_days || 10
         });
@@ -253,9 +253,10 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         const milliRemaining = toMilli(currentRealBalance) - toMilli(amount);
 
+        const now = new Date();
         transaction.update(userRef, {
           balance: fromMilli(milliRemaining),
-          last_updated: serverTimestamp()
+          last_updated: now
         });
 
         const today = new Date().toISOString().split("T")[0];

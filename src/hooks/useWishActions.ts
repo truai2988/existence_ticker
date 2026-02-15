@@ -111,7 +111,7 @@ export const useWishActions = () => {
           // Add new wish cost to the decayed commitment
           committed_lm: fromMilli(decayedCommittedMilli + toMilli(bounty)),
           created_contracts: increment(1),
-          last_updated: serverTimestamp(),
+          last_updated: new Date(now), // Use client-synced 'now' as the anchor
         });
 
         // Log Global Stats
@@ -325,7 +325,7 @@ export const useWishActions = () => {
               committed_lm: fromMilli(Math.max(0, rCommittedMilli - wishDecayedMilli)), 
               consecutive_completions: 0, 
               has_cancellation_history: true, 
-              last_updated: serverTimestamp(),
+              last_updated: new Date(now), // Align anchor with current clock
             });
 
             const hData = helperDoc.data();
@@ -341,7 +341,7 @@ export const useWishActions = () => {
 
             transaction.update(helperRef, {
               balance: fromMilli(hCappedMilli),
-              last_updated: serverTimestamp(),
+              last_updated: new Date(now), // Align partner anchor
             });
 
             // Gravity Calculation (Corrected to remove cDecayMilli)
@@ -390,13 +390,13 @@ export const useWishActions = () => {
               balance: fromMilli(hCurrentDecayedMilli),
               consecutive_completions: 0, 
               has_cancellation_history: true,
-              last_updated: serverTimestamp(),
+              last_updated: new Date(now),
             });
 
             transaction.update(requesterRef, {
               balance: fromMilli(rDecayedMilli),
               committed_lm: fromMilli(rCommittedMilli),
-              last_updated: serverTimestamp(),
+              last_updated: new Date(now),
             });
 
             const rDecayMilli = toMilli(rBalance) - rDecayedMilli;
@@ -446,7 +446,7 @@ export const useWishActions = () => {
             transaction.update(requesterRef, {
               balance: fromMilli(rDecayedMilli), 
               committed_lm: fromMilli(Math.max(0, rCommittedDecayedMilli - wishDecayedMilli)), 
-              last_updated: serverTimestamp(),
+              last_updated: new Date(now),
             });
           }
           transaction.delete(wishRef);
@@ -650,7 +650,7 @@ export const useWishActions = () => {
           transaction.update(fulfillerRef, {
             balance: fromMilli(cappedMilli),
             completed_contracts: increment(1),
-            last_updated: serverTimestamp(),
+            last_updated: new Date(now),
           });
         }
 
@@ -676,7 +676,7 @@ export const useWishActions = () => {
             committed_lm: fromMilli(iNewCommittedMilli),
             completed_requests: increment(1),
             consecutive_completions: newStreak,
-            last_updated: serverTimestamp(),
+            last_updated: new Date(now),
           });
         }
 
