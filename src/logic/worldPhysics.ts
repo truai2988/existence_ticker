@@ -59,19 +59,12 @@ export const fromMilli = (milli: number): number => milli / 1000;
  * @param elapsedSec 経過時間 (秒)
  * @returns 減少後の値 (milli-Lm)
  */
-export const calculateDecayedValue = (initialMilli: number, elapsedSec: number): number => {
-  // Positive elapsed only
+export const calculateDecayedValue = (value: number, elapsedSec: number): number => {
   const s = elapsedSec < 0 ? 0 : elapsedSec;
-  
-  // FIXED Decay Rate: 10 Lm/hour (10,000 mLm/hour)
-  // Rate (milli-Lm/sec) = 10000 / 3600 = 100 / 36 = 25 / 9
-  
   const num = 25;
   const den = 9;
-  
-  // (s * 10000 / 3600) -> (s * 25 / 9)
   const decay = ((s * num) / den) | 0;
-  const result = initialMilli - decay;
+  const result = value - decay;
   return result < 0 ? 0 : result;
 };
 

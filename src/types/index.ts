@@ -18,6 +18,7 @@ export interface UserProfile {
   } | null;
   bio?: string | null;
   balance: number;
+  /** @deprecated Use active wishes query sum for Committed Lm calculation */
   committed_lm: number;
   xp: number;
   warmth: number;

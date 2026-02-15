@@ -6,10 +6,6 @@ import {
   runTransaction,
   serverTimestamp,
   increment,
-  collection,
-  query,
-  where,
-  getDocs,
 } from "firebase/firestore";
 import { useProfile } from "../hooks/useProfile";
 import { 
@@ -29,12 +25,12 @@ import { WalletContext } from "./WalletContextDefinition";
 export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const { profile, isLoading: profileLoading } = useProfile();
-  const { isLoading: wishesLoading } = useWishesContext();
+  const { userActiveWishes, isLoading: wishesLoading } = useWishesContext();
 
-  // 1-Hour Silence: Live Ticker for live decay updates (1 hour)
-  const [localTick, setLocalTick] = useState(0);
+  // 1-Hour Silence: Global Clock for steady decay updates (1 hour)
+  const [globalNow, setGlobalNow] = useState(Date.now());
   useEffect(() => {
-    const timer = setInterval(() => setLocalTick(t => t + 1), 3600000);
+    const timer = setInterval(() => setGlobalNow(Date.now()), 3600000);
     return () => clearInterval(timer);
   }, []);
   // 4. Optimistic Offsets (The Mirage)
@@ -47,29 +43,25 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const balance = useMemo(() => {
     const rawBalance = profile?.balance ?? 0;
 
-    const lastUpdated = getMillis(profile?.last_updated ?? Date.now());
-    const elapsedSec = ((Date.now() - lastUpdated) / 1000) | 0;
+    const lastUpdated = getMillis(profile?.last_updated ?? globalNow);
+    const elapsedSec = ((globalNow - lastUpdated) / 1000) | 0;
     const decayedBaseMilli = calculateDecayedValue(toMilli(rawBalance), elapsedSec);
     return fromMilli(decayedBaseMilli) + optimisticBalanceOffset;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.balance, profile?.last_updated, localTick, optimisticBalanceOffset]);
+  }, [profile?.balance, profile?.last_updated, globalNow, optimisticBalanceOffset]);
 
-  // Chain 2: Committed Lm (Live Sum + Decay)
   const committedLm = useMemo(() => {
-    // Physical Truth 2.0: Single Gravity (10 Lm/h per Person)
-    // We treat "Committed Lm" as a single mass that decays exactly like Balance.
-    // This ensures Available (= Balance - Committed) is invariant (Time cancels out).
-    const rawCommitted = profile?.committed_lm ?? 0;
-
-    const lastUpdated = getMillis(profile?.last_updated ?? Date.now());
-    const elapsedSec = ((Date.now() - lastUpdated) / 1000) | 0;
+    // Simple Physics: Committed Lm is the sum of all active wishes' individual values
+    let totalMilli = 0;
+    const costMap: Record<string, number> = { light: 100, medium: 500, heavy: 1000 };
     
-    // Apply the same Global Gravity as Balance
-    const decayedCommittedMilli = calculateDecayedValue(toMilli(rawCommitted), elapsedSec);
-
-    return fromMilli(decayedCommittedMilli) + optimisticCommittedOffset;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.committed_lm, profile?.last_updated, localTick, optimisticCommittedOffset]);
+    userActiveWishes.forEach(wish => {
+      const initialCost = wish.cost || costMap[wish.gratitude_preset || ''] || 0;
+      const elapsedSec = ((globalNow - wish.created_at) / 1000) | 0;
+      totalMilli += calculateDecayedValue(toMilli(initialCost), elapsedSec);
+    });
+    return fromMilli(totalMilli) + optimisticCommittedOffset;
+  }, [userActiveWishes, globalNow, optimisticCommittedOffset]);
 
   // Chain 3: Available Lm (The Result)
   const availableLm = useMemo(() => {
@@ -100,7 +92,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const effectiveCycleDays = profile.scheduled_cycle_days || 10;
     const cycleDurationMillis = effectiveCycleDays * 24 * 60 * 60 * 1000;
     const expiryDate = cycleStartedAt + cycleDurationMillis;
-    const now = Date.now();
+    const now = globalNow;
 
     // 2026-02-13: PASSIVE RESCUE - "Detect corruption, transition to ritual"
     const isCorrupted = 
@@ -121,7 +113,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     if (now >= expiryDate) return 'RITUAL_READY';
 
     return 'ALIVE';
-  }, [user, profile, profileLoading, balance, committedLm, availableLm]);
+  }, [user, profile, profileLoading, balance, committedLm, availableLm, globalNow]);
 
   // === 4. THE SACRED RITUAL (Rebirth) ===
   const performRebirthReset = useCallback(async (options: { userInitiated: boolean }): Promise<{ success: boolean; newBalance?: number }> => {
@@ -141,13 +133,6 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       await runTransaction(db, async (transaction) => {
         const userRef = doc(db!, "users", user.uid);
         const userDoc = await transaction.get(userRef);
-        
-
-
-
-        const wishesRef = collection(db!, 'wishes');
-        const activeQ = query(wishesRef, where('requester_id', '==', user.uid), where('status', 'in', ['open', 'in_progress']));
-        const activeSnap = await getDocs(activeQ);
         
         if (!userDoc.exists()) throw "World Error: Soul not found";
         
@@ -185,26 +170,12 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         
         // (nextCycleDays already declared above)
         
-        let newCommittedMilli = 0;
-        activeSnap.forEach(d => {
-            const w = d.data();
-            // === DISCREPANCY FIX: Double Decay ===
-            // We calculate the state at newAnchorTimeMillis (the past anchor), 
-            // NOT 'now'. The UI will handle the decay from anchor to now.
-            const wElapsedSecAtAnchor = Math.max(0, ((newAnchorTimeMillis - getMillis(w.created_at)) / 1000) | 0);
-            
-            const decayedMilliAtAnchor = calculateDecayedValue(toMilli(w.cost || 0), wElapsedSecAtAnchor);
-            newCommittedMilli += decayedMilliAtAnchor;
-        });
-
         const anchorDate = new Date(newAnchorTimeMillis);
 
         transaction.update(userRef, {
             balance: WORLD_CONSTANTS.REBIRTH_AMOUNT,
-            committed_lm: fromMilli(newCommittedMilli),
-            last_updated: anchorDate, // Aligned with cycle start
-            cycle_started_at: anchorDate,
-            scheduled_cycle_days: data.scheduled_cycle_days || 10
+            last_updated: serverTimestamp(), // Rebirth is a fresh start
+            cycle_started_at: now,
         });
 
         transaction.set(txRef, {
@@ -281,11 +252,12 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     pay,
     performRebirthReset,
     isLoading: profileLoading || wishesLoading,
+    globalNow,
     optimisticBalanceOffset,
     setOptimisticBalanceOffset,
     optimisticCommittedOffset,
     setOptimisticCommittedOffset,
-  }), [balance, committedLm, availableLm, status, pay, performRebirthReset, profileLoading, wishesLoading, optimisticBalanceOffset, optimisticCommittedOffset]);
+  }), [balance, committedLm, availableLm, status, pay, performRebirthReset, profileLoading, wishesLoading, globalNow, optimisticBalanceOffset, optimisticCommittedOffset]);
 
   return <WalletContext.Provider value={contextValue}>{children}</WalletContext.Provider>;
 };

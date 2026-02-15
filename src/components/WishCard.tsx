@@ -29,6 +29,7 @@ import { useUserView } from "../contexts/UserViewContext";
 import { getTrustRank } from "../logic/worldPhysics";
 import { useOtherProfile } from "../hooks/useOtherProfile";
 import { useProfile } from "../hooks/useProfile";
+import { useWallet } from "../hooks/useWallet";
 import { isProfileComplete } from "../utils/profileCompleteness";
 import { useToast } from "../contexts/ToastContext";
 import { useWishesContext } from "../contexts/WishesContext";
@@ -183,6 +184,7 @@ export const WishCard: React.FC<WishCardProps> = ({
   const { profile: requesterProfile } = useOtherProfile(wish.requester_id);
   const { profile: helperProfile } = useOtherProfile(wish.helper_id || null);
   const { profile: myProfile } = useProfile();
+  const { globalNow } = useWallet();
   const { showToast } = useToast();
 
   const isMyWish = wish.requester_id === currentUserId;
@@ -225,26 +227,15 @@ export const WishCard: React.FC<WishCardProps> = ({
   };
   const initialCost = wish.cost || getInitialCost(wish.gratitude_preset);
 
-  // 1-Hour Silence: Live Ticker for Decay (re-calculate periodically)
-  const [tick, setTick] = useState(0);
-  React.useEffect(() => {
-    // Update every 1 hour to show "Stillness"
-    // 10 Lm/h = exactly 10 Lm drop after 1 hour.
-    const timer = setInterval(() => setTick((t) => t + 1), 3600000);
-    return () => clearInterval(timer);
-  }, []);
+  // Determine Cycle Days (Creator's metabolism) - Abolished for decay logic but kept for UI meta if needed
 
-  // Determine Cycle Days (Creator's metabolism)
-  const cycleDays = (isMyWish ? myProfile?.scheduled_cycle_days : requesterProfile?.scheduled_cycle_days) || 10;
-
-  // Recalculate whenever tick changes (every 10 seconds)
-  // Recalculate whenever tick changes (every 10 seconds)
+  // Recalculate whenever globalNow changes (standardized stillness)
   const displayValue = React.useMemo(() => {
-    const elapsedSec = ((Date.now() - wish.created_at) / 1000) | 0;
+    const elapsedSec = ((globalNow - wish.created_at) / 1000) | 0;
     const decayedMilli = calculateDecayedValue(toMilli(initialCost), elapsedSec);
     return fromMilli(decayedMilli);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tick, initialCost, wish.created_at, cycleDays]);
+  }, [globalNow, initialCost, wish.created_at]);
 
   // 期限切れ判定
   const isExpired =
