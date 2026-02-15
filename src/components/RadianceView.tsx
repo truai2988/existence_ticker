@@ -9,13 +9,13 @@ import { AppViewMode } from '../types';
 interface RadianceViewProps {
     currentUserId: string;
     onTabChange?: (mode: AppViewMode) => void;
-    onOpenGuide?: () => void;
+    onOpenOnboarding?: () => void;
 }
 
 type TabType = 'active' | 'outbound';
 type ModalState = 'none' | 'create_wish';
 
-export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTabChange, onOpenGuide }) => {
+export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTabChange, onOpenOnboarding }) => {
     const { 
         userActiveWishes
     } = useWishes();
@@ -67,7 +67,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                                 <HeaderNavigation 
                                     currentTab="give" 
                                     onTabChange={(tab: AppViewMode) => onTabChange(tab)}
-                                    onOpenGuide={onOpenGuide}
+                                    onOpenOnboarding={onOpenOnboarding || (() => {})}
                                 />
                             </div>
                         )}

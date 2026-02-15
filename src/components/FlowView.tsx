@@ -11,12 +11,12 @@ interface FlowViewProps {
     currentUserId: string;
     onOpenProfile?: () => void;
     onTabChange?: (mode: AppViewMode) => void;
-    onOpenGuide?: () => void;
+    onOpenOnboarding?: () => void;
 }
 
 type TabType = 'explore' | 'pending' | 'active';
 
-export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile, onTabChange, onOpenGuide }) => {
+export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile, onTabChange, onOpenOnboarding }) => {
     const { 
         wishes, // active feed
         involvedActiveWishes, 
@@ -83,7 +83,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         <HeaderNavigation 
                             currentTab="flow" 
                             onTabChange={(tab: AppViewMode) => onTabChange?.(tab)}
-                            onOpenGuide={onOpenGuide}
+                            onOpenOnboarding={onOpenOnboarding || (() => {})}
                         />
                     </div>
                 </div>
