@@ -50,7 +50,7 @@ export const GateScreen = ({ onOpen }: GateScreenProps) => {
             {/* Door Button */}
             <button
               onClick={handleOpenDoor}
-              className="group relative px-12 py-5 bg-transparent border border-[#E5E5E5] rounded-xl tracking-[0.3em] text-[11px] uppercase text-[#777777] hover:text-[#2D2D2D] transition-all duration-700 overflow-hidden"
+              className="group relative px-12 py-5 bg-transparent border border-[#E5E5E5] rounded-xl tracking-[0.3em] text-xs uppercase text-[#777777] hover:text-[#2D2D2D] transition-all duration-700 overflow-hidden"
             >
               <span className="relative z-10 transition-transform group-hover:tracking-[0.4em] duration-700">扉を開く</span>
               

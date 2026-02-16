@@ -118,7 +118,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
         <div className="border-b border-slate-100/50 pt-safe">
             <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between">
                  <div className="min-w-0">
-                    <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
+                    <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
                         Existence Ticker
                     </div>
                     <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">Journal</h2>
@@ -141,7 +141,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
                 <div className="absolute left-[27px] top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-slate-300/50 to-transparent"></div>
                 <div className="space-y-8 py-4 pl-4">
                     {isLoading ? (
-                         <div className="text-center py-10 text-slate-400 text-xs animate-pulse">読み込み中...</div>
+                         <div className="text-center py-10 text-slate-600 text-xs animate-pulse">読み込み中...</div>
                     ) : logs.length === 0 ? (
                         <div className="text-center py-20 px-4">
                             <p className="text-sm text-slate-600 font-medium mb-2">白紙の物語</p>
@@ -259,7 +259,7 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
                     <p className="text-xs text-slate-400 mt-1 pl-2 border-l-2 border-slate-100 line-clamp-1 italic">"{log.wish_title}"</p>
                 )}
                 {log.description && (
-                    <p className="text-[10px] text-slate-400/70 mt-1 line-clamp-2 leading-relaxed">{log.description}</p>
+                    <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">{log.description}</p>
                 )}
                 <div className="mt-2 flex items-center justify-end gap-1">
                     {log.amount === 0 ? (

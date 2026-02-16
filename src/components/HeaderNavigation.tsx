@@ -139,7 +139,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                                 <div className="text-3xl font-light tracking-tighter text-slate-800 leading-none mb-1 font-['Inter']">
                                     ET
                                 </div>
-                                <div className="text-[8px] text-slate-400 font-light tracking-[0.4em] uppercase">
+                                <div className="text-xs text-slate-400 font-light tracking-[0.4em] uppercase">
                                     Existence Ticker
                                 </div>
                             </div>

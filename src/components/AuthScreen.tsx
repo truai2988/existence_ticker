@@ -260,7 +260,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                                                 <ChevronDown className="absolute right-3 top-3 text-slate-400 pointer-events-none" size={18} />
                                             </div>
                                         </div>
-                                        <p className="text-[10px] text-slate-400 ml-1 mt-1 leading-tight">
+                                        <p className="text-xs text-slate-500 ml-1 mt-1 leading-tight font-medium">
                                             ※番地やマンション名の入力は不要です。
                                         </p>
                                     </div>
@@ -323,7 +323,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                                                 className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all font-mono"
                                             />
                                         </div>
-                                        <p className="text-[10px] text-slate-400 ml-1 mt-1 leading-tight">
+                                        <p className="text-xs text-slate-500 ml-1 mt-1 leading-tight font-medium">
                                             現在は招待制のアルファテスト中です。お手元のコードを入力してください。
                                         </p>
                                     </div>

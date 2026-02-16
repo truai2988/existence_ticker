@@ -161,7 +161,7 @@ export const LandingPage = () => {
                     <motion.span 
                         animate={{ opacity: [0.4, 0.7, 0.4] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                        className="text-[2vmin] font-light text-[#A89F91] ml-4 mb-4 italic tracking-widest"
+                        className="text-xs md:text-[2vmin] font-light text-[#A89F91] ml-4 mb-4 italic tracking-widest"
                     >
                         Lm
                     </motion.span>

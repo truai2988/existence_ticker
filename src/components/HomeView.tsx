@@ -209,8 +209,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         <span className="text-2xl font-light tracking-[0.2em] text-slate-600 mb-1 drop-shadow-sm pl-[0.8em]">
                             {ritualMessage}
                         </span>
-                        <span className="text-[10px] font-light tracking-[0.3em] text-slate-400 opacity-60 pl-[0.3em] uppercase">
-                            I am who I am / Into the World of ET
+                        <span className="text-xs font-medium tracking-[0.3em] text-slate-500 pl-[0.3em] uppercase">
+                            I am who I am / <span className="text-slate-600">世界に加わる</span>
                         </span>
                       </div>
                     </div>

@@ -196,7 +196,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                 <div className="border-b border-transparent">
                     <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between flex-nowrap gap-2">
                         <div className="flex flex-col">
-                            <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
+                            <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
                                 Existence Ticker
                             </div>
                             <div className="flex items-center gap-2">
@@ -264,7 +264,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                            {isOptimizing ? (
                                <div className="flex items-center gap-1.5 text-blue-600 animate-pulse">
                                    <Sparkles size={12} />
-                                   <span className="text-[10px] font-bold tracking-wider">画像を最適化しています...</span>
+                                   <span className="text-xs font-bold tracking-wider">画像を最適化しています...</span>
                                </div>
                            ) : (
                                <p className="text-xs text-slate-400 font-medium">写真を変更</p>

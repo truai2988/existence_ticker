@@ -104,7 +104,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
           {/* Header */}
           <div className={`p-6 sm:p-8 pb-4 flex justify-between items-start border-b border-slate-800/50 ${diagnosis.bg.replace('/30', '/10')}`}>
             <div>
-              <div className="flex items-center gap-2 text-slate-500 mb-1 uppercase tracking-[0.2em] text-[10px] font-sans">
+              <div className="flex items-center gap-2 text-slate-400 mb-1 uppercase tracking-[0.2em] text-xs font-sans">
                 <Activity size={12} />
                 <span>管理者の診断 (Sage's Check)</span>
               </div>
@@ -136,19 +136,19 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               {/* Responsive Metrics Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-0.5 bg-slate-800/50 border border-slate-800 rounded-xl overflow-hidden">
                   <div className="bg-slate-900 p-4 text-center">
-                      <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">流通速度 (Flow)</div>
+                      <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">流通速度 (Flow)</div>
                       <div className={`font-mono text-xl sm:text-2xl ${metabolism.rate >= 10 ? 'text-cyan-400' : 'text-slate-300'}`}>
                           {metabolism.rate}%
                       </div>
                   </div>
-                  <div className="bg-slate-900 p-4 text-center border-l border-slate-800">
-                      <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">平均残高 (Avg)</div>
+                  <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                      <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">平均残高 (Avg)</div>
                       <div className="font-mono text-xl sm:text-2xl text-slate-300">
                           {avgBalance.toLocaleString()}
                       </div>
                   </div>
-                  <div className="bg-slate-900 p-4 text-center border-t sm:border-t-0 sm:border-l border-slate-800 col-span-2 sm:col-span-1">
-                       <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-1">崩壊係数 (Entropy)</div>
+                  <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+                       <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">崩壊係数 (Entropy)</div>
                        <div className="font-mono text-xl sm:text-2xl text-red-500/80">
                           -{metabolism.decay24h.toLocaleString()}
                        </div>
@@ -157,7 +157,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
 
               {/* Prescription Action Card */}
               <div className={`p-5 sm:p-6 rounded-xl border transition-colors ${diagnosis.bg}`}>
-                  <h3 className="text-[10px] font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2 opacity-80">
+                  <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2 opacity-80">
                       <Zap size={14} className="text-yellow-400 animate-pulse"/>
                       処方箋 (Prescription)
                   </h3>
@@ -166,10 +166,10 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
                           <div className="font-serif text-white text-lg sm:text-xl mb-2 tracking-wide">
                               {content.actionTitle}
                           </div>
-                          <p className="text-sm text-slate-300/90 leading-relaxed mb-4 font-sans">
+                          <p className="text-sm text-slate-200 leading-relaxed mb-4 font-sans">
                               {content.actionDesc}
                           </p>
-                          <div className="inline-flex items-center gap-2 px-3 py-1 bg-black/40 border border-white/10 text-[10px] font-mono text-slate-400 rounded-full">
+                          <div className="inline-flex items-center gap-2 px-3 py-1 bg-black/40 border border-white/10 text-xs font-mono text-slate-400 rounded-full">
                               <Info size={10} />
                               {content.targetValue}
                           </div>
@@ -190,7 +190,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-slate-800/50 bg-slate-900/50 flex flex-col sm:flex-row justify-between items-center gap-2 text-[10px] text-slate-500 uppercase tracking-widest text-center">
+          <div className="p-6 border-t border-slate-800/50 bg-slate-900/50 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-500 uppercase tracking-widest text-center">
               <span>存在通貨 (Existence Ticker)</span>
               <div className="hidden sm:block w-1 h-1 bg-slate-800 rounded-full" />
               <span>白い器の規約 (White Vessel Protocol)</span>

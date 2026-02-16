@@ -23,7 +23,7 @@ const getSlides = (mode: 'onboarding' | 'reference') => [
           「あなたの光（Lm）を、<br />
           大切に守るための場所へ。」
         </p>
-        <p className="text-sm text-slate-500 mt-8">
+        <p className="text-sm text-slate-600 mt-8 font-medium">
           ここは、あなたの善意が<br />
           誰かの力になる世界。
         </p>
@@ -42,7 +42,7 @@ const getSlides = (mode: 'onboarding' | 'reference') => [
           <span className="text-2xl font-bold text-amber-600 mx-1">2,400 Lm</span> の<br />
           Lmが与えられます。
         </p>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-600 font-medium">
           これがあなたの元気の源です。
         </p>
       </div>
@@ -60,7 +60,7 @@ const getSlides = (mode: 'onboarding' | 'reference') => [
           <span className="text-2xl font-bold text-blue-500 mx-1">徐々に</span> <br />
           空へと還っていきます。
         </p>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-600 font-medium">
           留めておくことはできません。<br />
           だからこそ、今あるLmを大切に。
         </p>
@@ -86,7 +86,7 @@ const getSlides = (mode: 'onboarding' | 'reference') => [
             <span className="text-indigo-600 mb-1">応える</span>
           </div>
         </div>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-600 font-medium">
           「ありがとう」と受け取ってもらえた時、<br />
           そのLmは永遠の輝きに変わります。
         </p>
@@ -104,21 +104,21 @@ const getSlides = (mode: 'onboarding' | 'reference') => [
           <span className="font-mono font-bold text-amber-500 w-16 text-right">100</span>
           <div className="text-left">
             <div className="text-sm font-bold text-slate-700">軽い手助け</div>
-            <div className="text-[10px] text-slate-400">荷物運び、スマホ操作など</div>
+            <div className="text-xs text-slate-600 font-bold">荷物運び、スマホ操作など</div>
           </div>
         </div>
         <div className="bg-white/60 p-4 rounded-xl border border-slate-100 flex items-center gap-4">
           <span className="font-mono font-bold text-amber-600 w-16 text-right">500</span>
           <div className="text-left">
             <div className="text-sm font-bold text-slate-700">しっかりしたお礼</div>
-            <div className="text-[10px] text-slate-400">草むしり、相談、片付けなど</div>
+            <div className="text-xs text-slate-600 font-bold">草むしり、相談、片付けなど</div>
           </div>
         </div>
         <div className="bg-white/60 p-4 rounded-xl border border-slate-100 flex items-center gap-4">
           <span className="font-mono font-bold text-rose-500 w-16 text-right">1,000</span>
           <div className="text-left">
             <div className="text-sm font-bold text-slate-700">深い献身</div>
-            <div className="text-[10px] text-slate-400">専門スキル、長時間の見守り</div>
+            <div className="text-xs text-slate-600 font-bold">専門スキル、長時間の見守り</div>
           </div>
         </div>
       </div>
@@ -134,12 +134,12 @@ const getSlides = (mode: 'onboarding' | 'reference') => [
          <div className="bg-slate-800 text-slate-200 p-6 rounded-2xl mb-6 shadow-inner relative overflow-hidden">
             <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl"></div>
-            <p className="text-base font-bold relative z-10">
-              実費（円）は「お財布」から。<br />
-              感謝（Lm）は「心」から。
+            <p className="text-base font-bold relative z-10 flex flex-col items-center gap-1">
+              <span className="whitespace-nowrap">実費（円）は「お財布」から。</span>
+              <span className="whitespace-nowrap">感謝（Lm）は「心」から。</span>
             </p>
          </div>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-slate-600 font-medium">
           お金では伝えきれない「ありがとう」を。<br />
           さあ、新しい循環を始めましょう。
         </p>
@@ -266,7 +266,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
                 <h2 className="text-2xl font-serif font-medium text-slate-800 tracking-widest mb-2 text-center">
                   {slides[currentSlide].title}
                 </h2>
-                <div className="text-[10px] font-bold tracking-[0.3em] text-slate-300 uppercase mb-8 text-center">
+                <div className="text-xs font-bold tracking-[0.3em] text-slate-300 uppercase mb-8 text-center">
                   {slides[currentSlide].subtitle}
                 </div>
 

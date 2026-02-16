@@ -119,7 +119,7 @@ const ApplicantItem: React.FC<{
             {/* Rank Label */}
             <>
               <span className="text-slate-300">|</span>
-              <span className="text-slate-500 font-bold">{rank.label}</span>
+              <span className="text-slate-600 font-bold">{rank.label}</span>
             </>
           </div>
         </div>
@@ -461,7 +461,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                         <Trash2 size={14} />
                         この内容を消去する
                     </button>
-                    <p className="text-[10px] text-slate-400 text-center">※このお願いのLm予約はすでに解除されています</p>
+                    <p className="text-xs text-slate-400 text-center">※このお願いのLm予約はすでに解除されています</p>
                 </div>
             </div>
         );
@@ -481,7 +481,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                 <div className="h-4 w-5/6 bg-slate-100 rounded" />
             </div>
             <div className="h-10 w-full bg-slate-200 rounded-xl" />
-            <div className="absolute top-4 right-6 flex items-center gap-1.5 text-slate-300 text-[10px] font-bold uppercase tracking-widest">
+            <div className="absolute top-4 right-6 flex items-center gap-1.5 text-slate-300 text-xs font-bold uppercase tracking-widest">
                 <Loader2 size={12} className="animate-spin" />
                 伝搬中...
             </div>
@@ -570,7 +570,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                     <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
                       <User className="w-5 h-5 text-slate-300" />
                     </div>
-                    <div className="text-xs text-slate-400 font-medium">
+                    <div className="text-xs text-slate-600 font-bold">
                       未成立
                     </div>
                   </div>
@@ -655,7 +655,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                       : requesterProfile.bio}
                   </p>
                 )}
-                <span className="flex items-center gap-1 text-xs text-slate-400 mt-0.5">
+                <span className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
                   <Clock className="w-3 h-3" />
                   <span>{formatDate(wish.created_at)}</span>
                 </span>
@@ -743,8 +743,8 @@ export const WishCard: React.FC<WishCardProps> = ({
 
         {/* System Note - Gentle Explanation for Status Changes */}
         {wish.system_note && (
-          <div className="mt-3 p-3 bg-amber-50/30 border border-amber-100/50 rounded-xl">
-            <p className="text-xs text-amber-700/80 leading-relaxed font-normal">
+          <div className="mt-3 p-3 bg-amber-50/50 border border-amber-100 rounded-xl">
+            <p className="text-xs text-amber-800 leading-relaxed font-bold">
               {wish.system_note}
             </p>
           </div>
@@ -1115,7 +1115,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                 (wish.status === "review_pending" ||
                   wish.status === "in_progress") && (
                   <div className="flex flex-col items-end gap-2">
-                    <p className="text-[11px] font-bold text-slate-700">
+                    <p className="text-xs font-bold text-slate-700">
                       実費（材料費など）の清算が済んでいることを確認し、感謝の Lm を贈ります。
                     </p>
                     <button

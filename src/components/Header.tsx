@@ -82,6 +82,17 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
                       <div className="text-xs text-slate-500 font-light tracking-wide">
                         あなたの歩みの記録
                       </div>
+                      <button
+                        onClick={() => setShowPresenceModal(true)}
+                        className="group flex flex-col items-start transition-all duration-300"
+                      >
+                        <div className="flex items-center gap-1.5 text-slate-500 group-hover:text-slate-800 transition-colors">
+                          <MapPin size={10} className="text-slate-600" />
+                          <span className="text-xs font-bold tracking-wider leading-none">
+                            {getLocationText()}
+                          </span>
+                        </div>
+                      </button>
                     </div>
                   ) : viewMode === 'profile' ? (
                     <div className="flex flex-col">
@@ -91,11 +102,22 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
                       <div className="text-xs text-slate-500 font-light tracking-wide">
                         あなたの記録
                       </div>
+                      <button
+                        onClick={() => setShowPresenceModal(true)}
+                        className="group flex flex-col items-start transition-all duration-300"
+                      >
+                        <div className="flex items-center gap-1.5 text-slate-500 group-hover:text-slate-800 transition-colors">
+                          <MapPin size={10} className="text-slate-600" />
+                          <span className="text-xs font-bold tracking-wider leading-none">
+                            {getLocationText()}
+                          </span>
+                        </div>
+                      </button>
                     </div>
                   ) : (
                     /* Default Home View */
                     <>
-                      <div className="text-[9px] font-bold tracking-[0.6em] uppercase text-slate-400/80 leading-none mb-1.5 select-none pl-0.5">
+                      <div className="text-xs font-bold tracking-[0.4em] uppercase text-slate-400/80 leading-none mb-1.5 select-none pl-0.5">
                         Existence Ticker
                       </div>
                       <button

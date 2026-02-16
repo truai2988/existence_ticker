@@ -58,7 +58,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
             <div className="border-b border-slate-100/50 pt-safe">
                 <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between">
                      <div className="min-w-0">
-                        <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
+                        <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
                             Existence Ticker
                         </div>
                         <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">Seeker</h2>

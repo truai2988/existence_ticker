@@ -309,9 +309,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                                 <div className="min-w-0 flex-1">
                                                     <div className="font-bold text-slate-200 truncate">{u.name || 'Unknown'}</div>
                                                     <div className="flex flex-col">
-                                                        <div className="font-mono text-[10px] text-slate-600 truncate">{u.id}</div>
-                                                        {u.email && <div className="font-mono text-[10px] text-blue-400/70 truncate">{u.email}</div>}
-                                                        {!u.email && <div className="text-[10px] text-red-500/70 italic">Email Missing</div>}
+                                                        <div className="font-mono text-xs text-slate-600 truncate">{u.id}</div>
+                                                        {u.email && <div className="font-mono text-xs text-blue-400/70 truncate">{u.email}</div>}
+                                                        {!u.email && <div className="text-xs text-red-500/70 italic">Email Missing</div>}
                                                     </div>
                                                 </div>
                                             </div>
@@ -327,7 +327,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                                 <span className="md:hidden text-slate-500 w-16 flex-shrink-0">Role:</span>
                                                 <div className="inline-flex flex-col items-start gap-1">
                                                     {superAdminIds.includes(u.id) && (
-                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-yellow-400 text-black border border-yellow-500 shadow-[0_0_10px_rgba(250,204,21,0.4)]">
+                                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-400 text-black border border-yellow-500 shadow-[0_0_10px_rgba(250,204,21,0.4)]">
                                                             <Shield size={10} fill="black" />
                                                             SUPER ADMIN
                                                         </span>
@@ -636,7 +636,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
                 {/* execution log overlay */}
                 {cleanupLog.length > 0 && (
-                    <div className="bg-slate-800/80 rounded-lg p-4 border border-slate-700 font-mono text-[10px] text-slate-300">
+                    <div className="bg-slate-800/80 rounded-lg p-4 border border-slate-700 font-mono text-xs text-slate-300">
                         <div className="flex items-center gap-2 mb-2 font-bold text-slate-400 uppercase tracking-tighter">
                             <Activity size={12} /> Live Inventory Status
                         </div>
@@ -661,7 +661,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <Activity size={20} className="animate-pulse" />
               </div>
               <div className="text-left">
-                <div className="text-[10px] uppercase tracking-widest opacity-70 mb-0.5">
+                <div className="text-xs uppercase tracking-widest opacity-70 mb-0.5">
                   World Health Status (現在の生態系診断)
                 </div>
                 <div className="text-lg font-serif font-bold tracking-wide">

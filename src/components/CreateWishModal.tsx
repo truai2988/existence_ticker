@@ -103,12 +103,12 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                            <button 
                              type="button"
                              onClick={() => setShowGuide(true)}
-                             className="text-[10px] text-slate-400 hover:text-indigo-600 underline underline-offset-4 transition-colors whitespace-nowrap"
+                             className="text-xs text-slate-500 font-medium hover:text-indigo-600 underline underline-offset-4 transition-colors whitespace-nowrap"
                            >
                              お裾分けの目安とお作法
                            </button>
                        </div>
-                       <span className="self-start sm:self-center text-[10px] font-bold text-amber-600 bg-amber-50/50 px-3 py-1 rounded-full border border-amber-100/50 tracking-wider">
+                       <span className="self-start sm:self-center text-xs font-bold text-amber-600 bg-amber-50/50 px-3 py-1 rounded-full border border-amber-100/50 tracking-wider">
                            感謝としてお贈りします
                        </span>
                    </div>

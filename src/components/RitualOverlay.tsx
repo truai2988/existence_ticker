@@ -49,7 +49,7 @@ export const RitualOverlay: React.FC<RitualOverlayProps> = ({ state, targetBalan
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 0.4, y: 0 }}
-              className="text-[10px] font-light tracking-[0.5em] text-slate-400 uppercase mb-12"
+              className="text-xs font-light tracking-[0.5em] text-slate-400 uppercase mb-12"
             >
                 {state === 'breathing' && "Breathing / 呼吸"}
                 {state === 'blooming' && "Blooming / 開花"}
@@ -92,7 +92,7 @@ export const RitualOverlay: React.FC<RitualOverlayProps> = ({ state, targetBalan
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.3 }}
-              className="mt-12 text-[10px] font-light tracking-widest text-slate-400 font-serif"
+              className="mt-12 text-xs font-light tracking-widest text-slate-400 font-serif"
             >
                  I am who I am / Into the World of ET
             </motion.div>
