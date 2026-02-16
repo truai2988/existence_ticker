@@ -50,34 +50,34 @@ export const useDiagnostics = (stats: DashboardStats | null): DiagnosticsResult 
         return {
             currentPhase: 'STARVATION',
             severity: 'critical',
-            shortDescription: `${prefix}枯渇状態 (Starvation)`,
-            longDescription: '循環が消滅を下回り、かつ社会全体が枯渇しています。',
+            shortDescription: `${prefix}渇きの連鎖 (Starvation)`,
+            longDescription: '循環が消滅の重力に抗えず、社会全体が枯渇しています。生存の危機。',
             bg: 'bg-cyan-900/30 border-cyan-500',
             text: 'text-cyan-200',
             isMicro
         };
     }
 
-    // 2. SATURATION (静寂なる停滞)
+    // 2. SATURATION (贅沢な微睡み)
     if (circulationRate < decayRate && (average >= 1200 || richRatio > 0.3)) {
         return {
             currentPhase: 'SATURATION',
             severity: 'warning',
-            shortDescription: `${prefix}停滞状態 (Saturation)`,
-            longDescription: '循環が消滅を下回っていますが、資産は十分にあります。繋がりの欠如。',
+            shortDescription: `${prefix}贅沢な微睡み (Saturation)`,
+            longDescription: '資産は十分にありますが、魂のつながり（循環）が失われています。静かなる死。',
             bg: 'bg-yellow-900/30 border-yellow-500',
             text: 'text-yellow-200',
             isMicro
         };
     }
 
-    // 3. STAGNATION (循環不全)
+    // 3. STAGNATION (静止した世界)
     if (circulationRate < 5) {
          return {
             currentPhase: 'STAGNATION',
             severity: 'critical',
-            shortDescription: `${prefix}循環不全 (Failure)`,
-            longDescription: '経済活動が停止しています。',
+            shortDescription: `${prefix}静止した世界 (Failure)`,
+            longDescription: '経済活動が完全に停止しています。信頼の動脈硬化状態。',
             bg: 'bg-red-900/30 border-red-500',
             text: 'text-red-200',
             isMicro

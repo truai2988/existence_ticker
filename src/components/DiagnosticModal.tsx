@@ -42,46 +42,51 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
   
   // Dynamic "Sage's Voice" Content
   const getSageContent = () => {
+      const getBaseContent = () => {
+          switch (diagnosis.currentPhase) {
+              case 'STARVATION':
+                  return {
+                      voice: `世界は渇きに喘いでいます。平均残高は ${avgBalance.toLocaleString()} Lm まで落ち込み、魂たちは明日への恐怖に震えています。今すぐ世界の回転を早め、乾いた大地に慈悲の雨を降らせてください。`,
+                      actionTitle: "慈悲の降雨 (Spring Shift)",
+                      actionDesc: "サイクル期間を短縮（5～7日）し、給付の頻度を高めることで、生存の不安を解消してください。",
+                      targetValue: "Target: 5 Days (Fast)"
+                  };
+              case 'SATURATION':
+                  return {
+                      voice: `世界は贅沢な微睡みに沈んでいます。${richPercentage}% の魂が満たされ、欲求（Wish）が枯れています。Lmの重みを思い出させるために、少し長い冬が必要です。`,
+                      actionTitle: "静寂の冬 (Winter Shift)",
+                      actionDesc: "サイクル期間を延長（15～20日）し、次の給付を遠ざけてください。枯渇への健全な危機感が、死蔵された富の放出を促します。",
+                      targetValue: "Target: 20 Days (Slow)"
+                  };
+              case 'STAGNATION':
+                  return {
+                      voice: "深刻な機能不全です。動脈硬化のように、流れが完全に止まっています。これは数値の問題ではなく、信頼（Trust）の欠如です。神が動かなければ、人も動きません。",
+                      actionTitle: "心臓マッサージ (God's Hand)",
+                      actionDesc: "システムの外から、あなた自身が「最初の依頼」あるいは「最初の贈与」を行い、凍りついた時間に楔を打ち込んでください。",
+                      targetValue: "Action: Manual Transact"
+                  };
+              case 'HEALTHY':
+              default:
+                  return {
+                      voice: "世界は穏やかな呼吸を繰り返しています。循環と蓄積のバランスは黄金比に近く、理想的な状態です。この美しい均衡を見守ることこそ、最も難しい神の仕事です。",
+                      actionTitle: "静観 (Observation)",
+                      actionDesc: "不必要な介入は波紋を広げるだけです。今はただ、この命の脈動を信じて見守りましょう。",
+                      targetValue: "Action: Maintain"
+                  };
+          }
+      };
+
+      const base = getBaseContent();
+
       if (diagnosis.isMicro) {
           return {
-              voice: "世界はまだ生まれたばかりです。僅かな魂たちが寄り添うこの揺籃期（ようらんき）において、あなたの指先ひとつが嵐にも恵みにもなります。大胆な実験こそが、創世記の特権です。",
-              actionTitle: "創世の実験 (Genesis Experiment)",
-              actionDesc: "パラメータを極端に振幅させ、個々の魂の反応を観察してください。小規模なコミュニティでは、バタフライエフェクトを肉眼で観測できます。",
-              targetValue: "Action: Tune & Watch"
+              ...base,
+              voice: `【黎明期の調べ】\n${base.voice}\n今はまだ僅かな魂たちの世界。あなたの一挙手一投足が、創世の歴史に刻まれます。`,
+              actionDesc: `(Micro構成) ${base.actionDesc} 小規模なコミュニティでは、小さな調整が劇的な変化を生むことを忘れないでください。`
           };
       }
 
-      switch (diagnosis.currentPhase) {
-          case 'STARVATION':
-              return {
-                  voice: `世界は渇きに喘いでいます。平均残高は ${avgBalance.toLocaleString()} Lm まで落ち込み、魂たちは明日への恐怖に震えています。今すぐ世界の回転を早め、乾いた大地に慈悲の雨を降らせてください。`,
-                  actionTitle: "春化 (Spring Shift)",
-                  actionDesc: "サイクル期間を短縮（5～7日）し、給付の頻度を高めてください。恐怖を取り除くことが最優先です。",
-                  targetValue: "Target: 5 Days (Fast)"
-              };
-          case 'SATURATION':
-              return {
-                  voice: `世界は贅沢な微睡みに沈んでいます。${richPercentage}% の魂が満たされ、欲求（Wish）が枯れています。Lmの重みを思い出させるために、少し長い冬が必要です。`,
-                  actionTitle: "冬化 (Winter Shift)",
-                  actionDesc: "サイクル期間を延長（15～20日）し、次の給付までの期間を延ばしてください。枯渇への健全な危機感が、富の放出（循環）を促します。",
-                  targetValue: "Target: 20 Days (Slow)"
-              };
-          case 'STAGNATION':
-              return {
-                  voice: "深刻な機能不全です。動脈硬化のように、流れが完全に止まっています。これは数値の問題ではなく、信頼（Trust）の欠如です。神が動かなければ、人も動きません。",
-                  actionTitle: "神の一手 (First Move)",
-                  actionDesc: "システムの外から、あなた自身が「最初の依頼」あるいは「最初の贈与」を行い、心臓マッサージを施してください。",
-                  targetValue: "Action: Manual Transact"
-              };
-          case 'HEALTHY':
-          default:
-              return {
-                  voice: "世界は穏やかな呼吸を繰り返しています。循環と蓄積のバランスは黄金比に近く、理想的な状態です。この美しい均衡を見守ることこそ、最も難しい神の仕事です。",
-                  actionTitle: "静観 (Observation)",
-                  actionDesc: "今は何もする必要はありません。不必要な介入は波紋を広げるだけです。",
-                  targetValue: "Action: Maintain"
-              };
-      }
+      return base;
   };
 
   const content = getSageContent();
@@ -127,7 +132,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               <div className="relative group">
                   <div className="absolute -top-4 -left-2 text-6xl text-slate-800 font-serif leading-none select-none">“</div>
                   <div className="relative z-10 pl-6 border-l border-slate-700">
-                    <p className="text-slate-300 font-serif text-lg sm:text-xl leading-relaxed italic">
+                    <p className="text-slate-300 font-serif text-lg sm:text-xl leading-relaxed italic whitespace-pre-wrap">
                         {content.voice}
                     </p>
                   </div>
@@ -166,7 +171,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
                           <div className="font-serif text-white text-lg sm:text-xl mb-2 tracking-wide">
                               {content.actionTitle}
                           </div>
-                          <p className="text-sm text-slate-200 leading-relaxed mb-4 font-sans">
+                          <p className="text-base text-slate-200 leading-relaxed mb-4 font-sans">
                               {content.actionDesc}
                           </p>
                           <div className="inline-flex items-center gap-2 px-3 py-1 bg-black/40 border border-white/10 text-xs font-mono text-slate-400 rounded-full">
