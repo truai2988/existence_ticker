@@ -113,7 +113,7 @@ const ApplicantItem: React.FC<{
               className={`flex items-center gap-0.5 ${rank.color}`}
             >
               {rank.icon}
-              <span className="font-mono font-bold">({trustScore})</span>
+              <span className="font-sans font-bold">({trustScore})</span>
             </div>
 
             {/* Rank Label */}
@@ -499,12 +499,12 @@ export const WishCard: React.FC<WishCardProps> = ({
               [ 自分が願ったこと ]
             </span>
           ) : wish.helper_id === currentUserId ? (
-            <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-100/50 uppercase tracking-tighter">
+            <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-100/50 uppercase tracking-tighter font-sans">
               [ あなたが応えていること ]
             </span>
           ) : null
         ) : (
-          <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-slate-50 text-slate-400 border border-slate-100 uppercase tracking-tighter">
+          <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-slate-50 text-slate-400 border border-slate-100 uppercase tracking-tighter font-sans">
             [ 誰かの願い ]
           </span>
         )}
@@ -631,7 +631,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                       className={`flex items-center gap-0.5 ${trust.color}`}
                     >
                       {trust.icon}
-                      <span className="font-mono">
+                      <span className="font-sans font-medium">
                         ({wish.requester_trust_score || 0})
                       </span>
                     </div>
@@ -736,7 +736,7 @@ export const WishCard: React.FC<WishCardProps> = ({
             </div>
           </div>
         ) : (
-          <p className="text-slate-600 text-sm leading-relaxed font-normal whitespace-pre-wrap">
+          <p className="text-slate-800 text-base leading-relaxed font-serif font-medium whitespace-pre-wrap tracking-wide">
             {wish.content}
           </p>
         )}

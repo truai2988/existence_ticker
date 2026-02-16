@@ -70,7 +70,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
                         size={16}
                         className="text-slate-500 group-hover:text-slate-700 transition-colors"
                       />
-                      <span className="text-sm min-[375px]:text-base text-slate-600 font-mono tracking-wider uppercase group-hover:text-slate-900 transition-colors truncate max-w-[100px] min-[375px]:max-w-[160px]">
+                      <span className="text-sm min-[375px]:text-base text-slate-600 font-sans font-medium tracking-wider uppercase group-hover:text-slate-900 transition-colors truncate max-w-[100px] min-[375px]:max-w-[160px]">
                         {getLocationText()}
                       </span>
                       <span className="text-xs text-slate-400 mx-1">|</span>
@@ -78,7 +78,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
                         size={16}
                         className="text-slate-500 group-hover:text-slate-700 transition-colors"
                       />
-                      <span className="text-sm min-[375px]:text-base text-slate-600 font-mono tracking-wider group-hover:text-slate-900 transition-colors whitespace-nowrap">
+                      <span className="text-sm min-[375px]:text-base text-slate-600 font-sans font-medium tracking-wider group-hover:text-slate-900 transition-colors whitespace-nowrap">
                         {getUserCountText()}
                       </span>
                     </button>

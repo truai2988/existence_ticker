@@ -16,7 +16,7 @@ export const HeaderStatusDisplay: React.FC<HeaderStatusDisplayProps> = ({
   if (viewMode === 'history') {
     return (
       <div className="flex flex-col">
-        <h1 className="text-xl font-bold tracking-widest text-slate-800 uppercase font-['Inter']">
+        <h1 className="text-xl font-bold tracking-widest text-slate-800 uppercase font-sans">
           JOURNAL
         </h1>
         <div className="text-xs text-slate-500 font-light tracking-wide">
@@ -30,7 +30,7 @@ export const HeaderStatusDisplay: React.FC<HeaderStatusDisplayProps> = ({
   if (viewMode === 'profile' || viewMode === 'profile_edit') {
     return (
       <div className="flex flex-col">
-        <h1 className="text-xl font-bold tracking-widest text-slate-800 uppercase font-['Inter']">
+        <h1 className="text-xl font-bold tracking-widest text-slate-800 uppercase font-sans">
           PROFILE
         </h1>
         <div className="text-xs text-slate-500 font-light tracking-wide">
@@ -44,7 +44,7 @@ export const HeaderStatusDisplay: React.FC<HeaderStatusDisplayProps> = ({
   // Default Home View
   return (
     <>
-      <div className="text-xs font-bold tracking-[0.4em] uppercase text-slate-400/80 leading-none mb-1.5 select-none pl-0.5">
+      <div className="text-xs font-medium tracking-[0.2em] uppercase text-slate-500 leading-none mb-1.5 select-none pl-0.5 font-serif">
         Existence Ticker
       </div>
     </>

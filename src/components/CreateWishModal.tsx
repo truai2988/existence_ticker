@@ -76,18 +76,18 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                
                {/* Input Section */}
                <div className="space-y-3">
-                  <label className="block text-sm font-bold text-slate-700">
+                  <label className="block text-sm font-bold text-slate-700 font-sans">
                       内容を入力
                   </label>
                   <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 focus-within:ring-2 focus-within:ring-orange-200 transition-all">
-                      <div className="mb-2 text-xs text-slate-400 font-medium">
+                      <div className="mb-2 text-xs text-slate-400 font-medium font-sans">
                           依頼者: <span className="text-slate-600">{profile?.name || "Anonymous"}</span>
                       </div>
                       <textarea
                         value={newWishContent}
                         onChange={(e) => setNewWishContent(e.target.value)}
                         placeholder="誰かに手伝ってほしいことや、解決したい悩みを具体的に書きましょう..."
-                        className="w-full bg-transparent text-slate-800 placeholder:text-slate-400 text-base min-h-[120px] resize-none outline-none leading-relaxed"
+                        className="w-full bg-transparent text-slate-800 placeholder:text-slate-400 text-base min-h-[120px] resize-none outline-none leading-relaxed font-serif"
                         autoFocus
                       />
                   </div>
