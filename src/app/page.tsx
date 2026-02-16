@@ -321,10 +321,10 @@ export const LandingPage = () => {
                 <Sparkles size={24} className="text-[#C5A065] stroke-[1px]" />
             </div>
             
-            <h3 className="text-sm md:text-base font-light tracking-[0.3em] text-[#444444] mb-8 uppercase font-serif">
+            <h3 className="text-xl md:text-base font-bold md:font-light tracking-[0.1em] md:tracking-[0.3em] text-[#111111] md:text-[#444444] mb-8 uppercase font-serif">
                 Phase 2: Invite Only
             </h3>
-            <p className="text-[#888888] mb-12 font-normal tracking-wide text-xs md:text-sm leading-relaxed max-w-lg mx-auto font-sans">
+            <p className="text-[#111111] md:text-[#888888] mb-12 font-medium md:font-normal tracking-wide text-[16px] md:text-sm leading-relaxed max-w-lg mx-auto font-sans">
                 30名の仲間と共に、新しい支え合いの形を実験しています。<br/>
                 現在は招待制での運用準備中です。
             </p>
@@ -334,11 +334,11 @@ export const LandingPage = () => {
                     <input 
                         type="email" 
                         placeholder="your@email.com" 
-                        className="flex-1 bg-transparent px-8 py-5 text-[#2D2D2D] placeholder:text-[#CCCCCC] outline-none text-base tracking-[0.1em] font-serif"
+                        className="flex-1 bg-transparent px-8 py-6 md:py-5 text-[#111111] md:text-[#2D2D2D] placeholder:text-[#AAAAAA] md:placeholder:text-[#CCCCCC] outline-none text-lg md:text-base tracking-[0.1em] font-serif"
                     />
-                    <button className="group relative px-10 py-5 rounded-xl bg-[#2D2D2D] text-white text-xs font-bold tracking-[0.2em] overflow-hidden transition-all hover:bg-black">
+                    <button className="group relative px-10 py-6 md:py-5 rounded-xl bg-[#111111] md:bg-[#2D2D2D] text-white text-[15px] md:text-xs font-bold tracking-[0.2em] overflow-hidden transition-all hover:bg-black mt-2 md:mt-0">
                         <span className="relative z-10 flex items-center justify-center gap-4">
-                            ご縁を結ぶ（Waitlistに登録） <Send size={14} className="group-hover:translate-x-1 transition-transform stroke-[1.5px]" />
+                             ご縁を結ぶ <Send className="w-[18px] h-[18px] md:w-[14px] md:h-[14px] group-hover:translate-x-1 transition-transform stroke-[2px] md:stroke-[1.5px]" />
                         </span>
                         
                         {/* Golden Glow: Heat of life warmth */}
@@ -411,16 +411,18 @@ export const LandingPage = () => {
 
 const ScenarioCard = ({ icon, label, desc, color }: { icon: React.ReactNode, label: string, desc: string, color: string }) => {
   return (
-    <div className="md:aspect-square p-5 md:p-6 bg-white rounded-xl shadow-[0_2px_15px_rgba(0,0,0,0.02)] border border-[#F0F0F0]/50 flex flex-col items-center text-center justify-center relative overflow-hidden group hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-700">
-      <div
-        className={`mb-3 md:mb-4 p-2.5 rounded-full bg-white shadow-sm ${color} group-hover:scale-105 transition-transform duration-500`}
-      >
-        {icon}
+    <div className="w-full md:aspect-square p-0 md:p-6 bg-transparent md:bg-white md:rounded-xl md:shadow-[0_2px_15px_rgba(0,0,0,0.02)] md:border md:border-[#F0F0F0]/50 flex flex-col items-start md:items-center text-left md:text-center justify-center relative overflow-hidden group transition-all duration-700 border-b border-[#Eaeaea] md:border-b-0 pb-8 md:pb-0 mb-8 md:mb-0 last:border-b-0 last:mb-0 last:pb-0">
+      <div className="flex flex-row md:flex-col items-center mb-4 md:mb-4 w-full">
+          <div
+            className={`mr-4 md:mr-0 p-3 md:p-2.5 rounded-full bg-white shadow-sm ${color} group-hover:scale-105 transition-transform duration-500`}
+          >
+            {icon}
+          </div>
+          <h5 className="text-[19px] md:text-sm font-bold md:font-light tracking-[0.05em] md:tracking-[0.2em] text-[#111111] md:text-[#444444] font-serif uppercase leading-tight">
+            {label}
+          </h5>
       </div>
-      <h5 className="text-[13px] md:text-sm font-medium md:font-light tracking-[0.1em] md:tracking-[0.2em] text-[#333333] md:text-[#444444] mb-2 md:mb-3 font-serif w-full uppercase">
-        {label}
-      </h5>
-      <p className="text-xs md:text-sm font-normal text-[#555555] md:text-[#777777] leading-relaxed tracking-normal font-serif px-1 md:px-2">
+      <p className="text-[16px] md:text-sm font-medium md:font-normal text-[#333333] md:text-[#777777] leading-relaxed tracking-normal font-serif pl-0 md:px-2 w-full">
         {desc}
       </p>
     </div>
@@ -449,14 +451,14 @@ const Section = ({ children, className }: { children: React.ReactNode, className
 
 const FeatureCard = ({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) => {
   return (
-    <div className="flex flex-col items-center text-center p-6 md:p-6 bg-transparent transition-all duration-700 group cursor-default">
+    <div className="flex flex-col items-center md:items-center text-center p-0 md:p-6 bg-transparent transition-all duration-700 group cursor-default">
       <div className="mb-4 md:mb-6 p-5 md:p-4 bg-white shadow-sm md:bg-white/30 rounded-full group-hover:bg-white/60 transition-colors duration-500">
         {icon}
       </div>
-      <h4 className="text-xl md:text-lg font-semibold md:font-light tracking-[0.15em] md:tracking-[0.2em] text-[#111111] md:text-[#444444] mb-4 font-serif uppercase">
+      <h4 className="text-2xl md:text-lg font-bold md:font-light tracking-[0.1em] md:tracking-[0.2em] text-[#111111] md:text-[#444444] mb-4 font-serif uppercase">
         {title}
       </h4>
-      <p className="text-base md:text-sm font-normal text-[#222222] md:text-[#888888] leading-relaxed tracking-wide group-hover:text-[#111111] md:group-hover:text-[#555555] transition-colors duration-500 font-serif">
+      <p className="text-[17px] md:text-sm font-medium md:font-normal text-[#222222] md:text-[#888888] leading-relaxed tracking-wide group-hover:text-[#111111] md:group-hover:text-[#555555] transition-colors duration-500 font-serif">
         {desc}
       </p>
     </div>
