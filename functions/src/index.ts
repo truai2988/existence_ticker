@@ -4,6 +4,11 @@ export * from './locationStats';
 export * from './ai';
 export * from './deleteAccount';
 
+export const checkConnectivity = functions.https.onCall(async () => {
+  console.log("[checkConnectivity] Function hit!");
+  return { success: true, message: "Local emulator is reachable", timestamp: Date.now() };
+});
+
 if (!admin.apps.length) {
   admin.initializeApp();
 }

@@ -36,12 +36,16 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.monitorBalances = exports.resetCycle = void 0;
+exports.monitorBalances = exports.resetCycle = exports.checkConnectivity = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 __exportStar(require("./locationStats"), exports);
 __exportStar(require("./ai"), exports);
 __exportStar(require("./deleteAccount"), exports);
+exports.checkConnectivity = functions.https.onCall(async () => {
+    console.log("[checkConnectivity] Function hit!");
+    return { success: true, message: "Local emulator is reachable", timestamp: Date.now() };
+});
 if (!admin.apps.length) {
     admin.initializeApp();
 }

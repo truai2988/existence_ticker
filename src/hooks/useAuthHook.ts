@@ -226,8 +226,10 @@ export const useAuth = () => {
         if (!functions) throw new Error("Functions not initialized");
         
         try {
+            console.log(" [useAuthHook] Calling deleteAccount Cloud Function...");
             const deleteAccountFn = httpsCallable(functions, 'deleteAccount');
-            await deleteAccountFn();
+            const result = await deleteAccountFn();
+            console.log(" [useAuthHook] Result:", result.data);
             
             // Sign out locally to clear state
             await firebaseSignOut(auth);

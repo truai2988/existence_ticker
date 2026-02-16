@@ -37,8 +37,8 @@ if (apiKey) {
   // Connect to Emulators if running locally
   if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
       // User is only running functions emulator locally
-      console.log("Connecting to Firebase Functions Emulator...");
-      connectFunctionsEmulator(functions, '127.0.0.1', 5001);
+      console.log(`Connecting to Firebase Functions Emulator at ${location.hostname}:5001...`);
+      connectFunctionsEmulator(functions, location.hostname, 5001);
       
       // Keep others commented out as requested by user env
       /*
