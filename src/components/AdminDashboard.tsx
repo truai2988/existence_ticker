@@ -1097,7 +1097,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                   我々はこの問題を解決するために、通貨を<strong className="text-slate-900 font-bold bg-yellow-100 px-1">「保存する資産（Stock）」から「感謝を伝えるエネルギー（Flow）」へと再定義</strong>しました。
                 </p>
                 <p>
-                  この世界では、溜め込むことは腐敗（減価）を意味し、他者へ循環させることこそが生存戦略となります。<br/>
+                  この世界では、溜め込むことは重力による<strong className="text-slate-900 font-bold">「深化（Deepening）」</strong>を意味し、他者へ循環させることこそが生存戦略となります。<br/>
                   住人は「富を得るため」ではなく、「誰かを助け、誰かに助けられるため」にこのエネルギーを使用します。
                 </p>
               </section>
@@ -1113,12 +1113,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   <div className="bg-slate-50 p-6 rounded border border-slate-100">
                     <h3 className="text-lg font-bold font-sans mb-3 text-slate-900 flex items-center gap-2">
-                      <span className="text-red-400">▼</span> エントロピー (Entropy)
+                      <span className="text-blue-500">▼</span> 深化 (Deepening)
                     </h3>
                     <p className="text-base text-slate-600">
-                      自然界の法則と同様に、全てのエネルギーは時間とともに散逸（Decay）します。
-                      現在、<span className="font-mono bg-slate-200 text-slate-800 px-1 text-sm">毎時 10 Lm</span> の減価圧力がシステム全体にかかっています。
-                      これにより、既得権益の固定化（格差の固定）を物理的に阻止し、常に新たな代謝を促します。
+                      自然界の法則と同様に、全てのエネルギーは時間とともに器の底へと「深化」します。
+                      この物理現象により、既得権益の固定化（格差の固定）を自然法則として阻止し、常に新たな代謝を促します。
+                      これは「損失」ではなく、エネルギーがより純粋な形へと相転移する過程です。
                     </p>
                   </div>
 
@@ -1127,10 +1127,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                       <span className="text-yellow-500">▲</span> 太陽 (The Sun)
                     </h3>
                     <p className="text-base text-slate-600">
-                      減価によって失われた総量は、システム全体への「生命贈与（Basic Supply）」として還元されます。
-                      これは行政による「給付」でも、富める者からの「再分配」でもありません。<br/>
-                      あなたがここに<strong className="text-slate-900">「存在している」という事実そのものを担保にして</strong>、天から無条件に降り注ぐ<span className="font-mono bg-slate-200 text-slate-800 px-1 text-sm">光のギフト</span>です。
-                      太陽が昇る限り、あなたの生存は世界によって肯定され続けます。
+                      「深化」によって底へと還ったエネルギーは、システム全体への「生命贈与（Basic Supply）」として蒸散・還元されます。
+                      これは行政による「給付」でも、再分配でもありません。
+                      あなたがここに<strong className="text-slate-900">「存在している」という事実そのものを担保にして</strong>、天から降り注ぐ光のギフトです。
                     </p>
                   </div>
                 </div>
@@ -1172,17 +1171,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
                 
                 <h3 className="text-xl font-bold mb-6 font-sans">4.1 構造的制約 (Structural Constraints)</h3>
-                <div className="bg-slate-50 p-6 rounded border border-slate-100 mb-8">
-                   <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
-                       <span className="text-blue-600">ℹ</span> 基準値 (Standard Baseline)
-                   </h4>
-                   <p className="font-mono text-slate-600 text-sm mb-4 leading-relaxed">
-                       本システムのデフォルト容量（物理定数）は <strong className="text-slate-900">2400 Lm</strong> に設定されています。<br/><br/>
-                       これは「24時間 × 10日間 = 2400 Lm」という, <strong className="text-slate-900">一人の人間が誰にも助けられずに生存できる最大備蓄量</strong>を意味します。孤立した個体が保持できるエネルギーの物理的限界点です。<br/><br/>
-                       この器（Cap）を超えたエネルギーは「溢出（Overflow）」となり、虚空へ還ります。<br/>
-                       しかし、この「溢れ」こそが、実は「太陽（Basic Supply）」のエネルギー源として再利用される<strong className="text-slate-900">隠れたエコシステム・ループ</strong>を形成しています。<br/>
-                       個人の余剰は、巡り巡って世界全体の生命維持装置を稼働させる燃料となるのです。
-                   </p>
+                  <div className="bg-slate-50 p-6 rounded border border-slate-100 mb-8">
+                    <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2">
+                      <span className="text-blue-600">ℹ</span> エネルギー還流 (Energy Reflux)
+                    </h4>
+                    <p className="text-slate-600 text-sm mb-4 leading-relaxed">
+                      本システムでは「あるがままの計算（Simple Physics）」を採用しています。
+                      個々の「願い（Committed Lm）」も時間とともに「深化」し、その価値を減じていきます。
+                      この際、持ち主の Available Lm が微増する現象が発生しますが、これは<strong className="text-slate-900">「深化によって願いがより純粋な形になり、余剰エネルギーが器に還流した」</strong>ものとして定義されます。
+                      この自然な還流を、我々は生態系の健全な呼吸として仕様認定しています。
+                    </p>
+
+                    <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2 border-t border-slate-200 pt-4">
+                      <span className="text-slate-900">V</span> 物理定数 (Physical Baseline)
+                    </h4>
+                    <p className="font-mono text-slate-600 text-sm mb-0 leading-relaxed">
+                      一人の人間が保持できるエネルギーの限界点は <strong className="text-slate-900">2400 Lm</strong> です。
+                      この器（Vessel）を超えたエネルギーは「溢出（Overflow）」となり、巡り巡って「太陽」の燃料として再利用されるエコシステム・ループを形成します。
+                    </p>
+
 
                    <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2 border-t border-slate-200 pt-4">
                        <span className="text-yellow-600">⚠</span> 法の不遡及 (Law of Non-Retroactivity)

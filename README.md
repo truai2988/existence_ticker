@@ -8,9 +8,9 @@ The **Existence Ticker** is a protocol designed to visualize and circulate "Warm
 ## Core Philosophy
 
 - **Lumen (Lm)**: The currency of warmth. Generated at a rate of roughly 1 Lm per heartbeat (variable).
-- **Absolute Stillness**: The interface reflects the "Silence of the Void." Values decay quietly and strictly update only once per hour (3,600,000ms), reducing cognitive load and fostering a calm engagement.
-- **Global Metabolism (Solar Return)**: A system where unspent energy decays and is redistributed to the "Global Supply," ensuring money circulates like blood rather than stagnating.
-- **Veil of Anonymity**: A system allowing users to request or offer help without revealing their identity until a commitment is made.
+- **Simple Physics (あるがままの計算)**: Values decay quietly and strictly over time. We reject complex compensatory logic.
+- **Deepening (深化) & Energy Reflux (エネルギー還流)**: As unspent energy decays, it is not "lost" but "deepened" (深化), with surplus energy returning to the vessel's available flow.
+- **Global Metabolism (Solar Return)**: A system where unspent energy returns to the "Global Supply," ensuring money circulates like blood rather than stagnating.
 
 ## Technical Stack
 

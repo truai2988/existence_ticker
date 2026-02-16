@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X, ChevronRight, ChevronLeft, Sun, Hourglass, HeartHandshake, Scale, Footprints, DoorOpen } from 'lucide-react';
+import { Sparkles, X, ChevronRight, ChevronLeft, Sun, Hourglass, HeartHandshake, Scale, Footprints } from 'lucide-react';
 
 interface OnboardingStoryProps {
   isOpen: boolean;
@@ -11,25 +11,7 @@ interface OnboardingStoryProps {
 }
 
 // Define slides function to accept mode
-const getSlides = (mode: 'onboarding' | 'reference') => [
-  ...(mode === 'onboarding' ? [{
-    id: 'gate',
-    title: '静謐な門',
-    subtitle: 'THE GATE',
-    icon: <DoorOpen size={32} className="text-slate-400" />,
-    content: (
-      <div className="text-center font-serif text-slate-700 leading-loose">
-        <p className="mb-6 text-lg md:text-xl tracking-widest">
-          「あなたの光（Lm）を、<br />
-          大切に守るための場所へ。」
-        </p>
-        <p className="text-sm text-slate-600 mt-8 font-medium">
-          ここは、あなたの善意が<br />
-          誰かの力になる世界。
-        </p>
-      </div>
-    )
-  }] : []),
+const getSlides = () => [
   {
     id: 'vessel',
     title: '存在の価値',
@@ -157,7 +139,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
 }) => {
   const [currentSlide, setCurrentSlide] = useState(initialSlide);
   
-  const slides = getSlides(mode);
+  const slides = getSlides();
 
   useEffect(() => {
     if (isOpen) {
