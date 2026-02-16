@@ -1,16 +1,17 @@
 import { MapPin, Users } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useWallet } from "../hooks/useWallet";
 import { useProfile } from "../hooks/useProfile";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../lib/firebase";
 import { formatLocationCount } from "../utils/formatLocation";
+import { LUNAR_CONSTANTS } from "../constants";
 
 import { HeaderNavigation } from "./HeaderNavigation";
 import { AppViewMode } from "../types";
 import { PresenceModal } from "./PresenceModal";
 import { AnimatePresence } from "framer-motion";
+import { useLocationStats } from "../hooks/useLocationStats";
+import { HeaderStatusDisplay } from "./HeaderStatusDisplay";
 
 interface HeaderProps {
   viewMode?: AppViewMode;
@@ -22,29 +23,12 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
   const { availableLm, committedLm } = useWallet();
   const { profile } = useProfile();
   const [showPresenceModal, setShowPresenceModal] = useState(false);
-  const [statsCount, setStatsCount] = useState<number | null>(null);
-
-  // Fetch nearby user count
-  useEffect(() => {
-    if (!profile?.location?.prefecture || !profile?.location?.city || !db)
-      return;
-
-    const fetchStats = async () => {
-      try {
-        const docId = `${profile.location!.prefecture}_${profile.location!.city}`;
-        const docRef = doc(db!, "location_stats", docId);
-        const snap = await getDoc(docRef);
-        if (snap.exists()) {
-          setStatsCount(snap.data().count || 0);
-        } else {
-          setStatsCount(0);
-        }
-      } catch (e) {
-        console.error("Location stats fetch failed", e);
-      }
-    };
-    fetchStats();
-  }, [profile?.location]);
+  
+  // Use custom hook for stats
+  const { statsCount } = useLocationStats(
+    profile?.location?.prefecture,
+    profile?.location?.city
+  );
 
   const getLocationText = () => {
     if (!profile?.location) return "エリア未設定";
@@ -57,9 +41,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
   };
 
   // Percentages for Water Clock (Max 2400)
-  // committed: 既に捧げた分 (底に沈殿)
-  // available: 自由に使える分 (上に乗る)
-  const maxCapacity = 2400; // WORLD_CONSTANTS.REBIRTH_AMOUNT;
+  const maxCapacity = LUNAR_CONSTANTS.REBIRTH_AMOUNT;
   const committedHeight = Math.min(100, (committedLm / maxCapacity) * 100);
   const availableHeight = Math.min(100, (availableLm / maxCapacity) * 100);
 
@@ -67,80 +49,39 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
     <>
       <header className="relative w-full pt-safe z-40">
         <div className="relative w-full">
-          {/* Two Pillars Structure - with white background spanning full width */}
           <div className="relative w-full bg-transparent">
             <div className="w-full max-w-2xl mx-auto px-6 py-3 md:py-6">
               <div className="flex items-center justify-between">
-                {/* Left: Title and Location */}
-                {/* Left: Dynamic Content based on ViewMode */}
-                <div>
-                  {viewMode === 'history' ? (
-                    <div className="flex flex-col">
-                      <div className="text-xl font-bold tracking-widest text-slate-800 uppercase font-['Inter']">
-                        JOURNAL
-                      </div>
-                      <div className="text-xs text-slate-500 font-light tracking-wide">
-                        あなたの歩みの記録
-                      </div>
-                      <button
-                        onClick={() => setShowPresenceModal(true)}
-                        className="group flex flex-col items-start transition-all duration-300"
-                      >
-                        <div className="flex items-center gap-1.5 text-slate-500 group-hover:text-slate-800 transition-colors">
-                          <MapPin size={10} className="text-slate-600" />
-                          <span className="text-xs font-bold tracking-wider leading-none">
-                            {getLocationText()}
-                          </span>
-                        </div>
-                      </button>
-                    </div>
-                  ) : viewMode === 'profile' ? (
-                    <div className="flex flex-col">
-                      <div className="text-xl font-bold tracking-widest text-slate-800 uppercase font-['Inter']">
-                        PROFILE
-                      </div>
-                      <div className="text-xs text-slate-500 font-light tracking-wide">
-                        あなたの記録
-                      </div>
-                      <button
-                        onClick={() => setShowPresenceModal(true)}
-                        className="group flex flex-col items-start transition-all duration-300"
-                      >
-                        <div className="flex items-center gap-1.5 text-slate-500 group-hover:text-slate-800 transition-colors">
-                          <MapPin size={10} className="text-slate-600" />
-                          <span className="text-xs font-bold tracking-wider leading-none">
-                            {getLocationText()}
-                          </span>
-                        </div>
-                      </button>
-                    </div>
-                  ) : (
-                    /* Default Home View */
-                    <>
-                      <div className="text-xs font-bold tracking-[0.4em] uppercase text-slate-400/80 leading-none mb-1.5 select-none pl-0.5">
-                        Existence Ticker
-                      </div>
-                      <button
-                        onClick={() => setShowPresenceModal(true)}
-                        className="flex items-center gap-1.5 text-left hover:opacity-70 transition-opacity group"
-                      >
-                        <MapPin
-                          size={16}
-                          className="text-slate-500 group-hover:text-slate-700 transition-colors"
-                        />
-                        <span className="text-sm min-[375px]:text-base text-slate-600 font-mono tracking-wider uppercase group-hover:text-slate-900 transition-colors truncate max-w-[100px] min-[375px]:max-w-[160px]">
-                          {getLocationText()}
-                        </span>
-                        <span className="text-xs text-slate-400 mx-1">|</span>
-                        <Users
-                          size={16}
-                          className="text-slate-500 group-hover:text-slate-700 transition-colors"
-                        />
-                        <span className="text-sm min-[375px]:text-base text-slate-600 font-mono tracking-wider group-hover:text-slate-900 transition-colors whitespace-nowrap">
-                          {getUserCountText()}
-                        </span>
-                      </button>
-                    </>
+                {/* Left Side: Title & Location (Extracted) */}
+                <div className="flex flex-col">
+                  <HeaderStatusDisplay 
+                    viewMode={viewMode}
+                    locationText={getLocationText()}
+                    onOpenLocation={() => setShowPresenceModal(true)}
+                  />
+
+                  {/* Supplemental Info for Home View */}
+                  {(!viewMode || viewMode === 'home') && (
+                    <button
+                      onClick={() => setShowPresenceModal(true)}
+                      className="flex items-center gap-1.5 text-left hover:opacity-70 transition-opacity group"
+                    >
+                      <MapPin
+                        size={16}
+                        className="text-slate-500 group-hover:text-slate-700 transition-colors"
+                      />
+                      <span className="text-sm min-[375px]:text-base text-slate-600 font-mono tracking-wider uppercase group-hover:text-slate-900 transition-colors truncate max-w-[100px] min-[375px]:max-w-[160px]">
+                        {getLocationText()}
+                      </span>
+                      <span className="text-xs text-slate-400 mx-1">|</span>
+                      <Users
+                        size={16}
+                        className="text-slate-500 group-hover:text-slate-700 transition-colors"
+                      />
+                      <span className="text-sm min-[375px]:text-base text-slate-600 font-mono tracking-wider group-hover:text-slate-900 transition-colors whitespace-nowrap">
+                        {getUserCountText()}
+                      </span>
+                    </button>
                   )}
                 </div>
 
