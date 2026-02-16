@@ -4,8 +4,10 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2017",
+    "module": "commonjs",
     "skipLibCheck": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "esModuleInterop": true
   },
   "compileOnSave": true,
   "include": [
