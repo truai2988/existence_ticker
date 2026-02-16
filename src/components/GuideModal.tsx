@@ -64,7 +64,7 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 {/* Introduction */}
                 <section className="mb-20 text-center font-serif leading-loose text-slate-600">
                 <p className="mb-8 text-base md:text-lg tracking-wide">
-                    Lm（ルーメン）は、あなたの「元気」のしるし。<br className="hidden md:block" />
+                    Lm（ルーメン）は、あなたの「源気」のしるし。<br className="hidden md:block" />
                     感謝の気持ちを光に乗せて、誰かに手渡してみましょう。
                 </p>
                 <div className="w-12 h-[1px] bg-slate-200 mx-auto my-8"></div>
@@ -142,7 +142,7 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                     </p>
                 </div>
                 <p className="text-xs text-slate-400 tracking-widest opacity-80 leading-relaxed relative z-10">
-                    実費の清算が終わったあとに、そっとLm（元気）を添える。<br/>
+                    実費の清算が終わったあとに、そっとLm（源気）を添える。<br/>
                     そんな優しい循環を、ここから始めましょう。
                 </p>
                 </section>

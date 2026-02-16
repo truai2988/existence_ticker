@@ -251,7 +251,7 @@ export const LandingPage = () => {
         <Section className="py-12 md:py-20 flex flex-col items-center text-center px-6 max-w-3xl mx-auto">
           <div className="space-y-4 md:space-y-6 max-w-md mx-auto font-serif">
             <p className="text-lg md:text-lg font-semibold md:font-light tracking-[0.08em] text-[#111111] md:text-[#555555] leading-loose">
-              「元気」を、どこへ向けますか?
+              「源気」を、どこへ向けますか?
             </p>
             <div className="h-[1px] w-8 bg-[#BBBBBB] md:bg-[#DDDDDD] mx-auto opacity-50"></div>
             <p className="text-base md:text-base font-normal text-[#111111] md:text-[#666666] leading-relaxed tracking-normal">
@@ -259,7 +259,7 @@ export const LandingPage = () => {
               <br />
               十日ごとに新しく入れ替わります。
               <br />
-              それは、あなたが今日も元気で、ここにいることへの
+              それは、あなたが今日も源気で、ここにいることへの
               <span className="text-[#8B6B50] md:text-[#9C7C60] font-bold md:font-medium">「蓄え」</span>
               です。
             </p>
@@ -269,8 +269,8 @@ export const LandingPage = () => {
         {/* The 3 Laws (Rebranded + Mutual Aid Refinement) */}
         <Section className="py-16 md:py-24 px-6 max-w-6xl mx-auto w-full border-t border-[#EAEAEA]">
           <div className="mb-12 md:mb-16 text-center">
-             <h2 className="text-2xl md:text-3xl font-serif font-medium text-[#222222] mb-4">存在の掟</h2>
-             <p className="text-[15px] md:text-base text-[#666666] font-sans">Three Laws of Existence</p>
+             <h2 className="text-2xl md:text-3xl font-serif font-medium text-[#222222] mb-4">源気の循環</h2>
+             <p className="text-[15px] md:text-base text-[#666666] font-sans">Cycle of Source Energy</p>
           </div>
           <div className="grid md:grid-cols-3 gap-12 md:gap-12">
             <FeatureCard 

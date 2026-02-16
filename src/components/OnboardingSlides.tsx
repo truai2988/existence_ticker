@@ -25,7 +25,7 @@ const SLIDES = [
                 <span className="text-lg text-slate-600">Lmが与えられます。</span>
             </div>
             <p className="text-sm opacity-80 font-sans text-slate-500">
-                これがあなたの元気の源です。
+                これがあなたの源気の源です。
             </p>
         </div>
     )

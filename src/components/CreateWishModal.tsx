@@ -98,7 +98,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-1">
                        <div className="flex items-baseline flex-wrap gap-x-3 gap-y-1">
                            <label className="text-sm font-bold text-slate-800 shrink-0">
-                               お裾分けする Lm <span className="text-xs font-normal text-slate-400 ml-0.5">(元気)</span>
+                               お裾分けする Lm <span className="text-xs font-normal text-slate-400 ml-0.5">(源気)</span>
                            </label>
                            <button 
                              type="button"

@@ -25,7 +25,7 @@ const getSlides = () => [
           Lmが与えられます。
         </p>
         <p className="text-sm text-slate-600 font-medium">
-          これがあなたの元気の源です。
+          これがあなたの源気の源です。
         </p>
       </div>
     )
