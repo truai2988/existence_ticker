@@ -401,7 +401,7 @@ function App() {
     case "APP": {
       const isRitual = appMode === "RITUAL";
       return (
-        <div className="bg-[#F9F8F4] h-screen font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
+        <div className="bg-white h-screen font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
           {/* Washi Texture Overlay for App */}
           <div
             className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply z-0"

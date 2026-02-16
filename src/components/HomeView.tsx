@@ -126,7 +126,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* 2. The Vessel (YinYang Coin) */}
         <div className="relative w-[80%] md:w-[70%] lg:w-[45%] max-w-[540px] lg:max-w-[480px] max-h-[70vh] aspect-square z-10">
           <motion.div 
-            className="absolute inset-0 rounded-full shadow-2xl shadow-slate-200/50 border-4 border-white overflow-hidden bg-white text-slate-900"
+            className="absolute inset-0 rounded-full shadow-2xl shadow-slate-200/50 border-[1.5px] border-white overflow-hidden bg-white text-slate-900"
             // Breathing animation only when waiting for ritual
             animate={isRitualReady ? { opacity: [0.7, 1, 0.7], scale: [0.98, 1, 0.98] } : { opacity: 1, scale: 1 }}
             transition={isRitualReady ? { duration: 6, repeat: Infinity, ease: "easeInOut" } : {}}
