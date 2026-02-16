@@ -161,7 +161,7 @@ export const LandingPage = () => {
                     <motion.span 
                         animate={{ opacity: [0.4, 0.7, 0.4] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                        className="text-[12px] md:text-[2vmin] font-medium md:font-light text-[#6A5F51] md:text-[#A89F91] ml-2 md:ml-4 mb-2 md:mb-4 italic tracking-widest"
+                        className="text-[15px] md:text-xl font-medium md:font-light text-[#6A5F51] md:text-[#A89F91] ml-2 md:ml-4 mb-2 md:mb-4 italic tracking-widest"
                     >
                         Lm
                     </motion.span>
@@ -170,7 +170,7 @@ export const LandingPage = () => {
 
             {/* Mutual Aid Infrastructure Message */}
             <div className="space-y-4 md:space-y-6 max-w-2xl mx-auto mb-10 md:mb-20">
-                <p className="text-[17px] md:text-lg leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#222222] md:text-[#444444]">
+                <p className="text-[18px] md:text-xl leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#222222] md:text-[#444444]">
                     これは、いわゆる地域通貨ではありません。
                     <br className="hidden md:block" />
                     生きていくことを、みんなで支え合うための
@@ -267,20 +267,24 @@ export const LandingPage = () => {
         </Section>
 
         {/* The 3 Laws (Rebranded + Mutual Aid Refinement) */}
-        <Section className="py-12 md:py-20 px-6 max-w-6xl mx-auto w-full">
-          <div className="grid md:grid-cols-3 gap-8 md:gap-12">
+        <Section className="py-16 md:py-24 px-6 max-w-6xl mx-auto w-full border-t border-[#EAEAEA]">
+          <div className="mb-12 md:mb-16 text-center">
+             <h2 className="text-2xl md:text-3xl font-serif font-medium text-[#222222] mb-4">存在の掟</h2>
+             <p className="text-[15px] md:text-base text-[#666666] font-sans">Three Laws of Existence</p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-12 md:gap-12">
             <FeatureCard 
-              icon={<Sun size={28} className="text-orange-300 stroke-[1.5px]" />}
+              icon={<Sun size={32} className="text-orange-300 stroke-[1.5px]" />}
               title="満たし (Blessing)"
               desc="十日に一度、あなたの器は 2,400 Lm の光で満たされます。"
             />
             <FeatureCard 
-              icon={<Droplets size={28} className="text-blue-300 stroke-[1.5px]" />}
+              icon={<Droplets size={32} className="text-blue-300 stroke-[1.5px]" />}
               title="巡り (Flow)"
               desc="一時間ごとに 10 Lm が、社会という海へ還っていきます。"
             />
             <FeatureCard 
-              icon={<HeartHandshake size={28} className="text-rose-300 stroke-[1.5px]" />}
+              icon={<HeartHandshake size={32} className="text-rose-300 stroke-[1.5px]" />}
               title="結び (Connection)"
               desc="誰かに手渡すことでしか、この光は守れない。具体的に誰かに託すとき、ギフトとしての温もりが生まれます。"
             />
@@ -288,8 +292,13 @@ export const LandingPage = () => {
         </Section>
 
         {/* Scenarios of Mutual Aid (Shiori Cards) */}
-        <Section className="py-16 md:py-24 px-6 bg-gradient-to-b from-transparent via-white/10 to-transparent">
-             <div className="max-w-5xl mx-auto flex flex-col md:grid md:grid-cols-3 gap-6 md:gap-6 mb-12 md:mb-24 px-2 md:px-0">
+        <Section className="py-16 md:py-24 px-6 bg-[#F5F4F0] border-y border-[#EAEAEA]">
+             <div className="max-w-5xl mx-auto mb-12 md:mb-16 text-center">
+                 <h2 className="text-2xl md:text-3xl font-serif font-medium text-[#222222] mb-4">互助の循環</h2>
+                 <p className="text-[15px] md:text-base text-[#666666] font-sans">Scenarios of Support</p>
+             </div>
+
+             <div className="max-w-5xl mx-auto flex flex-col md:grid md:grid-cols-3 gap-8 md:gap-8 mb-12 md:mb-16 px-0 md:px-0">
                 <ScenarioCard 
                     icon={<Smile size={28} />}
                     label="100 Lm：軽い手助け"
@@ -309,7 +318,7 @@ export const LandingPage = () => {
                     color="text-rose-500"
                 />
              </div>
-             <p className="text-center text-sm md:text-base text-[#111111] md:text-[#888888] font-medium md:font-normal tracking-[0.1em] md:tracking-[0.2em] font-serif italic leading-relaxed px-6 md:px-4">
+             <p className="text-center text-[15px] md:text-base text-[#111111] md:text-[#888888] font-medium md:font-normal tracking-[0.1em] md:tracking-[0.2em] font-serif italic leading-relaxed px-2 md:px-4">
                 あなたの器（2,400 Lm）から溢れる光を、自由な感性で巡らせてください。
              </p>
         </Section>
@@ -411,18 +420,18 @@ export const LandingPage = () => {
 
 const ScenarioCard = ({ icon, label, desc, color }: { icon: React.ReactNode, label: string, desc: string, color: string }) => {
   return (
-    <div className="w-full md:aspect-square p-0 md:p-6 bg-transparent md:bg-white md:rounded-xl md:shadow-[0_2px_15px_rgba(0,0,0,0.02)] md:border md:border-[#F0F0F0]/50 flex flex-col items-start md:items-center text-left md:text-center justify-center relative overflow-hidden group transition-all duration-700 border-b border-[#Eaeaea] md:border-b-0 pb-8 md:pb-0 mb-8 md:mb-0 last:border-b-0 last:mb-0 last:pb-0">
-      <div className="flex flex-row md:flex-col items-center mb-4 md:mb-4 w-full">
+    <div className="w-full md:aspect-square p-0 md:p-6 bg-transparent md:bg-white md:rounded-xl md:shadow-[0_2px_15px_rgba(0,0,0,0.02)] md:border md:border-[#F0F0F0]/50 flex flex-col items-start md:items-center text-left md:text-center justify-center relative overflow-hidden group transition-all duration-700 border-b border-[#DEDEDE] md:border-b-0 pb-8 md:pb-0 mb-8 md:mb-0 last:border-b-0 last:mb-0 last:pb-0">
+      <div className="flex flex-row md:flex-col items-center mb-3 md:mb-4 w-full">
           <div
-            className={`mr-4 md:mr-0 p-3 md:p-2.5 rounded-full bg-white shadow-sm ${color} group-hover:scale-105 transition-transform duration-500`}
+            className={`mr-4 md:mr-0 p-3 md:p-3 rounded-full bg-white shadow-sm ${color} group-hover:scale-105 transition-transform duration-500`}
           >
             {icon}
           </div>
-          <h5 className="text-[19px] md:text-sm font-bold md:font-light tracking-[0.05em] md:tracking-[0.2em] text-[#111111] md:text-[#444444] font-serif uppercase leading-tight">
+          <h5 className="text-[18px] md:text-xl font-bold md:font-medium tracking-[0.05em] md:tracking-[0.1em] text-[#111111] md:text-[#333333] font-serif leading-tight">
             {label}
           </h5>
       </div>
-      <p className="text-[16px] md:text-sm font-medium md:font-normal text-[#333333] md:text-[#777777] leading-relaxed tracking-normal font-serif pl-0 md:px-2 w-full">
+      <p className="text-[15px] md:text-base font-normal text-[#333333] md:text-[#666666] leading-relaxed tracking-normal font-sans pl-0 md:px-2 w-full">
         {desc}
       </p>
     </div>
@@ -452,13 +461,13 @@ const Section = ({ children, className }: { children: React.ReactNode, className
 const FeatureCard = ({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) => {
   return (
     <div className="flex flex-col items-center md:items-center text-center p-0 md:p-6 bg-transparent transition-all duration-700 group cursor-default">
-      <div className="mb-4 md:mb-6 p-5 md:p-4 bg-white shadow-sm md:bg-white/30 rounded-full group-hover:bg-white/60 transition-colors duration-500">
+      <div className="mb-4 md:mb-6 p-4 md:p-5 bg-white shadow-sm md:bg-white/40 rounded-full group-hover:bg-white/80 transition-colors duration-500">
         {icon}
       </div>
-      <h4 className="text-2xl md:text-lg font-bold md:font-light tracking-[0.1em] md:tracking-[0.2em] text-[#111111] md:text-[#444444] mb-4 font-serif uppercase">
+      <h4 className="text-[18px] md:text-xl font-bold md:font-medium tracking-[0.1em] md:tracking-[0.15em] text-[#111111] md:text-[#333333] mb-3 md:mb-4 font-serif">
         {title}
       </h4>
-      <p className="text-[17px] md:text-sm font-medium md:font-normal text-[#222222] md:text-[#888888] leading-relaxed tracking-wide group-hover:text-[#111111] md:group-hover:text-[#555555] transition-colors duration-500 font-serif">
+      <p className="text-[15px] md:text-base font-normal text-[#333333] md:text-[#666666] leading-relaxed tracking-normal group-hover:text-[#111111] md:group-hover:text-[#444444] transition-colors duration-500 font-sans">
         {desc}
       </p>
     </div>
