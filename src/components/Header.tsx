@@ -69,8 +69,8 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
         <div className="relative w-full">
           {/* Two Pillars Structure - with white background spanning full width */}
           <div className="relative w-full bg-transparent">
-            <div className="w-full max-w-2xl mx-auto px-6 py-4 md:py-6">
-              <div className="flex items-start justify-between">
+            <div className="w-full max-w-2xl mx-auto px-6 py-3 md:py-6">
+              <div className="flex items-center justify-between">
                 {/* Left: Title and Location */}
                 {/* Left: Dynamic Content based on ViewMode */}
                 <div>
@@ -95,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
                   ) : (
                     /* Default Home View */
                     <>
-                      <div className="text-[10px] sm:text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
+                      <div className="text-[9px] font-bold tracking-[0.6em] uppercase text-slate-400/80 leading-none mb-1.5 select-none pl-0.5">
                         Existence Ticker
                       </div>
                       <button
@@ -123,12 +123,12 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
                 </div>
 
                 {/* Right Cluster: Clock & Navigation - Aligned to Bottom Baseline */}
-                <div className="flex h-12 items-end gap-4">
+                <div className="flex items-center gap-3 min-[375px]:gap-4 h-full">
                   {/* Water Clock Indicator (Lm Capacity) - Compact Visual Only */}
-                  <div className="relative w-10 h-12 bg-slate-50 rounded-b-xl rounded-t-md overflow-hidden border border-slate-200 shadow-inner shrink-0">
+                  <div className="relative w-8 h-10 bg-white/40 rounded-full overflow-hidden border border-slate-200/60 shadow-[inset_0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-sm shrink-0 group">
                     {/* 1. Committed Lm (Bottom Layer - Frozen/Sediment) */}
                     <motion.div
-                      className="absolute bottom-0 left-0 right-0 bg-slate-200/80 saturate-0"
+                      className="absolute bottom-0 left-0 right-0 bg-slate-300/40 saturate-0"
                       initial={{ height: 0 }}
                       animate={{ height: `${committedHeight}%` }}
                       transition={{ duration: 1.0, ease: "easeOut" }}
@@ -136,7 +136,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
 
                     {/* 2. Available Lm (Top Layer - Liquid Light) */}
                     <motion.div
-                      className="absolute bottom-0 left-0 right-0 bg-amber-300/60 backdrop-blur-sm"
+                      className="absolute bottom-0 left-0 right-0 bg-amber-300/60"
                       initial={{ height: 0, bottom: 0 }}
                       animate={{
                         height: `${availableHeight}%`,
@@ -148,11 +148,12 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
                         delay: 0.2,
                       }}
                     >
-                      <div className="absolute inset-0 bg-white/30 animate-pulse" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-transparent animate-pulse" />
                     </motion.div>
 
-                    {/* Glass Reflection */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent opacity-50 pointer-events-none" />
+                    {/* Glass Reflection & Inner Border */}
+                    <div className="absolute inset-x-1.5 top-1 bottom-1 border-r border-white/20 rounded-full opacity-40 pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/45 to-transparent opacity-60 pointer-events-none" />
                   </div>
 
                   {/* Navigation - No longer needs margin-top, aligned by items-end */}

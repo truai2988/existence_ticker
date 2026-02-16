@@ -95,12 +95,12 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
             </nav>
 
             {/* Mobile: Hamburger Menu & Sprout */}
-            <div className="md:hidden flex h-12 items-end gap-4 relative z-50">
+            <div className="md:hidden flex items-center gap-3 relative z-50 h-full">
                  {/* Mobile Admin Entrance - Left of Edit/Menu */}
                  {isAdmin && (currentTab === "profile" || currentTab === "profile_edit") && !isMenuOpen && (
                     <button
                         onClick={() => onTabChange("admin")}
-                        className="pb-0 text-red-500 hover:text-red-700 transition-colors mb-1 animate-in fade-in"
+                        className="text-red-500 hover:text-red-700 transition-colors animate-in fade-in"
                         aria-label="管理コンソール"
                     >
                         <Shield size={24} strokeWidth={1.5} />
@@ -111,7 +111,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                  {currentTab === "profile" && !isMenuOpen && (
                     <button
                         onClick={() => onTabChange("profile_edit")}
-                        className="pb-0 text-slate-400 hover:text-slate-600 transition-colors mb-1 animate-in fade-in"
+                        className="text-slate-400 hover:text-slate-600 transition-colors animate-in fade-in"
                         aria-label="プロフィール編集"
                     >
                         <Edit2 size={24} strokeWidth={1.5} />
@@ -120,7 +120,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
 
                 <button
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    className="p-2 -mb-1 text-slate-600 hover:text-slate-900 transition-colors"
+                    className="p-1 -mr-1 text-slate-500 hover:text-slate-800 transition-colors scale-110"
                     aria-label="メニュー"
                 >
                     {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
