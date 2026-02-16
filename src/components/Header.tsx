@@ -91,7 +91,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
                   <div className="relative w-8 h-10 bg-white/40 rounded-full overflow-hidden border border-slate-200/60 shadow-[inset_0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-sm shrink-0 group">
                     {/* 1. Committed Lm (Bottom Layer - Frozen/Sediment) */}
                     <motion.div
-                      className="absolute bottom-0 left-0 right-0 bg-slate-300/40 saturate-0"
+                      className="absolute bottom-0 left-0 right-0 bg-slate-400/80 saturate-[0.2]"
                       initial={{ height: 0 }}
                       animate={{ height: `${committedHeight}%` }}
                       transition={{ duration: 1.0, ease: "easeOut" }}
@@ -99,7 +99,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
 
                     {/* 2. Available Lm (Top Layer - Liquid Light) */}
                     <motion.div
-                      className="absolute bottom-0 left-0 right-0 bg-amber-300/60"
+                      className="absolute left-0 right-0 bg-amber-300/60"
                       initial={{ height: 0, bottom: 0 }}
                       animate={{
                         height: `${availableHeight}%`,
@@ -108,7 +108,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
                       transition={{
                         duration: 1.0,
                         ease: "easeOut",
-                        delay: 0.2,
+                        delay: 0.1,
                       }}
                     >
                       <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-transparent animate-pulse" />

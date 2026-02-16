@@ -11,7 +11,15 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn() && request.auth.token.admin == true;
+      return isSuperAdmin() || isDocAdmin();
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/super_admins/$(request.auth.uid));
+    }
+
+    function isDocAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
     // --- Users Collection ---
@@ -28,7 +36,9 @@ service cloud.firestore {
                     && request.resource.data.last_updated is timestamp;
 
       allow update: if isSignedIn() && (
-        (isOwner(userId) && request.resource.data.balance >= 0) ||
+        (isOwner(userId) && request.resource.data.balance >= 0 && 
+         (request.resource.data.role == resource.data.role || !('role' in request.resource.data))
+        ) ||
         isAdmin()
       ); 
       
@@ -91,6 +101,12 @@ service cloud.firestore {
                     && resource.data.is_used == false 
                     && request.resource.data.is_used == true
                     && request.resource.data.used_by == request.auth.uid;
+    }
+
+    // --- Super Admins ---
+    match /super_admins/{uid} {
+      allow read: if isSignedIn();
+      allow write: if isSuperAdmin();
     }
   }
 }
