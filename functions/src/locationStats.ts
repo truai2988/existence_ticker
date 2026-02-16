@@ -1,7 +1,8 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import { FieldValue } from "firebase-admin/firestore";
 
-const db = admin.firestore();
+// db initialization moved to inside functions to ensure admin.initializeApp() is called first
 
 /**
  * Updates the location_stats collection when a user's location changes.
@@ -10,6 +11,7 @@ const db = admin.firestore();
  */
 // Helper to clean up wishes (requests)
 const cleanupUserWishes = async (userId: string) => {
+  const db = admin.firestore();
   const requestsRef = db.collection("requests");
   
   // 1. Close "Open" requests (Natural Expiration)
@@ -25,7 +27,7 @@ const cleanupUserWishes = async (userId: string) => {
     batch.update(doc.ref, { 
       status: "expired",
       archived: true,
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
+      updated_at: FieldValue.serverTimestamp()
     });
     opCount++;
   });
@@ -42,7 +44,7 @@ const cleanupUserWishes = async (userId: string) => {
     batch.update(doc.ref, {
       status: "interrupted", // Custom status for withdrawal
       helper_note: "The wisher has withdrawn from the world.",
-      updated_at: admin.firestore.FieldValue.serverTimestamp()
+      updated_at: FieldValue.serverTimestamp()
     });
     opCount++;
   });
@@ -63,6 +65,7 @@ export const updateLocationStats = functions.firestore
     const userId = context.params.userId;
     const beforeData = change.before.exists ? change.before.data() : null;
     const afterData = change.after.exists ? change.after.data() : null;
+    const db = admin.firestore();
 
     // 1. DETECT DELETION & CLEANUP TRACES
     if (beforeData && !afterData) {
@@ -91,6 +94,7 @@ export const updateLocationStats = functions.firestore
         // Reads
         let oldDoc: admin.firestore.DocumentSnapshot | null = null;
         let newDoc: admin.firestore.DocumentSnapshot | null = null;
+        // Ensure db is used from outer scope
         const oldRef = oldKey ? db.collection("location_stats").doc(oldKey) : null;
         const newRef = newKey ? db.collection("location_stats").doc(newKey) : null;
 
@@ -111,7 +115,7 @@ export const updateLocationStats = functions.firestore
                 count: next,
                 prefecture: oldLoc.prefecture,
                 city: oldLoc.city,
-                last_updated: admin.firestore.FieldValue.serverTimestamp()
+                last_updated: FieldValue.serverTimestamp()
             }, { merge: true });
         }
 
@@ -124,7 +128,7 @@ export const updateLocationStats = functions.firestore
                 count: next,
                 prefecture: newLoc.prefecture,
                 city: newLoc.city,
-                last_updated: admin.firestore.FieldValue.serverTimestamp()
+                last_updated: FieldValue.serverTimestamp()
             }, { merge: true });
         }
     });
@@ -151,6 +155,7 @@ export const initializeLocationStats = functions.https.onCall(
 
     console.log("Starting Location Stats Initialization...");
 
+    const db = admin.firestore();
     const stats: Record<
       string,
       { count: number; prefecture: string; city: string }
@@ -191,7 +196,7 @@ export const initializeLocationStats = functions.https.onCall(
         count: data.count,
         prefecture: data.prefecture,
         city: data.city,
-        last_updated: admin.firestore.FieldValue.serverTimestamp(),
+        last_updated: FieldValue.serverTimestamp(),
       });
       batchCount++;
 

@@ -26,17 +26,21 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
             {/* Desktop: Icon Navigation (md以上) - Scaled for Tablet */}
             <nav className="hidden md:flex items-end gap-6 h-12">
                 {/* PC Admin Entrance - Restricted to Profile Page, Far Left */}
-                {isAdmin && (currentTab === "profile" || currentTab === "profile_edit") && (
+                {/* Profile Actions Group (Admin & Edit) */}
+                {(currentTab === "profile" || currentTab === "profile_edit") && (
                     <div className="flex items-end gap-2">
-                        <button
-                            onClick={() => onTabChange("admin")}
-                            className={`px-2 pt-5 pb-0 transition-colors text-red-500 hover:text-red-700 animate-in fade-in duration-500`}
-                            aria-label="管理コンソール"
-                        >
-                            <Shield size={28} strokeWidth={2} />
-                        </button>
+                        {/* PC Admin Entrance */}
+                        {isAdmin && (
+                            <button
+                                onClick={() => onTabChange("admin")}
+                                className={`px-2 pt-5 pb-0 transition-colors text-red-500 hover:text-red-700 animate-in fade-in duration-500`}
+                                aria-label="管理コンソール"
+                            >
+                                <Shield size={28} strokeWidth={2} />
+                            </button>
+                        )}
 
-                         {/* Profile Edit Action (Adjacent to Admin) */}
+                        {/* Profile Edit Action */}
                         {currentTab === "profile" && (
                             <button
                                 onClick={() => onTabChange("profile_edit")}

@@ -2,12 +2,13 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 export * from './locationStats';
 export * from './ai';
+export * from './deleteAccount';
 
 if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-const db = admin.firestore();
+// const db = admin.firestore(); // Moved inside functions to avoid init error
 
 /**
  * World Reset: The Turning of the Wheel
@@ -34,6 +35,7 @@ export const resetCycle = functions.https.onCall(async (data: ResetCycleData, co
 
   const newCapacity = data.capacity || 2400; // デフォルトは2400
   const batchLimit = 500; // Firestoreのバッチ書き込み上限
+  const db = admin.firestore(); // Lazy Init
   let batch = db.batch();
   let operationCount = 0;
 
@@ -97,6 +99,7 @@ export const resetCycle = functions.https.onCall(async (data: ResetCycleData, co
 export const monitorBalances = functions.firestore
   .document('users/{userId}')
   .onUpdate(async (change, context) => {
+    const db = admin.firestore(); // Lazy Init
     const newValue = change.after.data();
     const balance = newValue.balance;
 

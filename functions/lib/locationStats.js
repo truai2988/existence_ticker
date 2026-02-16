@@ -36,7 +36,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.initializeLocationStats = exports.updateLocationStats = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
-const db = admin.firestore();
+const firestore_1 = require("firebase-admin/firestore");
+// db initialization moved to inside functions to ensure admin.initializeApp() is called first
 /**
  * Updates the location_stats collection when a user's location changes.
  * This ensures we have a real-time counter of users in each city without
@@ -44,6 +45,7 @@ const db = admin.firestore();
  */
 // Helper to clean up wishes (requests)
 const cleanupUserWishes = async (userId) => {
+    const db = admin.firestore();
     const requestsRef = db.collection("requests");
     // 1. Close "Open" requests (Natural Expiration)
     const openSnapshot = await requestsRef
@@ -56,7 +58,7 @@ const cleanupUserWishes = async (userId) => {
         batch.update(doc.ref, {
             status: "expired",
             archived: true,
-            updated_at: admin.firestore.FieldValue.serverTimestamp()
+            updated_at: firestore_1.FieldValue.serverTimestamp()
         });
         opCount++;
     });
@@ -71,7 +73,7 @@ const cleanupUserWishes = async (userId) => {
         batch.update(doc.ref, {
             status: "interrupted", // Custom status for withdrawal
             helper_note: "The wisher has withdrawn from the world.",
-            updated_at: admin.firestore.FieldValue.serverTimestamp()
+            updated_at: firestore_1.FieldValue.serverTimestamp()
         });
         opCount++;
     });
@@ -90,6 +92,7 @@ exports.updateLocationStats = functions.firestore
     const userId = context.params.userId;
     const beforeData = change.before.exists ? change.before.data() : null;
     const afterData = change.after.exists ? change.after.data() : null;
+    const db = admin.firestore();
     // 1. DETECT DELETION & CLEANUP TRACES
     if (beforeData && !afterData) {
         console.log(`User ${userId} deleted. Initiating Trace Cleanup.`);
@@ -113,6 +116,7 @@ exports.updateLocationStats = functions.firestore
         // Reads
         let oldDoc = null;
         let newDoc = null;
+        // Ensure db is used from outer scope
         const oldRef = oldKey ? db.collection("location_stats").doc(oldKey) : null;
         const newRef = newKey ? db.collection("location_stats").doc(newKey) : null;
         if (shouldDecrement && oldRef) {
@@ -130,7 +134,7 @@ exports.updateLocationStats = functions.firestore
                 count: next,
                 prefecture: oldLoc.prefecture,
                 city: oldLoc.city,
-                last_updated: admin.firestore.FieldValue.serverTimestamp()
+                last_updated: firestore_1.FieldValue.serverTimestamp()
             }, { merge: true });
         }
         if (shouldIncrement && newRef) {
@@ -141,7 +145,7 @@ exports.updateLocationStats = functions.firestore
                 count: next,
                 prefecture: newLoc.prefecture,
                 city: newLoc.city,
-                last_updated: admin.firestore.FieldValue.serverTimestamp()
+                last_updated: firestore_1.FieldValue.serverTimestamp()
             }, { merge: true });
         }
     });
@@ -159,6 +163,7 @@ exports.initializeLocationStats = functions.https.onCall(async (data, context) =
     // In a real app, you might want to check for admin role here
     // if (context.auth.token.role !== 'admin') ...
     console.log("Starting Location Stats Initialization...");
+    const db = admin.firestore();
     const stats = {};
     const usersSnapshot = await db.collection("users").get();
     let processedCount = 0;
@@ -190,7 +195,7 @@ exports.initializeLocationStats = functions.https.onCall(async (data, context) =
             count: data.count,
             prefecture: data.prefecture,
             city: data.city,
-            last_updated: admin.firestore.FieldValue.serverTimestamp(),
+            last_updated: firestore_1.FieldValue.serverTimestamp(),
         });
         batchCount++;
         if (batchCount >= BATCH_SIZE) {

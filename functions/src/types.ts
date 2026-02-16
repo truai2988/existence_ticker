@@ -1,0 +1,93 @@
+export type GratitudeTier = "light" | "medium" | "heavy";
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email?: string;
+  avatarUrl?: string | null;
+  headline?: string;
+  location?: {
+    prefecture: string;
+    city: string;
+  };
+  links?: {
+    x?: string;
+    instagram?: string;
+    website?: string;
+  } | null;
+  bio?: string | null;
+  balance: number;
+  /** @deprecated Use active wishes query sum for Committed Lm calculation */
+  committed_lm: number;
+  xp: number;
+  warmth: number;
+  role?: "user" | "admin";
+  age_group?: string;
+  gender?: "male" | "female" | "other";
+
+  is_deleted?: boolean;
+  last_updated?: number;
+  completed_contracts?: number;
+  created_contracts?: number;
+  completed_requests?: number;
+
+  consecutive_completions?: number;
+  has_cancellation_history?: boolean;
+  pending_interruption_notification?: string | null;
+
+  scheduled_cycle_days?: number;
+  cycle_started_at?: number;
+  created_at?: number;
+  used_invitation_code?: string;
+}
+
+export interface Point {
+  id: string;
+  value: number;
+  reason: string;
+  timestamp: number;
+}
+
+export interface Wish {
+  id: string;
+  requester_id: string;
+  requester_name?: string;
+  requester_trust_score?: number;
+  requester_completed_requests?: number;
+  content: string;
+  applicants?: {
+    id: string;
+    name: string;
+    trust_score?: number;
+    contact_email?: string;
+  }[];
+  gratitude_preset: GratitudeTier;
+  status:
+    | "open"
+    | "in_progress"
+    | "review_pending"
+    | "fulfilled"
+    | "completed"
+    | "cancelled"
+    | "interrupted"
+    | "expired";
+  created_at: number;
+  updated_at?: number;
+  tags?: string[];
+  helper_id?: string;
+  helper_name?: string;
+  helper_contact_email?: string;
+  requester_contact_email?: string;
+  contact_note?: string;
+  cost?: number;
+  val_at_fulfillment?: number;
+  accepted_at?: number;
+  fulfilled_at?: number;
+  cancelled_at?: number;
+  cancel_reason?: string;
+  isAnonymous?: boolean;
+  applicant_ids?: string[]; // For querying involved wishes
+  system_note?: string; // System-generated explanatory messages (e.g., helper departure)
+  isOptimistic?: boolean;
+  error?: string;
+}

@@ -10,16 +10,18 @@ import {
     updateEmail,
     reauthenticateWithCredential
 } from 'firebase/auth';
-import { doc, serverTimestamp, runTransaction, increment, collection, query, where, getDocs, getDoc, QueryDocumentSnapshot, DocumentData, deleteField } from 'firebase/firestore';
-import { auth, db } from '../lib/firebase';
+import { doc, serverTimestamp, runTransaction, increment, getDoc } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
+import { auth, db, functions } from '../lib/firebase';
 import { useAuthContext } from '../contexts/AuthContextDefinition';
-import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS, getMillis } from '../logic/worldPhysics';
 import { useCallback } from 'react';
 
 
 export const useAuth = () => {
     // Consume Singleton State
     const { user, isAdmin, loading, isRegistering, setIsRegistering } = useAuthContext();
+    
+    // ... (keep other functions)
 
     const signIn = useCallback(async (email: string, pass: string) => {
         if (!auth) throw new Error("Auth not initialized");
@@ -220,244 +222,17 @@ export const useAuth = () => {
     }, []);
 
     const deleteAccount = useCallback(async () => {
-        if (!auth || !auth.currentUser || !db) throw new Error("Authentication or Database error");
-        const user = auth.currentUser;
-
-        // --- PROTECTION: LAST ADMIN CHECK ---
-        // Ensure the system is never left without at least one DB administrator.
-        const userRef = doc(db, 'users', user.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists() && userSnap.data().role === 'admin') {
-            const adminQuery = query(collection(db, 'users'), where('role', '==', 'admin'));
-            const adminSnap = await getDocs(adminQuery);
-            if (adminSnap.size <= 1) {
-                throw new Error("あなたが最後の管理者です。他の方を管理者に任命してから退会してください。");
-            }
-        }
-
+        if (!auth || !auth.currentUser) throw new Error("Authentication error");
+        if (!functions) throw new Error("Functions not initialized");
+        
         try {
-            // 1. Fetch all data needed for compensation & resignation analysis
-            const wishesRef = collection(db, 'wishes');
+            const deleteAccountFn = httpsCallable(functions, 'deleteAccount');
+            await deleteAccountFn();
             
-            // Wishes created by user
-            const qRequester = query(wishesRef, where('requester_id', '==', user.uid));
-            const snapRequester = await getDocs(qRequester);
+            // Sign out locally to clear state
+            await firebaseSignOut(auth);
             
-            // Wishes where user was involved (helper or applicant)
-            const qInvolved = query(wishesRef, where('applicant_ids', 'array-contains', user.uid));
-            const snapInvolved = await getDocs(qInvolved);
-
-            // History subcollection (transaction logs)
-            const historyRef = collection(db, 'users', user.uid, 'history');
-            const historySnap = await getDocs(historyRef);
-
-            // 2. Execute Transactional Death Ritual
-            await runTransaction(db, async (transaction) => {
-                const userRef = doc(db!, 'users', user.uid);
-                
-                // READ 1: User Profile
-                const userSnap = await transaction.get(userRef);
-
-                // --- GHOST OPTIMIZATION ---
-                // If the profile document doesn't even exist, we skip the complex cleanup
-                // and just proceed to Auth deletion.
-                if (!userSnap.exists()) {
-                    console.log("[deleteAccount] No profile found (Ghost). Proceeding to direct Auth deletion.");
-                    return; 
-                }
-
-                // READ 2: Pre-fetch all Helper Profiles involved in active wishes
-                // Must be done BEFORE any writes
-                const helperMap = new Map();
-                const activeWishes: { doc: QueryDocumentSnapshot<DocumentData>, data: DocumentData }[] = [];
-                
-                for (const wishDoc of snapRequester.docs) {
-                    const wData = wishDoc.data();
-                    if ((wData.status === 'in_progress' || wData.status === 'review_pending') && wData.helper_id) {
-                        activeWishes.push({ doc: wishDoc, data: wData });
-                        if (!helperMap.has(wData.helper_id)) {
-                             const hRef = doc(db!, 'users', wData.helper_id);
-                             const hSnap = await transaction.get(hRef);
-                             helperMap.set(wData.helper_id, hSnap);
-                        }
-                    }
-                }
-
-                // READ 2.5: Pre-fetch all Requesters of wishes this user is helping (Scenario B: Helper deletion)
-                const originalRequesterMap = new Map();
-                for (const helpDoc of snapInvolved.docs) {
-                    const wData = helpDoc.data();
-                    if (wData.helper_id === user.uid && (wData.status === 'in_progress' || wData.status === 'review_pending')) {
-                        if (!originalRequesterMap.has(wData.requester_id)) {
-                            const rRef = doc(db!, 'users', wData.requester_id);
-                            const rSnap = await transaction.get(rRef);
-                            originalRequesterMap.set(wData.requester_id, rSnap);
-                        }
-                    }
-                }
-
-                // --- ALL READS COMPLETE. STARTING WRITES ---
-
-                if (userSnap.exists()) {
-                    const uData = userSnap.data();
-
-                    // STEP 0: INVITATION CODE RECYCLING
-                    const usedInvitationCode = uData.used_invitation_code;
-                    if (usedInvitationCode) {
-                        const invitationRef = doc(db!, 'invitation_codes', usedInvitationCode);
-                        transaction.update(invitationRef, {
-                            is_used: false,
-                            used_by: null,
-                            used_at: null
-                        });
-                    }
-
-                    // STEP 0.5: DECREMENT LOCATION STATS
-                    if (uData.location && uData.location.prefecture && uData.location.city) {
-                        const cityKey = `${uData.location.prefecture}_${uData.location.city}`;
-                        const statRef = doc(db!, 'location_stats', cityKey);
-                        transaction.set(statRef, { count: increment(-1) }, { merge: true });
-                    }
-                }
-
-                // === LAW 1: MASTER'S ABSENCE (Requester Deletes Account) ===
-                // If the owner is gone, the wish is CRYSTALIZED (Deleted).
-                let totalDecayMilli = 0;
-
-                // User profile decay
-                if (userSnap.exists()) {
-                    const uData = userSnap.data();
-                    const uBalance = uData.balance || 0;
-                    const uCommitted = uData.committed_lm || 0;
-                    const uLastUpdated = getMillis(uData.last_updated);
-
-                    const uElapsedSec = ((Date.now() - uLastUpdated) / 1000) | 0;
-                    const uBalanceDecayedMilli = calculateDecayedValue(toMilli(uBalance), uElapsedSec);
-                    const uCommittedDecayedMilli = calculateDecayedValue(toMilli(uCommitted), uElapsedSec);
-                    
-                    totalDecayMilli += (toMilli(uBalance) - uBalanceDecayedMilli);
-                    totalDecayMilli += (toMilli(uCommitted) - uCommittedDecayedMilli);
-                }
-
-                for (const wishDoc of snapRequester.docs) {
-                    const wishData = wishDoc.data();
-                    const wishInitialCost = wishData.cost || 0;
-                    const wishElapsedSec = ((Date.now() - getMillis(wishData.created_at)) / 1000) | 0;
-                    const wishDecayedMilli = calculateDecayedValue(toMilli(wishInitialCost), wishElapsedSec);
-                    totalDecayMilli += (toMilli(wishInitialCost) - wishDecayedMilli);
-                    
-                    // Compensation if helper was in progress
-                    if ((wishData.status === 'in_progress' || wishData.status === 'review_pending') && wishData.helper_id) {
-                         const helperSnap = helperMap.get(wishData.helper_id);
-                         if (helperSnap && helperSnap.exists()) {
-                             const hData = helperSnap.data();
-                             const hBalance = hData.balance || 0;
-                             const hLastUpdated = getMillis(hData.last_updated);
-                             const hElapsedSec = ((Date.now() - hLastUpdated) / 1000) | 0;
-                             const hDecayedBalanceMilli = calculateDecayedValue(toMilli(hBalance), hElapsedSec);
-                             totalDecayMilli += (toMilli(hBalance) - hDecayedBalanceMilli);
-                             
-                             const uData = userSnap.data();
-                             const uLastUpdatedForComp = getMillis(uData?.last_updated);
-                             const uElapsedSecForComp = ((Date.now() - uLastUpdatedForComp) / 1000) | 0;
-                             const uDecayedBalanceMilli = calculateDecayedValue(toMilli(uData?.balance || 0), uElapsedSecForComp);
-                             
-                             const actualPaymentMilli = Math.min(wishDecayedMilli, uDecayedBalanceMilli);
-                             const actualPayment = fromMilli(actualPaymentMilli);
-
-                             // Overflow handling for helper
-                             const hRawNewMilli = hDecayedBalanceMilli + actualPaymentMilli;
-                             const hCappedMilli = Math.min(hRawNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
-                             const hOverflowMilli = Math.max(0, hRawNewMilli - WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
-                             totalDecayMilli += hOverflowMilli;
-
-                             transaction.update(helperSnap.ref, {
-                                 balance: fromMilli(hCappedMilli),
-                                 pending_interruption_notification: "依頼主様がアプリを離れられたため（退会）、感謝のLmが補償として送り届けられました。",
-                                 last_updated: serverTimestamp()
-                             });
-
-                             // Log compensation before deletion (Crystallized names)
-                             const txPropRef = doc(collection(db!, 'transactions'));
-                             const currentUData = userSnap.data();
-                             const currentUName = currentUData?.name || "退会した奏者";
-
-                             transaction.set(txPropRef, {
-                                 type: 'COMPENSATION',
-                                 amount: actualPayment,
-                                 sender_id: user.uid,
-                                 sender_name: currentUName, 
-                                 recipient_id: wishData.helper_id,
-                                 recipient_name: hData.name || "助け手",
-                                 wish_title: wishData.content,
-                                 wish_id: wishDoc.id,
-                                 created_at: serverTimestamp(),
-                                 description: "依頼主が退会されたため、これまでの感謝としてLmが届けられました。"
-                             });
-                         }
-                    }
-
-                    // PHYSICAL DELETION (Crystallyzation)
-                    transaction.delete(wishDoc.ref);
-                }
-
-                // Global Stats Update
-                if (totalDecayMilli > 0) {
-                    const globalStatsRef = doc(db!, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
-                    transaction.set(globalStatsRef, {
-                        total_decayed_stats: increment(fromMilli(totalDecayMilli)),
-                        updated_at: serverTimestamp()
-                    }, { merge: true });
-                }
-
-                // === LAW 2: WISH VALIDITY (Helper Deletes Account) ===
-                // If the requester is still here but the helper leaves, the wish is RECAST (Open).
-                for (const helpDoc of snapInvolved.docs) {
-                    const wData = helpDoc.data();
-                    
-                    // Remove from applicants
-                    const updatedApplicants = (wData.applicants || []).filter((a: { id: string }) => a.id !== user.uid);
-                    const updatedApplicantIds = (wData.applicant_ids || []).filter((id: string) => id !== user.uid);
-
-                    const updates: Record<string, unknown> = {
-                        applicants: updatedApplicants,
-                        applicant_ids: updatedApplicantIds,
-                        updated_at: serverTimestamp(),
-                    };
-
-                    // If user was the active helper, reset wish to open
-                    if (wData.helper_id === user.uid) {
-                        updates.status = 'open';
-                        updates.helper_id = deleteField();
-                        updates.helper_name = deleteField();
-                        updates.accepted_at = deleteField();
-                        updates.system_note = "お相手の退会に伴い、この願いは再び募集へ戻りました。";
-
-                        // Notify Requester
-                        const rRef = doc(db!, 'users', wData.requester_id);
-                        transaction.update(rRef, {
-                            pending_interruption_notification: "助け手様がアプリを離れられたため（退会）、願いが再び募集に戻りました。Lmは安全です。",
-                            last_updated: serverTimestamp()
-                        });
-                    }
-
-                    transaction.update(helpDoc.ref, updates);
-                }
-
-                // C. Delete History Subcollection
-                for (const historyDoc of historySnap.docs) {
-                    transaction.delete(historyDoc.ref);
-                }
-
-                // D. Delete Profile
-                if (userSnap.exists()) {
-                    transaction.delete(userRef);
-                }
-            });
-
-            // 3. Finally, Delete Auth User
-            await user.delete();
-            console.log("Account Deletion Complete: Requester wishes compensated, Helper roles resigned.");
+            console.log("Account Deletion Complete via Cloud Function.");
         } catch (error) {
              console.error("Account deletion failed:", error);
              throw error;

@@ -41,10 +41,10 @@ const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 __exportStar(require("./locationStats"), exports);
 __exportStar(require("./ai"), exports);
+__exportStar(require("./deleteAccount"), exports);
 if (!admin.apps.length) {
     admin.initializeApp();
 }
-const db = admin.firestore();
 exports.resetCycle = functions.https.onCall(async (data, context) => {
     // 1. Security Check
     if (!context.auth) {
@@ -55,6 +55,7 @@ exports.resetCycle = functions.https.onCall(async (data, context) => {
     // if (context.auth.uid !== ADMIN_UID) ...
     const newCapacity = data.capacity || 2400; // デフォルトは2400
     const batchLimit = 500; // Firestoreのバッチ書き込み上限
+    const db = admin.firestore(); // Lazy Init
     let batch = db.batch();
     let operationCount = 0;
     try {
@@ -103,6 +104,7 @@ exports.resetCycle = functions.https.onCall(async (data, context) => {
 exports.monitorBalances = functions.firestore
     .document('users/{userId}')
     .onUpdate(async (change, context) => {
+    const db = admin.firestore(); // Lazy Init
     const newValue = change.after.data();
     const balance = newValue.balance;
     // 負の不渡りを検知

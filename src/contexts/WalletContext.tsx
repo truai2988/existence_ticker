@@ -137,28 +137,33 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         if (!userDoc.exists()) throw "World Error: Soul not found";
         
         const data = userDoc.data();
-        const cycleStartedAt = getMillis(data.cycle_started_at);
+        const cycleStartedAt = getMillis(data.cycle_started_at, 0);
 
-        const now = Date.now();
         let newAnchorTimeMillis: number;
         let isFirstBirth = false;
 
         if (cycleStartedAt === 0) {
-            newAnchorTimeMillis = now;
+            newAnchorTimeMillis = Date.now();
             isFirstBirth = true;
         } else {
             const days = data.scheduled_cycle_days || 10;
             const duration = days * 24 * 60 * 60 * 1000;
             const theoreticalEnd = cycleStartedAt + duration;
 
-            if (theoreticalEnd > now || (now - theoreticalEnd) > duration * 2) {
+            // If current time is past theoretical end, or if it's way before (meaning cycle was reset early)
+            // then the new anchor time is the current time.
+            // Otherwise, the new anchor time is the theoretical end of the previous cycle.
+            // This ensures that if a user resets early, their next cycle starts from now.
+            // If they reset late, their next cycle starts from when it *should* have ended.
+            const now = Date.now();
+            if (now >= theoreticalEnd || (theoreticalEnd - now) > duration) { // The second condition handles early resets
                 newAnchorTimeMillis = now;
             } else {
                 newAnchorTimeMillis = theoreticalEnd;
             }
         }
 
-        const exactElapsedSec = Math.floor((now - newAnchorTimeMillis) / 1000);
+        const exactElapsedSec = Math.floor((Date.now() - newAnchorTimeMillis) / 1000);
         // Pure integer math for rebirth decay (Using NEW law for the coming cycle)
         const milliDecay = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), exactElapsedSec);
         resultBalance = fromMilli(milliDecay);
@@ -174,8 +179,8 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         transaction.update(userRef, {
             balance: WORLD_CONSTANTS.REBIRTH_AMOUNT,
-            last_updated: serverTimestamp(), // Rebirth is a fresh start
-            cycle_started_at: now,
+            last_updated: serverTimestamp(), 
+            cycle_started_at: Date.now(),
         });
 
         transaction.set(txRef, {
@@ -199,8 +204,8 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       });
 
       return { success: true, newBalance: resultBalance };
-    } catch (e) {
-      console.error("Purification Failed:", e);
+    } catch (error) {
+      console.error("Purification Failed:", error);
       return { success: false };
     }
   }, [user, status]);
