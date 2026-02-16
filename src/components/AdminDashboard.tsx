@@ -4,7 +4,7 @@ import { X, Activity, Moon, Sun, AlertTriangle, Book, Users, Search, Shield, Tra
 import { useStats, MetabolismStatus } from "../hooks/useStats";
 import { useDiagnostics } from "../hooks/useDiagnostics";
 import { DiagnosticModal } from "./DiagnosticModal";
-import { db } from "../lib/firebase";
+import { db, auth } from "../lib/firebase";
 import { UserProfile } from "../types";
 import { calculateDecayedValue, toMilli, fromMilli, getMillis } from "../logic/worldPhysics";
 
@@ -50,37 +50,44 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   }, []);
 
   const fetchUsers = useCallback(async () => {
-      setIsLoadingUsers(true);
       try {
           if (!db) return;
           const { collection, getDocs, query, limit } = await import("firebase/firestore");
           
-          const usersRef = collection(db, "users");
-          const q = query(usersRef, limit(50));
-
-          const snapshot = await getDocs(q);
-          const users = snapshot.docs.map(doc => {
-              const data = doc.data();
-              return { 
-                  ...data, 
-                  id: doc.id,
-                  last_updated: getMillis(data.last_updated),
-                  cycle_started_at: getMillis(data.cycle_started_at),
-                  created_at: getMillis(data.created_at)
-              } as UserProfile;
-          });
+          setIsLoadingUsers(true);
           
-          // Client-side sort (now using normalized numbers)
-          users.sort((a, b) => (Number(b.last_updated) || 0) - (Number(a.last_updated) || 0));
-          
-          setUserList(users);
+          // 1. Fetch Users
+          try {
+              const usersRef = collection(db, "users");
+              const q = query(usersRef, limit(50));
+              const snapshot = await getDocs(q);
+              const users = snapshot.docs.map(doc => {
+                  const data = doc.data();
+                  return { 
+                      ...data, 
+                      id: doc.id,
+                      last_updated: getMillis(data.last_updated),
+                      cycle_started_at: getMillis(data.cycle_started_at),
+                      created_at: getMillis(data.created_at)
+                  } as UserProfile;
+              });
+              users.sort((a, b) => (Number(b.last_updated) || 0) - (Number(a.last_updated) || 0));
+              setUserList(users);
+          } catch (e) {
+              console.error("Failed to fetch users list", e);
+          }
 
-          // Fetch Super Admins
-          const superRef = collection(db, "super_admins");
-          const superSnap = await getDocs(superRef);
-          setSuperAdminIds(superSnap.docs.map(d => d.id));
+          // 2. Fetch Super Admins
+          try {
+              const superRef = collection(db, "super_admins");
+              const superSnap = await getDocs(superRef);
+              setSuperAdminIds(superSnap.docs.map(d => d.id));
+          } catch (e) {
+              console.error("Failed to fetch super admins list", e);
+          }
+          
       } catch (e) {
-          console.error("Failed to fetch users", e);
+          console.error("Critical error in fetchUsers", e);
       } finally {
           setIsLoadingUsers(false);
       }
@@ -138,15 +145,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       }
   }, [activeTab, fetchUsers]);
 
-
-
-
   const filteredUsers = userList.filter(u => 
       u.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
       u.id?.includes(searchQuery)
   );
-
-
 
   // Lock body scroll when dashboard is open
   React.useEffect(() => {
@@ -225,6 +227,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </button>
             </div>
         </div>
+      </div>
+
+      {/* --- DIAGNOSTIC INFO (Console Access Diagnostics) --- */}
+      <div className="bg-slate-900 border-b border-white/10 px-4 py-2 flex items-center justify-between text-[10px] font-mono text-slate-500 sticky top-[68px] z-40 overflow-x-auto no-scrollbar">
+          <div className="max-w-3xl mx-auto w-full flex flex-col md:flex-row justify-between gap-2">
+              <div className="flex gap-4 shrink-0">
+                  <span>DB: {db ? "VERIFIED" : "OFFLINE"}</span>
+                  <span className={superAdminIds.length > 0 ? "text-green-500" : "text-amber-500"}>
+                      SUPER ADMINS: {superAdminIds.length}
+                  </span>
+              </div>
+              <div className="flex gap-4 shrink-0">
+                  <span className="text-slate-400">UID: <span className="select-all">{auth?.currentUser?.uid || "???"}</span></span>
+                  <span className="text-blue-400">Citizens: {userList.length}</span>
+              </div>
+          </div>
       </div>
 
       <div className="min-h-full p-4 pb-40 max-w-3xl mx-auto relative">

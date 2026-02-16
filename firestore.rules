@@ -19,7 +19,8 @@ service cloud.firestore {
     }
 
     function isDocAdmin() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      return isSignedIn() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
     // --- Users Collection ---
@@ -105,8 +106,8 @@ service cloud.firestore {
 
     // --- Super Admins ---
     match /super_admins/{uid} {
-      allow read: if isSignedIn();
-      allow write: if isSuperAdmin();
+      allow read: if isSignedIn() && isAdmin();
+      allow write: if isSignedIn() && (isAdmin() || !exists(/databases/$(database)/documents/super_admins/$(uid))); 
     }
   }
 }
