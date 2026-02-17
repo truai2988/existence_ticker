@@ -1,5 +1,0 @@
-
-> existence_ticker@0.0.0 build
-> tsc && vite build
-
-src/components/WishCard.tsx(244,82): error TS2554: Expected 2 arguments, but got 3.
