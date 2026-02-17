@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { motion } from "framer-motion";
+import { AdminIntegrityPanel } from "./admin/AdminIntegrityPanel";
 import {
   X,
   Shield,
@@ -8,11 +9,8 @@ import {
   Activity,
   Users,
   Moon,
-  Trash2,
   AlertTriangle,
   Sun,
-  Archive,
-  Droplets,
   Key,
   Plus,
 } from "lucide-react";
@@ -23,9 +21,6 @@ import { DiagnosticModal } from "./DiagnosticModal";
 import { db } from "../lib/firebase";
 import { UserProfile } from "../types";
 import {
-  calculateDecayedValue,
-  toMilli,
-  fromMilli,
   getMillis,
 } from "../logic/worldPhysics";
 
@@ -59,8 +54,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [inviteCodes, setInviteCodes] = useState<InviteCode[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
-  const [isCleaningUp, setIsCleaningUp] = useState(false);
-  const [cleanupLog, setCleanupLog] = useState<string[]>([]);
   const [superAdminIds, setSuperAdminIds] = useState<string[]>([]);
 
   React.useEffect(() => {
@@ -341,21 +334,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "monitor" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-300"}`}
           >
             <Activity size={16} />
-            Monitor
+            監視
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("citizens")}
             className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "citizens" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-300"}`}
           >
-            <Users size={16} /> Citizens
+            <Users size={16} /> 住民
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("invitations")}
             className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "invitations" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-300"}`}
           >
-            <Key size={16} /> Invitations
+            <Key size={16} /> 招待
           </button>
           <button
             type="button"
@@ -363,7 +356,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "integrity" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-300"}`}
           >
             <Shield size={16} />
-            Integrity
+            整合性
           </button>
         </div>
 
@@ -627,431 +620,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           )}
 
           {activeTab === "integrity" && (
-            <div className="animate-in fade-in duration-300 space-y-6">
-              {/* 1. Orphan Cleanup */}
-              <div className="bg-slate-900/50 rounded-xl border border-slate-700 p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Trash2 className="text-red-400" size={20} />
-                  <h2 className="text-xl font-bold text-slate-200">
-                    Orphan Cleanup (孤立データの掃拭)
-                  </h2>
-                </div>
-                <p className="text-sm text-slate-400 mb-6 font-serif italic">
-                  "この世界から去った者が残した未練（願い）を静かに還します。"
-                </p>
-
-                <button
-                  type="button"
-                  onClick={async () => {
-                    if (
-                      !window.confirm(
-                        "⚠️ ゴーストデータ（孤立した願い）の掃除を開始しますか？",
-                      )
-                    )
-                      return;
-                    setIsCleaningUp(true);
-                    setCleanupLog(["[Init] 探索の準備をしています..."]);
-                    try {
-                      if (!db) throw new Error("Database not initialized");
-                      const {
-                        collection,
-                        getDocs,
-                        query,
-                        limit,
-                        doc,
-                        writeBatch,
-                        getDoc,
-                      } = await import("firebase/firestore");
-
-                      const wishesRef = collection(db, "wishes");
-                      const wishSnapshot = await getDocs(
-                        query(wishesRef, limit(500)),
-                      );
-                      const usersRef = collection(db, "users");
-
-                      let deletedCount = 0;
-                      const batch = writeBatch(db);
-
-                      for (const wishDoc of wishSnapshot.docs) {
-                        const wish = wishDoc.data();
-                        const requesterId = wish.requester_id;
-                        if (requesterId) {
-                          const userDoc = await getDoc(
-                            doc(usersRef, requesterId),
-                          );
-                          if (!userDoc.exists()) {
-                            batch.delete(wishDoc.ref);
-                            deletedCount++;
-                            setCleanupLog((prev) => [
-                              ...prev,
-                              `🗑️ Orphan: ${wish.content?.slice(0, 15)}... (Master missing)`,
-                            ]);
-                          }
-                        }
-                      }
-
-                      if (deletedCount > 0) {
-                        await batch.commit();
-                        setCleanupLog((prev) => [
-                          ...prev,
-                          `✅ 完了: ${deletedCount}件の孤立データを整理しました。`,
-                        ]);
-                      } else {
-                        setCleanupLog((prev) => [
-                          ...prev,
-                          "✨ 孤立データは検出されませんでした。",
-                        ]);
-                      }
-                    } catch (e) {
-                      console.error(e);
-                      setCleanupLog((prev) => [
-                        ...prev,
-                        `❌ Error: ${String(e)}`,
-                      ]);
-                    } finally {
-                      setIsCleaningUp(false);
-                    }
-                  }}
-                  disabled={isCleaningUp}
-                  className="w-full py-4 rounded-xl bg-red-900/30 hover:bg-red-900/50 border border-red-900/50 hover:border-red-500 text-red-400 font-bold uppercase tracking-widest text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isCleaningUp ? (
-                    "浄化中..."
-                  ) : (
-                    <>
-                      <Trash2 size={16} /> 孤立データを掃除する
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* 2. World Recount */}
-              <div className="bg-slate-900/50 rounded-xl border border-slate-700 p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Users className="text-blue-400" size={20} />
-                  <h2 className="text-xl font-bold text-blue-400">
-                    World Recount (生存統計の編纂)
-                  </h2>
-                </div>
-                <p className="text-sm text-slate-400 mb-6 font-serif italic">
-                  "この世界の各地に住まう魂の数を改めて数え直し、地図を正します。"
-                </p>
-
-                <button
-                  type="button"
-                  onClick={async () => {
-                    if (
-                      !window.confirm("⚠️ 全住民の所在地を集計し直しますか？")
-                    )
-                      return;
-                    setIsCleaningUp(true);
-                    setCleanupLog(["[Init] 住民名簿を広げています..."]);
-                    try {
-                      if (!db) throw new Error("Database not initialized");
-                      const { collection, getDocs, query, writeBatch, doc } =
-                        await import("firebase/firestore");
-
-                      const userSnap = await getDocs(
-                        query(collection(db, "users")),
-                      );
-                      const countsMap: Record<string, number> = {};
-                      userSnap.docs.forEach((uDoc) => {
-                        const data = uDoc.data();
-                        if (data.location?.prefecture && data.location?.city) {
-                          const key = `${data.location.prefecture}_${data.location.city}`;
-                          countsMap[key] = (countsMap[key] || 0) + 1;
-                        }
-                      });
-
-                      const statsRef = collection(db, "location_stats");
-                      const statsSnap = await getDocs(query(statsRef));
-                      const batch = writeBatch(db);
-                      statsSnap.docs.forEach((sDoc) => batch.delete(sDoc.ref));
-                      Object.entries(countsMap).forEach(([key, count]) => {
-                        batch.set(doc(db!, "location_stats", key), { count });
-                      });
-
-                      await batch.commit();
-                      setCleanupLog((prev) => [
-                        ...prev,
-                        `✅ 完了: ${Object.keys(countsMap).length}地域の統計を更新しました。`,
-                      ]);
-                    } catch (e) {
-                      console.error(e);
-                      setCleanupLog((prev) => [
-                        ...prev,
-                        `❌ Error: ${String(e)}`,
-                      ]);
-                    } finally {
-                      setIsCleaningUp(false);
-                    }
-                  }}
-                  disabled={isCleaningUp}
-                  className="w-full py-4 rounded-xl bg-blue-900/30 hover:bg-blue-900/50 border border-blue-900/50 hover:border-blue-500 text-blue-400 font-bold uppercase tracking-widest text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isCleaningUp ? (
-                    "編纂中..."
-                  ) : (
-                    <>
-                      <Users size={16} /> 統計を再構成する
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* 3. Wish Crystallization */}
-              <div className="bg-slate-900/50 rounded-xl border border-slate-700 p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Archive className="text-indigo-400" size={20} />
-                  <h2 className="text-xl font-bold text-indigo-400">
-                    Wish Crystallization (想いの結晶化)
-                  </h2>
-                </div>
-                <p className="text-sm text-slate-400 mb-6 font-serif italic">
-                  "既に叶った、あるいは途絶えた想いを、永久不変の結晶として記録に刻みます。"
-                </p>
-
-                <button
-                  onClick={async () => {
-                    if (
-                      !window.confirm(
-                        "⚠️ 終了した願いを物理削除し、履歴（Transaction）のみを残しますか？",
-                      )
-                    )
-                      return;
-                    setIsCleaningUp(true);
-                    setCleanupLog(["[Init] 想いの抽出を開始します..."]);
-                    try {
-                      if (!db) throw new Error("Database not initialized");
-                      const {
-                        collection,
-                        getDocs,
-                        query,
-                        where,
-                        doc,
-                        writeBatch,
-                        Timestamp,
-                      } = await import("firebase/firestore");
-
-                      const wishesRef = collection(db, "wishes");
-                      const q = query(
-                        wishesRef,
-                        where("status", "in", [
-                          "fulfilled",
-                          "completed",
-                          "cancelled",
-                          "expired",
-                          "interrupted",
-                        ]),
-                      );
-                      const snap = await getDocs(q);
-                      if (snap.empty) {
-                        setCleanupLog((prev) => [
-                          ...prev,
-                          "✨ 整理対象の願いは見つかりませんでした。",
-                        ]);
-                        return;
-                      }
-
-                      let successCount = 0;
-                      const batch = writeBatch(db);
-                      for (const wishDoc of snap.docs) {
-                        const wishData = wishDoc.data();
-                        const txRef = collection(db, "transactions");
-                        const txSnap = await getDocs(
-                          query(txRef, where("wish_id", "==", wishDoc.id)),
-                        );
-
-                        if (txSnap.empty) {
-                          const newTxRef = doc(
-                            db,
-                            "transactions",
-                            `crystallize_${wishDoc.id}`,
-                          );
-                          batch.set(newTxRef, {
-                            amount:
-                              wishData.val_at_fulfillment || wishData.cost || 0,
-                            timestamp: Timestamp.now(),
-                            created_at:
-                              wishData.cancelled_at ||
-                              wishData.fulfilled_at ||
-                              wishData.created_at ||
-                              Timestamp.now(),
-                            type: "WISH_CRYSTALLIZED",
-                            wish_id: wishDoc.id,
-                            wish_title: wishData.content,
-                            sender_id: wishData.requester_id,
-                            sender_name: wishData.requester_name || "Unknown",
-                            recipient_id: wishData.helper_id || null,
-                            recipient_name: wishData.helper_name || null,
-                          });
-                        }
-                        batch.delete(wishDoc.ref);
-                        successCount++;
-                        setCleanupLog((prev) => [
-                          ...prev,
-                          `💎 Crystallized: ${wishData.content?.slice(0, 15)}...`,
-                        ]);
-                      }
-                      await batch.commit();
-                      setCleanupLog((prev) => [
-                        ...prev,
-                        `✅ 完了: ${successCount}件の願いを昇華しました。`,
-                      ]);
-                    } catch (e) {
-                      console.error(e);
-                      setCleanupLog((prev) => [
-                        ...prev,
-                        `❌ Error: ${String(e)}`,
-                      ]);
-                    } finally {
-                      setIsCleaningUp(false);
-                    }
-                  }}
-                  disabled={isCleaningUp}
-                  className="w-full py-4 rounded-xl bg-indigo-900/30 hover:bg-indigo-900/50 border border-indigo-900/50 hover:border-indigo-500 text-indigo-400 font-bold uppercase tracking-widest text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isCleaningUp ? (
-                    "昇華中..."
-                  ) : (
-                    <>
-                      <Archive size={16} /> 結晶化を実行する
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* 4. Vessel Purification */}
-              <div className="bg-slate-900/50 rounded-xl border border-slate-700 p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <Droplets className="text-cyan-400" size={20} />
-                  <h2 className="text-xl font-bold text-cyan-400">
-                    Vessel Purification (器の正常化)
-                  </h2>
-                </div>
-                <p className="text-sm text-slate-400 mb-6 font-serif italic">
-                  "未完了の願いと、住民の器の予約状況に不一致がないか確認します。"
-                </p>
-
-                <button
-                  onClick={async () => {
-                    if (
-                      !window.confirm(
-                        "⚠️ 予約金額（committed_lm）の不整合を修復しますか？",
-                      )
-                    )
-                      return;
-                    setIsCleaningUp(true);
-                    setCleanupLog(["[Init] 魂の器をスキャン中..."]);
-                    try {
-                      if (!db) throw new Error("Database not initialized");
-                      const {
-                        collection,
-                        getDocs,
-                        writeBatch,
-                        serverTimestamp,
-                      } = await import("firebase/firestore");
-
-                      const wishesSnap = await getDocs(
-                        collection(db, "wishes"),
-                      );
-                      const activeWishes = wishesSnap.docs.filter((d) =>
-                        ["open", "in_progress", "review_pending"].includes(
-                          d.data().status,
-                        ),
-                      );
-                      const userReservationMap = new Map<string, number>();
-
-                      activeWishes.forEach((wDoc) => {
-                        const wData = wDoc.data();
-                        const startMs = getMillis(wData.created_at);
-                        const decayedMilli = calculateDecayedValue(
-                          toMilli(wData.cost || 0),
-                          ((Date.now() - startMs) / 1000) | 0,
-                        );
-                        userReservationMap.set(
-                          wData.requester_id,
-                          (userReservationMap.get(wData.requester_id) || 0) +
-                            decayedMilli,
-                        );
-                      });
-
-                      const usersSnap = await getDocs(collection(db, "users"));
-                      const batch = writeBatch(db);
-                      let fixCount = 0;
-
-                      usersSnap.docs.forEach((uDoc) => {
-                        const uData = uDoc.data();
-                        const expected = userReservationMap.get(uDoc.id) || 0;
-                        const uLastMs = getMillis(uData.last_updated);
-                        const currentCommittedMilli = calculateDecayedValue(
-                          toMilli(uData.committed_lm || 0),
-                          ((Date.now() - uLastMs) / 1000) | 0,
-                        );
-
-                        if (Math.abs(expected - currentCommittedMilli) > 1) {
-                          const currentBalanceMilli = calculateDecayedValue(
-                            toMilli(uData.balance || 0),
-                            ((Date.now() - uLastMs) / 1000) | 0,
-                          );
-                          batch.update(uDoc.ref, {
-                            balance: fromMilli(currentBalanceMilli),
-                            committed_lm: fromMilli(expected),
-                            last_updated: serverTimestamp(),
-                            system_note: "Purified by Admin",
-                          });
-                          fixCount++;
-                          setCleanupLog((prev) => [
-                            ...prev,
-                            `🔧 Fix: ${uData.name || uDoc.id} (${fromMilli(currentCommittedMilli)} → ${fromMilli(expected)})`,
-                          ]);
-                        }
-                      });
-
-                      if (fixCount > 0) await batch.commit();
-                      setCleanupLog((prev) => [
-                        ...prev,
-                        `✅ 完了: ${fixCount}名の器を正常化しました。`,
-                      ]);
-                    } catch (e) {
-                      console.error(e);
-                      setCleanupLog((prev) => [
-                        ...prev,
-                        `❌ Error: ${String(e)}`,
-                      ]);
-                    } finally {
-                      setIsCleaningUp(false);
-                    }
-                  }}
-                  disabled={isCleaningUp}
-                  className="w-full py-4 rounded-xl bg-cyan-900/30 hover:bg-cyan-900/50 border border-cyan-900/50 hover:border-cyan-500 text-cyan-400 font-bold uppercase tracking-widest text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                >
-                  {isCleaningUp ? (
-                    "正常化中..."
-                  ) : (
-                    <>
-                      <Droplets size={16} /> 整合性を修復する
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* execution log overlay */}
-              {cleanupLog.length > 0 && (
-                <div className="bg-slate-800/80 rounded-lg p-4 border border-slate-700 font-mono text-xs text-slate-300">
-                  <div className="flex items-center gap-2 mb-2 font-bold text-slate-400 uppercase tracking-tighter">
-                    <Activity size={12} /> Live Inventory Status
-                  </div>
-                  <div className="max-h-40 overflow-y-auto space-y-1 custom-scrollbar">
-                    {cleanupLog.map((line, i) => (
-                      <div key={i} className="border-l border-slate-700 pl-2">
-                        {line}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            <AdminIntegrityPanel />
           )}
 
           {activeTab === "monitor" && (
