@@ -27,7 +27,7 @@ import {
   Timestamp,
   limit
 } from "firebase/firestore";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useDiagnostics } from "../hooks/useDiagnostics";
 import { DiagnosticModal } from "./DiagnosticModal";
 import { DashboardStats } from "../hooks/useStats";
@@ -566,20 +566,72 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         />
       )}
       
-      {showManual && (
-        <div className="fixed inset-0 z-[150] bg-black/98 flex flex-col p-6 animate-in fade-in zoom-in duration-300">
-          <div className="flex justify-between items-center mb-8 pb-4 border-b border-slate-800">
-            <h2 className="text-2xl font-serif font-bold text-slate-100 italic">Existential Economy Protocol</h2>
-            <button onClick={() => setShowManual(false)} className="p-2 hover:bg-slate-800 rounded-full text-slate-400"><X size={32} /></button>
+      <AnimatePresence>
+        {showManual && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowManual(false)}
+              className="absolute inset-0 bg-black/90 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl max-h-[80vh] bg-slate-900 border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col"
+            >
+              <div className="flex justify-between items-center p-6 border-b border-white/5">
+                <h2 className="text-xl font-serif font-bold text-slate-100 italic tracking-wider">Protocol Dictionary / Manual</h2>
+                <button onClick={() => setShowManual(false)} className="p-2 hover:bg-white/10 rounded-full text-slate-400 transition-colors">
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-8 space-y-10 no-scrollbar">
+                <section>
+                  <h3 className="text-xs font-bold text-emerald-400 mb-4 tracking-[0.3em] uppercase">Fundamental Axioms</h3>
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-lg font-bold text-slate-200 mb-2">存在ルーメン (Lm)</h4>
+                      <p className="text-slate-400 leading-relaxed">この世界の生命エネルギーであり、全ての価値の尺度。時間と共に自然に減衰（Decay）し、滞留は死を意味します。</p>
+                    </div>
+                    <div>
+                      <h4 className="text-lg font-bold text-slate-200 mb-2">給付サイクル (Rebirth Cycle)</h4>
+                      <p className="text-slate-400 leading-relaxed">全ての魂が再定義される周期。一定期間ごとに「存在の器」が満たされ、新たな循環が始まります。</p>
+                    </div>
+                  </div>
+                </section>
+
+                <section>
+                  <h3 className="text-xs font-bold text-cyan-400 mb-4 tracking-[0.3em] uppercase">Terminology / Glossary</h3>
+                  <div className="grid grid-cols-1 gap-6 text-sm">
+                    <div className="p-4 bg-white/5 rounded-xl border border-white/5">
+                      <span className="font-bold text-slate-200">代謝 (Metabolism)</span>
+                      <p className="text-slate-500 mt-1">24時間以内の全トランザクション量と減衰量の合計。世界の活力を示します。</p>
+                    </div>
+                    <div className="p-4 bg-white/5 rounded-xl border border-white/5">
+                      <span className="font-bold text-slate-200">積立比率 (Committed Ratio)</span>
+                      <p className="text-slate-500 mt-1">全供給量に対する、特定の目的（Wish/Trust）に固定されたLmの割合。</p>
+                    </div>
+                    <div className="p-4 bg-white/5 rounded-xl border border-white/5">
+                      <span className="font-bold text-slate-200">賢者の助言 (Sage Advice)</span>
+                      <p className="text-slate-500 mt-1">システムの健全性（Health）に基づいて自動生成される、管理者への調整提案。</p>
+                    </div>
+                  </div>
+                </section>
+
+                <div className="pt-10 pb-4 text-center">
+                  <p className="text-[10px] text-slate-600 font-mono tracking-widest uppercase italic">
+                    entropy is the only constant.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
           </div>
-          <div className="flex-1 overflow-y-auto font-serif text-lg leading-relaxed text-slate-400 max-w-2xl mx-auto space-y-12 pb-20 scrollbar-hide">
-            <section>
-              <h3 className="text-xl font-bold text-slate-200 mb-4 tracking-widest uppercase">Fundamental Axiom: Gravity</h3>
-              <p>Lm decays naturally over time—representing the entropy of existence. Stagnation is death.</p>
-            </section>
-          </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };

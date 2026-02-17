@@ -1,0 +1,268 @@
+26412f5 HEAD@{2026-02-17 13:14:06 +0900}: checkout: moving from feature/admin-invite-code to main
+26412f5 HEAD@{2026-02-17 13:10:45 +0900}: checkout: moving from main to feature/admin-invite-code
+26412f5 HEAD@{2026-02-17 13:10:39 +0900}: reset: moving to 26412f5
+a161e1c HEAD@{2026-02-17 13:10:39 +0900}: checkout: moving from feature/admin-invite-code to main
+26412f5 HEAD@{2026-02-17 13:03:48 +0900}: checkout: moving from main to feature/admin-invite-code
+a161e1c HEAD@{2026-02-17 13:03:44 +0900}: reset: moving to a161e1c
+60ad0f3 HEAD@{2026-02-17 13:03:44 +0900}: checkout: moving from feature/admin-invite-code to main
+26412f5 HEAD@{2026-02-17 12:50:11 +0900}: checkout: moving from main to feature/admin-invite-code
+60ad0f3 HEAD@{2026-02-17 12:49:42 +0900}: checkout: moving from feature/admin-invite-code to main
+26412f5 HEAD@{2026-02-17 12:35:56 +0900}: checkout: moving from main to feature/admin-invite-code
+60ad0f3 HEAD@{2026-02-17 12:35:04 +0900}: reset: moving to 60ad0f3
+6af64a9 HEAD@{2026-02-17 12:29:19 +0900}: pull origin main: Fast-forward
+26412f5 HEAD@{2026-02-17 12:26:37 +0900}: merge feature/admin-invite-code: Fast-forward
+60ad0f3 HEAD@{2026-02-17 12:26:23 +0900}: checkout: moving from feature/admin-invite-code to main
+26412f5 HEAD@{2026-02-17 12:09:14 +0900}: commit: 12:09
+60ad0f3 HEAD@{2026-02-17 12:06:18 +0900}: checkout: moving from main to feature/admin-invite-code
+60ad0f3 HEAD@{2026-02-17 11:58:25 +0900}: reset: moving to HEAD
+60ad0f3 HEAD@{2026-02-17 11:06:27 +0900}: merge feature/admin-invite-code: Fast-forward
+4cce6df HEAD@{2026-02-17 11:06:27 +0900}: checkout: moving from feature/admin-invite-code to main
+60ad0f3 HEAD@{2026-02-17 11:06:10 +0900}: commit: feat: implement admin invitation code generation and strict permissions
+4cce6df HEAD@{2026-02-17 09:47:48 +0900}: checkout: moving from main to feature/admin-invite-code
+4cce6df HEAD@{2026-02-16 22:09:32 +0900}: commit: 22:09
+b776970 HEAD@{2026-02-16 22:02:12 +0900}: commit: Update DiagnosticModal.tsx
+1125961 HEAD@{2026-02-16 21:39:13 +0900}: commit: 21:39
+5dbec6f HEAD@{2026-02-16 21:23:53 +0900}: commit: Update page.tsx
+72bc13a HEAD@{2026-02-16 21:13:41 +0900}: commit: Update page.tsx
+1cd8e05 HEAD@{2026-02-16 21:00:00 +0900}: commit: Update page.tsx
+2dd7b8a HEAD@{2026-02-16 20:51:06 +0900}: commit: Update page.tsx
+a9320f0 HEAD@{2026-02-16 20:14:46 +0900}: commit: Update AdminDashboard.tsx
+f808d85 HEAD@{2026-02-16 19:35:07 +0900}: commit: 19:35
+a5e75ee HEAD@{2026-02-16 19:18:56 +0900}: commit: 19:18
+066fca7 HEAD@{2026-02-16 18:56:40 +0900}: commit: 18:56
+be89c13 HEAD@{2026-02-16 18:22:34 +0900}: commit: 18:22
+1baef71 HEAD@{2026-02-16 17:46:43 +0900}: commit: 17:46
+7e2ba88 HEAD@{2026-02-16 17:12:07 +0900}: commit: 17:12
+99137c0 HEAD@{2026-02-16 16:41:53 +0900}: commit: 16:41
+c7b659c HEAD@{2026-02-16 16:38:59 +0900}: commit: 16:38
+7f85332 HEAD@{2026-02-16 15:59:04 +0900}: commit: 15:58
+b884c13 HEAD@{2026-02-16 12:28:25 +0900}: commit: 12:28
+534ccb8 HEAD@{2026-02-16 12:14:24 +0900}: commit: 12:14
+0bb320d HEAD@{2026-02-16 11:33:35 +0900}: commit: Update App.tsx
+1bab7a6 HEAD@{2026-02-16 06:07:27 +0900}: commit: Update App.tsx
+2cc041e HEAD@{2026-02-16 06:03:45 +0900}: commit: 6:03
+11b1838 HEAD@{2026-02-16 04:18:18 +0900}: commit: 4:18
+903a429 HEAD@{2026-02-16 04:03:50 +0900}: commit: Update CreateWishModal.tsx
+77c0d12 HEAD@{2026-02-16 03:58:50 +0900}: commit: 3:58
+f7380ce HEAD@{2026-02-16 03:48:23 +0900}: commit: Update HeaderNavigation.tsx
+f24b083 HEAD@{2026-02-16 03:44:17 +0900}: commit: 3:44
+8a85577 HEAD@{2026-02-16 03:40:08 +0900}: commit: Update HeaderNavigation.tsx
+814651b HEAD@{2026-02-16 03:35:43 +0900}: commit: 3:35
+e110a90 HEAD@{2026-02-16 03:28:42 +0900}: commit: 3:28
+88bf9d6 HEAD@{2026-02-16 03:24:18 +0900}: commit: 3:23
+17c1548 HEAD@{2026-02-16 03:23:23 +0900}: commit (merge): Merge branch 'main' of https://github.com/truai2988/existence_ticker
+dde4ffe HEAD@{2026-02-16 03:09:06 +0900}: commit: 2026/02/16/3:09
+f7110e1 HEAD@{2026-02-15 22:18:29 +0900}: reset: moving to f7110e1
+51ab6b1 HEAD@{2026-02-15 20:39:13 +0900}: commit: 20:39
+d193028 HEAD@{2026-02-15 19:44:53 +0900}: commit: Update WishCard.tsx
+1b41c3e HEAD@{2026-02-15 19:36:39 +0900}: commit: Update FlowView.tsx
+14bf66d HEAD@{2026-02-15 19:26:24 +0900}: commit: 19:26
+f7110e1 HEAD@{2026-02-15 16:00:37 +0900}: commit: 16:00
+df6eb0f HEAD@{2026-02-15 13:15:31 +0900}: commit: Update WishCard.tsx
+2d0286a HEAD@{2026-02-15 12:52:41 +0900}: commit: Update WishCard.tsx
+5498271 HEAD@{2026-02-15 12:44:30 +0900}: commit: 12:44
+037049e HEAD@{2026-02-15 12:39:18 +0900}: commit: 12:39
+057a375 HEAD@{2026-02-15 00:01:57 +0900}: commit: Update page.tsx
+7d93310 HEAD@{2026-02-14 22:46:05 +0900}: reset: moving to HEAD
+7d93310 HEAD@{2026-02-14 02:39:07 +0900}: commit: Update AdminDashboard.tsx
+bfc0002 HEAD@{2026-02-14 02:37:49 +0900}: commit: 2:37
+d68ba5d HEAD@{2026-02-14 01:19:08 +0900}: commit: 1:18
+7a4b6ba HEAD@{2026-02-14 00:38:05 +0900}: commit: Update DiagnosticModal.tsx
+a161e1c HEAD@{2026-02-14 00:33:25 +0900}: commit: Update AdminDashboard.tsx
+348150f HEAD@{2026-02-14 00:03:15 +0900}: commit: 2026/02/14/0:03
+30cfeb3 HEAD@{2026-02-13 23:48:44 +0900}: commit: 23:48
+9ae8787 HEAD@{2026-02-13 23:37:58 +0900}: commit: Update ProfileView.tsx
+70fd0ec HEAD@{2026-02-13 23:31:44 +0900}: commit: Update AuthContext.tsx
+9f53d06 HEAD@{2026-02-13 23:31:30 +0900}: commit: Update AuthContext.tsx
+a2fd1f5 HEAD@{2026-02-13 23:26:14 +0900}: commit: Update AdminDashboard.tsx
+12cb3d9 HEAD@{2026-02-13 23:23:31 +0900}: commit: Update useAuthHook.ts
+f390e19 HEAD@{2026-02-13 23:21:07 +0900}: commit: Update AuthContext.tsx
+78ea8b1 HEAD@{2026-02-13 23:05:01 +0900}: commit: Update AdminDashboard.tsx
+57d9573 HEAD@{2026-02-13 22:58:42 +0900}: commit: 22:58
+fcae2cd HEAD@{2026-02-13 22:50:26 +0900}: commit: 22:50
+8166ea5 HEAD@{2026-02-13 22:26:51 +0900}: commit: 22:26
+44e4e09 HEAD@{2026-02-13 21:56:29 +0900}: commit: 21:56
+46c601c HEAD@{2026-02-13 21:35:15 +0900}: commit: Update WishCard.tsx
+b7d3fd3 HEAD@{2026-02-13 21:29:25 +0900}: commit: Update WishCard.tsx
+e376c1c HEAD@{2026-02-13 20:57:50 +0900}: commit: 20:57
+4d62acf HEAD@{2026-02-13 20:44:55 +0900}: commit: Update FlowView.tsx
+79c0cb4 HEAD@{2026-02-13 20:36:23 +0900}: commit: 20:36
+66e3bcd HEAD@{2026-02-13 20:19:47 +0900}: commit: 20:19
+66e1f5b HEAD@{2026-02-13 18:15:46 +0900}: commit: Update ProfileView.tsx
+77eadb5 HEAD@{2026-02-13 18:12:16 +0900}: commit: Update AuthContext.tsx
+d120bd7 HEAD@{2026-02-13 18:09:33 +0900}: commit: 18:09
+ddec187 HEAD@{2026-02-13 18:00:03 +0900}: commit: Admin Access Restoration (Clean History)
+3644961 HEAD@{2026-02-13 17:58:35 +0900}: reset: moving to 3644961
+1afb1d1 HEAD@{2026-02-13 17:54:29 +0900}: commit (amend): 17:53
+8edca83 HEAD@{2026-02-13 17:53:07 +0900}: commit: 17:53
+6366556 HEAD@{2026-02-13 17:49:26 +0900}: commit: 17:49
+3644961 HEAD@{2026-02-13 17:24:49 +0900}: commit: 17:24
+1b32781 HEAD@{2026-02-13 17:21:14 +0900}: commit: 17:19
+4cc9077 HEAD@{2026-02-13 17:10:59 +0900}: commit: 17:00
+35a748d HEAD@{2026-02-13 16:38:11 +0900}: commit: Update AdminDashboard.tsx
+0971d17 HEAD@{2026-02-13 16:34:58 +0900}: commit: 16:34
+0091ec4 HEAD@{2026-02-13 16:10:31 +0900}: commit: Update JournalView.tsx
+56978b9 HEAD@{2026-02-13 15:30:10 +0900}: commit: Update JournalView.tsx
+1f4e52f HEAD@{2026-02-13 15:21:23 +0900}: commit: 15:21
+08c8859 HEAD@{2026-02-13 12:49:02 +0900}: commit: Update useDeepMemoryRecovery.ts
+3ad3aea HEAD@{2026-02-13 12:43:16 +0900}: commit: 12:43
+45c095a HEAD@{2026-02-13 12:37:56 +0900}: commit: 12:37
+5cbcb71 HEAD@{2026-02-13 12:29:09 +0900}: commit: Update JournalView.tsx
+620b52d HEAD@{2026-02-13 11:56:00 +0900}: commit: 11:55
+1bc170d HEAD@{2026-02-13 11:43:45 +0900}: commit: Update AdminDashboard.tsx
+1801166 HEAD@{2026-02-13 11:32:28 +0900}: commit: 11:32
+d339fa7 HEAD@{2026-02-13 11:20:01 +0900}: commit: 11:19
+68e446a HEAD@{2026-02-13 11:15:12 +0900}: commit: 11:15
+795c34e HEAD@{2026-02-13 11:05:10 +0900}: commit: 11:05
+ddb7f17 HEAD@{2026-02-13 10:54:31 +0900}: commit: 10:54
+da268b5 HEAD@{2026-02-13 10:49:50 +0900}: commit: 10:49
+c506514 HEAD@{2026-02-13 10:44:20 +0900}: commit: 10:44
+decdd4e HEAD@{2026-02-13 10:39:00 +0900}: commit: 10:38
+6333556 HEAD@{2026-02-13 03:55:11 +0900}: commit: 3;55
+2ed342e HEAD@{2026-02-13 01:20:11 +0900}: commit: 2026/02/13/1:20
+300147d HEAD@{2026-02-13 01:13:29 +0900}: commit: Final cleanup of all remaining backup and temporary files
+0617893 HEAD@{2026-02-13 01:12:45 +0900}: commit: Complete cleanup of all temporary investigation and backup files
+ac4dc9c HEAD@{2026-02-12 23:47:14 +0900}: reset: moving to ac4dc9c
+69cd9eb HEAD@{2026-02-12 23:23:45 +0900}: pull --ff --recurse-submodules --progress origin: Fast-forward
+3ef6a37 HEAD@{2026-02-12 23:23:02 +0900}: reset: moving to 3ef6a375471512f22044ca3b28fe76b3b3a14bb8
+69cd9eb HEAD@{2026-02-12 22:38:37 +0900}: commit: 22:38
+1a8af51 HEAD@{2026-02-12 21:13:26 +0900}: commit: Update Header.tsx
+ac4dc9c HEAD@{2026-02-12 21:05:33 +0900}: commit: 21:05
+1716da6 HEAD@{2026-02-12 20:49:48 +0900}: commit: 20:49
+3ef6a37 HEAD@{2026-02-12 20:30:54 +0900}: commit: Update Header.tsx
+22e6582 HEAD@{2026-02-12 20:20:53 +0900}: commit: 20:20
+d8b1fc7 HEAD@{2026-02-12 20:12:08 +0900}: commit: Update RadianceView.tsx
+6f2cb7e HEAD@{2026-02-12 20:11:43 +0900}: commit: 20:11
+178da28 HEAD@{2026-02-12 20:01:00 +0900}: commit: 20:00
+a5fa758 HEAD@{2026-02-12 19:49:49 +0900}: commit: 19:48
+5716460 HEAD@{2026-02-12 19:07:19 +0900}: commit: 19:07
+6534653 HEAD@{2026-02-12 18:35:18 +0900}: commit: Update HeaderNavigation.tsx
+99f4a73 HEAD@{2026-02-12 18:30:32 +0900}: commit: 18:30
+c555c37 HEAD@{2026-02-12 18:10:31 +0900}: commit: feat: implement optimistic UI
+5028760 HEAD@{2026-02-12 15:16:07 +0900}: commit: feat: auto-select leftmost non-empty tab on mount
+f27dc07 HEAD@{2026-02-12 11:56:15 +0900}: commit: Update App.tsx
+f495871 HEAD@{2026-02-12 11:39:08 +0900}: commit: 11:39
+6efa0d9 HEAD@{2026-02-12 10:39:15 +0900}: commit: 10:39
+432524d HEAD@{2026-02-12 10:32:39 +0900}: commit: 10:32
+90842e4 HEAD@{2026-02-12 10:04:04 +0900}: commit: :042026/02/12/10
+1920009 HEAD@{2026-02-12 00:58:16 +0900}: commit: 2026/02/12/0:58
+0c91d26 HEAD@{2026-02-11 23:57:17 +0900}: commit: 23:57
+e2e7b1a HEAD@{2026-02-11 23:47:21 +0900}: commit: 23:47
+a24eb07 HEAD@{2026-02-11 23:35:27 +0900}: commit: 23:35
+dfbb66e HEAD@{2026-02-11 22:56:13 +0900}: commit: Update App.tsx
+8dda405 HEAD@{2026-02-11 22:52:39 +0900}: commit: 22:52
+e6f197d HEAD@{2026-02-11 21:55:52 +0900}: commit: Create test_direct.txt
+687c03e HEAD@{2026-02-11 21:27:17 +0900}: commit: 21:27
+be64e31 HEAD@{2026-02-11 21:11:39 +0900}: reset: moving to be64e31
+e8079fd HEAD@{2026-02-11 19:34:46 +0900}: reset: moving to e8079fd
+6378b73 HEAD@{2026-02-11 19:30:46 +0900}: reset: moving to 6378b73
+06380bf HEAD@{2026-02-11 19:27:28 +0900}: reset: moving to 06380bf
+916aac0 HEAD@{2026-02-11 19:21:53 +0900}: reset: moving to 916aac0
+9dcde11 HEAD@{2026-02-11 19:20:10 +0900}: reset: moving to 9dcde11
+296550f HEAD@{2026-02-11 19:17:36 +0900}: reset: moving to 296550f
+0d68e57 HEAD@{2026-02-11 19:11:30 +0900}: reset: moving to 0d68e57
+be64e31 HEAD@{2026-02-11 16:35:58 +0900}: commit: 16:35
+06380bf HEAD@{2026-02-11 15:55:45 +0900}: commit: Update AuthScreen.tsx
+6378b73 HEAD@{2026-02-11 15:50:33 +0900}: commit: 15:50
+238ed89 HEAD@{2026-02-11 15:35:31 +0900}: commit: Update AuthScreen.tsx
+b6e4044 HEAD@{2026-02-11 15:24:32 +0900}: commit: 15:23
+907dae3 HEAD@{2026-02-11 14:18:08 +0900}: commit: Implement StateMachine supremacy - sensor-brain separation - Convert useProfile to pure sensor (removed all judgment logic) - Implement 2s timeout and GHOST purge in useStartupMachine - Remove GHOST view from type definitions
+a103837 HEAD@{2026-02-11 12:44:19 +0900}: commit: Update AuthScreen.tsx
+e8079fd HEAD@{2026-02-11 10:53:20 +0900}: commit: Update AuthScreen.tsx
+916aac0 HEAD@{2026-02-11 10:44:04 +0900}: commit: Update App.tsx
+9dcde11 HEAD@{2026-02-11 10:23:31 +0900}: commit: Update App.tsx
+296550f HEAD@{2026-02-11 10:10:11 +0900}: commit: Update App.tsx
+0d68e57 HEAD@{2026-02-11 05:08:50 +0900}: commit: 5:08
+7d0db1d HEAD@{2026-02-11 04:31:43 +0900}: commit: Update useProfile.ts
+d29ca7b HEAD@{2026-02-11 04:15:42 +0900}: commit: 4:15
+dcdeb18 HEAD@{2026-02-11 03:37:53 +0900}: commit: Update WalletContext.tsx
+8fb2186 HEAD@{2026-02-11 03:32:58 +0900}: commit: 3:32
+e54ac17 HEAD@{2026-02-11 03:00:31 +0900}: commit: 3:00
+3a95ba6 HEAD@{2026-02-11 02:37:19 +0900}: commit: 2:37
+c6aa9b6 HEAD@{2026-02-11 02:24:02 +0900}: commit: Update App.tsx
+b009f74 HEAD@{2026-02-11 02:15:38 +0900}: commit: Update App.tsx
+7942da3 HEAD@{2026-02-11 02:08:46 +0900}: commit: 2:08
+e1a2e24 HEAD@{2026-02-11 01:55:45 +0900}: commit: Update App.tsx
+e9b170f HEAD@{2026-02-11 01:44:13 +0900}: commit: Delete MainContent.tsx
+4d27ceb HEAD@{2026-02-11 01:39:57 +0900}: commit: Update App.tsx
+dd07789 HEAD@{2026-02-11 01:37:49 +0900}: commit: Update App.tsx
+4bf2f5c HEAD@{2026-02-11 01:34:42 +0900}: commit: Update App.tsx
+8d1ed17 HEAD@{2026-02-11 01:32:33 +0900}: commit: 1:32
+62f9980 HEAD@{2026-02-11 00:56:45 +0900}: commit: 2026/02/11/0:56
+194a351 HEAD@{2026-02-10 23:24:03 +0900}: commit: Update useAuthHook.ts
+ac8d410 HEAD@{2026-02-10 23:21:35 +0900}: commit: Update useAuthHook.ts
+a79b17c HEAD@{2026-02-10 23:11:46 +0900}: commit: 23:11
+8e6d433 HEAD@{2026-02-10 23:03:55 +0900}: commit: 22:03
+32c6d2b HEAD@{2026-02-10 22:58:17 +0900}: commit: 22:58
+01fafe5 HEAD@{2026-02-10 22:35:11 +0900}: commit: 22:35
+df66b25 HEAD@{2026-02-10 21:59:33 +0900}: commit: 21:59
+482b238 HEAD@{2026-02-10 21:22:53 +0900}: commit: 21:22
+8379aec HEAD@{2026-02-10 21:03:30 +0900}: commit: 21:03
+002d95d HEAD@{2026-02-10 20:50:23 +0900}: commit: 20:50
+9cf14e6 HEAD@{2026-02-10 19:28:25 +0900}: commit: 19:28
+8f24b99 HEAD@{2026-02-10 18:43:55 +0900}: commit: 18:43
+d95991f HEAD@{2026-02-10 18:32:18 +0900}: commit: 18:32
+7720729 HEAD@{2026-02-10 17:18:03 +0900}: commit: 17:17
+295e967 HEAD@{2026-02-10 17:04:21 +0900}: commit: Update App.tsx
+1f3de98 HEAD@{2026-02-10 17:01:57 +0900}: commit: Update App.tsx
+00f98c2 HEAD@{2026-02-10 16:58:31 +0900}: commit: Update App.tsx
+6daf7fb HEAD@{2026-02-10 16:55:09 +0900}: commit: Update App.tsx
+8b9cec6 HEAD@{2026-02-10 16:40:23 +0900}: commit: Update App.tsx
+a5ad836 HEAD@{2026-02-10 16:30:39 +0900}: commit: 16:30
+f3de9e9 HEAD@{2026-02-10 16:06:47 +0900}: commit: 16:06
+fc2fc24 HEAD@{2026-02-10 15:34:27 +0900}: commit: 2026/02/10/15:34
+637a875 HEAD@{2026-02-10 12:26:04 +0900}: reset: moving to origin/main
+637a875 HEAD@{2026-02-09 08:08:32 +0900}: pull --ff --recurse-submodules --progress origin: Fast-forward
+f6ce46b HEAD@{2026-02-01 23:58:46 +0900}: commit: Update WishCard.tsx
+7f3bb33 HEAD@{2026-02-01 23:49:05 +0900}: commit: Update WishCard.tsx
+e3080c2 HEAD@{2026-02-01 23:27:55 +0900}: commit: Update WishCard.tsx
+878098d HEAD@{2026-02-01 22:10:00 +0900}: commit: 2026/02/01/22:09
+53ff84f HEAD@{2026-01-31 20:40:03 +0900}: reset: moving to 53ff84f
+53ff84f HEAD@{2026-01-31 20:18:01 +0900}: reset: moving to 53ff84f
+c50232c HEAD@{2026-01-31 20:14:04 +0900}: reset: moving to c50232c
+53ff84f HEAD@{2026-01-31 19:57:28 +0900}: reset: moving to 53ff84f
+a3e647a HEAD@{2026-01-31 19:48:41 +0900}: reset: moving to a3e647a
+34fd34f HEAD@{2026-01-31 19:43:08 +0900}: pull --ff --recurse-submodules --progress origin: Fast-forward
+f2babbf HEAD@{2026-01-31 19:33:54 +0900}: reset: moving to f2babbf
+34fd34f HEAD@{2026-01-31 19:10:23 +0900}: commit: 19:10
+53ff84f HEAD@{2026-01-31 19:00:08 +0900}: commit: 19:00
+a3e647a HEAD@{2026-01-31 18:48:55 +0900}: commit: 18:48
+38d980a HEAD@{2026-01-31 18:32:55 +0900}: commit: 18:32
+b201bee HEAD@{2026-01-31 18:05:41 +0900}: commit: Update WishCard.tsx
+abe1a55 HEAD@{2026-01-31 17:58:17 +0900}: commit: Update balanceLogger.ts
+f2babbf HEAD@{2026-01-31 17:54:49 +0900}: commit: 17:54
+19ce4c8 HEAD@{2026-01-31 17:26:56 +0900}: commit: 17:26
+0103270 HEAD@{2026-01-31 17:20:05 +0900}: commit: Update useWallet.ts
+d3d0cd6 HEAD@{2026-01-31 17:12:40 +0900}: commit: Update useWallet.ts
+a3cbcf2 HEAD@{2026-01-31 17:06:57 +0900}: commit: 17:06
+e9592f5 HEAD@{2026-01-31 17:03:43 +0900}: commit: Update useWallet.ts
+d865537 HEAD@{2026-01-31 16:59:32 +0900}: commit: Update useWallet.ts
+59c5cab HEAD@{2026-01-31 16:48:14 +0900}: commit: Update useWallet.ts
+c5f1dd0 HEAD@{2026-01-31 16:46:37 +0900}: commit: Update useWallet.ts
+9e6db5c HEAD@{2026-01-31 16:45:12 +0900}: commit: Update useWallet.ts
+2c828ca HEAD@{2026-01-31 16:38:18 +0900}: commit: 16:38
+457f69a HEAD@{2026-01-31 16:30:39 +0900}: commit: Update WishCard.tsx
+edbadaf HEAD@{2026-01-31 16:14:50 +0900}: commit: 16:14
+655217a HEAD@{2026-01-31 15:44:20 +0900}: commit: 15:44
+ee8ac2f HEAD@{2026-01-31 15:29:22 +0900}: commit: Update WishCard.tsx
+e4db278 HEAD@{2026-01-31 15:26:17 +0900}: commit: Update App.tsx
+59e36eb HEAD@{2026-01-31 15:12:51 +0900}: commit: Update WishCard.tsx
+c50232c HEAD@{2026-01-31 15:07:29 +0900}: commit: 2026/01/31/15:07
+f4f2ad9 HEAD@{2026-01-30 23:47:37 +0900}: commit: 23:47
+ccf5743 HEAD@{2026-01-30 18:04:16 +0900}: commit: 18:04
+6b522d4 HEAD@{2026-01-30 17:35:24 +0900}: commit: Update WishCard.tsx
+5ba3950 HEAD@{2026-01-30 17:29:32 +0900}: commit: 2026/01/30/17:29
+c82c49d HEAD@{2026-01-29 16:41:46 +0900}: commit: 16:41
+ca4c757 HEAD@{2026-01-29 15:25:04 +0900}: commit: 15:24
+f5e0e4a HEAD@{2026-01-29 14:43:03 +0900}: commit: 2026/01/29/14:42
+1315d4b HEAD@{2026-01-28 16:57:01 +0900}: commit: 2026/01/28/16:56
+76b6eb6 HEAD@{2026-01-27 19:53:43 +0900}: commit: Fix: Export AppViewMode in separate commit after restart
+0295017 HEAD@{2026-01-27 19:13:42 +0900}: commit: Refactor: Force update App.tsx to use MainContent
+fd86639 HEAD@{2026-01-27 19:12:57 +0900}: commit: Refactor: Extract MainContent and clean up App.tsx
+d20c38f HEAD@{2026-01-27 18:49:06 +0900}: commit: Fix: Remove remaining unused imports (CompleteWishModal, PendingWish) in RadianceView
+a38c2ac HEAD@{2026-01-27 18:48:13 +0900}: commit: Fix: Resolve remaining TS unused variables
+1b37b79 HEAD@{2026-01-27 18:46:46 +0900}: commit: Fix: Resolve TS build errors (GiftView props, unused vars)
+d7f781e HEAD@{2026-01-27 18:40:12 +0900}: commit: Deploy: Force update to propagate ScannerView fixes
+955b9cb HEAD@{2026-01-27 18:29:52 +0900}: commit: 2026/01/27/18:29
+9a3f655 HEAD@{2026-01-26 22:11:01 +0900}: commit: Create extensions.json
+f426d69 HEAD@{2026-01-26 21:35:12 +0900}: clone: from https://github.com/truai2988/existence_ticker.git
