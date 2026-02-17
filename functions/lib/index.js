@@ -36,7 +36,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.monitorBalances = exports.resetCycle = exports.checkConnectivity = void 0;
+exports.monitorBalances = exports.resetCycle = exports.debugCheckAdmin = exports.checkConnectivity = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 __exportStar(require("./locationStats"), exports);
@@ -49,6 +49,40 @@ exports.checkConnectivity = functions.https.onCall(async () => {
 if (!admin.apps.length) {
     admin.initializeApp();
 }
+/**
+ * DEBUG: Check Admin Status
+ * Returns the caller's admin status details.
+ */
+exports.debugCheckAdmin = functions.https.onCall(async (data, context) => {
+    var _a, _b, _c;
+    const uid = (_a = context.auth) === null || _a === void 0 ? void 0 : _a.uid;
+    const db = admin.firestore();
+    let isSuperAdmin = false;
+    let isDocAdmin = false;
+    let globalSettings = null;
+    if (uid) {
+        // Check Global Settings
+        const globalDoc = await db.collection('system_settings').doc('global').get();
+        if (globalDoc.exists) {
+            globalSettings = globalDoc.data();
+            if ((_b = globalSettings === null || globalSettings === void 0 ? void 0 : globalSettings.super_admin_ids) === null || _b === void 0 ? void 0 : _b.includes(uid)) {
+                isSuperAdmin = true;
+            }
+        }
+        // Check User Role
+        const userDoc = await db.collection('users').doc(uid).get();
+        if (userDoc.exists && ((_c = userDoc.data()) === null || _c === void 0 ? void 0 : _c.role) === 'admin') {
+            isDocAdmin = true;
+        }
+    }
+    return {
+        uid,
+        isSuperAdmin,
+        isDocAdmin,
+        isAdmin: isSuperAdmin || isDocAdmin,
+        globalSettings,
+    };
+});
 exports.resetCycle = functions.https.onCall(async (data, context) => {
     // 1. Security Check
     if (!context.auth) {

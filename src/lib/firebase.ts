@@ -43,6 +43,7 @@ if (apiKey) {
       // Keep others commented out as requested by user env
       /*
       connectFirestoreEmulator(db, 'localhost', 8080);
+      /*
       connectAuthEmulator(auth, 'http://localhost:9099');
       connectStorageEmulator(storage, 'localhost', 9199);
       */

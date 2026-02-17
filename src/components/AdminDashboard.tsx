@@ -9,16 +9,18 @@ import {
   Moon,
   Zap,
   Trash2,
-  Settings
+  Settings,
+  Key,
+  Plus
 } from "lucide-react";
 import { auth, db } from "../lib/firebase";
 import {
   collection,
   query,
-  getDocs,
   doc,
-  updateDoc,
+  getDocs,
   getDoc,
+  updateDoc,
   setDoc,
   serverTimestamp,
   where,
@@ -51,12 +53,22 @@ interface User {
   };
 }
 
+interface InviteCode {
+  id: string;
+  is_used: boolean;
+  created_at?: Timestamp;
+  created_by?: string;
+  used_by?: string;
+  used_at?: Timestamp;
+}
+
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onClose,
   stats,
 }) => {
-  const [activeTab, setActiveTab] = useState<'monitor' | 'citizens' | 'integrity'>('monitor');
+  const [activeTab, setActiveTab] = useState<'monitor' | 'citizens' | 'invitations' | 'integrity'>('monitor');
   const [userList, setUserList] = useState<User[]>([]);
+  const [inviteCodes, setInviteCodes] = useState<InviteCode[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [superAdminIds, setSuperAdminIds] = useState<string[]>([]);
@@ -91,6 +103,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     if (activeTab === 'citizens') {
         fetchUsers();
     }
+    if (activeTab === 'invitations') {
+        fetchInviteCodes();
+    }
   }, [activeTab]);
 
   const fetchUsers = async () => {
@@ -104,6 +119,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       setError("Failed to fetch users");
     } finally {
       setIsLoadingUsers(false);
+    }
+  };
+  
+  const fetchInviteCodes = async () => {
+    if (!db) return;
+    try {
+      const q = query(collection(db, "invitation_codes"));
+      const snap = await getDocs(q);
+      setInviteCodes(snap.docs.map(d => ({ id: d.id, ...d.data() } as InviteCode)));
+    } catch (err) {
+      setError("Failed to fetch invitation codes");
+    }
+  };
+
+  const generateInviteCode = async () => {
+    if (!db) return;
+    try {
+        const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+        const code = `ALPHA-${randomStr}`;
+        const codeRef = doc(db, "invitation_codes", code);
+        
+        await setDoc(codeRef, {
+            is_used: false,
+            created_at: serverTimestamp(),
+            created_by: auth?.currentUser?.uid
+        });
+        
+        fetchInviteCodes();
+        alert(`招待コードを生成しました: ${code}`);
+    } catch (err: unknown) {
+        console.error(err);
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        alert(`Failed to generate code: ${errorMessage}`);
     }
   };
 
@@ -249,6 +297,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 ${activeTab === 'citizens' ? 'text-yellow-500 border-b-2 border-yellow-500' : 'text-slate-500 hover:text-slate-300'}`}
             >
                 <Users size={16} /> Citizens
+            </button>
+            <button
+                onClick={() => setActiveTab('invitations')}
+                className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 ${activeTab === 'invitations' ? 'text-yellow-500 border-b-2 border-yellow-500' : 'text-slate-500 hover:text-slate-300'}`}
+            >
+                <Key size={16} /> Invitations
             </button>
             <button
                 onClick={() => setActiveTab('integrity')}
@@ -404,6 +458,60 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         )}
                     </div>
                 </div>
+            </div>
+          )}
+
+          {activeTab === 'invitations' && (
+            <div className="animate-in fade-in duration-300 space-y-4">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-bold text-slate-200">招待コード管理</h3>
+                    <button 
+                        onClick={generateInviteCode}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors"
+                    >
+                        <Plus size={18} /> コード生成
+                    </button>
+                </div>
+                
+                <div className="bg-slate-900/50 rounded-xl border border-slate-700 overflow-hidden">
+                    <div className="max-h-[60vh] overflow-y-auto">
+                        {inviteCodes.length === 0 ? (
+                            <div className="p-8 text-center text-slate-500">コードがありません</div>
+                        ) : (
+                            <div className="divide-y divide-slate-800">
+                                {inviteCodes.slice().sort((a, b) => (b.created_at?.toMillis() || 0) - (a.created_at?.toMillis() || 0)).map(code => (
+                                    <div key={code.id} className="p-4 flex justify-between items-center hover:bg-slate-800/30 font-mono">
+                                        <div>
+                                            <div className="text-lg font-bold text-slate-100">{code.id}</div>
+                                            <div className="text-[10px] text-slate-500">
+                                                作成日: {code.created_at?.toDate().toLocaleString() || 'N/A'}
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            {code.is_used ? (
+                                                <span className="bg-slate-800 text-slate-400 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-slate-700">
+                                                    使用済み
+                                                </span>
+                                            ) : (
+                                                <span className="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-emerald-500/30">
+                                                    未使用
+                                                </span>
+                                            )}
+                                            {code.used_by && (
+                                                <div className="text-[10px] text-slate-500 max-w-[80px] truncate" title={code.used_by}>
+                                                    UID: {code.used_by.substring(0, 8)}...
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <p className="text-xs text-slate-500 italic">
+                    ※ コードは ALPHA-XXXX 形式でランダムに生成されます。
+                </p>
             </div>
           )}
 

@@ -13,7 +13,8 @@ if (!admin.apps.length) {
   admin.initializeApp();
 }
 
-// const db = admin.firestore(); // Moved inside functions to avoid init error
+
+// const db = admin.firestore();
 
 /**
  * World Reset: The Turning of the Wheel

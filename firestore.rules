@@ -96,12 +96,16 @@ service cloud.firestore {
 
     // --- Invitation Codes (Alpha Access Keys) ---
     match /invitation_codes/{codeId} {
-      // PERMANENT FIX: Allow guest read for code verification during registration
+      // Allow read for code verification during registration
       allow read: if true;
-      allow update: if isSignedIn() 
+      // Allow admins to manage codes (create, delete, list)
+      allow create, delete, list: if isAdmin();
+      // Allow usage update during registration
+      allow update: if (isSignedIn() 
                     && resource.data.is_used == false 
                     && request.resource.data.is_used == true
-                    && request.resource.data.used_by == request.auth.uid;
+                    && request.resource.data.used_by == request.auth.uid)
+                    || isAdmin();
     }
 
     // --- Super Admins ---
