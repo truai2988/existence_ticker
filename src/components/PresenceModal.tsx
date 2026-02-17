@@ -125,7 +125,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
             {/* Display Area - Calm & Compact */}
             <div className="relative h-28 rounded-xl bg-slate-50/50 border border-slate-100 flex flex-col items-center justify-center overflow-hidden">
                 {/* Subtle Breathing Light */}
-                {count !== null && count > 0 && (
+                {count !== null && Number(count) > 0 && (
                             <div className="absolute inset-0 pointer-events-none">
                         <motion.div 
                             animate={{ opacity: [0.2, 0.4, 0.2] }}

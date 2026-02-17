@@ -1,6 +1,8 @@
-export const formatLocationCount = (count: number | null): string => {
-    if (count === null) return "確認中...";
-    if (count === 0) return "登録者はまだいません";
-    if (count < 5) return "5名未満";
-    return `${count}名`;
+export const formatLocationCount = (count: number | string | null | undefined): string => {
+  if (count === null || count === undefined) return "確認中...";
+  const numCount = Number(count);
+  if (isNaN(numCount)) return "エラー";
+  if (numCount === 0) return "登録者はまだいません";
+  if (numCount < 5) return "5名未満";
+  return `${numCount}名`;
 };
