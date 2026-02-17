@@ -5,10 +5,42 @@ import {
   Activity,
 } from "lucide-react";
 import { db } from "../../lib/firebase";
+import { useMigration } from "../../hooks/useMigration";
+import { useAuth } from "../../hooks/useAuthHook";
 
 export const AdminIntegrityPanel: React.FC = () => {
+  const { user } = useAuth();
+  const { migrateToPerUserJournal, purgeGhostTransactions, isMigrating, migrationLog } = useMigration();
   const [isCleaningUp, setIsCleaningUp] = useState(false);
   const [cleanupLog, setCleanupLog] = useState<string[]>([]);
+
+  const combinedLog = [...cleanupLog, ...migrationLog].slice(-50);
+
+  const handleJournalMigration = async (isGlobal: boolean = false) => {
+    const targetMsg = isGlobal 
+        ? "⚠️ [全住民の物語を修復]\n現在この世界に登録されている全住民の記録を、個人別形式へ一括変換します。"
+        : "✅ [自分の物語を修復]\nあなたの記録のみを個人別形式へ変換します。";
+
+    if (
+        !window.confirm(
+          `${targetMsg}\n\n存在しないユーザーの記録（幽霊記録）は対象外となり、安全に移行されます。\n実行しますカ？`
+        )
+      )
+        return;
+    
+    await migrateToPerUserJournal(isGlobal ? undefined : user?.uid);
+  };
+
+  const handleGhostTransactionPurge = async () => {
+    if (
+      !window.confirm(
+        "⚠️ [超重要：物理的抹消]\nどの住民（ユーザー）にも紐付いていない『幽霊記録』をスキャンし、一括削除します。\n実行しますか？"
+      )
+    )
+      return;
+
+    await purgeGhostTransactions();
+  };
 
   const addLog = (msg: string) => {
     setCleanupLog((prev) => [...prev, msg].slice(-50)); // 最新50件を保持
@@ -153,6 +185,64 @@ export const AdminIntegrityPanel: React.FC = () => {
     }
   };
 
+  // --- 3. Name Integrity Audit (名前の欠損チェック) ---
+  const handleNameAudit = async () => {
+    if (
+      !window.confirm(
+        "⚠️ [物理的整合性：真名の修復]\n全住民の魂（ユーザーレコード）を走査し、名無しの異常を検知・自動修復します。\n\n実行しますか？"
+      )
+    )
+      return;
+
+    setIsCleaningUp(true);
+    clearLog();
+    addLog("[開始] 名前の欠損スキャンと自動修復を開始します...");
+
+    try {
+      if (!db) throw new Error("データベース接続に失敗しました");
+      const { collection, getDocs, query, writeBatch, serverTimestamp } = await import("firebase/firestore");
+
+      const userSnap = await getDocs(query(collection(db, "users")));
+      let repairedCount = 0;
+      const batch = writeBatch(db);
+
+      userSnap.docs.forEach((uDoc) => {
+        const data = uDoc.data();
+        if (!data.name || data.name.trim() === "") {
+          // 自動修復の試行: メールアドレスのID部分などを仮名として設定（本来はAuthから取るべきだがブラウザ側では制約あり）
+          const tempName = data.email ? data.email.split('@')[0] : `奏者_${uDoc.id.slice(0, 5)}`;
+          
+          batch.update(uDoc.ref, { 
+            name: tempName,
+            last_updated: serverTimestamp() 
+          });
+          
+          repairedCount++;
+          addLog(
+            `[修復] 名前欠損を検知: ID ${uDoc.id} -> 仮名「${tempName}」で修復しました。`
+          );
+        }
+      });
+
+      if (repairedCount > 0) {
+        await batch.commit();
+        addLog(
+          `[完了] ${repairedCount}件の魂（名前）を自動修復しました。世界の理が正常化されました。`
+        );
+      } else {
+        addLog(
+          "[完了] すべての住民に真名が刻まれています。不整合は見つかりませんでした。"
+        );
+      }
+    } catch (e) {
+      console.error(e);
+      addLog(`[エラー] ${String(e)}`);
+    } finally {
+      setIsCleaningUp(false);
+    }
+  };
+
+
   return (
     <div className="space-y-6 animate-in fade-in duration-300 pb-20">
       <div className="bg-slate-900/50 border border-slate-700/50 rounded-xl p-4 mb-6">
@@ -193,10 +283,50 @@ export const AdminIntegrityPanel: React.FC = () => {
           onAction={handleWorldRecount}
           isProcessing={isCleaningUp}
         />
+
+        <ToolCard
+          title="名前の欠損チェック"
+          color="red"
+          icon={<Users size={18} />}
+          description="住民名簿を走査し、名前が登録されていない『存在しないはずのバグ』を検出します。"
+          actionLabel="チェックを開始"
+          onAction={handleNameAudit}
+          isProcessing={isCleaningUp}
+        />
+
+        <ToolCard
+          title="幽霊記録の浄化 (Purge)"
+          color="red"
+          icon={<Trash2 size={18} />}
+          description="存在しないユーザーに紐付く古い履歴を一括削除します。数千件の不要なデータを整理し、世界を軽くします。"
+          actionLabel="浄化を開始"
+          onAction={handleGhostTransactionPurge}
+          isProcessing={isCleaningUp}
+        />
+
+        <ToolCard
+          title="個人別ジャーナルへの移行"
+          color="blue"
+          icon={<Activity size={18} />}
+          description="過去の共有形式の記録を、個人別の視点固定レコードへと変換します。まずは自分の記録を整えることを推奨します。"
+          actionLabel="自分の記録を移行"
+          onAction={() => handleJournalMigration(false)}
+          isProcessing={isMigrating || isCleaningUp}
+        />
+
+        <ToolCard
+          title="全現住住民のジャーナル移行"
+          color="blue"
+          icon={<Activity size={18} />}
+          description="現在登録されている全住民の記録を、一括で個人別形式に変換します。ゴーストデータは無視されるため安全です。"
+          actionLabel="全住民(3名)分を移行"
+          onAction={() => handleJournalMigration(true)}
+          isProcessing={isMigrating || isCleaningUp}
+        />
       </div>
 
       {/* Log Console */}
-      {cleanupLog.length > 0 && (
+      {combinedLog.length > 0 && (
         <div className="mt-6 bg-black/80 rounded-lg border border-slate-800 overflow-hidden font-mono text-xs">
           <div className="bg-slate-900/80 px-4 py-2 border-b border-slate-800 flex justify-between items-center">
             <span className="text-slate-400 font-bold uppercase tracking-wider flex items-center gap-2">
@@ -210,7 +340,7 @@ export const AdminIntegrityPanel: React.FC = () => {
             </button>
           </div>
           <div className="p-4 max-h-60 overflow-y-auto space-y-1 text-slate-300 custom-scrollbar">
-            {cleanupLog.map((line, i) => (
+            {combinedLog.map((line, i) => (
               <div key={i} className="border-l-2 border-slate-700 pl-2 py-0.5 break-all">
                 {line}
               </div>

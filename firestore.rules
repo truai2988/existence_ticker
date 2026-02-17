@@ -26,7 +26,7 @@ service cloud.firestore {
     // --- Users Collection ---
     match /users/{userId} {
       // Basic profile is public, but email etc. should be protected (implied by schema/code)
-      allow read: if isSignedIn();
+      allow read: if isSignedIn() || isAdmin();
       
       // SCHEMA ENFORCEMENT: Ensures robust initial state
       allow create: if isSignedIn() && isOwner(userId)
@@ -71,12 +71,14 @@ service cloud.firestore {
     // --- Transactions & Stats ---
     match /transactions/{txId} {
       // PERMANENT FIX: Split get/list to allow ritual idempotency while hiding overall logs
+      allow read: if isAdmin();
       allow get: if isSignedIn();
       allow list: if isSignedIn() && (
         isAdmin() ||
         (resource != null && (request.auth.uid == resource.data.sender_id || request.auth.uid == resource.data.recipient_id))
       );
       allow create: if isSignedIn() && (request.resource.data.sender_id == request.auth.uid || isAdmin());
+      allow update, delete: if isAdmin();
     }
     
     match /daily_stats/{day} {

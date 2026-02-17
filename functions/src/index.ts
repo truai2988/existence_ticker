@@ -3,6 +3,7 @@ import * as admin from 'firebase-admin';
 export * from './locationStats';
 export * from './ai';
 export * from './deleteAccount';
+export * from './migration';
 
 export const checkConnectivity = functions.https.onCall(async () => {
   console.log("[checkConnectivity] Function hit!");

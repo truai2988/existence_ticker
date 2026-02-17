@@ -36,7 +36,7 @@ export const useProfile = () => {
           const normalizedProfile: UserProfile = {
             id: user.uid,
             ...rawData,
-            name: rawData.name || user.displayName || "Anonymous",
+            name: rawData.name || user.displayName || "奏者",
             last_updated: getMillis(rawData.last_updated),
             cycle_started_at: getMillis(rawData.cycle_started_at, 0),
             created_at: getMillis(rawData.created_at),

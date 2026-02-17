@@ -103,7 +103,6 @@ export const deleteAccount = functions.https.onCall(async (data, context) => {
             if (uCycleStart > 0) {
                 const uElapsedSec = ((now - uCycleStart) / 1000) | 0;
                 const uDecayedVesselMilli = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), uElapsedSec);
-                const uCurrentSpentMilli = toMilli(uData.spent_lm || 0);
                 
                 // Decay logged is effectively what would have happened if they stayed
                 totalDecayMilli += (toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT) - uDecayedVesselMilli);
@@ -201,6 +200,22 @@ export const deleteAccount = functions.https.onCall(async (data, context) => {
             for (const historyDoc of historySnap.docs) {
                 transaction.delete(historyDoc.ref);
             }
+
+            // Step 2.5: Purge Transactions associated with this user
+            // Note: We do this inside the transaction or in a separate batch if many.
+            // For now, let's fetch them and add to transaction.
+            const txRef = db.collection('transactions');
+            const qS = txRef.where('sender_id', '==', uid);
+            const qR = txRef.where('recipient_id', '==', uid);
+            const qO = txRef.where('owner_id', '==', uid);
+            
+            const [snapS, snapR, snapO] = await Promise.all([qS.get(), qR.get(), qO.get()]);
+            const allTxDocs = [...snapS.docs, ...snapR.docs, ...snapO.docs];
+            
+            for (const txDoc of allTxDocs) {
+                transaction.delete(txDoc.ref);
+            }
+
             transaction.delete(userRef);
         });
 

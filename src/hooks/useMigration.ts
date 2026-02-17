@@ -1,100 +1,60 @@
 import { useState } from 'react';
-import { db } from '../lib/firebase';
-import { 
-    collection, 
-    query, 
-    where, 
-    getDocs, 
-    writeBatch, 
-    doc
-} from 'firebase/firestore';
-import { getMillis } from '../logic/worldPhysics';
+import { functions } from '../lib/firebase';
+import { httpsCallable } from 'firebase/functions';
 
 export const useMigration = () => {
     const [isMigrating, setIsMigrating] = useState(false);
     const [migrationLog, setMigrationLog] = useState<string[]>([]);
 
-    const migrateJournal = async () => {
-        if (!db) return { success: false, error: 'Database not initialized' };
+    const migrateToPerUserJournal = async (scopeUserId?: string) => {
+        if (!functions) return { success: false, error: 'Functions not initialized' };
         setIsMigrating(true);
-        setMigrationLog(["[Migration] Starting Journal Backfill..."]);
+        setMigrationLog([`[移行] ${scopeUserId ? '個人的な' : '全住民の'}記録を修復プログラムへ送信中...`]);
 
         try {
-            const wishesRef = collection(db, 'wishes');
-            const txRef = collection(db, 'transactions');
+            // NOTE: Currently we only provide a 'Migrate All Residents' function for robustness.
+            // Individual migration can be added if needed, but the current Cloud Function
+            // handles all active residents safely.
+            const migrateFn = httpsCallable(functions, 'migrateResidentJournals');
+            const result = await migrateFn({ scopeUserId });
+            const data = result.data as { success: boolean, createdCount: number, message: string };
 
-            // 1. Fetch all cancelled/expired wishes
-            const qWishes = query(wishesRef, where('status', 'in', ['cancelled', 'expired']));
-            const wishSnap = await getDocs(qWishes);
-
-            if (wishSnap.empty) {
-                setMigrationLog(prev => [...prev, "No wishes found for migration."]);
-                return { success: true, totalProcessed: 0, createdCount: 0 };
-            }
-
-            setMigrationLog(prev => [...prev, `Found ${wishSnap.size} wishes to analyze.`]);
-
-            let createdCount = 0;
-            let skippedCount = 0;
-            const batch = writeBatch(db);
-
-            for (const wishDoc of wishSnap.docs) {
-                const wishId = wishDoc.id;
-                const wishData = wishDoc.data();
-
-                // 2. Check if a transaction exists for this wish ID
-                const qTx = query(txRef, where('wish_id', '==', wishId));
-                const txSnap = await getDocs(qTx);
-
-                if (txSnap.empty) {
-                    // Create transaction
-                    const txId = `${wishData.status}_migration_${wishId}`;
-                    const targetTxRef = doc(txRef, txId);
-                    
-                    const normalizedAt = getMillis(wishData.cancelled_at || wishData.updated_at || wishData.created_at);
-                    const timestamp = normalizedAt || Date.now();
-
-                    batch.set(targetTxRef, {
-                        type: wishData.status === 'cancelled' ? 'WISH_CANCELLED' : 'WISH_EXPIRED',
-                        amount: 0,
-                        created_at: timestamp,
-                        sender_id: wishData.requester_id,
-                        sender_name: wishData.requester_name || "Anonymous",
-                        recipient_id: wishData.helper_id || null,
-                        recipient_name: wishData.helper_name || null,
-                        wish_title: wishData.content,
-                        wish_id: wishId,
-                        description: "data_migration_backfill"
-                    });
-                    createdCount++;
-                } else {
-                    skippedCount++;
-                }
-            }
-
-            if (createdCount > 0) {
-                await batch.commit();
-            }
-
-            setMigrationLog(prev => [
-                ...prev, 
-                `Migration Complete: Created ${createdCount}, Skipped ${skippedCount}.`
-            ]);
-            
-            return { success: true, createdCount, totalProcessed: wishSnap.size };
-
+            setMigrationLog(prev => [...prev, data.message || "処理が完了しました。"]);
+            return { success: data.success, createdCount: data.createdCount };
         } catch (e) {
             console.error("Migration failed:", e);
             const errorMsg = String(e);
-            setMigrationLog(prev => [...prev, `[Error] ${errorMsg}`]);
+            setMigrationLog(prev => [...prev, `[エラー] ${errorMsg}`]);
             return { success: false, error: errorMsg };
         } finally {
             setIsMigrating(false);
         }
     };
 
+    const purgeGhostTransactions = async () => {
+        if (!functions) return { success: false, error: 'Functions not initialized' };
+        setIsMigrating(true);
+        setMigrationLog(["[浄化] 世界に溜まった幽霊記録の抹消を開始します..."]);
+
+        try {
+            const purgeFn = httpsCallable(functions, 'purgeGhostJournals');
+            const result = await purgeFn();
+            const data = result.data as { success: boolean, deletedCount: number, message: string };
+
+            setMigrationLog(prev => [...prev, data.message || "浄化が完了しました。"]);
+            return { success: data.success, deletedCount: data.deletedCount };
+        } catch (e) {
+            console.error("Purge failed:", e);
+            setMigrationLog(prev => [...prev, `[エラー] ${String(e)}`]);
+            return { success: false, error: String(e) };
+        } finally {
+            setIsMigrating(false);
+        }
+    };
+
     return {
-        migrateJournal,
+        migrateToPerUserJournal,
+        purgeGhostTransactions,
         isMigrating,
         migrationLog
     };

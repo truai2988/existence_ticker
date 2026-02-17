@@ -121,7 +121,7 @@ export const useWishActions = () => {
         // 3. Create Wish
         transaction.set(wishRef, {
           requester_id: user.uid,
-          requester_name: userDoc.data().name || "Anonymous Soul",
+          requester_name: userDoc.data().name || user.displayName || "魂の奏者", // 初期値として入れておくが、UI側でNameResolverが追跡する
           content: input.content,
           gratitude_preset: input.tier,
           status: "open",
@@ -167,7 +167,7 @@ export const useWishActions = () => {
         const userData = (await transaction.get(userRef)).data();
         const applicantInfo = {
           id: user.uid,
-          name: userData?.name || "Anonymous",
+          name: userData?.name || user.displayName || "奏者", 
           trust_score: userData?.completed_contracts || 0,
           contact_email: user.email || undefined,
         };
@@ -340,7 +340,9 @@ export const useWishActions = () => {
             });
 
             if (!txCheck.exists()) {
+                // 1. Sender (Requester) Record
                 transaction.set(txRef, {
+                  owner_id: wishData.requester_id,
                   type: "COMPENSATION",
                   amount: fromMilli(actualPaymentMilli), 
                   created_at: serverTimestamp(),
@@ -350,7 +352,23 @@ export const useWishActions = () => {
                   recipient_name: hName,
                   wish_title: wishData.content,
                   wish_id: wishId,
-                  description: "依頼主が中断したため、誠実のしるしをお渡ししました"
+                  description: "中断に伴い、誠実のしるしをお渡ししました"
+                });
+
+                // 2. Recipient (Helper) Record
+                const rxRef = doc(collection(db!, "transactions"), `${txId}_RX`);
+                transaction.set(rxRef, {
+                  owner_id: wishData.helper_id,
+                  type: "COMPENSATION",
+                  amount: fromMilli(actualPaymentMilli), 
+                  created_at: serverTimestamp(),
+                  sender_id: wishData.requester_id,
+                  sender_name: rName, 
+                  recipient_id: wishData.helper_id,
+                  recipient_name: hName,
+                  wish_title: wishData.content,
+                  wish_id: wishId,
+                  description: "依頼主の中断に伴い、誠実のしるしが届きました"
                 });
             }
             transaction.delete(wishRef);
@@ -384,15 +402,16 @@ export const useWishActions = () => {
           const txRef = doc(collection(db!, "transactions"), txId);
           transaction.set(txRef, {
             type: "WISH_CANCELLED",
+            owner_id: user.uid,
             amount: 0,
             created_at: serverTimestamp(),
             sender_id: user.uid,
-            sender_name: wishData.requester_name || "Anonymous",
+            sender_name: wishData.requester_name || "依頼主",
             recipient_id: wishData.helper_id || null,
             recipient_name: wishData.helper_name || null,
             wish_title: wishData.content,
             wish_id: wishId,
-            description: "user_cancellation"
+            description: "願いを取り下げました"
           });
         }
       });
@@ -618,7 +637,9 @@ export const useWishActions = () => {
         if (paymentAmount >= 900) txType = "BONFIRE";
         else if (paymentAmount >= 400) txType = "CANDLE";
 
+        // 1. Sender (Issuer) Record
         transaction.set(txRef, {
+          owner_id: wishData.requester_id,
           amount: paymentAmount,
           timestamp: serverTimestamp(),
           created_at: serverTimestamp(),
@@ -627,11 +648,35 @@ export const useWishActions = () => {
           wish_id: wishId,
           wish_title: wishData.content,
           sender_id: wishData.requester_id,
-          sender_name: issuerDoc.data()?.name || wishData.requester_name || "Anonymous Soul",
+          sender_name: issuerDoc.data()?.name || wishData.requester_name || "依頼主",
           recipient_id: fulfillerId,
-          recipient_name: fulfillerDoc.data()?.name || wishData.helper_name || "Anonymous Helper",
+          recipient_name: fulfillerDoc.data()?.name || wishData.helper_name || "助力者",
           tags: tags,
-          description: isBankruptcy ? "wish_fulfilled (Bankruptcy Partial Payment) [Crystallized]" : "wish_fulfilled [Crystallized]",
+          description: isBankruptcy 
+            ? "感謝を贈りましたが、余力が足りず一部のみが結晶になりました" 
+            : "願いを叶えてくれた感謝を、源気（Lm）に込めて贈りました",
+          message: message || null 
+        });
+
+        // 2. Recipient (Fulfiller) Record
+        const rxRef = doc(collection(db!, "transactions"), `${txId}_RX`);
+        transaction.set(rxRef, {
+          owner_id: fulfillerId,
+          amount: paymentAmount,
+          timestamp: serverTimestamp(),
+          created_at: serverTimestamp(),
+          type: "WISH_FULFILLMENT",
+          sub_type: txType,
+          wish_id: wishId,
+          wish_title: wishData.content,
+          sender_id: wishData.requester_id,
+          sender_name: issuerDoc.data()?.name || wishData.requester_name || "依頼主",
+          recipient_id: fulfillerId,
+          recipient_name: fulfillerDoc.data()?.name || wishData.helper_name || "助力者",
+          tags: tags,
+          description: isBankruptcy 
+            ? "感謝が届きましたが、余力が足りず一部のみが結晶になりました" 
+            : "感謝が結晶（Lm）になって届きました",
           message: message || null 
         });
 
@@ -731,15 +776,16 @@ export const useWishActions = () => {
           const txRef = doc(collection(db!, "transactions"), txId);
           transaction.set(txRef, {
             type: "WISH_EXPIRED",
+            owner_id: wishData.requester_id,
             amount: 0,
             created_at: serverTimestamp(),
             sender_id: wishData.requester_id,
-            sender_name: wishData.requester_name || "Anonymous",
+            sender_name: wishData.requester_name || "依頼主",
             recipient_id: wishData.helper_id || null,
             recipient_name: wishData.helper_name || null,
             wish_title: wishData.content,
             wish_id: wishId,
-            description: "system_expiration"
+            description: "期限を過ぎたため、自動的に整理されました"
           });
         });
 

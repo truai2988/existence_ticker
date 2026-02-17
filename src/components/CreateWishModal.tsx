@@ -4,6 +4,8 @@ import { GuideModal } from './GuideModal';
 import { useWishActions } from '../hooks/useWishActions';
 import { useProfile } from '../hooks/useProfile';
 import { useWallet } from '../hooks/useWallet';
+import { useAuth } from '../hooks/useAuthHook';
+import { NameResolver } from './NameResolver';
 import { GratitudeTier } from '../types';
 import { WISH_COST, UNIT_LABEL } from '../constants';
 import { useToast } from '../contexts/ToastContext';
@@ -41,6 +43,7 @@ interface CreateWishModalProps {
 }
 
 export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => {
+    const { user } = useAuth();
     const { profile } = useProfile();
     const { availableLm } = useWallet();
     const { castWish, isSubmitting } = useWishActions();
@@ -81,7 +84,9 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                   </label>
                   <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 focus-within:ring-2 focus-within:ring-orange-200 transition-all">
                       <div className="mb-2 text-xs text-slate-400 font-medium font-sans">
-                          依頼者: <span className="text-slate-600">{profile?.name || "Anonymous"}</span>
+                          依頼者: <span className="text-slate-600">
+                              <NameResolver userId={user?.uid || null} initialName={profile?.name || null} />
+                          </span>
                       </div>
                       <textarea
                         value={newWishContent}

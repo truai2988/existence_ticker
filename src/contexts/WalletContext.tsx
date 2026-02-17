@@ -201,8 +201,9 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         transaction.set(txRef, {
             type: isFirstBirth ? 'BIRTH' : 'REBIRTH',
             user_id: user.uid,
+            owner_id: user.uid,
             sender_id: user.uid,
-            sender_name: data.name || "Anonymous Soul",
+            sender_name: data.name || "奏者",
             amount: WORLD_CONSTANTS.REBIRTH_AMOUNT,
             created_at: serverTimestamp(),
             anchor_time: anchorDate,
