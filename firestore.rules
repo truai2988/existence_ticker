@@ -110,8 +110,8 @@ service cloud.firestore {
 
     // --- Super Admins ---
     match /super_admins/{uid} {
-      allow read: if isSignedIn() && isAdmin();
-      allow write: if isSignedIn() && (isAdmin() || !exists(/databases/$(database)/documents/super_admins/$(uid))); 
+      allow read: if isSignedIn() && (isAdmin() || request.auth.uid == uid);
+      allow write: if isSignedIn() && isAdmin(); 
     }
   }
 }

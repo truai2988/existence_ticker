@@ -1,5 +1,0 @@
-
-> existence_ticker@0.0.0 build
-> tsc && vite build
-
-src/hooks/useWishActions.ts(12,3): error TS6133: 'Timestamp' is declared but its value is never read.
