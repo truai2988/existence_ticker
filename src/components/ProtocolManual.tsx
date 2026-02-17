@@ -239,7 +239,71 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
 
             <h3 className="text-xl font-bold mt-10 mb-6 font-sans">4.4 介入の書 (Intervention Matrix)</h3>
             <div className="overflow-hidden border border-slate-200 rounded-lg">
-                <table className="min-w-full text-sm text-left text-slate-600">
+                {/* Mobile View (Cards) */}
+                <div className="md:hidden divide-y divide-slate-100">
+                    {/* Healthy */}
+                    <div className="bg-green-50/50 p-4">
+                        <div className="font-bold text-green-800 mb-1">HEALTHY</div>
+                        <div className="text-xs font-normal text-green-600 mb-3">Rate &gt; 10% + Balanced</div>
+                        
+                        <div className="text-xs font-bold text-slate-400 uppercase mb-1">Root Cause</div>
+                        <div className="text-sm text-slate-700 mb-3">理想的な循環状態</div>
+                        
+                        <div className="text-xs font-bold text-slate-400 uppercase mb-1">Actions</div>
+                        <div className="text-sm">
+                            <span className="block font-bold text-green-600">ACTION: 維持 (Maintain)</span>
+                            介入不要。この均衡を見守ることが神の仕事です。
+                        </div>
+                    </div>
+
+                    {/* Starvation */}
+                    <div className="bg-white p-4">
+                        <div className="font-bold text-slate-900 mb-1">STARVATION</div>
+                        <div className="text-xs font-normal text-slate-500 mb-3">Low Rate + Low Balance</div>
+                        
+                        <div className="text-xs font-bold text-slate-400 uppercase mb-1">Root Cause</div>
+                        <div className="text-sm text-slate-700 mb-3">流動性枯渇による信頼崩壊</div>
+                        
+                        <div className="text-xs font-bold text-slate-400 uppercase mb-1">Actions</div>
+                         <div className="text-sm">
+                            <span className="block font-bold text-blue-600">ACTION: 春化 (Spring Shift)</span>
+                            サイクルを短縮 (例えば5日へ) し、給付頻度を倍増させる。<br/>恐怖を取り除くことが最優先。
+                        </div>
+                    </div>
+
+                    {/* Saturation */}
+                    <div className="bg-white p-4">
+                        <div className="font-bold text-slate-900 mb-1">SATURATION</div>
+                        <div className="text-xs font-normal text-slate-500 mb-3">Low Rate + High Balance</div>
+                        
+                        <div className="text-xs font-bold text-slate-400 uppercase mb-1">Root Cause</div>
+                        <div className="text-sm text-slate-700 mb-3">欲求(Wish)不足による停滞</div>
+                        
+                        <div className="text-xs font-bold text-slate-400 uppercase mb-1">Actions</div>
+                        <div className="text-sm">
+                            <span className="block font-bold text-purple-600">ACTION: 冬化 (Winter Shift)</span>
+                            サイクルを延長 (例えば20日へ)。<br/>「使わなければ尽きる」環境を作る。
+                        </div>
+                    </div>
+
+                     {/* Stagnation */}
+                    <div className="bg-white p-4">
+                        <div className="font-bold text-slate-900 mb-1">STAGNATION</div>
+                        <div className="text-xs font-normal text-slate-500 mb-3">Rate &lt; 5% (Critical)</div>
+                        
+                        <div className="text-xs font-bold text-slate-400 uppercase mb-1">Root Cause</div>
+                        <div className="text-sm text-slate-700 mb-3">文化の欠如 / 初期段階</div>
+                        
+                        <div className="text-xs font-bold text-slate-400 uppercase mb-1">Actions</div>
+                        <div className="text-sm">
+                            <span className="block font-bold text-red-600">ACTION: 緊急介入 (Emergency Intervention)</span>
+                            Admin自身による直接取引。<br/>管理者が動いて手本を示す。
+                        </div>
+                    </div>
+                </div>
+
+                {/* Desktop View (Table) */}
+                <table className="hidden md:table min-w-full text-sm text-left text-slate-600">
                     <thead className="bg-slate-100 text-slate-900 font-sans uppercase text-xs">
                         <tr>
                             <th className="px-6 py-3">状況 (Phase)</th>
