@@ -120,45 +120,52 @@ exports.deleteAccount = functions.https.onCall(async (data, context) => {
                 transaction.set(statRef, { count: firestore_1.FieldValue.increment(-1) }, { merge: true });
             }
             let totalDecayMilli = 0;
-            const uBalance = uData.balance || 0;
-            const uCommitted = uData.committed_lm || 0;
-            const uLastUpdated = (0, worldPhysics_1.getMillis)(uData.last_updated);
-            const uElapsedSec = ((Date.now() - uLastUpdated) / 1000) | 0;
-            const uBalanceDecayedMilli = (0, worldPhysics_1.calculateDecayedValue)((0, worldPhysics_1.toMilli)(uBalance), uElapsedSec);
-            const uCommittedDecayedMilli = (0, worldPhysics_1.calculateDecayedValue)((0, worldPhysics_1.toMilli)(uCommitted), uElapsedSec);
-            totalDecayMilli += ((0, worldPhysics_1.toMilli)(uBalance) - uBalanceDecayedMilli);
-            totalDecayMilli += ((0, worldPhysics_1.toMilli)(uCommitted) - uCommittedDecayedMilli);
+            const now = Date.now();
+            // Calculate User's current physical state for metabolism logging
+            const uCycleStart = (0, worldPhysics_1.getMillis)(uData.cycle_started_at, 0);
+            if (uCycleStart > 0) {
+                const uElapsedSec = ((now - uCycleStart) / 1000) | 0;
+                const uDecayedVesselMilli = (0, worldPhysics_1.calculateDecayedValue)((0, worldPhysics_1.toMilli)(worldPhysics_1.WORLD_CONSTANTS.REBIRTH_AMOUNT), uElapsedSec);
+                // Decay logged is effectively what would have happened if they stayed
+                totalDecayMilli += ((0, worldPhysics_1.toMilli)(worldPhysics_1.WORLD_CONSTANTS.REBIRTH_AMOUNT) - uDecayedVesselMilli);
+            }
             for (const wishDoc of snapRequester.docs) {
                 const wishData = wishDoc.data();
                 const wishInitialCost = wishData.cost || 0;
-                const wishElapsedSec = ((Date.now() - (0, worldPhysics_1.getMillis)(wishData.created_at)) / 1000) | 0;
+                const wishCreatedAt = (0, worldPhysics_1.getMillis)(wishData.created_at);
+                const wishElapsedSec = ((now - wishCreatedAt) / 1000) | 0;
                 const wishDecayedMilli = (0, worldPhysics_1.calculateDecayedValue)((0, worldPhysics_1.toMilli)(wishInitialCost), wishElapsedSec);
+                // Track wish decay for global stats
                 totalDecayMilli += ((0, worldPhysics_1.toMilli)(wishInitialCost) - wishDecayedMilli);
                 if ((wishData.status === 'in_progress' || wishData.status === 'review_pending') && wishData.helper_id) {
                     const helperSnap = helperMap.get(wishData.helper_id);
                     if (helperSnap && helperSnap.exists) {
                         const hData = helperSnap.data();
-                        const hBalance = hData.balance || 0;
-                        const hLastUpdated = (0, worldPhysics_1.getMillis)(hData.last_updated);
-                        const hElapsedSec = ((Date.now() - hLastUpdated) / 1000) | 0;
-                        const hDecayedBalanceMilli = (0, worldPhysics_1.calculateDecayedValue)((0, worldPhysics_1.toMilli)(hBalance), hElapsedSec);
-                        totalDecayMilli += ((0, worldPhysics_1.toMilli)(hBalance) - hDecayedBalanceMilli);
-                        const uDecayedBalanceMilliForComp = (0, worldPhysics_1.calculateDecayedValue)((0, worldPhysics_1.toMilli)(uData.balance || 0), uElapsedSec);
-                        const actualPaymentMilli = Math.min(wishDecayedMilli, uDecayedBalanceMilliForComp);
-                        const hRawNewMilli = hDecayedBalanceMilli + actualPaymentMilli;
-                        const hCappedMilli = Math.min(hRawNewMilli, worldPhysics_1.WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
-                        totalDecayMilli += Math.max(0, hRawNewMilli - worldPhysics_1.WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
+                        const hCycleStart = (0, worldPhysics_1.getMillis)(hData.cycle_started_at, 0);
+                        const hElapsedSec = ((now - hCycleStart) / 1000) | 0;
+                        const hDecayedVesselMilli = (0, worldPhysics_1.calculateDecayedValue)((0, worldPhysics_1.toMilli)(worldPhysics_1.WORLD_CONSTANTS.REBIRTH_AMOUNT), hElapsedSec);
+                        // Enforce Solvency: Balance must cover all commissions (skipped for deletion compensation as it is a gift)
+                        // But we must respect the 2400 WALL for the helper
+                        const uCycleStartForComp = (0, worldPhysics_1.getMillis)(uData.cycle_started_at, 0);
+                        const uElapsedSecForComp = ((now - uCycleStartForComp) / 1000) | 0;
+                        const uDecayedVesselMilliForComp = (0, worldPhysics_1.calculateDecayedValue)((0, worldPhysics_1.toMilli)(worldPhysics_1.WORLD_CONSTANTS.REBIRTH_AMOUNT), uElapsedSecForComp);
+                        const uCurrentRealMilli = Math.max(0, uDecayedVesselMilliForComp - (0, worldPhysics_1.toMilli)(uData.spent_lm || 0));
+                        const actualPaymentMilli = Math.min(wishDecayedMilli, uCurrentRealMilli);
+                        const actualPaymentAmount = (0, worldPhysics_1.fromMilli)(actualPaymentMilli);
+                        // Wall check for helper: helper's balance <= 2400
+                        const minHSpentMilli = hDecayedVesselMilli - (0, worldPhysics_1.toMilli)(worldPhysics_1.WORLD_CONSTANTS.REBIRTH_AMOUNT);
+                        const currentHSpentMilli = (0, worldPhysics_1.toMilli)(hData.spent_lm || 0);
+                        const newHSpentMilli = Math.max(minHSpentMilli, currentHSpentMilli - actualPaymentMilli);
                         transaction.update(helperSnap.ref, {
-                            balance: (0, worldPhysics_1.fromMilli)(hCappedMilli),
+                            spent_lm: (0, worldPhysics_1.fromMilli)(newHSpentMilli),
                             pending_interruption_notification: "依頼主様がアプリを離れられたため（退会）、感謝のLmが補償として送り届けられました。",
-                            last_updated: firestore_1.FieldValue.serverTimestamp()
                         });
                         const txPropRef = db.collection('transactions').doc();
                         transaction.set(txPropRef, {
                             type: 'COMPENSATION',
-                            amount: (0, worldPhysics_1.fromMilli)(actualPaymentMilli),
+                            amount: actualPaymentAmount,
                             sender_id: uid,
-                            sender_name: uData.name || "退会した奏者",
+                            sender_name: uData.name || "奏者",
                             recipient_id: wishData.helper_id,
                             recipient_name: hData.name || "助け手",
                             wish_title: wishData.content,
@@ -195,13 +202,24 @@ exports.deleteAccount = functions.https.onCall(async (data, context) => {
                     const rRef = db.collection('users').doc(wData.requester_id);
                     transaction.update(rRef, {
                         pending_interruption_notification: "助け手様がアプリを離れられたため（退会）、願いが再び募集に戻りました。Lmは安全です。",
-                        last_updated: firestore_1.FieldValue.serverTimestamp()
                     });
                 }
                 transaction.update(helpDoc.ref, updates);
             }
             for (const historyDoc of historySnap.docs) {
                 transaction.delete(historyDoc.ref);
+            }
+            // Step 2.5: Purge Transactions associated with this user
+            // Note: We do this inside the transaction or in a separate batch if many.
+            // For now, let's fetch them and add to transaction.
+            const txRef = db.collection('transactions');
+            const qS = txRef.where('sender_id', '==', uid);
+            const qR = txRef.where('recipient_id', '==', uid);
+            const qO = txRef.where('owner_id', '==', uid);
+            const [snapS, snapR, snapO] = await Promise.all([qS.get(), qR.get(), qO.get()]);
+            const allTxDocs = [...snapS.docs, ...snapR.docs, ...snapO.docs];
+            for (const txDoc of allTxDocs) {
+                transaction.delete(txDoc.ref);
             }
             transaction.delete(userRef);
         });

@@ -52,9 +52,8 @@ exports.fromMilli = fromMilli;
  */
 const calculateDecayedValue = (value, elapsedSec) => {
     const s = elapsedSec < 0 ? 0 : elapsedSec;
-    const num = 25;
-    const den = 9;
-    const decay = ((s * num) / den) | 0;
+    const elapsedHours = Math.floor(s / 3600);
+    const decay = elapsedHours * exports.WORLD_CONSTANTS.DECAY_RATE_MLLM_PER_HOUR;
     const result = value - decay;
     return result < 0 ? 0 : result;
 };

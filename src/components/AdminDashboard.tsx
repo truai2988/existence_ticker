@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { QueryDocumentSnapshot } from "firebase/firestore";
 import { motion } from "framer-motion";
-import { AdminIntegrityPanel } from "./admin/AdminIntegrityPanel";
 import {
   X,
   Shield,
@@ -53,7 +52,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
   // User Management State
   const [activeTab, setActiveTab] = useState<
-    "monitor" | "citizens" | "invitations" | "integrity"
+    "monitor" | "citizens" | "invitations"
   >("monitor");
   const [userList, setUserList] = useState<UserProfile[]>([]);
   const [inviteCodes, setInviteCodes] = useState<InviteCode[]>([]);
@@ -62,6 +61,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [lastVisibleDoc, setLastVisibleDoc] = useState<QueryDocumentSnapshot | null>(null);
   const [hasMoreUsers, setHasMoreUsers] = useState(true);
   const [superAdminIds, setSuperAdminIds] = useState<string[]>([]);
+
+  // Safety: Ensure activeTab is always valid (prevents empty screen after tab removal)
+  React.useEffect(() => {
+    const validTabs = ["monitor", "citizens", "invitations"];
+    if (!validTabs.includes(activeTab)) {
+      setActiveTab("monitor");
+    }
+  }, [activeTab]);
 
   React.useEffect(() => {
     const fetchConfig = async () => {
@@ -244,7 +251,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     }
   };
 
-  // Data Fetching Logic
+  // Data Fetching Logic: Only trigger when switching TO the tab
   React.useEffect(() => {
     if (activeTab === "citizens") {
       fetchUsers();
@@ -252,7 +259,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     if (activeTab === "invitations") {
       fetchInviteCodes();
     }
-  }, [activeTab, fetchUsers, fetchInviteCodes]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   const filteredUsers = userList.filter(
     (u) =>
@@ -378,14 +386,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "invitations" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-300"}`}
           >
             <Key size={16} /> 招待
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("integrity")}
-            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "integrity" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-300"}`}
-          >
-            <Shield size={16} />
-            整合性
           </button>
         </div>
 
@@ -679,10 +679,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 </div>
               </div>
             </div>
-          )}
-
-          {activeTab === "integrity" && (
-            <AdminIntegrityPanel />
           )}
 
           {activeTab === "monitor" && (
