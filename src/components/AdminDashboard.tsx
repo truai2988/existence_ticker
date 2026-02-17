@@ -166,13 +166,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const toggleSuperAdmin = async (user: User) => {
     if (!db) return;
+    
+    // SAFEGUARD 1: Confirmation
+    if (!window.confirm(`${user.name || user.id} のスーパー管理者権限を変更しますか？\n(Change Super Admin status?)`)) {
+        return;
+    }
+
     try {
         const isCurrentlySuper = superAdminIds.includes(user.id);
+        
+        // SAFEGUARD 2: Prevent locking out the last admin
+        if (isCurrentlySuper && superAdminIds.length <= 1) {
+            alert("最後のスーパー管理者は削除できません。\n(Cannot remove the last Super Admin.)");
+            return;
+        }
+
         const newSuperIds = isCurrentlySuper 
             ? superAdminIds.filter(id => id !== user.id)
             : [...superAdminIds, user.id];
         
-        await updateDoc(doc(db, "system_settings", "global"), { super_admin_ids: newSuperIds });
+        await setDoc(doc(db, "system_settings", "global"), { super_admin_ids: newSuperIds }, { merge: true });
         setSuperAdminIds(newSuperIds);
     } catch (err) { alert("Failed to update super admin status"); }
   };
@@ -285,7 +298,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         )}
 
-        <div className="flex gap-4 mb-6 border-b border-slate-800">
+        <div className="flex gap-4 mb-6 border-b border-slate-800 overflow-x-auto whitespace-nowrap no-scrollbar pb-2">
             <button
                 onClick={() => setActiveTab('monitor')}
                 className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 ${activeTab === 'monitor' ? 'text-yellow-500 border-b-2 border-yellow-500' : 'text-slate-500 hover:text-slate-300'}`}
@@ -319,18 +332,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   onClick={() => setShowDiagnosisModal(true)}
-                  className={`w-full p-5 rounded-2xl border-2 ${diagnostics.bg} ${diagnostics.text} mb-2 flex items-center justify-between group transition-all hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-black/20`}
+                  className={`w-full p-4 sm:p-5 rounded-2xl border-2 ${diagnostics.bg} ${diagnostics.text} mb-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group transition-all hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-black/20`}
               >
-                  <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-full bg-white/10 ring-4 ring-white/5">
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                      <div className="p-3 rounded-full bg-white/10 ring-4 ring-white/5 shrink-0">
                           <Activity size={24} className="animate-pulse" />
                       </div>
-                      <div className="text-left">
+                      <div className="text-left min-w-0 flex-1">
                           <div className="text-[10px] uppercase tracking-[0.3em] opacity-80 mb-1 font-bold">Health Status</div>
-                          <div className="text-xl sm:text-2xl font-serif font-bold tracking-wide">{diagnostics.shortDescription}</div>
+                          <div className="text-lg sm:text-2xl font-serif font-bold tracking-wide break-words leading-tight">{diagnostics.shortDescription}</div>
                       </div>
                   </div>
-                  <div className="flex items-center gap-2 text-xs font-mono px-4 py-2 bg-white/10 rounded-full opacity-80 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center justify-center gap-2 text-xs font-mono px-4 py-2 bg-white/10 rounded-full opacity-80 group-hover:opacity-100 transition-opacity w-full sm:w-auto mt-2 sm:mt-0">
                       <span>詳しく見る</span>
                       <Book size={14} />
                   </div>

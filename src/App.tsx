@@ -12,6 +12,7 @@ import { OnboardingStory } from "./components/OnboardingStory";
 import { AppViewMode } from "./types";
 import { useStartupMachine, AppMode } from "./hooks/useStartupMachine";
 import { useWallet } from "./hooks/useWallet";
+import { useStats, DashboardStats } from "./hooks/useStats";
 
 // カウントアップ・ダウン演出
 const CountingNumber: React.FC<{ value: number; duration: number }> = ({
@@ -119,6 +120,7 @@ const MainContent = ({
   setTargetBalance,
   appMode,
   onOpenOnboarding,
+  stats,
 }: {
   viewMode: AppViewMode;
   setViewMode: (mode: AppViewMode) => void;
@@ -132,6 +134,7 @@ const MainContent = ({
   setTargetBalance: (val: number) => void;
   appMode: AppMode;
   onOpenOnboarding: () => void;
+  stats: DashboardStats | null;
 }) => {
   // Normal Mode: Fade in the main content
   const withTransition = (component: React.ReactNode, key: string) => (
@@ -218,7 +221,7 @@ const MainContent = ({
             />,
             "home",
           );
-        return withTransition(<AdminDashboard onClose={onGoHome} />, "admin");
+        return withTransition(<AdminDashboard onClose={onGoHome} stats={stats} />, "admin");
       default:
         return null;
     }
@@ -242,6 +245,7 @@ const AdminDashboard = lazy(() =>
   import("./components/AdminDashboard").then((module) => ({
     default: module.AdminDashboard as React.ComponentType<{
       onClose: () => void;
+      stats: DashboardStats | null;
     }>,
   })),
 );
@@ -303,6 +307,8 @@ function App() {
     "reference",
   );
   const [showLegacyGuide, setShowLegacyGuide] = useState(false); // Legacy Text Guide
+
+  const { stats } = useStats(); // Global Stats
 
   // Auto-show Story Guide on first visit
   useEffect(() => {
@@ -452,6 +458,7 @@ function App() {
                   setTargetBalance={setTargetBalance}
                   appMode={appMode}
                   onOpenOnboarding={handleOpenOnboarding}
+                  stats={stats}
                 />
               </motion.div>
             </Suspense>
@@ -480,7 +487,7 @@ function App() {
 
           {showAdmin && (
             <Suspense fallback={null}>
-              <AdminDashboard onClose={() => setShowAdmin(false)} />
+              <AdminDashboard onClose={() => setShowAdmin(false)} stats={stats} />
             </Suspense>
           )}
         </div>
