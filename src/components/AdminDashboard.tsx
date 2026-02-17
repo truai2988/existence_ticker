@@ -568,7 +568,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       
       <AnimatePresence>
         {showManual && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-0 md:p-4">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -580,53 +580,208 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-2xl max-h-[80vh] bg-slate-900 border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col"
+              className="relative w-full max-w-4xl max-h-full md:max-h-[90vh] bg-white text-slate-800 rounded-none md:rounded-3xl shadow-2xl overflow-hidden flex flex-col"
             >
-              <div className="flex justify-between items-center p-6 border-b border-white/5">
-                <h2 className="text-xl font-serif font-bold text-slate-100 italic tracking-wider">Protocol Dictionary / Manual</h2>
-                <button onClick={() => setShowManual(false)} className="p-2 hover:bg-white/10 rounded-full text-slate-400 transition-colors">
+              {/* Manual Header */}
+              <div className="flex justify-between items-start p-6 md:p-10 border-b-2 border-slate-900 bg-white sticky top-0 z-10">
+                <div>
+                  <div className="flex items-center gap-2 text-slate-500 mb-2 uppercase tracking-[0.2em] text-[10px] md:text-xs font-sans">
+                    <Activity size={14} />
+                    <span>Existence Ticker Protocol v2.0</span>
+                  </div>
+                  <h1 className="text-2xl md:text-4xl font-serif font-bold text-slate-900 leading-tight">
+                    自律分散型互助生態系構想書
+                    <span className="block text-sm md:text-lg font-sans font-normal text-slate-500 mt-2">Autonomous Mutual Aid Ecosystem Protocol</span>
+                  </h1>
+                </div>
+                <button
+                  onClick={() => setShowManual(false)}
+                  className="p-3 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-900 transition-colors"
+                >
                   <X size={24} />
                 </button>
               </div>
-              
-              <div className="flex-1 overflow-y-auto p-8 space-y-10 no-scrollbar">
-                <section>
-                  <h3 className="text-xs font-bold text-emerald-400 mb-4 tracking-[0.3em] uppercase">Fundamental Axioms</h3>
-                  <div className="space-y-6">
-                    <div>
-                      <h4 className="text-lg font-bold text-slate-200 mb-2">存在ルーメン (Lm)</h4>
-                      <p className="text-slate-400 leading-relaxed">この世界の生命エネルギーであり、全ての価値の尺度。時間と共に自然に減衰（Decay）し、滞留は死を意味します。</p>
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-bold text-slate-200 mb-2">給付サイクル (Rebirth Cycle)</h4>
-                      <p className="text-slate-400 leading-relaxed">全ての魂が再定義される周期。一定期間ごとに「存在の器」が満たされ、新たな循環が始まります。</p>
-                    </div>
-                  </div>
-                </section>
 
-                <section>
-                  <h3 className="text-xs font-bold text-cyan-400 mb-4 tracking-[0.3em] uppercase">Terminology / Glossary</h3>
-                  <div className="grid grid-cols-1 gap-6 text-sm">
-                    <div className="p-4 bg-white/5 rounded-xl border border-white/5">
-                      <span className="font-bold text-slate-200">代謝 (Metabolism)</span>
-                      <p className="text-slate-500 mt-1">24時間以内の全トランザクション量と減衰量の合計。世界の活力を示します。</p>
-                    </div>
-                    <div className="p-4 bg-white/5 rounded-xl border border-white/5">
-                      <span className="font-bold text-slate-200">積立比率 (Committed Ratio)</span>
-                      <p className="text-slate-500 mt-1">全供給量に対する、特定の目的（Wish/Trust）に固定されたLmの割合。</p>
-                    </div>
-                    <div className="p-4 bg-white/5 rounded-xl border border-white/5">
-                      <span className="font-bold text-slate-200">賢者の助言 (Sage Advice)</span>
-                      <p className="text-slate-500 mt-1">システムの健全性（Health）に基づいて自動生成される、管理者への調整提案。</p>
-                    </div>
-                  </div>
-                </section>
-
-                <div className="pt-10 pb-4 text-center">
-                  <p className="text-[10px] text-slate-600 font-mono tracking-widest uppercase italic">
-                    entropy is the only constant.
+              {/* Manual Content */}
+              <div className="flex-1 overflow-y-auto p-6 md:p-12 space-y-16 font-serif leading-relaxed text-base md:text-lg text-slate-700 bg-white no-scrollbar">
+                
+                {/* Introduction */}
+                <section className="prose prose-slate max-w-none">
+                  <p className="text-lg md:text-xl italic text-slate-500 border-l-4 border-slate-200 pl-6 py-2">
+                    本ドキュメントは、本システムの投資家および設計協力者に向けたアーキテクチャ解説書です。<br/>
+                    我々は「富の保存」ではなく「感謝の循環」を価値の源泉とする、新たな経済物理学を実装しました。
                   </p>
+                </section>
+
+                {/* Chapter 1 */}
+                <section>
+                  <div className="flex items-center gap-4 mb-6">
+                    <span className="text-4xl md:text-6xl font-thin text-slate-200">01</span>
+                    <div className="h-px bg-slate-200 flex-grow"></div>
+                    <h2 className="text-xl md:text-2xl font-bold text-slate-900 font-sans">理念 (Philosophy)</h2>
+                  </div>
+                  <h3 className="text-lg md:text-xl font-bold mb-4">"Stock" から "Flow" へ</h3>
+                  <p className="mb-6">
+                    現代社会の閉塞感は「感謝の滞留」にあります。エネルギー（貨幣）が循環の媒体としての機能を失い、個人の所有物（Stock）としてダムのように堰き止められた時、生態系は枯れ果てます。<br/>
+                    我々はこの問題を解決するために、通貨を<strong className="text-slate-900 font-bold bg-yellow-100 px-1">「保存する資産（Stock）」から「感謝を伝えるエネルギー（Flow）」へと再定義</strong>しました。
+                  </p>
+                  <p>
+                    この世界では、溜め込むことは腐敗（減価）を意味し、他者へ循環させることこそが生存戦略となります。<br/>
+                    住人は「富を得るため」ではなく、「誰かを助け、誰かに助けられるため」にこのエネルギーを使用します。
+                  </p>
+                </section>
+
+                {/* Chapter 2 */}
+                <section>
+                  <div className="flex items-center gap-4 mb-6">
+                    <span className="text-4xl md:text-6xl font-thin text-slate-200">02</span>
+                    <div className="h-px bg-slate-200 flex-grow"></div>
+                    <h2 className="text-xl md:text-2xl font-bold text-slate-900 font-sans">構造 (Mechanism)</h2>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="bg-slate-50 p-6 rounded border border-slate-100">
+                      <h3 className="text-base md:text-lg font-bold font-sans mb-3 text-slate-900 flex items-center gap-2">
+                        <span className="text-red-400">▼</span> エントロピー (Entropy)
+                      </h3>
+                      <p className="text-sm md:text-base text-slate-600">
+                        自然界の法則と同様に、全てのエネルギーは時間とともに散逸（Decay）します。
+                        現在、<span className="font-mono bg-slate-200 text-slate-800 px-1 text-xs md:text-sm">毎時 10 Lm</span> の減価圧力がシステム全体にかかっています。
+                        これにより、既得権益の固定化（格差の固定）を物理的に阻止し、常に新たな代謝を促します。
+                      </p>
+                    </div>
+
+                    <div className="bg-slate-50 p-6 rounded border border-slate-100">
+                      <h3 className="text-base md:text-lg font-bold font-sans mb-3 text-slate-900 flex items-center gap-2">
+                        <span className="text-yellow-500">▲</span> 太陽 (The Sun)
+                      </h3>
+                      <p className="text-sm md:text-base text-slate-600">
+                        減価によって失われた総量は、システム全体への「生命贈与（Basic Supply）」として還元されます。
+                        これは行政による「給付」でも、富める者からの「再分配」でもありません。<br/>
+                        あなたがここに<strong className="text-slate-900">「存在している」という事実そのものを担保にして</strong>、天から無条件に降り注ぐ<span className="font-mono bg-slate-200 text-slate-800 px-1 text-xs md:text-sm">光のギフト</span>です。
+                        太陽が昇る限り、あなたの生存は世界によって肯定され続けます。
+                      </p>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Chapter 3 */}
+                <section>
+                  <div className="flex items-center gap-4 mb-6">
+                    <span className="text-4xl md:text-6xl font-thin text-slate-200">03</span>
+                    <div className="h-px bg-slate-200 flex-grow"></div>
+                    <h2 className="text-xl md:text-2xl font-bold text-slate-900 font-sans">統治 (Governance)</h2>
+                  </div>
+                  <h3 className="text-lg md:text-xl font-bold mb-4">支配ではなく、調律</h3>
+                  <p className="mb-6">
+                    管理者の役割は、住人の個別のやり取りを監視することではありません。<br/>
+                    世界の「温度（代謝率）」と「湿度（エネルギー分布）」を観測し、<strong className="text-slate-900 font-bold">「再生サイクル期間（Regeneration Cycle Duration）」というたった一つの物理定数（時間軸）を調整すること</strong>だけが許された権限です。
+                  </p>
+                  
+                  <div className="bg-slate-900 text-white p-6 md:p-8 rounded-sm shadow-xl mt-8">
+                     <h4 className="font-sans text-[10px] md:text-xs uppercase tracking-widest text-slate-400 mb-4 border-b border-slate-700 pb-2">管理者の誓い (Admin Protocol)</h4>
+                     <p className="font-mono text-xs md:text-sm leading-relaxed text-slate-300">
+                       &gt; We do not manage the economy. <span className="text-slate-500 text-xs">(我々は経済を管理しない)</span><br/>
+                       &gt; We design the ecosystem. <span className="text-slate-500 text-xs">(我々は生態系を設計する)</span><br/>
+                       &gt; <br/>
+                       &gt; The goal is to maximize the "Circulation Rate" (Metabolism), not the "Total Asset Value" (Stock).<br/>
+                       <span className="text-slate-500 text-xs pl-4 block mb-1"> (目的は「循環」の最大化であり、「総資産」の最大化ではない)</span>
+                       &gt; A healthy world is not one where everyone is rich, but one where help is always available.<br/>
+                       <span className="text-slate-500 text-xs pl-4 block"> (健全な世界とは、全員が富裕な場所ではなく、救済が常に遍在する場所である)</span>
+                     </p>
+                  </div>
+                </section>
+
+                {/* Chapter 4 */}
+                <section>
+                  <div className="flex items-center gap-4 mb-6">
+                    <span className="text-4xl md:text-6xl font-thin text-slate-200">04</span>
+                    <div className="h-px bg-slate-200 flex-grow"></div>
+                    <h2 className="text-xl md:text-2xl font-bold text-slate-900 font-sans">運用規約 (Operational Protocols)</h2>
+                  </div>
+                  
+                  <h3 className="text-lg md:text-xl font-bold mb-6 font-sans">4.1 構造的制約 (Structural Constraints)</h3>
+                  <div className="bg-slate-50 p-6 rounded border border-slate-100 mb-8">
+                     <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2 text-sm md:text-base">
+                         <span className="text-blue-600">ℹ</span> 基準値 (Standard Baseline)
+                     </h4>
+                     <p className="font-mono text-slate-600 text-[11px] md:text-sm mb-4 leading-relaxed">
+                         本システムのデフォルト容量（物理定数）は <strong className="text-slate-900">2400 Lm</strong> に設定されています。<br/><br/>
+                         これは「24時間 × 10日間 = 2400 Lm」という, <strong className="text-slate-900">一人の人間が誰にも助けられずに生存できる最大備蓄量</strong>を意味します。孤立した個体が保持できるエネルギーの物理的限界点です。<br/><br/>
+                         この器（Cap）を超えたエネルギーは「溢出（Overflow）」となり、虚空へ還ります。<br/>
+                         しかし、この「溢れ」こそが、実は「太陽（Basic Supply）」のエネルギー源として再利用される<strong className="text-slate-900">隠れたエコシステム・ループ</strong>を形成しています。<br/>
+                         個人の余剰は、巡り巡って世界全体の生命維持装置を稼働させる燃料となるのです。
+                     </p>
+
+                     <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2 border-t border-slate-200 pt-4 text-sm md:text-base">
+                         <span className="text-yellow-600">⚠</span> 法の不遡及 (Law of Non-Retroactivity)
+                     </h4>
+                     <p className="text-slate-600 text-[11px] md:text-sm mb-0 leading-relaxed">
+                         「再生サイクルの期間」の変更は、即座に全ユーザーに適用されるわけではありません。<br/>
+                         各ユーザーは個別に決定された「リセット日」を持っており、新しい時間設定は<strong className="text-slate-900">個々の次回リセット計算時</strong>に初めて適用されます。<br/>
+                         したがって、調律（Tuning）の効果が生態系全体に行き渡るまでには、現行サイクルの解消待ち（Latency）が発生します。
+                     </p>
+                  </div>
+
+                  <h3 className="text-lg md:text-xl font-bold mb-6 font-sans">4.2 生体バイタル (Vital Signs)</h3>
+                  
+                  <div className="space-y-6">
+                      {/* KPI 1 */}
+                      <div>
+                          <h4 className="border-l-4 border-slate-900 pl-3 font-bold text-base md:text-lg text-slate-800 mb-2">
+                              A. 経済代謝率 (Metabolic Rate)
+                          </h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs md:text-sm mb-2">
+                               <div className="bg-slate-50 p-3 rounded">
+                                   <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Calculation</div>
+                                   <div className="font-mono text-slate-700">Daily Volume ÷ Total Supply × 100 (%)</div>
+                               </div>
+                               <div className="bg-slate-50 p-3 rounded">
+                                   <div className="text-[10px] text-slate-400 uppercase tracking-wider mb-1">Target Zone</div>
+                                   <div className="font-mono text-green-600 font-bold">&gt; 10.0% (Ideal)</div>
+                               </div>
+                          </div>
+                          <p className="text-slate-600 text-xs md:text-sm">
+                              総滞留量（GDP）の多寡は重要ではありません。「血液の流速」こそが生命の証です。<br/>
+                              5%を下回る状態は「心停止」と同義であり、緊急の介入（Divine Intervention）を要します。
+                          </p>
+                      </div>
+                  </div>
+                </section>
+
+                {/* Glossary Supplement (merged from previous fix) */}
+                <section className="bg-slate-50 p-6 md:p-10 rounded-2xl border border-slate-200">
+                  <h3 className="text-xs font-bold text-slate-400 mb-6 tracking-[0.3em] uppercase">Supplemental Glossary / 用語補足</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+                    <div>
+                      <h4 className="font-bold text-slate-900 mb-1">存在ルーメン (Lm)</h4>
+                      <p className="text-slate-500 leading-relaxed md:text-xs">生命エネルギーの単位。全ての価値と時間の最小構成要素。</p>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 mb-1">代謝 (Metabolism)</h4>
+                      <p className="text-slate-500 leading-relaxed md:text-xs">システム内の全エネルギー流動量。世界の活力を示す指標。</p>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 mb-1">積立比率 (Committed)</h4>
+                      <p className="text-slate-500 leading-relaxed md:text-xs">特定の目的（Wish/Trust）に固定され、循環から一時的に離れたLmの割合。</p>
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 mb-1">賢者の助言 (Sage)</h4>
+                      <p className="text-slate-500 leading-relaxed md:text-xs">生体バイタルに基づいて「調律」の方向性を提示するシステム内示。</p>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Footer */}
+                <div className="pt-20 text-center">
+                   <div className="w-16 h-px bg-slate-300 mx-auto mb-6"></div>
+                   <p className="text-slate-400 font-sans text-[10px] uppercase tracking-widest leading-loose">
+                     Proprietary & Confidential<br/>
+                     Designed for The Mutual Aid Economic Zone<br/>
+                     <span className="italic mt-4 block text-[8px]">entropy is the only constant.</span>
+                   </p>
                 </div>
+
               </div>
             </motion.div>
           </div>
