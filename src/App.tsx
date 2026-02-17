@@ -252,6 +252,7 @@ const AdminDashboard = lazy(() =>
 
 // Import components
 import { GuideModal } from "./components/GuideModal";
+import { ReloadPrompt } from "./components/ReloadPrompt";
 
 // ローダー（白磁の美学）
 const ScreenLoader = ({ message }: { message?: string }) => (
@@ -401,6 +402,7 @@ function App() {
       return (
         <ErrorBoundary>
           <AuthScreen onSuccess={() => setViewMode("home")} />
+          <ReloadPrompt />
         </ErrorBoundary>
       );
 
@@ -490,6 +492,8 @@ function App() {
               <AdminDashboard onClose={() => setShowAdmin(false)} stats={stats} />
             </Suspense>
           )}
+
+          <ReloadPrompt />
         </div>
       );
     }
