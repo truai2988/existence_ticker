@@ -96,50 +96,63 @@ export const deleteAccount = functions.https.onCall(async (data, context) => {
             }
 
             let totalDecayMilli = 0;
-            const uBalance = uData.balance || 0;
-            const uCommitted = uData.committed_lm || 0;
-            const uLastUpdated = getMillis(uData.last_updated);
-            const uElapsedSec = ((Date.now() - uLastUpdated) / 1000) | 0;
-            const uBalanceDecayedMilli = calculateDecayedValue(toMilli(uBalance), uElapsedSec);
-            const uCommittedDecayedMilli = calculateDecayedValue(toMilli(uCommitted), uElapsedSec);
-            totalDecayMilli += (toMilli(uBalance) - uBalanceDecayedMilli);
-            totalDecayMilli += (toMilli(uCommitted) - uCommittedDecayedMilli);
+            const now = Date.now();
+
+            // Calculate User's current physical state for metabolism logging
+            const uCycleStart = getMillis(uData.cycle_started_at, 0);
+            if (uCycleStart > 0) {
+                const uElapsedSec = ((now - uCycleStart) / 1000) | 0;
+                const uDecayedVesselMilli = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), uElapsedSec);
+                const uCurrentSpentMilli = toMilli(uData.spent_lm || 0);
+                
+                // Decay logged is effectively what would have happened if they stayed
+                totalDecayMilli += (toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT) - uDecayedVesselMilli);
+            }
 
             for (const wishDoc of snapRequester.docs) {
                 const wishData = wishDoc.data() as Wish;
                 const wishInitialCost = wishData.cost || 0;
-                const wishElapsedSec = ((Date.now() - getMillis(wishData.created_at)) / 1000) | 0;
+                const wishCreatedAt = getMillis(wishData.created_at);
+                const wishElapsedSec = ((now - wishCreatedAt) / 1000) | 0;
                 const wishDecayedMilli = calculateDecayedValue(toMilli(wishInitialCost), wishElapsedSec);
+                
+                // Track wish decay for global stats
                 totalDecayMilli += (toMilli(wishInitialCost) - wishDecayedMilli);
                 
                 if ((wishData.status === 'in_progress' || wishData.status === 'review_pending') && wishData.helper_id) {
                     const helperSnap = helperMap.get(wishData.helper_id);
                     if (helperSnap && helperSnap.exists) {
                         const hData = helperSnap.data() as UserProfile;
-                        const hBalance = hData.balance || 0;
-                        const hLastUpdated = getMillis(hData.last_updated);
-                        const hElapsedSec = ((Date.now() - hLastUpdated) / 1000) | 0;
-                        const hDecayedBalanceMilli = calculateDecayedValue(toMilli(hBalance), hElapsedSec);
-                        totalDecayMilli += (toMilli(hBalance) - hDecayedBalanceMilli);
+                        const hCycleStart = getMillis(hData.cycle_started_at, 0);
+                        const hElapsedSec = ((now - hCycleStart) / 1000) | 0;
+                        const hDecayedVesselMilli = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), hElapsedSec);
                         
-                        const uDecayedBalanceMilliForComp = calculateDecayedValue(toMilli(uData.balance || 0), uElapsedSec);
-                        const actualPaymentMilli = Math.min(wishDecayedMilli, uDecayedBalanceMilliForComp);
-                        const hRawNewMilli = hDecayedBalanceMilli + actualPaymentMilli;
-                        const hCappedMilli = Math.min(hRawNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
-                        totalDecayMilli += Math.max(0, hRawNewMilli - WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
+                        // Enforce Solvency: Balance must cover all commissions (skipped for deletion compensation as it is a gift)
+                        // But we must respect the 2400 WALL for the helper
+                        const uCycleStartForComp = getMillis(uData.cycle_started_at, 0);
+                        const uElapsedSecForComp = ((now - uCycleStartForComp) / 1000) | 0;
+                        const uDecayedVesselMilliForComp = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), uElapsedSecForComp);
+                        const uCurrentRealMilli = Math.max(0, uDecayedVesselMilliForComp - toMilli(uData.spent_lm || 0));
+
+                        const actualPaymentMilli = Math.min(wishDecayedMilli, uCurrentRealMilli);
+                        const actualPaymentAmount = fromMilli(actualPaymentMilli);
+
+                        // Wall check for helper: helper's balance <= 2400
+                        const minHSpentMilli = hDecayedVesselMilli - toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT);
+                        const currentHSpentMilli = toMilli(hData.spent_lm || 0);
+                        const newHSpentMilli = Math.max(minHSpentMilli, currentHSpentMilli - actualPaymentMilli);
 
                         transaction.update(helperSnap.ref, {
-                            balance: fromMilli(hCappedMilli),
+                            spent_lm: fromMilli(newHSpentMilli),
                             pending_interruption_notification: "依頼主様がアプリを離れられたため（退会）、感謝のLmが補償として送り届けられました。",
-                            last_updated: FieldValue.serverTimestamp()
                         });
 
                         const txPropRef = db.collection('transactions').doc();
                         transaction.set(txPropRef, {
                             type: 'COMPENSATION',
-                            amount: fromMilli(actualPaymentMilli),
+                            amount: actualPaymentAmount,
                             sender_id: uid,
-                            sender_name: uData.name || "退会した奏者", 
+                            sender_name: uData.name || "奏者", 
                             recipient_id: wishData.helper_id,
                             recipient_name: hData.name || "助け手",
                             wish_title: wishData.content,
@@ -180,7 +193,6 @@ export const deleteAccount = functions.https.onCall(async (data, context) => {
                     const rRef = db.collection('users').doc(wData.requester_id);
                     transaction.update(rRef, {
                         pending_interruption_notification: "助け手様がアプリを離れられたため（退会）、願いが再び募集に戻りました。Lmは安全です。",
-                        last_updated: FieldValue.serverTimestamp()
                     });
                 }
                 transaction.update(helpDoc.ref, updates);

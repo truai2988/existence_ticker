@@ -170,19 +170,18 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
     
     // --- 世界の理: 単一ソース・スナップショットのみを正義とする ---
     const rawPartnerName = isSender ? log.recipient_name : log.sender_name;
-    const partnerName = (rawPartnerName && rawPartnerName !== "退会された方") ? (
-        <span className="font-bold">{rawPartnerName}</span>
-    ) : (
-        <span className="text-slate-400 font-bold">かつての隣人</span>
+    const partnerName = (
+        <span className="font-bold">{rawPartnerName || "Anonymous"}</span>
     );
 
     let icon, title, metaColor, amountPrefix, amountColor;
 
-    if (log.type === 'REBIRTH') {
+    if (log.type === 'REBIRTH' || log.type === 'BIRTH') {
+        const isBirth = log.type === 'BIRTH';
         icon = <Sun size={14} className="text-amber-500 fill-amber-100" />;
-        title = "太陽の光で器が満たされました（リセット）";
+        title = isBirth ? "新規登録しました" : "太陽の光で器が満たされました（リセット）";
         metaColor = "bg-amber-50 border-amber-200";
-        amountPrefix = "+";
+        amountPrefix = "";
         amountColor = "text-amber-600";
     } 
     else if (log.type === 'GIFT') {
@@ -259,7 +258,9 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
                     <p className="text-xs text-slate-400 mt-1 pl-2 border-l-2 border-slate-100 line-clamp-1 italic">"{log.wish_title}"</p>
                 )}
                 {log.description && (
-                    <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">{log.description}</p>
+                    <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">
+                        {log.description === "命が宿りました" ? "源気が流れ込んできました" : log.description}
+                    </p>
                 )}
                 <div className="mt-2 flex items-center justify-end gap-1">
                     {log.amount === 0 ? (
@@ -267,7 +268,7 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
                            {log.type === 'WISH_EXPIRED' ? '期限切れ' : '取り下げ'}
                         </span>
                     ) : (
-                        <><span className={`text-sm font-mono font-bold ${amountColor}`}>{amountPrefix}{Math.floor(log.amount).toLocaleString()}</span><span className="text-xs text-slate-400">Lm</span>{(isSender && log.type !== 'REBIRTH') && (<span className="text-xs text-slate-400 ml-1">を分かち合いました</span>)}</>
+                        <><span className={`text-sm font-mono font-bold ${amountColor}`}>{amountPrefix}{Math.floor(log.amount).toLocaleString()}</span><span className="text-xs text-slate-400">Lm</span>{(isSender && log.type !== 'REBIRTH' && log.type !== 'BIRTH') ? (<span className="text-xs text-slate-400 ml-1">を分かち合いました</span>) : (log.type === 'BIRTH' || log.type === 'REBIRTH') ? (<span className="text-xs text-slate-400 ml-1">にセットされました</span>) : null}</>
                     )}
                 </div>
             </div>

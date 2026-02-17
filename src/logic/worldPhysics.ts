@@ -53,17 +53,16 @@ export const fromMilli = (milli: number): number => milli / 1000;
 
 /**
  * 時間経過による価値の減少を計算する (Universal Physical Law)
- * 減価率は 10 Lm/h (10,000 mLm/h) 固定であり、いかなる変数（サイクル期間等）の影響も受けない。
+ * 減価率は 10 Lm/h (10,000 mLm/h) 固定であり、1時間ごとに階段状に発生する。
  * 
- * @param initialMilli 初期値 (milli-Lm)
+ * @param value 初期値 (milli-Lm)
  * @param elapsedSec 経過時間 (秒)
  * @returns 減少後の値 (milli-Lm)
  */
 export const calculateDecayedValue = (value: number, elapsedSec: number): number => {
   const s = elapsedSec < 0 ? 0 : elapsedSec;
-  const num = 25;
-  const den = 9;
-  const decay = ((s * num) / den) | 0;
+  const elapsedHours = Math.floor(s / 3600);
+  const decay = elapsedHours * WORLD_CONSTANTS.DECAY_RATE_MLLM_PER_HOUR;
   const result = value - decay;
   return result < 0 ? 0 : result;
 };

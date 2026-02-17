@@ -37,35 +37,48 @@ export const AdminIntegrityPanel: React.FC = () => {
         query,
         limit,
         writeBatch,
-        getDoc,
-        doc,
       } = await import("firebase/firestore");
 
       const wishesRef = collection(db, "wishes");
       // 安全のため、一度に500件までスキャン
       const wishSnapshot = await getDocs(query(wishesRef, limit(500)));
       const usersRef = collection(db, "users");
+      const { documentId, where } = await import("firebase/firestore");
 
       let deletedCount = 0;
       const batch = writeBatch(db);
 
       addLog(`[分析] ${wishSnapshot.size}件の願いを検証中...`);
 
+      // 1. Collect unique requester IDs
+      const allRequesterIds = Array.from(new Set(
+        wishSnapshot.docs
+          .map(d => d.data().requester_id)
+          .filter(id => !!id)
+      ));
+
+      // 2. Batch check user existence (30 IDs per query)
+      const existingUserIds = new Set<string>();
+      for (let i = 0; i < allRequesterIds.length; i += 30) {
+        const idBatch = allRequesterIds.slice(i, i + 30);
+        const q = query(usersRef, where(documentId(), 'in', idBatch));
+        const snap = await getDocs(q);
+        snap.docs.forEach(d => existingUserIds.add(d.id));
+      }
+
+      // 3. Process deletions
       for (const wishDoc of wishSnapshot.docs) {
         const wish = wishDoc.data();
         const requesterId = wish.requester_id;
-        if (requesterId) {
-          const userDoc = await getDoc(doc(usersRef, requesterId));
-          if (!userDoc.exists()) {
-            batch.delete(wishDoc.ref);
-            deletedCount++;
-            addLog(
-              `[削除] 孤立データ発見: ${wish.content?.slice(
-                0,
-                15
-              )}... (ユーザー ${requesterId} が存在しません)`
-            );
-          }
+        if (requesterId && !existingUserIds.has(requesterId)) {
+          batch.delete(wishDoc.ref);
+          deletedCount++;
+          addLog(
+            `[削除] 孤立データ発見: ${wish.content?.slice(
+              0,
+              15
+            )}... (ユーザー ${requesterId} が存在しません)`
+          );
         }
       }
 

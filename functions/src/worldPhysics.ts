@@ -61,9 +61,8 @@ export const fromMilli = (milli: number): number => milli / 1000;
  */
 export const calculateDecayedValue = (value: number, elapsedSec: number): number => {
   const s = elapsedSec < 0 ? 0 : elapsedSec;
-  const num = 25;
-  const den = 9;
-  const decay = ((s * num) / den) | 0;
+  const elapsedHours = Math.floor(s / 3600);
+  const decay = elapsedHours * WORLD_CONSTANTS.DECAY_RATE_MLLM_PER_HOUR;
   const result = value - decay;
   return result < 0 ? 0 : result;
 };

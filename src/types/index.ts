@@ -39,6 +39,7 @@ export interface UserProfile {
   scheduled_cycle_days?: number;
   cycle_started_at?: number;
   created_at?: number;
+  spent_lm?: number;
 }
 
 export interface Point {

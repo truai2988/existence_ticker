@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from "react";
+import { QueryDocumentSnapshot } from "firebase/firestore";
 import { motion } from "framer-motion";
 import { AdminIntegrityPanel } from "./admin/AdminIntegrityPanel";
 import {
@@ -22,6 +23,10 @@ import { db } from "../lib/firebase";
 import { UserProfile } from "../types";
 import {
   getMillis,
+  calculateDecayedValue,
+  toMilli,
+  fromMilli,
+  WORLD_CONSTANTS
 } from "../logic/worldPhysics";
 
 interface AdminDashboardProps {
@@ -54,6 +59,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [inviteCodes, setInviteCodes] = useState<InviteCode[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  const [lastVisibleDoc, setLastVisibleDoc] = useState<QueryDocumentSnapshot | null>(null);
+  const [hasMoreUsers, setHasMoreUsers] = useState(true);
   const [superAdminIds, setSuperAdminIds] = useState<string[]>([]);
 
   React.useEffect(() => {
@@ -76,17 +83,40 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     fetchConfig();
   }, []);
 
-  const fetchUsers = useCallback(async () => {
+  const fetchUsers = useCallback(async (isLoadMore = false) => {
     setIsLoadingUsers(true);
     try {
       if (!db) return;
-      const { collection, getDocs, query, limit } =
+      const { collection, getDocs, query, limit, orderBy, startAfter } =
         await import("firebase/firestore");
 
       const usersRef = collection(db, "users");
-      const q = query(usersRef, limit(50));
+      
+      let q = query(
+        usersRef, 
+        orderBy("last_updated", "desc"), 
+        limit(50)
+      );
+
+      if (isLoadMore && lastVisibleDoc) {
+        q = query(
+          usersRef,
+          orderBy("last_updated", "desc"),
+          startAfter(lastVisibleDoc),
+          limit(50)
+        );
+      }
 
       const snapshot = await getDocs(q);
+      const newLastDoc = snapshot.docs[snapshot.docs.length - 1];
+      setLastVisibleDoc(newLastDoc);
+      
+      if (snapshot.docs.length < 50) {
+        setHasMoreUsers(false);
+      } else {
+        setHasMoreUsers(true);
+      }
+
       const users = snapshot.docs.map((doc) => {
         const data = doc.data();
         return {
@@ -98,18 +128,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         } as UserProfile;
       });
 
-      // Client-side sort (now using normalized numbers)
-      users.sort(
-        (a, b) => (Number(b.last_updated) || 0) - (Number(a.last_updated) || 0),
-      );
-
-      setUserList(users);
+      if (isLoadMore) {
+        setUserList(prev => [...prev, ...users]);
+      } else {
+        setUserList(users);
+      }
     } catch (e) {
       console.error("Failed to fetch users", e);
     } finally {
       setIsLoadingUsers(false);
     }
-  }, []);
+  }, [lastVisibleDoc]);
 
   const fetchInviteCodes = useCallback(async () => {
     try {
@@ -531,7 +560,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                               <span className="md:hidden text-slate-500 w-16 flex-shrink-0">
                                 Status:
                               </span>
-                              <span>Warmth: {u.warmth?.toLocaleString()}</span>
+                              <div className="flex flex-col gap-0.5">
+                                <span>Warmth: {u.warmth?.toLocaleString()}</span>
+                                {(() => {
+                                  const cycleStart = getMillis(u.cycle_started_at, 0);
+                                  if (cycleStart === 0) return null;
+                                  const elapsedSec = ((Date.now() - cycleStart) / 1000) | 0;
+                                  const decayedVesselMilli = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), elapsedSec);
+                                  const currentBalanceMilli = Math.max(0, decayedVesselMilli - toMilli(u.spent_lm || 0));
+                                  return (
+                                    <span className="font-mono text-cyan-400">
+                                      {Math.floor(fromMilli(currentBalanceMilli)).toLocaleString()} Lm
+                                    </span>
+                                  );
+                                })()}
+                              </div>
                             </div>
 
                             {/* Role Col (Mobile: Row 3) */}
@@ -605,6 +648,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                             </div>
                           </div>
                         ))}
+                        {hasMoreUsers && (
+                          <div className="p-8 flex justify-center border-t border-slate-800">
+                            <button
+                              type="button"
+                              onClick={() => fetchUsers(true)}
+                              disabled={isLoadingUsers}
+                              className="px-6 py-2 rounded-full border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 transition-colors disabled:opacity-50 flex items-center gap-2"
+                            >
+                              {isLoadingUsers ? (
+                                <>
+                                  <Activity size={14} className="animate-spin" />
+                                  読み込み中...
+                                </>
+                              ) : (
+                                "さらに読み込む"
+                              )}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}

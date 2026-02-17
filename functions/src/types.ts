@@ -38,6 +38,7 @@ export interface UserProfile {
   scheduled_cycle_days?: number;
   cycle_started_at?: number;
   created_at?: number;
+  spent_lm?: number;
   used_invitation_code?: string;
 }
 

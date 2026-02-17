@@ -409,13 +409,9 @@ export const WishCard: React.FC<WishCardProps> = ({
   const trust = getTrustRank(requesterProfile, wish.requester_trust_score);
 
   const displayRequesterName =
-    isRequesterInterrupted
-      ? "退会された方"
-      : isMasked && !isMyWish
-        ? `匿名`
-        : requesterProfile?.name ||
-          wish.requester_name ||
-          wish.requester_id.slice(0, 8);
+    requesterProfile?.name ||
+    wish.requester_name ||
+    wish.requester_id.slice(0, 8);
 
   // Contact Logic
   const contactEmail =
@@ -541,14 +537,12 @@ export const WishCard: React.FC<WishCardProps> = ({
                       }}
                       className={`text-sm font-bold tracking-wide text-left transition-colors whitespace-nowrap ${isHelperMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:text-blue-600 hover:underline"}`}
                     >
-                      {isHelperMasked 
-                        ? "退会された方"
-                        : (helperProfile?.name ||
-                          wish.helper_name ||
-                          wish.applicants?.find((a) => a.id === wish.helper_id)
-                            ?.name ||
-                          wish.helper_id?.slice(0, 8) ||
-                          "隣人")}
+                      {helperProfile?.name ||
+                        wish.helper_name ||
+                        wish.applicants?.find((a) => a.id === wish.helper_id)
+                          ?.name ||
+                        wish.helper_id?.slice(0, 8) ||
+                        "隣人"}
                     </button>
                     <span className="text-xs uppercase font-bold text-slate-400 tracking-wider whitespace-nowrap">
                       {wish.status === "fulfilled" || wish.status === "completed" 

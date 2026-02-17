@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { LUNAR_CONSTANTS } from '../constants';
 import { db } from '../lib/firebase';
 import { collection, query, limit, getDocs, doc, getDoc, getCountFromServer, runTransaction, Transaction } from 'firebase/firestore';
-import { calculateDecayedValue, getMillis, toMilli, fromMilli } from '../logic/worldPhysics';
+import { calculateDecayedValue, getMillis, toMilli, fromMilli, WORLD_CONSTANTS } from '../logic/worldPhysics';
 
 export type Season = 'Spring' | 'Autumn' | 'Winter';
 export type MetabolismStatus = 'Active' | 'Stable' | 'Stagnant';
@@ -104,10 +104,13 @@ export const useStats = () => {
 
                     snapshot.forEach(doc => {
                         const data = doc.data();
-                        const rawBal = Number(data.balance) || 0;
-                        const lastUpdated = getMillis(data.last_updated || data.created_at);
-                        const elapsedSec = ((now - lastUpdated) / 1000) | 0;
-                        const trueBalMilli = calculateDecayedValue(toMilli(rawBal), elapsedSec);
+                        const cycleStartedAt = getMillis(data.cycle_started_at || data.created_at, 0);
+                        if (cycleStartedAt === 0) return; // Skip if not initialized
+
+                        const elapsedSec = ((now - cycleStartedAt) / 1000) | 0;
+                        const decayedVesselMilli = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), elapsedSec);
+                        const totalSpentMilli = toMilli(data.spent_lm || 0);
+                        const trueBalMilli = Math.max(0, decayedVesselMilli - totalSpentMilli);
                         const trueBal = fromMilli(trueBalMilli);
 
                         if (trueBal >= 1500) full++;
@@ -146,10 +149,15 @@ export const useStats = () => {
                     let calculatedTotalSupply = 0;
                     snapshot.forEach(doc => {
                         const d = doc.data();
-                        const b = Number(d.balance) || 0;
-                        const l = getMillis(d.last_updated || d.created_at);
-                        const elapsedSec = ((now - l) / 1000) | 0;
-                        calculatedTotalSupply += fromMilli(calculateDecayedValue(toMilli(b), elapsedSec));
+                        const cycleStartedAt = getMillis(d.cycle_started_at || d.created_at, 0);
+                        if (cycleStartedAt === 0) return;
+
+                        const elapsedSec = ((now - cycleStartedAt) / 1000) | 0;
+                        const decayedVesselMilli = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), elapsedSec);
+                        const totalSpentMilli = toMilli(d.spent_lm || 0);
+                        const currentBalanceMilli = Math.max(0, decayedVesselMilli - totalSpentMilli);
+                        
+                        calculatedTotalSupply += fromMilli(currentBalanceMilli);
                     });
                     
                     // Approximate total supply for whole population if sample is small

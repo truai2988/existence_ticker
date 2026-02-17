@@ -7,7 +7,6 @@ export interface WalletContextType {
     committedLm: number;
     availableLm: number;
     status: WalletStatus;
-    pay: (amount: number) => Promise<boolean>;
     performRebirthReset: (options: { userInitiated: boolean }) => Promise<{ success: boolean; newBalance?: number }>;
     isLoading: boolean;
     globalNow: number;

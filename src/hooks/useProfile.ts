@@ -9,7 +9,7 @@ import {
   Transaction,
   increment
 } from "firebase/firestore";
-import { calculateDecayedValue, getMillis, toMilli, fromMilli, WORLD_CONSTANTS } from "../logic/worldPhysics";
+import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS, getMillis } from "../logic/worldPhysics";
 import { UserProfile } from "../types";
 
 export const useProfile = () => {
@@ -107,18 +107,13 @@ export const useProfile = () => {
           // 3. Update Profile
           transaction.update(userRef, {
             ...updates,
-            last_updated: serverTimestamp(),
           });
         });
       } else {
         // Standard update if location is same
         await runTransaction(db, async (transaction: Transaction) => {
-          const userSnap = await transaction.get(userRef);
-          if (!userSnap.exists()) throw new Error("User profile not found");
-          
           transaction.update(userRef, {
             ...updates,
-            last_updated: serverTimestamp(),
           });
         });
       }
@@ -144,20 +139,24 @@ export const useProfile = () => {
             if (!userSnap.exists()) {
                 throw new Error("User profile not found during transaction");
             }
-            const userData = userSnap.data();
-            const lastUpdated = getMillis(userData.last_updated);
-            const elapsedSec = ((Date.now() - lastUpdated) / 1000) | 0;
-            const currentBalanceMilli = toMilli(userData.balance || 0);
-            const decayedBalanceMilli = calculateDecayedValue(currentBalanceMilli, elapsedSec);
-            const newBalanceMilli = decayedBalanceMilli + toMilli(amount);
-            const cappedBalanceMilli = Math.min(newBalanceMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
+            const userData = userSnap.data() as UserProfile;
+            const cycleStartedAt = getMillis(userData.cycle_started_at, 0);
+            if (cycleStartedAt === 0) throw "Vessel not initialized";
+
+            const now = Date.now();
+            const elapsedSec = ((now - cycleStartedAt) / 1000) | 0;
+            const decayedVesselMilli = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), elapsedSec);
+            
+            // balance <= 2400 => decayedVessel - spent <= 2400 => spent >= decayedVessel - 2400
+            const minSpentMilli = decayedVesselMilli - toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT);
+            const currentSpentMilli = toMilli(userData.spent_lm || 0);
+            const newSpentMilli = Math.max(minSpentMilli, currentSpentMilli - toMilli(amount));
 
             transaction.update(userRef, {
-                balance: fromMilli(cappedBalanceMilli),
-                last_updated: serverTimestamp(),
+                spent_lm: fromMilli(newSpentMilli),
             });
         });
-        console.log("Balance incremented by", amount);
+        console.log("Spent Lm decreased by", amount);
         return { success: true };
     } catch (error) {
         console.error("Increment balance error:", error);
@@ -178,28 +177,18 @@ export const useProfile = () => {
             if (!userSnap.exists()) {
                 throw new Error("User profile not found during transaction");
             }
-            const userData = userSnap.data();
-            const lastUpdated = getMillis(userData.last_updated);
-            const elapsedSec = ((Date.now() - lastUpdated) / 1000) | 0;
-            const currentBalanceMilli = toMilli(userData.balance || 0);
-            const decayedBalanceMilli = calculateDecayedValue(currentBalanceMilli, elapsedSec);
-
-            if (fromMilli(decayedBalanceMilli) < amount) {
-                console.warn("Insufficient balance for deduction:", fromMilli(decayedBalanceMilli), "needed:", amount);
-                return { success: false, error: "Insufficient balance" };
-            }
-
-            const newBalanceMilli = decayedBalanceMilli - toMilli(amount);
+            const userData = userSnap.data() as UserProfile;
+            const currentSpent = userData.spent_lm || 0;
+            const newSpent = currentSpent + amount;
 
             transaction.update(userRef, {
-                balance: fromMilli(newBalanceMilli),
-                last_updated: serverTimestamp(),
+                spent_lm: newSpent,
             });
 
-            return { success: true, newBalance: fromMilli(newBalanceMilli) };
+            return { success: true, newSpent: newSpent };
         });
 
-        console.log("Balance deducted by", amount);
+        console.log("Spent Lm increased by", amount);
         return result;
     } catch (error) {
         console.error("Deduct balance error:", error);

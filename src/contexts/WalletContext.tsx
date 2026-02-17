@@ -39,25 +39,39 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
   // === 1. PHYSICAL TRUTH (Absolute Hierarchy) ===
 
-  // Chain 1: Total Balance (Decayed Base)
+  // Chain 1: Total Balance (Decayed from Cycle Anchor)
   const balance = useMemo(() => {
-    const rawBalance = profile?.balance ?? 0;
+    // 【世界の理】器の価値は誕生（cycle_started_at）からのみ計算される。
+    // 中間のスナップショット（last_updated）は不純物として排除する。
+    const cycleStartedAt = getMillis(profile?.cycle_started_at, 0);
+    if (cycleStartedAt === 0) return 0; // まだ誕生していない
 
-    const lastUpdated = getMillis(profile?.last_updated ?? globalNow);
-    const elapsedSec = ((globalNow - lastUpdated) / 1000) | 0;
-    const decayedBaseMilli = calculateDecayedValue(toMilli(rawBalance), elapsedSec);
-    return fromMilli(decayedBaseMilli) + optimisticBalanceOffset;
+    const elapsedSec = ((globalNow - cycleStartedAt) / 1000) | 0;
+    
+    // 誕生時の満タン状態（2400）からの減価を計算
+    const initialMilli = toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT);
+    const decayedVesselMilli = calculateDecayedValue(initialMilli, elapsedSec);
+    
+    // 手持ち = 現在の器の価値 - このサイクルでの総移動額（分かち合った分）
+    const totalSpentMilli = toMilli(profile?.spent_lm || 0);
+    const currentBalanceMilli = decayedVesselMilli - totalSpentMilli;
+    
+    // 【世界の理】器の容量は2400 Lmが限界（絶対的な壁）。
+    const cappedBalanceMilli = Math.min(initialMilli, Math.max(0, currentBalanceMilli));
+
+    return fromMilli(cappedBalanceMilli) + optimisticBalanceOffset;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.balance, profile?.last_updated, globalNow, optimisticBalanceOffset]);
+  }, [profile?.cycle_started_at, profile?.spent_lm, globalNow, optimisticBalanceOffset]);
 
   const committedLm = useMemo(() => {
-    // Simple Physics: Committed Lm is the sum of all active wishes' individual values
+    // 【世界の理】願いの価値はそれそれが生まれた瞬間（created_at）からのみ計算される。
     let totalMilli = 0;
     const costMap: Record<string, number> = { light: 100, medium: 500, heavy: 1000 };
     
     userActiveWishes.forEach(wish => {
       const initialCost = wish.cost || costMap[wish.gratitude_preset || ''] || 0;
-      const elapsedSec = ((globalNow - wish.created_at) / 1000) | 0;
+      const createdAt = getMillis(wish.created_at);
+      const elapsedSec = ((globalNow - createdAt) / 1000) | 0;
       totalMilli += calculateDecayedValue(toMilli(initialCost), elapsedSec);
     });
     return fromMilli(totalMilli) + optimisticCommittedOffset;
@@ -180,7 +194,8 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         transaction.update(userRef, {
             balance: WORLD_CONSTANTS.REBIRTH_AMOUNT,
             last_updated: serverTimestamp(), 
-            cycle_started_at: Date.now(),
+            cycle_started_at: newAnchorTimeMillis,
+            spent_lm: 0
         });
 
         transaction.set(txRef, {
@@ -191,7 +206,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             amount: WORLD_CONSTANTS.REBIRTH_AMOUNT,
             created_at: serverTimestamp(),
             anchor_time: anchorDate,
-            description: isFirstBirth ? '命が宿りました' : '魂が再生されました'
+            description: isFirstBirth ? '源気が流れ込んできました' : '魂が再生されました'
         });
 
         const today = new Date().toISOString().split("T")[0];
@@ -210,51 +225,11 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }
   }, [user, status]);
 
-  const pay = useCallback(async (amount: number): Promise<boolean> => {
-    if (!user || !db) return false;
-    try {
-      await runTransaction(db, async (transaction) => {
-        const userRef = doc(db!, "users", user.uid);
-        const userDoc = await transaction.get(userRef);
-        if (!userDoc.exists()) throw "Missing Soul";
-
-        const data = userDoc.data();
-
-        const lastUpdated = getMillis(data.last_updated);
-        const elapsedSec = ((Date.now() - lastUpdated) / 1000) | 0;
-        const currentRealMilli = calculateDecayedValue(toMilli(data.balance), elapsedSec);
-        const currentRealBalance = fromMilli(currentRealMilli);
-
-        if (currentRealBalance < amount) throw "Insufficient Energy";
-
-        const milliRemaining = toMilli(currentRealBalance) - toMilli(amount);
-
-        const now = new Date();
-        transaction.update(userRef, {
-          balance: fromMilli(milliRemaining),
-          last_updated: now
-        });
-
-        const today = new Date().toISOString().split("T")[0];
-        const statsRef = doc(db!, "daily_stats", today);
-        transaction.set(statsRef, {
-          volume: increment(amount),
-          updated_at: serverTimestamp()
-        }, { merge: true });
-      });
-      return true;
-    } catch (e) {
-      console.error("Payment Failed:", e);
-      return false;
-    }
-  }, [user]);
-
   const contextValue = useMemo(() => ({
     balance,
     committedLm,
     availableLm,
     status,
-    pay,
     performRebirthReset,
     isLoading: profileLoading || wishesLoading,
     globalNow,
@@ -262,7 +237,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setOptimisticBalanceOffset,
     optimisticCommittedOffset,
     setOptimisticCommittedOffset,
-  }), [balance, committedLm, availableLm, status, pay, performRebirthReset, profileLoading, wishesLoading, globalNow, optimisticBalanceOffset, optimisticCommittedOffset]);
+  }), [balance, committedLm, availableLm, status, performRebirthReset, profileLoading, wishesLoading, globalNow, optimisticBalanceOffset, optimisticCommittedOffset]);
 
   return <WalletContext.Provider value={contextValue}>{children}</WalletContext.Provider>;
 };

@@ -92,21 +92,19 @@ export const useWishActions = () => {
         const userDoc = await transaction.get(userRef);
         if (!userDoc.exists()) throw "User profile not found";
 
-        const data = userDoc.data();
-        const currentBalance = data.balance || 0;
-        const lastUpdated = getMillis(data.last_updated);
+        const data = userDoc.data() as UserProfile;
+        const cycleStartedAt = getMillis(data.cycle_started_at, 0);
+        if (cycleStartedAt === 0) throw "Vessel not initialized (cycle_started_at missing)";
 
-        const elapsedSec = ((now - lastUpdated) / 1000) | 0;
+        const elapsedSec = ((now - cycleStartedAt) / 1000) | 0;
         
-        // Decay Balance (Simple Physics)
-        const currentBalanceMilli = toMilli(currentBalance);
-        const decayedBalanceMilli = calculateDecayedValue(currentBalanceMilli, elapsedSec);
+        // 【世界の理】器の現在の価値（2400からの減価）
+        const initialVesselMilli = toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT);
+        const decayedVesselMilli = calculateDecayedValue(initialVesselMilli, elapsedSec);
         
-        // Available is strictly Balance - Query-based Committed
-        const availableMilli = decayedBalanceMilli - queryCommittedMilli;
-
-        // Gravity Stats: Sum up lost Lm
-        const totalDecayMilli = Math.max(0, (currentBalanceMilli - decayedBalanceMilli));
+        // 【世界の理】現在の有効残高 = 器の価値 - 確定済み移動額 - 予約中の願いの価値
+        const totalSpentMilli = toMilli(data.spent_lm || 0);
+        const availableMilli = decayedVesselMilli - totalSpentMilli - queryCommittedMilli;
 
         if (availableMilli < toMilli(bounty)) {
           throw new Error(
@@ -114,23 +112,11 @@ export const useWishActions = () => {
           );
         }
 
-        // === ATOMIC UPDATE: Simple Physics ===
-        // We only persist the decayed total balance.
-        // Committed Lm is no longer a persistent field.
+        // === ATOMIC UPDATE: Fixed Anchor Model ===
+        // Lm does NOT move yet. Only stats and wish creation.
         transaction.update(userRef, {
-          balance: fromMilli(decayedBalanceMilli),
           created_contracts: increment(1),
-          last_updated: new Date(now), // Align anchor with current clock
         });
-
-        // Log Global Stats
-        if (totalDecayMilli > 0) {
-            const globalStatsRef = doc(db!, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
-            transaction.set(globalStatsRef, {
-                total_decayed_stats: increment(fromMilli(totalDecayMilli)),
-                updated_at: serverTimestamp()
-            }, { merge: true });
-        }
 
         // 3. Create Wish
         transaction.set(wishRef, {
@@ -297,11 +283,10 @@ export const useWishActions = () => {
           const requesterDoc = await transaction.get(requesterRef);
           if (!requesterDoc.exists()) throw "Requester not found";
           
-          const rData = requesterDoc.data();
-          const rBalance = rData?.balance || 0;
-          const rLastUpdated = getMillis(rData?.last_updated);
-
-          const rName = rData?.name || "Requester";
+          const rData = requesterDoc.data() as UserProfile;
+          const rCycleStart = getMillis(rData.cycle_started_at, 0);
+          const rSpent = rData.spent_lm || 0;
+          const rName = rData.name || "Requester";
 
           const helperRef = doc(db!, "users", wishData.helper_id);
           const helperDoc = await transaction.get(helperRef);
@@ -312,9 +297,10 @@ export const useWishActions = () => {
           const wishElapsedSec = ((now - getMillis(wishData.created_at)) / 1000) | 0;
           const wishDecayedMilli = calculateDecayedValue(toMilli(wishData.cost || 0), wishElapsedSec);
           
-          // Calculate Requester's State (Simple Physics)
-          const rElapsedSec = ((now - rLastUpdated) / 1000) | 0;
-          const rDecayedMilli = calculateDecayedValue(toMilli(rBalance), rElapsedSec);
+          // Calculate Requester's State (Fixed Anchor Model)
+          const rElapsedSec = ((now - rCycleStart) / 1000) | 0;
+          const rDecayedVesselMilli = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), rElapsedSec);
+          const rCurrentRealMilli = Math.max(0, rDecayedVesselMilli - toMilli(rSpent));
           
           const txId = isRequesterCanceling 
               ? `compensate_${wishId}_TO_${wishData.helper_id}`
@@ -323,51 +309,34 @@ export const useWishActions = () => {
           const txCheck = await transaction.get(txRef);
 
           if (isRequesterCanceling) {
-            // Note: In Simple Physics, Available = Total - Σ(Decayed Active Wishes). 
-            // We've already decayed Total (rDecayedMilli).
-            // Compensation is capped by available funds.
-            // Simplified check: use wishDecayedMilli as the base compensation.
-            const actualPaymentMilli = Math.min(rDecayedMilli, wishDecayedMilli);
+            // Compensation is capped by current available pool
+            const actualPaymentMilli = Math.min(rCurrentRealMilli, wishDecayedMilli);
             
+            // Requester pays
             transaction.update(requesterRef, {
-              balance: fromMilli(rDecayedMilli - actualPaymentMilli),
+              spent_lm: rSpent + fromMilli(actualPaymentMilli),
               consecutive_completions: 0, 
               has_cancellation_history: true, 
-              last_updated: new Date(now), 
             });
 
-            const hData = helperDoc.data();
-            const hBalanceLm = hData?.balance || 0;
-            const hLastUpdated = getMillis(hData?.last_updated);
-
-            const hElapsedSec = ((now - hLastUpdated) / 1000) | 0;
-            const hCurrentDecayedMilli = calculateDecayedValue(toMilli(hBalanceLm), hElapsedSec);
-            const hRawNewMilli = hCurrentDecayedMilli + actualPaymentMilli;
-
-            const hCappedMilli = Math.min(hRawNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
-            const hOverflowMilli = Math.max(0, hRawNewMilli - WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
+            // Helper receives
+            const hData = helperDoc.data() as UserProfile;
+            const hCycleStart = getMillis(hData.cycle_started_at, 0);
+            const hDecayedVesselMilli = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), ((now - hCycleStart) / 1000) | 0);
+            
+            // Wall check: spent >= decayedVessel - 2400
+            const minHSpentMilli = hDecayedVesselMilli - toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT);
+            const hSpentMilli = toMilli(hData.spent_lm || 0);
+            const newHSpentMilli = Math.max(minHSpentMilli, hSpentMilli - actualPaymentMilli);
 
             transaction.update(helperRef, {
-              balance: fromMilli(hCappedMilli),
-              last_updated: new Date(now), 
+              spent_lm: fromMilli(newHSpentMilli),
             });
-
-            // Log total loss to gravity
-            const rDecayMilli = toMilli(rBalance) - rDecayedMilli;
-            const hDecayMilli = toMilli(hBalanceLm) - hCurrentDecayedMilli;
-            const totalDecayMilli = Math.max(0, rDecayMilli + hDecayMilli + hOverflowMilli);
-
-            const globalStatsRef = doc(db!, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
-            transaction.set(globalStatsRef, {
-                total_decayed_stats: increment(fromMilli(totalDecayMilli)),
-                updated_at: serverTimestamp()
-            }, { merge: true });
 
             const partnerRef = helperRef;
             const notificationMsg = "依頼主様のご都合により願いが中断されました。しるしとしてLmが補償されています。";
             transaction.update(partnerRef, {
                 pending_interruption_notification: notificationMsg,
-                last_updated: serverTimestamp()
             });
 
             if (!txCheck.exists()) {
@@ -387,38 +356,13 @@ export const useWishActions = () => {
             transaction.delete(wishRef);
           } else {
             // HELPER CANCELS (No payment)
-            const hData = helperDoc.data();
-            const hBalance = hData?.balance || 0;
-            const hLastUpdated = getMillis(hData?.last_updated);
-
-            const hElapsedSec = ((now - hLastUpdated) / 1000) | 0;
-            const hCurrentDecayedMilli = calculateDecayedValue(toMilli(hBalance), hElapsedSec);
-            
             transaction.update(helperRef, {
-              balance: fromMilli(hCurrentDecayedMilli),
               consecutive_completions: 0, 
               has_cancellation_history: true,
-              last_updated: new Date(now),
             });
-
-            transaction.update(requesterRef, {
-              balance: fromMilli(rDecayedMilli),
-              last_updated: new Date(now),
-            });
-
-            const rDecayMilli = toMilli(rBalance) - rDecayedMilli;
-            const hDecayMilli = toMilli(hBalance) - hCurrentDecayedMilli;
-            const totalDecayMilli = Math.max(0, rDecayMilli + hDecayMilli);
-
-            const globalStatsRef = doc(db!, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
-            transaction.set(globalStatsRef, {
-                total_decayed_stats: increment(fromMilli(totalDecayMilli)),
-                updated_at: serverTimestamp()
-            }, { merge: true });
 
             transaction.update(requesterRef, {
                 pending_interruption_notification: "助け手様が辞退されたため、願いが再び募集に戻りました。Lmは安全に守られています。",
-                last_updated: serverTimestamp()
             });
             
             transaction.update(wishRef, {
@@ -433,23 +377,7 @@ export const useWishActions = () => {
             });
           }
         } else {
-          // Open Status Cancel
-          const requesterRef = doc(db!, "users", user.uid);
-          const requesterDoc = await transaction.get(requesterRef);
-          if (requesterDoc.exists()) {
-            const rData = requesterDoc.data();
-            const rBalance = rData?.balance || 0;
-            const rLastUpdated = getMillis(rData?.last_updated);
-
-            const rElapsedSec = ((now - rLastUpdated) / 1000) | 0;
-            
-            const rDecayedMilli = calculateDecayedValue(toMilli(rBalance), rElapsedSec);
-
-            transaction.update(requesterRef, {
-              balance: fromMilli(rDecayedMilli), 
-              last_updated: new Date(now),
-            });
-          }
+          // Open Status Cancel - No Lm moves, just delete wish
           transaction.delete(wishRef);
 
           const txId = `cancel_${wishId}`;
@@ -624,7 +552,6 @@ export const useWishActions = () => {
         const issuerDoc = await transaction.get(issuerRef);
 
         const fulfillerDoc = await transaction.get(fulfillerRef);
-        const iData = issuerDoc.exists() ? issuerDoc.data() : {};
 
         const txId = `wish_${wishId}_PAY_${fulfillerId}`;
         const txRef = doc(collection(db!, "transactions"), txId);
@@ -638,12 +565,16 @@ export const useWishActions = () => {
         // Check Issuer Solvency (Using query-based sum)
         let paymentMilli = wishDecayedMilli;
         if (issuerDoc.exists()) {
-             const iLastUpdated = getMillis(iData.last_updated);
-             const iElapsedSec = ((now - iLastUpdated) / 1000) | 0;
-             const iCurrentRealMilli = calculateDecayedValue(toMilli(iData.balance || 0), iElapsedSec);
+             const issuerData = issuerDoc.data() as UserProfile;
+             const iCycleStart = getMillis(issuerData.cycle_started_at, 0);
+             const iSpent = issuerData.spent_lm || 0;
+             const iElapsedSec = ((now - iCycleStart) / 1000) | 0;
+             const iDecayedVesselMilli = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), iElapsedSec);
+             const iCurrentRealMilli = Math.max(0, iDecayedVesselMilli - toMilli(iSpent));
              
-             // Solvency check: Balance must cover all commissions (including this one, which is already in the query sum)
-             const availableForThisPaymentMilli = Math.max(0, iCurrentRealMilli - (issuerQueryCommittedMilli - wishDecayedMilli));
+             // Solvency check: Balance must cover all commissions
+             const activeCommittedExceptThisMilli = Math.max(0, issuerQueryCommittedMilli - wishDecayedMilli);
+             const availableForThisPaymentMilli = Math.max(0, iCurrentRealMilli - activeCommittedExceptThisMilli);
              paymentMilli = Math.min(wishDecayedMilli, availableForThisPaymentMilli);
         } else {
              paymentMilli = 0;
@@ -652,54 +583,32 @@ export const useWishActions = () => {
         const isBankruptcy = paymentMilli < wishDecayedMilli;
         const paymentAmount = fromMilli(paymentMilli);
 
-        let totalDecayMilli = 0;
-
         // Reward Fulfiller
         if (fulfillerDoc.exists()) {
-          const fData = fulfillerDoc.data();
-          const fLastUpdated = getMillis(fData.last_updated);
-          const fElapsedSec = ((now - fLastUpdated) / 1000) | 0;
-          const fCurrentDecayedMilli = calculateDecayedValue(toMilli(fData.balance || 0), fElapsedSec);
+          const fData = fulfillerDoc.data() as UserProfile;
+          const fCycleStart = getMillis(fData.cycle_started_at, 0);
+          const fDecayedVesselMilli = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), ((now - fCycleStart) / 1000) | 0);
           
-          const rawNewMilli = fCurrentDecayedMilli + paymentMilli;
-          const cappedMilli = Math.min(rawNewMilli, WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
-          const overflowMilli = Math.max(0, rawNewMilli - WORLD_CONSTANTS.MAX_VESSEL_CAPACITY_MILLI);
-
-          totalDecayMilli += (toMilli(fData.balance || 0) - fCurrentDecayedMilli) + overflowMilli;
+          // Wall check
+          const minFSpentMilli = fDecayedVesselMilli - toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT);
+          const fSpentMilli = toMilli(fData.spent_lm || 0);
+          const newFSpentMilli = Math.max(minFSpentMilli, fSpentMilli - paymentMilli);
 
           transaction.update(fulfillerRef, {
-            balance: fromMilli(cappedMilli),
+            spent_lm: fromMilli(newFSpentMilli),
             completed_contracts: increment(1),
-            last_updated: new Date(now),
+            consecutive_completions: (fData.consecutive_completions || 0) + 1,
           });
         }
 
         // Salvation for Issuer
         if (issuerDoc.exists()) {
           const issuerProfile = issuerDoc.data() as UserProfile;
-          const iLastUpdated = getMillis(issuerProfile.last_updated) || now;
-          const iElapsedSec = ((now - iLastUpdated) / 1000) | 0;
-          const iCurrentRealMilli = calculateDecayedValue(toMilli(issuerProfile.balance || 0), iElapsedSec);
-          
-          totalDecayMilli += (toMilli(issuerProfile.balance || 0) - iCurrentRealMilli);
-
-          const iNewBalanceMilli = iCurrentRealMilli - paymentMilli;
-          const newStreak = (issuerProfile.consecutive_completions || 0) + 1;
-
+          const currentSpent = issuerProfile.spent_lm || 0;
           transaction.update(issuerRef, {
-            balance: fromMilli(iNewBalanceMilli),
+            spent_lm: currentSpent + paymentAmount,
             completed_requests: increment(1),
-            consecutive_completions: newStreak,
-            last_updated: new Date(now),
           });
-        }
-
-        if (totalDecayMilli > 0) {
-            const globalStatsRef = doc(db!, WORLD_CONSTANTS.GLOBAL_METABOLISM_PATH);
-            transaction.set(globalStatsRef, {
-                total_decayed_stats: increment(fromMilli(totalDecayMilli)),
-                updated_at: serverTimestamp()
-            }, { merge: true });
         }
 
         transaction.delete(wishRef);
