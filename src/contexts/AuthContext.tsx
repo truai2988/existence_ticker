@@ -1,73 +1,31 @@
 import { useEffect, useState, useMemo, ReactNode } from 'react';
 import { User, onIdTokenChanged } from 'firebase/auth';
-import { onSnapshot, doc } from 'firebase/firestore';
-import { auth, db } from '../lib/firebase';
+import { auth } from '../lib/firebase';
 import { AuthContext } from './AuthContextDefinition';
+import { useAdminRole } from '../hooks/useAdminRole';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
-    const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isRegistering, setIsRegistering] = useState(false);
 
+    const isAdmin = useAdminRole(user);
+
     useEffect(() => {
-        if (!auth || !db) {
+        if (!auth) {
             setLoading(false);
             return;
         }
 
-        let unsubscribeFirestore: (() => void) | null = null;
-        let unsubscribeSuperAdmin: (() => void) | null = null;
-
-        const unsubscribeAuth = onIdTokenChanged(auth, async (currentUser) => {
-            if (unsubscribeFirestore) {
-                unsubscribeFirestore();
-                unsubscribeFirestore = null;
-            }
-            if (unsubscribeSuperAdmin) {
-                unsubscribeSuperAdmin();
-                unsubscribeSuperAdmin = null;
-            }
-
-            if (currentUser) {
-                // Sync signals: isDoc (DB/Live) + isDynamicSuper (DB/Global)
-                let isDynamicSuper = false;
-                let isDocAdmin = false;
-
-                const updateAdminState = () => {
-                    setIsAdmin(isDocAdmin || isDynamicSuper);
-                };
-
-                // 1. Live Profile Role
-                const userRef = doc(db!, 'users', currentUser.uid);
-                unsubscribeFirestore = onSnapshot(userRef, (snap) => {
-                    isDocAdmin = snap.exists() && snap.data()?.role === 'admin';
-                    updateAdminState();
-                }, () => {});
-
-                // 2. Super Admin Status (UID keyed)
-                const superRef = doc(db!, 'super_admins', currentUser.uid);
-                unsubscribeSuperAdmin = onSnapshot(superRef, (snap) => {
-                    isDynamicSuper = snap.exists() && snap.data()?.is_super === true;
-                    updateAdminState();
-                }, () => {});
-
-                updateAdminState();
-            } else {
-                setIsAdmin(false);
-            }
-            
+        const unsubscribeAuth = onIdTokenChanged(auth, (currentUser) => {
             setUser(currentUser);
             setLoading(false);
         }, () => {
-            // console.warn("[AuthProvider] Auth error:", error);
             setLoading(false);
         });
 
         return () => {
             unsubscribeAuth();
-            if (unsubscribeFirestore) unsubscribeFirestore();
-            if (unsubscribeSuperAdmin) unsubscribeSuperAdmin();
         };
     }, []);
 
