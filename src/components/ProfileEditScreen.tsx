@@ -195,7 +195,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
             {/* Header */}
             <div className="w-full bg-slate-50 sticky top-0 z-10 shrink-0 pt-safe">
                 <div className="border-b border-transparent">
-                    <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between flex-nowrap gap-2">
+                    <div className="max-w-2xl mx-auto px-6 py-8 md:py-8 flex items-center justify-between flex-nowrap gap-2">
                         <div className="flex flex-col">
                             <Logo className="mb-3" />
                             <div className="flex items-center gap-2">

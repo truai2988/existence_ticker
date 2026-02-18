@@ -4,10 +4,10 @@ interface LogoProps {
     className?: string;
 }
 
-export const Logo: React.FC<LogoProps> = ({ className = "text-slate-300" }) => {
+export const Logo: React.FC<LogoProps> = ({ className = "text-slate-500" }) => {
     return (
-        <div className={`text-xs font-bold tracking-[0.4em] uppercase select-none ${className}`}>
+        <span className={`inline-block font-serif tracking-[0.3em] uppercase select-none ${className}`}>
             Existence Ticker
-        </div>
+        </span>
     );
 };

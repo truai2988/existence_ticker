@@ -75,7 +75,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
         <div className="flex-1 flex flex-col w-full h-full animate-fade-in group/flow">
             {/* Header */}
             <div className="border-b border-slate-100/50 pt-safe">
-                <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between">
+                <div className="max-w-2xl mx-auto px-6 py-8 md:py-8 flex items-center justify-between">
                      <div className="min-w-0">
                         <Logo className="mb-3" />
                         <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">ご縁を授かる</h2>
