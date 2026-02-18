@@ -1,0 +1,42 @@
+--- Database Audit Started ---
+Time: 2026-02-18T14:43:55.030Z
+
+(node:13360) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[users] Count: 1
+  - UID: ibtvyHP1dMcgfo6RFm403dXMXDu1, Name: 邇臥ｽｮ螢ｫ譛・
+[wishes] Count: 0
+
+[transactions] Count: 5
+  - TX: cancel_wish_ibtvyHP1dMcgfo6RFm403dXMXDu1_1771241396627, Type: WISH_CANCELLED, Amount: 0
+    Sender: ibtvyHP1dMcgfo6RFm403dXMXDu1 
+    Recipient: None 
+  - TX: cancel_wish_ibtvyHP1dMcgfo6RFm403dXMXDu1_1771241430008, Type: WISH_CANCELLED, Amount: 0
+    Sender: ibtvyHP1dMcgfo6RFm403dXMXDu1 
+    Recipient: None 
+  - TX: expire_wish_ibtvyHP1dMcgfo6RFm403dXMXDu1_1771241383923, Type: WISH_EXPIRED, Amount: 0
+    Sender: ibtvyHP1dMcgfo6RFm403dXMXDu1 
+    Recipient: None 
+  - TX: rebirth_ibtvyHP1dMcgfo6RFm403dXMXDu1_1771227305237, Type: BIRTH, Amount: 2400
+    Sender: ibtvyHP1dMcgfo6RFm403dXMXDu1 
+    Recipient: None 
+  - TX: rebirth_ibtvyHP1dMcgfo6RFm403dXMXDu1_1771227305237_ibtvyHP1dMcgfo6RFm403dXMXDu1, Type: BIRTH, Amount: 2400
+    Sender: ibtvyHP1dMcgfo6RFm403dXMXDu1 
+    Recipient: None 
+
+[balance_logs] Total: 0, Orphan: 0
+
+[location_stats] Count: 1
+  - 蜥梧ｭ悟ｱｱ逵契讖区悽蟶・ Count 1
+
+[invitation_codes] Count: 5
+  - Code: ALPHA-958V, Used: false, UsedBy: None 
+  - Code: ALPHA-NA45, Used: false, UsedBy: None 
+  - Code: ALPHA-P5XL, Used: false, UsedBy: None 
+  - Code: ALPHA-TEST, Used: false, UsedBy: None 
+  - Code: ALPHA-X7A1, Used: false, UsedBy: None 
+
+[system_settings] Count: 1
+[daily_stats] Count: 12
+
+--- Audit Finished ---

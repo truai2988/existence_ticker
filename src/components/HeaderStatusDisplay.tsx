@@ -1,6 +1,7 @@
 import React from "react";
 import { MapPin } from "lucide-react";
 import { AppViewMode } from "../types";
+import { Logo } from "./Logo";
 
 interface HeaderStatusDisplayProps {
   viewMode?: AppViewMode;
@@ -44,9 +45,7 @@ export const HeaderStatusDisplay: React.FC<HeaderStatusDisplayProps> = ({
   // Default Home View
   return (
     <>
-      <div className="text-xs font-medium tracking-[0.2em] uppercase text-slate-500 leading-none mb-1.5 select-none pl-0.5 font-serif">
-        Existence Ticker
-      </div>
+      <Logo className="mb-1.5 pl-0.5 font-serif text-slate-500 font-medium" />
     </>
   );
 };

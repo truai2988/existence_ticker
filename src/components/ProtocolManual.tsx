@@ -1,5 +1,6 @@
 import React from "react";
 import { X, Activity } from "lucide-react";
+import { Logo } from "./Logo";
 
 interface ProtocolManualProps {
   onClose: () => void;
@@ -14,7 +15,7 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
           <div>
             <div className="flex items-center gap-2 text-slate-500 mb-2 uppercase tracking-[0.2em] text-xs font-sans">
               <Activity size={14} />
-              <span>Existence Ticker Protocol v2.0</span>
+              <span><Logo className="inline" /> Protocol v2.0</span>
             </div>
             <h1 className="text-4xl font-serif font-bold text-slate-900 leading-tight">
               自律分散型互助生態系構想書

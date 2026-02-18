@@ -6,8 +6,7 @@ import {
   onSnapshot,
   serverTimestamp,
   runTransaction,
-  Transaction,
-  increment
+  Transaction
 } from "firebase/firestore";
 import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS, getMillis } from "../logic/worldPhysics";
 import { UserProfile } from "../types";
@@ -82,29 +81,8 @@ export const useProfile = () => {
 
       if (isLocationChanging) {
         await runTransaction(db, async (transaction: Transaction) => {
-          const userSnap = await transaction.get(userRef);
-          if (!userSnap.exists()) throw new Error("User profile not found");
-          const oldData = userSnap.data() as UserProfile;
-          
-          // 1. Decrement old location (Clamped to 0)
-          if (oldData.location?.prefecture && oldData.location?.city) {
-            const oldKey = `${oldData.location.prefecture}_${oldData.location.city}`;
-            const oldStatRef = doc(db!, 'location_stats', oldKey);
-            const oldStatSnap = await transaction.get(oldStatRef);
-            if (oldStatSnap.exists()) {
-              const currentCount = oldStatSnap.data().count || 0;
-              transaction.update(oldStatRef, { count: Math.max(0, currentCount - 1) });
-            }
-          }
-
-          // 2. Increment new location
-          if (updates.location?.prefecture && updates.location?.city) {
-            const newKey = `${updates.location.prefecture}_${updates.location.city}`;
-            const newStatRef = doc(db!, 'location_stats', newKey);
-            transaction.set(newStatRef, { count: increment(1) }, { merge: true });
-          }
-
-          // 3. Update Profile
+          // Profile updates are handled here. 
+          // location_stats are managed by the onWrite trigger in Cloud Functions.
           transaction.update(userRef, {
             ...updates,
           });

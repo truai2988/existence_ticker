@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Home, History, User, X, Shield } from 'lucide-react';
 import { AppViewMode } from '../types';
 import { useAuth } from '../hooks/useAuthHook';
+import { Logo } from './Logo';
 
 interface DrawerMenuProps {
     isOpen: boolean;
@@ -65,9 +66,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
                             <h1 className="text-6xl font-light tracking-tighter text-slate-800 mb-2 font-['Inter']">
                                 ET
                             </h1>
-                            <p className="text-xs text-slate-400 font-light tracking-[0.5em] uppercase">
-                                Existence Ticker
-                            </p>
+                            <Logo className="text-slate-400 font-light" />
                         </div>
 
                         {/* Custom Close Button Area */}
@@ -128,9 +127,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
 
                         {/* Footer / Brand (Optional) */}
                         <div className="p-10 text-center">
-                            <p className="text-xs text-slate-300 font-light tracking-[0.4em] uppercase opacity-60">
-                                Existence Ticker
-                            </p>
+                            <Logo className="text-slate-300 font-light opacity-60" />
                         </div>
                     </motion.div>
                 </>

@@ -89,11 +89,8 @@ export const deleteAccount = functions.https.onCall(async (data, context) => {
                 transaction.update(invitationRef, { is_used: false, used_by: null, used_at: null });
             }
 
-            if (uData.location && uData.location.prefecture && uData.location.city) {
-                const cityKey = `${uData.location.prefecture}_${uData.location.city}`;
-                const statRef = db.collection('location_stats').doc(cityKey);
-                transaction.set(statRef, { count: FieldValue.increment(-1) }, { merge: true });
-            }
+            // Stats (Managed by trigger)
+            // Manual decrement removed to prevent double-counting.
 
             let totalDecayMilli = 0;
             const now = Date.now();

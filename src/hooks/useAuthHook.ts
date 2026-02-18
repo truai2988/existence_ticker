@@ -10,7 +10,7 @@ import {
     updateEmail,
     reauthenticateWithCredential
 } from 'firebase/auth';
-import { doc, serverTimestamp, runTransaction, increment, getDoc } from 'firebase/firestore';
+import { doc, serverTimestamp, runTransaction, getDoc } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { auth, db, functions } from '../lib/firebase';
 import { useAuthContext } from '../contexts/AuthContextDefinition';
@@ -104,12 +104,8 @@ export const useAuth = () => {
                             // cycle_started_at is OMITTED to trigger First Birth Ritual
                         });
 
-                        // 3. Increment Stats
-                        if (location && location.prefecture && location.city) {
-                            const cityKey = `${location.prefecture}_${location.city}`;
-                            const statRef = doc(db!, 'location_stats', cityKey);
-                            transaction.set(statRef, { count: increment(1) }, { merge: true });
-                        }
+                        // 3. Stats (Managed by trigger)
+                        // Manual increment removed to prevent double-counting.
                     });
 
                     // Registration successful - clear flag after small delay to allow Firestore sync

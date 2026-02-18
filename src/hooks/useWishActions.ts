@@ -762,14 +762,9 @@ export const useWishActions = () => {
           if (!wishDoc.exists()) throw "Wish not found";
           const wishData = wishDoc.data();
 
-          // EXPIRE Wish (Keep in vessel or specific handling)
-          // 今回の「勝手に消さない」方針に基づき、一旦 status のみに留めるか、
-          // 削除制限に従い delete は行わない。
-          transaction.update(wishRef, {
-            status: "expired",
-            updated_at: serverTimestamp(),
-            system_note: "期限を迎えましたが、再募集されるのを待っています。"
-          });
+          // EXPIRE Wish (Disappearing Card Specification)
+          // Cards are deleted after being captured in the journal (transactions).
+          transaction.delete(wishRef);
 
           // 2. Log to Journal (amount: 0)
           const txId = `expire_${wishId}`;

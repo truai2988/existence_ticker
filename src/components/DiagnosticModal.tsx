@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { X, Activity, Sun, Zap, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Logo } from "./Logo";
 import { DiagnosticsResult } from "../hooks/useDiagnostics";
 import { DashboardStats } from "../hooks/useStats";
 
@@ -196,7 +197,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
 
           {/* Footer */}
           <div className="p-6 border-t border-slate-800/50 bg-slate-900/50 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-500 uppercase tracking-widest text-center">
-              <span>存在ルーメン (Existence Ticker)</span>
+              <span>存在ルーメン (<Logo className="inline" />)</span>
               <div className="hidden sm:block w-1 h-1 bg-slate-800 rounded-full" />
               <span>白い器の規約 (White Vessel Protocol)</span>
           </div>
