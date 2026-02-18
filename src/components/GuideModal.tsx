@@ -128,20 +128,20 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 </section>
 
                 {/* Important Note: Hybrid Usage */}
-                <section className="bg-slate-800 text-slate-200 rounded-2xl p-8 md:p-10 text-center relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <section className="bg-amber-50/50 text-slate-700 rounded-2xl p-8 md:p-10 text-center relative overflow-hidden border border-amber-100/50 shadow-inner">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-100/20 rounded-full blur-3xl pointer-events-none"></div>
                 
-                <h4 className="text-base font-serif font-bold text-amber-100 mb-6 tracking-widest relative z-10">
+                <h4 className="text-base font-serif font-bold text-amber-800 mb-6 tracking-widest relative z-10">
                     ハイブリッドな使い方のススメ
                 </h4>
-                <div className="inline-block bg-white/10 px-6 py-4 rounded-xl border border-white/10 backdrop-blur-md mb-6 relative z-10">
-                    <p className="text-sm font-bold text-white shadow-sm">
+                <div className="inline-block bg-white px-6 py-4 rounded-xl border border-amber-100 shadow-sm mb-6 relative z-10">
+                    <p className="text-sm font-bold text-slate-800">
                         実費（材料費や交通費）は『円』で。<br/>
                         手間や感謝は『Lm』で。
                     </p>
                 </div>
-                <p className="text-xs text-slate-400 tracking-widest opacity-80 leading-relaxed relative z-10">
+                <p className="text-xs text-slate-500 tracking-widest opacity-80 leading-relaxed relative z-10">
                     実費の清算が終わったあとに、そっとLm（源気）を添える。<br/>
                     そんな優しい循環を、ここから始めましょう。
                 </p>

@@ -113,9 +113,9 @@ const getSlides = () => [
     icon: <Footprints size={32} className="text-slate-600" />,
     content: (
       <div className="text-center font-serif text-slate-700 leading-loose">
-         <div className="bg-slate-800 text-slate-200 p-6 rounded-2xl mb-6 shadow-inner relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-full blur-2xl"></div>
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl"></div>
+         <div className="bg-white text-slate-800 p-6 rounded-2xl mb-6 shadow-sm border border-slate-100 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl"></div>
             <p className="text-base font-bold relative z-10 flex flex-col items-center gap-1">
               <span className="whitespace-nowrap">実費（円）は「お財布」から。</span>
               <span className="whitespace-nowrap">感謝（Lm）は「心」から。</span>

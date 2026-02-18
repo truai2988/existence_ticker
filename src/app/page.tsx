@@ -90,7 +90,7 @@ export const LandingPage = () => {
                 href="#invite" 
                 className="text-[9px] min-[375px]:text-[10px] md:text-xs font-medium tracking-[0.1em] text-white/60 hover:text-white transition-colors border-l border-white/20 pl-4 md:pl-6 block"
               >
-                鍵をお持ちの方
+                招待コードをお持ちの方
               </a>
           </div>
       </nav>
@@ -437,7 +437,7 @@ export const LandingPage = () => {
                   onClick={handleNavigate} 
                   className="group relative inline-block px-12 py-5 bg-white border border-[#E5E5E5] rounded-xl hover:shadow-2xl transition-all duration-700 tracking-[0.2em] text-xs uppercase text-[#777777] hover:text-[#2D2D2D] overflow-hidden font-sans"
                 >
-                  <span className="relative z-10 font-medium">舞台の扉を開く</span>
+                  <span className="relative z-10 font-medium">扉を開く</span>
                   
                   {/* Mizuhiki / Red Thread Animation */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-1000">

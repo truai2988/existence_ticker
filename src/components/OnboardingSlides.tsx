@@ -115,7 +115,7 @@ const SLIDES = [
     bgColor: "#F9F9F9", // Faint Neutral Gray
     content: (
         <div className="space-y-4 text-center leading-relaxed font-serif w-full mb-4">
-            <div className="bg-[#0F1C3F] text-white py-4 px-3 rounded-xl shadow-md mx-auto w-full max-w-[280px]">
+            <div className="bg-white text-slate-800 py-4 px-3 rounded-xl shadow-sm border border-slate-100 mx-auto w-full max-w-[280px]">
                 <p className="font-bold text-sm mb-2 leading-relaxed">
                     実費（円）は<br /><span className="inline-block">「お財布」から。</span>
                 </p>
