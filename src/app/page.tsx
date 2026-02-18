@@ -3,7 +3,6 @@ import { useEffect, useState, useRef } from 'react';
 import { motion, useScroll, useTransform, useInView, animate, AnimatePresence } from 'framer-motion';
 import { ArrowDown, Droplets, HeartHandshake, Sparkles, Send, Sun, Heart, Smile, Users, ArrowRight } from 'lucide-react';
 import { CHAPTERS } from '../data/storyData';
-import { Logo } from '../components/Logo';
 
 export const LandingPage = () => {
   // --- A-Side: Ten-Day Lapse (Pure Abundance) ---
@@ -84,7 +83,9 @@ export const LandingPage = () => {
       {/* --- Sticky Header / Navigation --- */}
       <nav className="fixed top-0 left-0 right-0 z-[100] px-6 py-8 flex justify-between items-center mix-blend-difference pointer-events-none">
           <div className="flex items-center gap-6 pointer-events-auto">
-              <Logo className="text-white/90" />
+              <span className="text-xs font-bold tracking-[0.4em] uppercase text-white/90 select-none">
+                  Existence Ticker
+              </span>
               <a 
                 href="#invite" 
                 className="text-[9px] min-[375px]:text-[10px] md:text-xs font-medium tracking-[0.1em] text-white/60 hover:text-white transition-colors border-l border-white/20 pl-4 md:pl-6 block"
@@ -467,7 +468,7 @@ export const LandingPage = () => {
                 </button>
             </div>
             <p className="text-xs text-[#AAAAAA] tracking-[0.2em] uppercase font-serif">
-                © 2026 <Logo className="inline" />.
+                © 2026 Existence Ticker.
             </p>
         </footer>
 

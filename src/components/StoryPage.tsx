@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { CHAPTERS, STORY_TITLE } from '../data/storyData';
 import { ArrowLeft, Printer } from 'lucide-react';
-import { Logo } from './Logo';
 
 export const StoryPage = () => {
     const navigate = useNavigate();
@@ -38,7 +37,7 @@ export const StoryPage = () => {
                         <Printer size={18} />
                     </button>
                     <span className="text-xs tracking-[0.3em] uppercase text-[#AAAAAA] hidden md:inline font-sans">
-                        <Logo className="inline" /> Archive
+                        Existence Ticker Archive
                     </span>
                 </div>
             </nav>
@@ -102,7 +101,7 @@ export const StoryPage = () => {
                         舞台へ向かう
                     </button>
                     <p className="mt-20 text-xs tracking-[0.3em] text-[#CCCCCC] uppercase font-serif">
-                        © 2026 <Logo className="inline" /> Archive.
+                        © 2026 Existence Ticker Archive.
                     </p>
                 </footer>
             </main>

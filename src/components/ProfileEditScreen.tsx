@@ -6,7 +6,6 @@ import { useLocationData } from '../hooks/useLocationData';
 import { useAuth } from '../hooks/useAuthHook';
 import { PREFECTURES } from '../data/prefectures';
 import { UserProfile } from '../types';
-import { Logo } from './Logo';
 
 interface ProfileEditScreenProps {
     onClose: () => void;
@@ -195,14 +194,16 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
             {/* Header */}
             <div className="w-full bg-slate-50 sticky top-0 z-10 shrink-0 pt-safe">
                 <div className="border-b border-transparent">
-                    <div className="max-w-2xl mx-auto px-6 py-8 md:py-8 flex items-center justify-between flex-nowrap gap-2">
+                    <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between flex-nowrap gap-2">
                         <div className="flex flex-col">
-                            <Logo className="mb-3" />
+                            <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
+                                Existence Ticker
+                            </div>
                             <div className="flex items-center gap-2">
                                 <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500 -ml-2">
                                     <ChevronLeft size={24} />
                                 </button>
-                                <h2 className="text-lg min-[375px]:text-xl font-bold tracking-widest uppercase text-slate-900 truncate">
+                                <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900 truncate">
                                     プロフィール編集
                                 </h2>
                             </div>

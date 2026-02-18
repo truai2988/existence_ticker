@@ -7,7 +7,6 @@ import { collection, query, where, limit, getDocs, Timestamp } from 'firebase/fi
 import { HeaderNavigation } from './HeaderNavigation';
 import { AppViewMode } from '../types';
 import { Sun, Heart, Sparkles, CheckCircle2, Archive } from 'lucide-react';
-import { Logo } from './Logo';
 
 // ... (comments omitted)
 
@@ -119,11 +118,13 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
   return (
     <div className="flex-1 flex flex-col w-full h-full relative">
         <div className="border-b border-slate-100/50 pt-safe">
-            <div className="max-w-2xl mx-auto px-6 py-8 md:py-8 flex items-center justify-between">
+            <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between">
                  <div className="min-w-0">
-                    <Logo className="mb-3" />
+                    <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
+                        Existence Ticker
+                    </div>
                     <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">巡りの足跡</h2>
-                    <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1">あなたの歩みの記録</p>
+                    <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">あなたの歩みの記録</p>
                 </div>
                 {onTabChange && (
                     <div className="flex h-12 items-end gap-2 shrink-0">

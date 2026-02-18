@@ -19,7 +19,6 @@ import { HeaderNavigation } from "./HeaderNavigation";
 import { AppViewMode } from "../types";
 import { getTrustRank } from "../utils/trustRank";
 import { ProfileEditScreen } from "./ProfileEditScreen";
-import { Logo } from "./Logo";
 
 interface ProfileViewProps {
   userId?: string;
@@ -200,21 +199,21 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     <div className="flex-1 flex flex-col w-full h-full">
       {/* Subtle Section Header */}
       <div className="border-b border-slate-100/50 pt-safe">
-          <div className="max-w-2xl mx-auto px-6 py-8 md:py-8 flex items-center justify-between flex-nowrap gap-2">
+          <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between flex-nowrap gap-2">
               <div className="min-w-0">
-                   <Logo className="mb-3" />
-                   <h2 className="text-3xl font-bold tracking-widest uppercase text-slate-900 truncate font-serif">Profile</h2>
-                   <p className="text-xs text-slate-500 tracking-[0.2em] uppercase mt-1 truncate font-sans">あなたの記録</p>
+                   <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none font-sans">
+                       Existence Ticker
+                   </div>
+                   <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900 truncate">プロフィール</h2>
+                   <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">あなたの記録</p>
               </div>
               <div className="flex h-12 items-end gap-2">
                   {onTabChange && (
-                    <div className="shrink-0">
-                        <HeaderNavigation 
-                            currentTab={initialEditMode ? "profile_edit" : "profile"} 
-                            onTabChange={(tab: AppViewMode) => onTabChange(tab)} 
-                            onOpenOnboarding={onOpenOnboarding}
-                        />
-                    </div>
+                      <HeaderNavigation 
+                          currentTab={initialEditMode ? "profile_edit" : "profile"} 
+                          onTabChange={(tab: AppViewMode) => onTabChange(tab)} 
+                          onOpenOnboarding={onOpenOnboarding}
+                      />
                   )}
               </div>
           </div>
@@ -432,7 +431,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </div>
 
              <div className="text-center text-xs text-slate-300 py-4 font-sans focus:outline-none">
-               <Logo className="inline" /> v0.2.0
+               Existence Ticker v0.2.0
              </div>
           </div>
         </div>

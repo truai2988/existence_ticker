@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Home, History, User, X, Shield } from 'lucide-react';
 import { AppViewMode } from '../types';
 import { useAuth } from '../hooks/useAuthHook';
-import { Logo } from './Logo';
 
 interface DrawerMenuProps {
     isOpen: boolean;
@@ -32,7 +31,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
     const menuItems = [
         { id: "home", label: "ホーム", icon: Home, activeModes: ["home"] },
         { id: "history", label: "巡りの足跡", icon: History, activeModes: ["history"] },
-        { id: "profile", label: "自分", icon: User, activeModes: ["profile", "profile_edit"] },
+        { id: "profile", label: "プロフィール", icon: User, activeModes: ["profile", "profile_edit"] },
     ] as const;
 
     const handleNavigation = (id: AppViewMode) => {
@@ -66,7 +65,9 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
                             <h1 className="text-6xl font-light tracking-tighter text-slate-800 mb-2 font-['Inter']">
                                 ET
                             </h1>
-                            <Logo className="text-slate-400 font-light" />
+                            <p className="text-xs text-slate-400 font-light tracking-[0.5em] uppercase">
+                                Existence Ticker
+                            </p>
                         </div>
 
                         {/* Custom Close Button Area */}
@@ -127,7 +128,9 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
 
                         {/* Footer / Brand (Optional) */}
                         <div className="p-10 text-center">
-                            <Logo className="text-slate-300 font-light opacity-60" />
+                            <p className="text-xs text-slate-300 font-light tracking-[0.4em] uppercase opacity-60">
+                                Existence Ticker
+                            </p>
                         </div>
                     </motion.div>
                 </>

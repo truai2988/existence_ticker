@@ -3,7 +3,6 @@ import { Home, History as HistoryIcon, User, Menu, X, Shield, Sprout, Edit2 } fr
 import { AppViewMode } from '../types';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuthHook';
-import { Logo } from './Logo';
 
 interface HeaderNavigationProps {
     currentTab: AppViewMode;
@@ -119,7 +118,8 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                             className="absolute right-0 top-full mt-2 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-100 p-2 z-50 min-w-[200px]"
                         >
                             <div className="px-5 pt-5 pb-4 mb-2 border-b border-slate-50">
-                                <Logo />
+                                <div className="text-3xl font-light tracking-tighter text-slate-800 leading-none mb-1 font-['Inter']">ET</div>
+                                <div className="text-xs text-slate-400 font-light tracking-[0.4em] uppercase">Existence Ticker</div>
                             </div>
                             
                             <button

@@ -1,7 +1,6 @@
 import React from "react";
 import { MapPin } from "lucide-react";
 import { AppViewMode } from "../types";
-import { Logo } from "./Logo";
 
 interface HeaderStatusDisplayProps {
   viewMode?: AppViewMode;
@@ -18,9 +17,9 @@ export const HeaderStatusDisplay: React.FC<HeaderStatusDisplayProps> = ({
     return (
       <div className="flex flex-col">
         <h1 className="text-xl font-bold tracking-widest text-slate-800 uppercase font-sans">
-          JOURNAL
+          巡りの足跡
         </h1>
-        <div className="text-xs text-slate-500 font-light tracking-wide">
+        <div className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">
           あなたの歩みの記録
         </div>
         <LocationButton text={locationText} onClick={onOpenLocation} />
@@ -32,9 +31,9 @@ export const HeaderStatusDisplay: React.FC<HeaderStatusDisplayProps> = ({
     return (
       <div className="flex flex-col">
         <h1 className="text-xl font-bold tracking-widest text-slate-800 uppercase font-sans">
-          PROFILE
+          プロフィール
         </h1>
-        <div className="text-xs text-slate-500 font-light tracking-wide">
+        <div className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">
           あなたの記録
         </div>
         <LocationButton text={locationText} onClick={onOpenLocation} />
@@ -44,9 +43,14 @@ export const HeaderStatusDisplay: React.FC<HeaderStatusDisplayProps> = ({
 
   // Default Home View
   return (
-    <>
-      <Logo className="mb-1.5 pl-0.5 font-serif text-slate-500 font-medium" />
-    </>
+    <div className="flex flex-col">
+      <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none font-sans">
+        Existence Ticker
+      </div>
+      <h1 className="text-xl font-bold tracking-widest text-slate-900 uppercase font-sans">
+        ET
+      </h1>
+    </div>
   );
 };
 

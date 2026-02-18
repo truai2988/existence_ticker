@@ -50,10 +50,10 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
       <header className="relative w-full pt-safe z-40">
         <div className="relative w-full">
           <div className="relative w-full bg-transparent">
-            <div className="w-full max-w-2xl mx-auto px-6 py-3 md:py-6">
-              <div className="flex items-center justify-between">
+            <div className="w-full max-w-2xl mx-auto px-6 py-4 md:py-6">
+              <div className="flex items-start justify-between">
                 {/* Left Side: Title & Location (Extracted) */}
-                <div className="flex flex-col">
+                <div className="min-w-0">
                   <HeaderStatusDisplay 
                     viewMode={viewMode}
                     locationText={getLocationText()}
@@ -64,21 +64,21 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
                   {(!viewMode || viewMode === 'home') && (
                     <button
                       onClick={() => setShowPresenceModal(true)}
-                      className="flex items-center gap-1.5 text-left hover:opacity-70 transition-opacity group"
+                      className="flex items-center gap-1.5 text-left hover:opacity-70 transition-opacity group mt-1"
                     >
                       <MapPin
-                        size={16}
+                        size={12}
                         className="text-slate-500 group-hover:text-slate-700 transition-colors"
                       />
-                      <span className="text-sm min-[375px]:text-base text-slate-600 font-sans font-medium tracking-wider uppercase group-hover:text-slate-900 transition-colors truncate max-w-[100px] min-[375px]:max-w-[160px]">
+                      <span className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase group-hover:text-slate-900 transition-colors truncate max-w-[100px] min-[375px]:max-w-[160px]">
                         {getLocationText()}
                       </span>
                       <span className="text-xs text-slate-400 mx-1">|</span>
                       <Users
-                        size={16}
+                        size={12}
                         className="text-slate-500 group-hover:text-slate-700 transition-colors"
                       />
-                      <span className="text-sm min-[375px]:text-base text-slate-600 font-sans font-medium tracking-wider group-hover:text-slate-900 transition-colors whitespace-nowrap">
+                      <span className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase group-hover:text-slate-900 transition-colors whitespace-nowrap">
                         {getUserCountText()}
                       </span>
                     </button>
@@ -86,7 +86,7 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
                 </div>
 
                 {/* Right Cluster: Clock & Navigation - Aligned to Bottom Baseline */}
-                <div className="flex items-center gap-3 min-[375px]:gap-4 h-full">
+                <div className="flex h-12 items-end gap-3 min-[375px]:gap-4 shrink-0">
                   {/* Water Clock Indicator (Lm Capacity) - Compact Visual Only */}
                   <div className="relative w-8 h-10 bg-white/40 rounded-full overflow-hidden border border-slate-200/60 shadow-[inset_0_1px_4px_rgba(0,0,0,0.05)] backdrop-blur-sm shrink-0 group">
                     {/* 1. Committed Lm (Bottom Layer - Frozen/Sediment) */}

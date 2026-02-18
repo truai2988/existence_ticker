@@ -6,7 +6,6 @@ import { calculateDecayedValue, getMillis, toMilli, fromMilli } from '../logic/w
 import { WishCardList } from './WishCardList';
 import { HeaderNavigation } from './HeaderNavigation';
 import { AppViewMode } from '../types';
-import { Logo } from './Logo';
 
 interface FlowViewProps {
     currentUserId: string;
@@ -75,11 +74,13 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
         <div className="flex-1 flex flex-col w-full h-full animate-fade-in group/flow">
             {/* Header */}
             <div className="border-b border-slate-100/50 pt-safe">
-                <div className="max-w-2xl mx-auto px-6 py-8 md:py-8 flex items-center justify-between">
+                <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between">
                      <div className="min-w-0">
-                        <Logo className="mb-3" />
-                        <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">ご縁を授かる</h2>
-                        <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1">想いに応える</p>
+                        <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
+                            Existence Ticker
+                        </div>
+                        <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">応える</h2>
+                        <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">想いに応える</p>
                     </div>
                     <div className="flex h-12 items-end gap-2 shrink-0">
                         <HeaderNavigation 
