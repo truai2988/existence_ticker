@@ -164,11 +164,10 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                             className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-10"
                         >
                             <Loader2 size={40} className="text-red-500 animate-spin mb-4" />
-                            <h3 className="text-lg font-bold text-slate-800 mb-2">退会処理を進めています</h3>
+                            <h3 className="text-lg font-bold text-slate-800 mb-2">退会処理を行っています</h3>
                             <p className="text-sm text-slate-500 leading-relaxed">
-                                データを整理しています。<br />
-                                時の流れに還るまで少しかかりますが、<br />
-                                このままお待ちください...
+                                完了までしばらくお待ちください。<br />
+                                画面を閉じず、そのままお待ちください。
                             </p>
                         </motion.div>
                     )}
