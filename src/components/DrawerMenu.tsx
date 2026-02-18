@@ -30,7 +30,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
     // Menu Items Definition
     const menuItems = [
         { id: "home", label: "ホーム", icon: Home, activeModes: ["home"] },
-        { id: "history", label: "履歴", icon: History, activeModes: ["history"] },
+        { id: "history", label: "巡りの足跡", icon: History, activeModes: ["history"] },
         { id: "profile", label: "自分", icon: User, activeModes: ["profile", "profile_edit"] },
     ] as const;
 
@@ -103,6 +103,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
                                     </button>
                                 );
                             })}
+
 
                             {/* Admin Exit (GOD MODE) */}
                             {isAdmin && (

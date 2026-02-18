@@ -6,13 +6,13 @@ export const WISH_COST = {
   BONFIRE: 1000, // Halo (月暈)
 };
 
-// 1 Lm = 1 Lumen (Light)
+// 1 Lm = 1 Lumen (生命の源気)
 export const UNIT_LABEL = "Lm";
 
 // --- Lunar Cycle Model Constants ---
 export const LUNAR_CONSTANTS = {
-  FULL_MOON_BALANCE: 2400, // Max Capacity (The Vessel)
-  REBIRTH_AMOUNT: 2400,    // Fixed Rebirth Amount (The Grant)
+  FULL_MOON_BALANCE: 2400, // Max Capacity (自らの命によって湧出される器)
+  REBIRTH_AMOUNT: 2400,    // Fixed Rebirth Amount (生命の源気の湧出)
   CYCLE_DAYS: 10,          // Default Reset Period (The Cycle)
   
   // Rate: 10 Lm per 1 Hour

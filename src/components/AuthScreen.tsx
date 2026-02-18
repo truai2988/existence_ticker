@@ -5,6 +5,8 @@ import { Eye, EyeOff, ArrowRight, Loader2, AlertCircle, Mail, Lock, User, MapPin
 import { PREFECTURES } from '../data/prefectures';
 import { useLocationData } from '../hooks/useLocationData';
 
+/* Typography Rule: font-serif/font-sans, 3sizes (text-3xl, text-base, text-xs) */
+
 interface AuthScreenProps {
     onSuccess: () => void;
 }
@@ -38,6 +40,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
     const [error, setError] = useState<string | null>(null);
     const [isSuccess, setIsSuccess] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [showWelcome, setShowWelcome] = useState(false);
 
     // ゴースト是正後のフィードバック検知
     useEffect(() => {
@@ -85,7 +88,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                 if (!password) throw new Error('パスワードを入力してください。');
                 
                 await signIn(email, password);
-                onSuccess();
+                setShowWelcome(true);
+                setTimeout(() => onSuccess(), 4000);
             } else if (mode === 'signup') {
                 // バリデーション
                 if (!name.trim()) throw new Error('名前を入力してください。');
@@ -111,7 +115,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                     gender as 'male' | 'female' | 'other', 
                     invitationCode
                 );
-                onSuccess();
+                setShowWelcome(true);
+                setTimeout(() => onSuccess(), 4000);
             } else if (mode === 'forgot') {
                  if (!email) throw new Error('メールアドレスを入力してください。');
                  await resetPassword(email);
@@ -140,9 +145,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
             >
                 <div className="flex flex-col items-center mb-8">
                     <h1 className="text-2xl font-serif font-bold text-slate-800 tracking-widest mb-2">
-                        {mode === 'login' && 'ログイン'}
-                        {mode === 'signup' && '新規登録'}
-                        {mode === 'forgot' && 'パスワードの再設定'}
+                        {mode === 'login' && '舞台へ上がる'}
+                        {mode === 'signup' && '舞台への招待状'}
+                        {mode === 'forgot' && '灯火の再点火'}
                     </h1>
                     <div className="h-1 w-12 bg-slate-300 rounded-full" />
                 </div>
@@ -313,7 +318,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
 
                                     <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-100 mt-2">
                                         <label className="text-xs font-bold text-slate-500 ml-1">
-                                            招待コード <span className="text-red-500">*</span>
+                                            招待の鍵をお持ちですか？ <span className="text-red-500">*</span>
                                         </label>
                                         <div className="relative group">
                                             <Key className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors" size={18} />
@@ -326,7 +331,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                                             />
                                         </div>
                                         <p className="text-xs text-slate-500 ml-1 mt-1 leading-tight font-medium">
-                                            現在は招待制のアルファテスト中です。お手元のコードを入力してください。
+                                            このインフラは現在、静かな招待制です。お手元の鍵（コード）を入力してください。
                                         </p>
                                     </div>
                                 </motion.div>
@@ -380,16 +385,16 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                         ) : (
                             <>
                                 <span>
-                                    {mode === 'login' && 'ログイン'}
-                                    {mode === 'signup' && '新規登録'}
-                                    {mode === 'forgot' && '送信する'}
+                                    {mode === 'login' && '舞台へ'}
+                                    {mode === 'signup' && '招待を受ける'}
+                                    {mode === 'forgot' && '再点火する'}
                                 </span>
                                 {mode !== 'forgot' && <ArrowRight size={18} />}
                             </>
                         )}
                     </button>
                     
-                    <div className="flex flex-col items-center gap-2 mt-4 text-sm text-slate-500">
+                    <div className="flex flex-col items-center gap-2 mt-4 text-xs font-sans">
                         {mode === 'login' && (
                             <>
                                 <button type="button" onClick={() => {
@@ -426,6 +431,60 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
 
                 </form>
             </motion.div>
+
+            {/* Golden Dawn / Welcome Screen */}
+            <AnimatePresence>
+                {showWelcome && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
+                    >
+                        {/* Golden Dawn Flash Background */}
+                        <motion.div 
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1.5, opacity: 1 }}
+                            transition={{ duration: 2, ease: "easeOut" }}
+                            className="absolute inset-0 bg-gradient-radial from-amber-100 via-orange-50 to-white"
+                        />
+                        
+                        {/* Washi Paper Texture Overlay */}
+                        <div 
+                            className="absolute inset-0 opacity-40 mix-blend-multiply pointer-events-none"
+                            style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/handmade-paper.png")' }}
+                        />
+
+                        {/* Sumi Ink Message */}
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 1, duration: 2 }}
+                            className="relative z-10 px-12 py-16 text-center"
+                        >
+                            <h2 className="text-3xl md:text-5xl font-serif text-slate-800 tracking-[0.3em] font-bold leading-relaxed whitespace-pre-wrap">
+                                あなたの存在を、{"\n"}
+                                このインフラは歓迎します
+                            </h2>
+                            <motion.div 
+                                initial={{ width: 0 }}
+                                animate={{ width: '100%' }}
+                                transition={{ delay: 2, duration: 1.5 }}
+                                className="h-[1px] bg-slate-400 mt-12 mx-auto"
+                            />
+                        </motion.div>
+
+                        {/* Particles / Sparkles */}
+                        <motion.div 
+                            animate={{ 
+                                opacity: [0.3, 0.6, 0.3],
+                            }}
+                            transition={{ duration: 4, repeat: Infinity }}
+                            className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_white_100%)]"
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

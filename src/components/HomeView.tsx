@@ -112,9 +112,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
               animate={{ opacity: 1, y: 0 }} 
               className="flex flex-col items-center gap-1"
             >
-              <span className="text-xs font-bold text-slate-500 tracking-widest uppercase whitespace-nowrap opacity-80 mb-[-4px]">
-                手持ち： {Math.floor(balance).toLocaleString()}
-                <span className="ml-1 text-slate-400 font-medium">(あと{daysLeft}日)</span>
+              <span className="text-xs font-bold text-slate-500 tracking-widest uppercase whitespace-nowrap opacity-80 mb-[-4px] font-sans">
+                手持ちのゆとり： {Math.floor(balance).toLocaleString()}
+                <span className="ml-1 text-slate-400 font-medium text-xs">(社会へ還るまで あと{daysLeft}日)</span>
               </span>
               <div className="text-6xl font-serif font-medium tracking-tighter tabular-nums leading-none bg-gradient-to-b from-[#4A4A4A] via-[#6B5A4F] to-[#8B7E74] bg-clip-text text-transparent transform drop-shadow-sm pb-2">
                 {Math.floor(availableLm).toLocaleString()}
@@ -206,10 +206,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       <div className="absolute inset-0 bg-white/60 blur-xl rounded-full scale-150 transform -z-10" />
                       <Sparkles size={24} strokeWidth={1} className="mb-4 opacity-30 animate-pulse text-slate-400" />
                       <div className="flex flex-col items-center">
-                        <span className="text-2xl font-light tracking-[0.2em] text-slate-600 mb-1 drop-shadow-sm pl-[0.8em]">
+                        <span className="text-3xl font-light tracking-[0.2em] text-slate-600 mb-1 drop-shadow-sm pl-[0.8em] font-serif">
                             {ritualMessage}
                         </span>
-                        <span className="text-xs font-medium tracking-[0.3em] text-slate-500 pl-[0.3em] uppercase">
+                        <span className="text-xs font-medium tracking-[0.3em] text-slate-500 pl-[0.3em] uppercase font-sans">
                             I am who I am / <span className="text-slate-600">世界に加わる</span>
                         </span>
                       </div>
@@ -229,7 +229,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         <div className="flex flex-col items-center origin-center">
                           <motion.div className="flex flex-col items-center">
                             <Inbox size={52} strokeWidth={2.5} className="mb-2 opacity-90" />
-                            <span className="text-3xl font-extrabold tracking-tight text-shadow-sm">応える</span>
+                            <span className="text-3xl font-extrabold tracking-tight text-shadow-sm font-sans">応える</span>
                           </motion.div>
                         </div>
                     </motion.button>
@@ -243,7 +243,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                         <div className="flex flex-col items-center origin-center">
                           <motion.div className="flex flex-col-reverse items-center">
                             <Megaphone size={48} strokeWidth={2.5} className="mt-2 opacity-90" />
-                            <span className="text-3xl font-extrabold tracking-tight text-shadow-sm">お願い</span>
+                            <span className="text-3xl font-extrabold tracking-tight text-shadow-sm font-sans">お願い</span>
                           </motion.div>
                         </div>
                     </motion.button>
@@ -265,12 +265,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-4">
                         <AlertCircle className="text-amber-500" size={24} />
                     </div>
-                    <p className="text-sm text-slate-700 font-medium leading-relaxed mb-6 whitespace-pre-wrap">
+                    <p className="text-xs text-slate-700 font-medium leading-relaxed mb-6 whitespace-pre-wrap font-sans">
                         {notification}
                     </p>
                     <button
                         onClick={clearNotification}
-                        className="w-full py-3 bg-amber-400 hover:bg-amber-500 text-white rounded-xl text-sm font-bold tracking-widest transition-colors shadow-sm active:scale-[0.98]"
+                        className="w-full py-3 bg-amber-400 hover:bg-amber-500 text-white rounded-xl text-base font-bold tracking-widest transition-colors shadow-sm active:scale-[0.98] font-sans"
                     >
                         了解しました
                     </button>

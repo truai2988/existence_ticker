@@ -1,5 +1,3 @@
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronRight,
   LogOut,
@@ -12,6 +10,9 @@ import {
   Camera,
   ShieldCheck,
 } from "lucide-react";
+
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useProfile } from "../hooks/useProfile";
 import { useAuth } from "../hooks/useAuthHook";
 import { HeaderNavigation } from "./HeaderNavigation";
@@ -56,11 +57,11 @@ const ListItem: React.FC<ListItemProps> = ({
       <div className={`p-2 rounded-full ${iconBg}`}>
         <Icon size={16} className={iconColor} />
       </div>
-      <span className="text-sm font-medium">{label}</span>
+      <span className="text-base font-medium font-sans">{label}</span>
     </div>
     <div className="flex items-center gap-2">
       {value && (
-        <span className="text-sm font-bold text-slate-700">{value}</span>
+        <span className="text-base font-bold text-slate-700 font-sans">{value}</span>
       )}
       {hasArrow && onClick && (
         <ChevronRight size={16} className="text-slate-300" />
@@ -200,11 +201,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       <div className="border-b border-slate-100/50 pt-safe">
           <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between flex-nowrap gap-2">
               <div className="min-w-0">
-                  <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
-                      Existence Ticker
-                  </div>
-                  <h2 className="text-lg min-[375px]:text-xl font-bold tracking-widest uppercase text-slate-900 truncate">Profile</h2>
-                  <p className="text-xs min-[375px]:text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">あなたの記録</p>
+                   <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none font-sans">
+                       Existence Ticker
+                   </div>
+                   <h2 className="text-3xl font-bold tracking-widest uppercase text-slate-900 truncate font-serif">Profile</h2>
+                   <p className="text-xs text-slate-500 tracking-[0.2em] uppercase mt-1 truncate font-sans">あなたの記録</p>
               </div>
               <div className="flex h-12 items-end gap-2">
                   {onTabChange && (
@@ -243,7 +244,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </div>
 
             <div className="flex items-center gap-1.5 mb-1">
-              <h3 className="text-xl font-bold text-slate-900">
+              <h3 className="text-base font-bold text-slate-900 font-sans">
                 {currentName}
               </h3>
               {rank.isVerified && (
@@ -259,14 +260,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               {(!profile?.bio || !profile?.avatarUrl) && (
                 <button
                   onClick={() => setIsEditingProfile(true)}
-                  className="mt-1 text-xs text-blue-500 font-bold hover:text-blue-600 hover:underline transition-colors animate-pulse"
+                  className="mt-1 text-xs text-blue-500 font-bold hover:text-blue-600 hover:underline transition-colors animate-pulse font-sans"
                 >
                   自己紹介を入力して信頼を高めましょう
                 </button>
               )}
 
               <div
-                className={`text-xs font-bold px-3 py-1 rounded-full ${rank.bg} ${rank.color} flex items-center gap-1.5 shadow-sm`}
+                className={`text-xs font-bold px-3 py-1 rounded-full ${rank.bg} ${rank.color} flex items-center gap-1.5 shadow-sm font-sans`}
               >
                 <span>{rank.icon}</span>
                 <span>{rank.label}</span>
@@ -276,7 +277,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 (profile.consecutive_completions || 0) < 2 &&
                 user?.uid === profile.id && (
                   <div className="mt-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg max-w-[200px]">
-                    <p className="text-xs text-slate-500 text-center leading-snug">
+                    <p className="text-xs text-slate-500 text-center leading-snug font-sans">
                       信頼の器がすこし傷ついています。
                       <br />
                       あと{" "}
@@ -310,9 +311,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 )}
               </div>
 
-              {profile?.bio && (
+               {profile?.bio && (
                 <div className="mt-3 max-w-xs text-center">
-                  <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
+                  <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 px-4 py-2 rounded-xl border border-slate-100 font-sans">
                     {profile.bio}
                   </p>
                 </div>
@@ -368,7 +369,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
           <div className="space-y-6">
             <div>
-              <div className="text-xs font-bold text-slate-400 ml-2 mb-2">
+               <div className="text-xs font-bold text-slate-400 ml-2 mb-2 font-sans">
                 アクティビティ・実績
               </div>
               <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm">
@@ -431,9 +432,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 )}
             </div>
 
-            <div className="text-center text-xs text-slate-300 py-4">
-              Existence Ticker v0.2.0
-            </div>
+             <div className="text-center text-xs text-slate-300 py-4 font-sans focus:outline-none">
+               Existence Ticker v0.2.0
+             </div>
           </div>
         </div>
       </div>
@@ -448,28 +449,28 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           >
             {confirmMode === "logout" && (
               <div className="bg-white p-6 rounded-2xl w-full max-w-xs text-center shadow-xl">
-                <h3 className="font-bold text-slate-800 mb-2">
-                  ログアウトしますか？
-                </h3>
+                 <h3 className="font-bold text-slate-800 mb-2 text-base font-sans">
+                   ログアウトしますか？
+                 </h3>
                 {isAnonymous && (
-                  <p className="text-xs text-red-500 mb-4 bg-red-50 p-2 rounded">
-                    ゲストアカウントのため、データが消失します。
-                  </p>
+                   <p className="text-xs text-red-500 mb-4 bg-red-50 p-2 rounded font-sans">
+                     ゲストアカウントのため、データが消失します。
+                   </p>
                 )}
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setConfirmMode(null)}
-                    className="flex-1 py-2.5 bg-slate-100 rounded-lg text-sm font-bold text-slate-600"
-                  >
-                    キャンセル
-                  </button>
-                  <button
-                    onClick={handleLogout}
-                    className="flex-1 py-2.5 bg-red-500 rounded-lg text-sm font-bold text-white"
-                  >
-                    ログアウト
-                  </button>
-                </div>
+                 <div className="flex gap-3">
+                   <button
+                     onClick={() => setConfirmMode(null)}
+                     className="flex-1 py-2.5 bg-slate-100 rounded-lg text-base font-bold text-slate-600 font-sans"
+                   >
+                     キャンセル
+                   </button>
+                   <button
+                     onClick={handleLogout}
+                     className="flex-1 py-2.5 bg-red-500 rounded-lg text-base font-bold text-white font-sans"
+                   >
+                     ログアウト
+                   </button>
+                 </div>
               </div>
             )}
 
@@ -477,32 +478,32 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               <div className="bg-white p-6 rounded-2xl w-full max-w-xs text-center shadow-xl">
                 {deleteStep === 1 ? (
                   <>
-                    <h3 className="font-bold text-red-600 mb-2">退会手続き</h3>
-                    <p className="text-xs text-slate-600 mb-4 text-left">
+                    <h3 className="font-bold text-red-600 mb-2 text-base font-sans">退会手続き</h3>
+                    <p className="text-xs text-slate-600 mb-4 text-left font-sans">
                       全てのデータ（XP、温もり、履歴）が完全に消去されます。この操作は取り消せません。
                     </p>
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => setConfirmMode(null)}
-                        className="flex-1 py-2.5 bg-slate-100 rounded-lg text-sm font-bold text-slate-600"
-                      >
-                        キャンセル
-                      </button>
-                      <button
-                        onClick={() => setDeleteStep(2)}
-                        className="flex-1 py-2.5 bg-red-100 text-red-600 rounded-lg text-sm font-bold"
-                      >
-                        進む
-                      </button>
-                    </div>
+                     <div className="flex gap-3">
+                       <button
+                         onClick={() => setConfirmMode(null)}
+                         className="flex-1 py-2.5 bg-slate-100 rounded-lg text-base font-bold text-slate-600 font-sans"
+                       >
+                         キャンセル
+                       </button>
+                       <button
+                         onClick={() => setDeleteStep(2)}
+                         className="flex-1 py-2.5 bg-red-100 text-red-600 rounded-lg text-base font-bold font-sans"
+                       >
+                         進む
+                       </button>
+                     </div>
                   </>
                 ) : (
                   <>
-                    <h3 className="font-bold text-red-600 mb-2">最終確認</h3>
-                    <p className="text-sm text-red-500 mb-4 font-bold leading-relaxed px-2">
-                      すべての記録と LM
-                      は時の流れに還り、元に戻すことはできません。よろしいですか？
-                    </p>
+                     <h3 className="font-bold text-red-600 mb-2 text-base font-sans">最終確認</h3>
+                     <p className="text-base text-red-500 mb-4 font-bold leading-relaxed px-2 font-sans">
+                       すべての記録と LM
+                       は時の流れに還り、元に戻すことはできません。よろしいですか？
+                     </p>
 
                     {showReauth && (
                       <div className="mb-4 space-y-2 text-left">
@@ -512,7 +513,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                           value={reauthPassword}
                           onChange={(e) => setReauthPassword(e.target.value)}
                           placeholder="パスワードを入力"
-                          className="w-full px-3 py-2 text-sm border border-red-200 rounded-lg focus:outline-none focus:border-red-400"
+                          className="w-full px-3 py-2 text-base border border-red-200 rounded-lg focus:outline-none focus:border-red-400 font-sans"
                         />
                       </div>
                     )}
@@ -521,26 +522,26 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       <p className="text-xs text-red-600 mb-3 font-bold text-left">{errorMsg}</p>
                     )}
 
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => {
-                          setConfirmMode(null);
-                          setShowReauth(false);
-                          setReauthPassword("");
-                          setErrorMsg("");
-                        }}
-                        className="flex-1 py-2.5 bg-slate-100 rounded-lg text-sm font-bold text-slate-600"
-                      >
-                        やめる
-                      </button>
-                      <button
-                        onClick={handleDelete}
-                        disabled={isLoading}
-                        className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-sm font-bold shadow-md disabled:opacity-50"
-                      >
-                        {isLoading ? "処理中..." : (showReauth ? "認証して退会" : "はい、還ります")}
-                      </button>
-                    </div>
+                     <div className="flex gap-3">
+                       <button
+                         onClick={() => {
+                           setConfirmMode(null);
+                           setShowReauth(false);
+                           setReauthPassword("");
+                           setErrorMsg("");
+                         }}
+                         className="flex-1 py-2.5 bg-slate-100 rounded-lg text-base font-bold text-slate-600 font-sans"
+                       >
+                         やめる
+                       </button>
+                       <button
+                         onClick={handleDelete}
+                         disabled={isLoading}
+                         className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-base font-bold shadow-md disabled:opacity-50 font-sans"
+                       >
+                         {isLoading ? "処理中..." : (showReauth ? "認証して退会" : "はい、還ります")}
+                       </button>
+                     </div>
                   </>
                 )}
               </div>

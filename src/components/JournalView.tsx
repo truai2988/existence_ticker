@@ -123,7 +123,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
                     <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
                         Existence Ticker
                     </div>
-                    <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">ジャーナル</h2>
+                    <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">巡りの足跡</h2>
                     <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1">あなたの歩みの記録</p>
                 </div>
                 {onTabChange && (

@@ -61,8 +61,8 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
                             Existence Ticker
                         </div>
-                        <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">Seeker</h2>
-                        <p className="text-xs min-[375px]:text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">お願い</p>
+                        <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">想いを託す</h2>
+                        <p className="text-xs min-[375px]:text-sm text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">お裾分け</p>
                     </div>
                     <div className="flex h-12 items-end gap-2">
                         {onTabChange && (

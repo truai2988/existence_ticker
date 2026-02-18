@@ -1,4 +1,6 @@
 import { useState } from 'react';
+
+/* Typography Rule: font-serif/font-sans, 3sizes (text-3xl, text-base, text-xs) */
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface GateScreenProps {
@@ -42,7 +44,7 @@ export const GateScreen = ({ onOpen }: GateScreenProps) => {
                 repeat: Infinity, 
                 ease: "easeInOut" 
               }}
-              className="text-lg md:text-xl font-serif text-[#4A4A4A] tracking-[0.1em] leading-loose mb-16"
+              className="text-base font-serif text-[#4A4A4A] tracking-[0.1em] leading-loose mb-16"
             >
               「あなたの光（Lm）を、大切に守るための場所へ。」
             </motion.p>

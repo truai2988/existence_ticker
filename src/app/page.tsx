@@ -1,7 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import { motion, useScroll, useTransform, useInView, animate, AnimatePresence } from 'framer-motion';
-import { ArrowDown, Droplets, HeartHandshake, Sparkles, Send, Sun, Heart, Smile, Users } from 'lucide-react';
+import { ArrowDown, Droplets, HeartHandshake, Sparkles, Send, Sun, Heart, Smile, Users, ArrowRight } from 'lucide-react';
+import { CHAPTERS } from '../data/storyData';
 
 export const LandingPage = () => {
   // --- A-Side: Ten-Day Lapse (Pure Abundance) ---
@@ -79,6 +80,21 @@ export const LandingPage = () => {
   return (
     <div ref={containerRef} className="bg-[#F9F8F4] min-h-screen text-[#2D2D2D] font-sans selection:bg-orange-100 selection:text-[#2D2D2D] overflow-x-hidden relative">
       
+      {/* --- Sticky Header / Navigation --- */}
+      <nav className="fixed top-0 left-0 right-0 z-[100] px-6 py-8 flex justify-between items-center mix-blend-difference pointer-events-none">
+          <div className="flex items-center gap-6 pointer-events-auto">
+              <span className="text-xs font-bold tracking-[0.4em] uppercase text-white/90 select-none">
+                  Existence Ticker
+              </span>
+              <a 
+                href="#invite" 
+                className="text-[9px] min-[375px]:text-[10px] md:text-xs font-medium tracking-[0.1em] text-white/60 hover:text-white transition-colors border-l border-white/20 pl-4 md:pl-6 block"
+              >
+                鍵をお持ちの方
+              </a>
+          </div>
+      </nav>
+
       {/* --- Ambient: Daybreak Noise & The Tide --- */}
       <div className="fixed inset-0 pointer-events-none z-0 opacity-40 mix-blend-multiply" 
            style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E")` }}>
@@ -117,19 +133,23 @@ export const LandingPage = () => {
       )}
 
       {/* --- A-Side: The Amber Core (Hero Section) --- */}
-      <section className="h-[90vh] md:h-screen flex flex-col items-center justify-center sticky top-0 z-10">
+      <section className="min-h-screen md:min-h-screen flex flex-col items-center justify-center sticky top-0 z-10 overflow-hidden bg-[#F9F8F4]">
         <motion.div 
           style={{ opacity: opacityHero, scale: scaleHero }}
-          className="flex flex-col items-center text-center px-4 relative w-full"
+          className="flex flex-col items-center text-center px-4 relative w-full pt-20 md:pt-24 pb-12"
         >
-            <div className="mb-10 md:mb-20 space-y-4 md:space-y-6">
-                <h1 className="text-[13px] md:text-base font-medium md:font-light tracking-[0.3em] md:tracking-[0.4em] text-[#444444] md:text-[#888888] uppercase font-serif">
-                    EXISTENCE TICKER
+            <div className="mb-4 md:mb-20 space-y-4 md:space-y-6">
+                <h1 className="text-base font-medium md:font-light tracking-[0.3em] md:tracking-[0.4em] text-[#444444] md:text-[#555555] uppercase font-serif">
+                    重機を降りて、存在を祝うインフラへ。
                 </h1>
+                <p className="text-xs font-light tracking-[0.2em] text-[#999999] uppercase font-sans">
+                    Heavy machinery for the earth, this infrastructure for the soul.
+                </p>
+
             </div>
 
             {/* The Massive Vessel of Light */}
-            <div className="relative group cursor-default mb-10 md:mb-16">
+            <div className="relative group cursor-default mb-6 md:mb-16">
                 {/* Core Amber Glow (Bloom) */}
                 <motion.div 
                     animate={{ opacity: [0.3, 0.5, 0.3], scale: [0.9, 1.1, 0.9] }}
@@ -149,10 +169,10 @@ export const LandingPage = () => {
                             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
                             className="flex items-baseline pb-2 md:pb-4"
                         >
-                            <span className="text-[16vmin] md:text-[12vmin] font-medium md:font-extralight tabular-nums bg-gradient-to-b from-[#111111] via-[#4A4A4A] to-[#6B5A4F] bg-clip-text text-transparent pb-4 md:pb-8 leading-tight">
+                            <span className="text-8xl md:text-[160px] font-bold tabular-nums bg-gradient-to-b from-[#111111] via-[#4A4A4A] to-[#6B5A4F] bg-clip-text text-transparent pb-4 md:pb-8 leading-tight">
                                 {bigPart}
                             </span>
-                            <span className="text-[7vmin] md:text-[5vmin] font-medium md:font-extralight tabular-nums ml-1 bg-gradient-to-b from-[#111111] via-[#4A4A4A] to-[#6B5A4F] bg-clip-text text-transparent opacity-90 pb-2 md:pb-4 leading-tight">
+                            <span className="text-2xl md:text-[50px] font-medium tabular-nums ml-1 bg-gradient-to-b from-[#111111] via-[#4A4A4A] to-[#6B5A4F] bg-clip-text text-transparent opacity-90 pb-2 md:pb-4 leading-tight">
                                 .{smallPart}
                             </span>
                         </motion.div>
@@ -161,23 +181,29 @@ export const LandingPage = () => {
                     <motion.span 
                         animate={{ opacity: [0.4, 0.7, 0.4] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                        className="text-[15px] md:text-xl font-medium md:font-light text-[#6A5F51] md:text-[#A89F91] ml-2 md:ml-4 mb-2 md:mb-4 italic tracking-widest"
+                        className="text-sm md:text-base font-medium md:font-light text-[#6A5F51] md:text-[#A89F91] ml-2 md:ml-4 mb-2 md:mb-4 italic tracking-widest font-sans"
                     >
                         Lm
                     </motion.span>
                 </div>
             </div>
 
-            {/* Mutual Aid Infrastructure Message */}
-            <div className="space-y-4 md:space-y-6 max-w-2xl mx-auto mb-10 md:mb-20">
-                <p className="text-[18px] md:text-xl leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#222222] md:text-[#444444]">
-                    これは、いわゆる地域通貨ではありません。
-                    <br className="hidden md:block" />
-                    生きていくことを、みんなで支え合うための
-                    <span className="text-[#8B6B50] md:text-[#9C7C60] font-semibold md:font-medium">『互助インフラ』</span>
+            <div className="space-y-6 max-w-2xl mx-auto mb-4 md:mb-20">
+                <p className="text-base leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#222222] md:text-[#444444]">
+                    私たちは「豊かさ」という名の重機を動かし、大地を拓き、文明を築きました。<br className="hidden md:block" />
+                    しかし、その轟音の中で「ただ、そこにいること」の安らぎを<br className="hidden md:block" />
+                    忘れてしまったのではないでしょうか。
+                </p>
+                <div className="h-[1px] w-12 bg-[#8B6B50]/30 mx-auto my-8"></div>
+                <p className="text-base leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#222222] md:text-[#444444]">
+                    ET（Existence Ticker）は、新しい通貨ではありません。<br className="hidden md:block" />
+                    借金や利息に追い立てられる「重力」からあなたを解放し、<br className="hidden md:block" />
+                    呼吸するように感謝を巡らせるための、静かな
+                    <span className="text-[#8B6B50] md:text-[#9C7C60] font-bold md:font-medium text-base">「生命のインフラ」</span>
                     です。
                 </p>
             </div>
+
 
             <motion.div 
                 animate={{ y: [0, 8, 0], opacity: [0.2, 0.5, 0.2] }}
@@ -201,34 +227,27 @@ export const LandingPage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-10%" }}
                 transition={{ duration: 1.5, delay: 0, ease: "easeOut" }}
-                className="text-xl md:text-2xl font-medium md:font-normal leading-relaxed tracking-wide md:tracking-[0.15em] text-[#111111] md:text-[#444444]"
+                className="text-3xl font-medium md:font-normal leading-relaxed tracking-wide md:tracking-[0.15em] text-[#111111] md:text-[#444444]"
               >
-                <span className="inline-block">私たちは</span>
-                <span className="inline-block">「返済」を</span>
-                <span className="inline-block">しなければ、</span>
-              </motion.p>
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-10%" }}
-                transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
-                className="text-xl md:text-2xl font-medium md:font-normal leading-relaxed tracking-wide md:tracking-[0.15em] text-[#111111] md:text-[#444444]"
-              >
-                <span className="inline-block">生きてはいけないの</span>
-                <span className="inline-block">でしょうか。</span>
+                <span className="inline-block">ここでは、</span>
+                <span className="inline-block">あなたの鼓動が</span>
+                <span className="inline-block">価値になります。</span>
+
               </motion.p>
             </div>
             
+            <div className="h-[30vh] md:h-[10vh]"></div>
+
             <div className="space-y-4 md:space-y-4">
               {[
-                ["窓から差し込む", "陽だまりや、"],
-                ["深く吸い込む", "朝の空気。"],
-                ["命の根源に、"],
-                ["「返済」の義務はありません。"],
-                ["本来、ただ生きているだけで、", "価値は溢れているもの。"],
-                ["授かった光を、", "無理に返すのではなく、"],
-                ["次の誰かへと巡らせる。"],
-                ["その「巡り」が、", "新しいご縁を編み上げます。"]
+                ["ここでは、あなたの願いが"],
+                ["誰かの喜びになります。"],
+                ["資本主義という巨大なインフラの上で、"],
+                ["もうひとつの、柔らかな舞台を始めましょう。"],
+                ["呼吸するように、感謝を巡らせる。"],
+                ["失うことへの恐怖ではなく、"],
+                ["満ち足りていることの静寂へ。"],
+                ["生命のインフラは、", "あなたの存在を祝います."]
               ].map((phraseGroup, index) => (
                 <motion.p
                    key={index}
@@ -236,8 +255,9 @@ export const LandingPage = () => {
                    whileInView={{ opacity: 1, y: 0 }}
                    viewport={{ once: true, margin: "-10%" }}
                    transition={{ duration: 1.2, delay: (index + 2) * 0.4, ease: "easeOut" }}
-                   className={`${index === 3 || index === 4 || index === 5 ? 'mb-6 md:mb-8' : ''} text-[15px] md:text-lg font-medium md:font-normal leading-relaxed tracking-widest text-[#222222] md:text-[#444444] md:opacity-90`}
+                   className={`${index === 3 || index === 4 || index === 5 ? 'mb-6 md:mb-8' : ''} text-base font-medium md:font-normal leading-relaxed tracking-widest text-[#222222] md:text-[#444444] md:opacity-90`}
                 >
+
                   {phraseGroup.map((phrase, pIdx) => (
                     <span key={pIdx} className="inline-block">{phrase}</span>
                   ))}
@@ -250,17 +270,17 @@ export const LandingPage = () => {
         {/* The Message: Soul Translation */}
         <Section className="py-12 md:py-20 flex flex-col items-center text-center px-6 max-w-3xl mx-auto">
           <div className="space-y-4 md:space-y-6 max-w-md mx-auto font-serif">
-            <p className="text-lg md:text-lg font-semibold md:font-light tracking-[0.08em] text-[#111111] md:text-[#555555] leading-loose">
+            <p className="text-3xl font-semibold md:font-light tracking-[0.08em] text-[#111111] md:text-[#555555] leading-loose">
               「源気」を、どこへ向けますか?
             </p>
             <div className="h-[1px] w-8 bg-[#BBBBBB] md:bg-[#DDDDDD] mx-auto opacity-50"></div>
-            <p className="text-base md:text-base font-normal text-[#111111] md:text-[#666666] leading-relaxed tracking-normal">
-              <span className="md:whitespace-nowrap font-medium md:font-normal">2,400 Lm という持ち分は、あなたが何もしなくても、</span>
+            <p className="text-base font-normal text-[#111111] md:text-[#666666] leading-relaxed tracking-normal">
+              <span className="md:whitespace-nowrap font-medium md:font-normal text-base">2,400 Lm という持ち分は、あなたが何もしなくても、</span>
               <br />
               十日ごとに新しく入れ替わります。
               <br />
               それは、あなたが今日も源気で、ここにいることへの
-              <span className="text-[#8B6B50] md:text-[#9C7C60] font-bold md:font-medium">「蓄え」</span>
+              <span className="text-[#8B6B50] md:text-[#9C7C60] font-bold md:font-medium text-base">「蓄え」</span>
               です。
             </p>
           </div>
@@ -269,19 +289,19 @@ export const LandingPage = () => {
         {/* The 3 Laws (Rebranded + Mutual Aid Refinement) */}
         <Section className="py-16 md:py-24 px-6 max-w-6xl mx-auto w-full border-t border-[#EAEAEA]">
           <div className="mb-12 md:mb-16 text-center">
-             <h2 className="text-2xl md:text-3xl font-serif font-medium text-[#222222] mb-4">源気の循環</h2>
-             <p className="text-[15px] md:text-base text-[#666666] font-sans">Cycle of Source Energy</p>
+             <h2 className="text-3xl font-serif font-medium text-[#222222] mb-4">源気の循環</h2>
+             <p className="text-base text-[#666666] font-sans">Cycle of Source Energy</p>
           </div>
           <div className="grid md:grid-cols-3 gap-12 md:gap-12">
             <FeatureCard 
-              icon={<Sun size={32} className="text-orange-300 stroke-[1.5px]" />}
-              title="満たし (Blessing)"
-              desc="十日に一度、あなたの器は 2,400 Lm の光で満たされます。"
+              icon={<Sun size={32} className="text-orange-200 stroke-[1.5px]" />}
+              title="湧出 (Source)"
+              desc="あなたの命によって、十日に一度 2,400 Lm の源気が満たされます。"
             />
             <FeatureCard 
-              icon={<Droplets size={32} className="text-blue-300 stroke-[1.5px]" />}
+              icon={<Droplets size={32} className="text-blue-200 stroke-[1.5px]" />}
               title="巡り (Flow)"
-              desc="一時間ごとに 10 Lm が、社会という海へ還っていきます。"
+              desc="白磁の器から水が溢れ、社会へ還っていくような。一時間ごとに 10 Lm が豊かな循環へと戻ります。"
             />
             <FeatureCard 
               icon={<HeartHandshake size={32} className="text-rose-300 stroke-[1.5px]" />}
@@ -294,8 +314,8 @@ export const LandingPage = () => {
         {/* Scenarios of Mutual Aid (Shiori Cards) */}
         <Section className="py-16 md:py-24 px-6 bg-[#F5F4F0] border-y border-[#EAEAEA]">
              <div className="max-w-5xl mx-auto mb-12 md:mb-16 text-center">
-                 <h2 className="text-2xl md:text-3xl font-serif font-medium text-[#222222] mb-4">互助の循環</h2>
-                 <p className="text-[15px] md:text-base text-[#666666] font-sans">Scenarios of Support</p>
+                 <h2 className="text-3xl font-serif font-medium text-[#222222] mb-4">互助の循環</h2>
+                 <p className="text-base text-[#666666] font-sans">Scenarios of Support</p>
              </div>
 
              <div className="max-w-5xl mx-auto flex flex-col md:grid md:grid-cols-3 gap-8 md:gap-8 mb-12 md:mb-16 px-0 md:px-0">
@@ -318,53 +338,106 @@ export const LandingPage = () => {
                     color="text-rose-500"
                 />
              </div>
-             <p className="text-center text-[15px] md:text-base text-[#111111] md:text-[#888888] font-medium md:font-normal tracking-[0.1em] md:tracking-[0.2em] font-serif italic leading-relaxed px-2 md:px-4">
+             <p className="text-center text-base text-[#111111] md:text-[#888888] font-medium md:font-normal tracking-[0.1em] md:tracking-[0.2em] font-serif italic leading-relaxed px-2 md:px-4">
                 あなたの器（2,400 Lm）から溢れる光を、自由な感性で巡らせてください。
              </p>
         </Section>
 
 
-        {/* --- C-Side: Waitlist Section --- */}
-        <Section className="py-24 flex flex-col items-center text-center px-6 bg-gradient-to-b from-transparent to-[#EBE9E4]/40">
+        {/* --- C-Side: The Journey (Story Fragments) --- */}
+        <Section className="py-40 flex flex-col items-center bg-[#F9F8F4] overflow-hidden">
+            <div className="max-w-4xl mx-auto px-6">
+                <div className="text-center mb-32">
+                    <span className="text-xs tracking-[0.4em] text-[#AAAAAA] uppercase mb-4 block font-sans">The Journey</span>
+                    <h3 className="text-3xl font-light tracking-[0.2em] text-[#2D2D2D] font-serif">
+                        アンチ・グラビティ
+                    </h3>
+                    <p className="text-xs tracking-[0.3em] text-[#AAAAAA] mt-4 uppercase font-sans">
+                        Heavy Machinery and Fountain Pens
+                    </p>
+                    <div className="mt-16 max-w-lg mx-auto">
+                        <p className="text-base text-[#666666] leading-relaxed font-serif tracking-widest text-justify md:text-center">
+                            このインフラはいかにして産声を上げたのか。<br className="hidden md:block"/>
+                            重機（資本主義）の唸りが止まない深夜、筆を執った一人の開発者の記録。
+                        </p>
+                    </div>
+                </div>
+
+                <div className="space-y-40 md:space-y-64 mb-32">
+                    {CHAPTERS.filter(c => c.id % 2 !== 0).map((chapter) => (
+                        <motion.div 
+                            key={chapter.id}
+                            initial={{ opacity: 0, y: 40 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true, margin: "-20%" }}
+                            transition={{ duration: 1.2 }}
+                            className="flex flex-col items-center text-center max-w-2xl mx-auto"
+                        >
+                            <span className="text-[10px] md:text-xs tracking-[0.3em] text-[#BBBBBB] mb-8 font-sans">
+                                Chapter {chapter.id.toString().padStart(2, '0')}
+                            </span>
+                            <blockquote className="text-[15px] md:text-3xl font-serif italic text-[#444444] leading-[2.2] md:leading-relaxed mb-6 tracking-widest px-4">
+                                「{chapter.fragment}」
+                            </blockquote>
+                            <div className="h-[1px] w-8 bg-[#E5E0D5]" />
+                        </motion.div>
+                    ))}
+                </div>
+
+                <div className="text-center">
+                    <button 
+                        onClick={() => navigate('/story')}
+                        className="group flex items-center gap-4 mx-auto text-xs tracking-[0.3em] text-[#777777] hover:text-[#2D2D2D] transition-all duration-500 uppercase font-medium font-sans"
+                    >
+                        このインフラの原典をすべて読む
+                        <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
+                    </button>
+                </div>
+            </div>
+        </Section>
+        <Section id="invite" className="py-24 md:py-40 pb-48 md:pb-40 flex flex-col items-center text-center px-6 bg-gradient-to-b from-transparent to-[#EBE9E4]/40">
             <div className="bg-white p-6 rounded-full mb-8 shadow-[0_8px_30px_rgba(0,0,0,0.02)] mx-auto w-fit">
                 <Sparkles size={24} className="text-[#C5A065] stroke-[1px]" />
             </div>
             
-            <h3 className="text-xl md:text-base font-bold md:font-light tracking-[0.1em] md:tracking-[0.3em] text-[#111111] md:text-[#444444] mb-8 uppercase font-serif">
+            <h3 className="text-3xl font-bold md:font-light tracking-[0.1em] md:tracking-[0.3em] text-[#111111] md:text-[#444444] mb-8 uppercase font-serif">
                 Phase 2: Invite Only
             </h3>
-            <p className="text-[#111111] md:text-[#888888] mb-12 font-medium md:font-normal tracking-wide text-[16px] md:text-sm leading-relaxed max-w-lg mx-auto font-sans">
+            <p className="text-[#333333] md:text-[#555555] mb-12 font-medium md:font-normal tracking-wide text-base leading-relaxed max-w-lg mx-auto font-sans">
                 30名の仲間と共に、新しい支え合いの形を実験しています。<br/>
-                現在は招待制での運用準備中です。
+                現在は静かに招待制での運用準備中です。
             </p>
 
             <form className="w-full max-w-2xl mx-auto group/form relative" onSubmit={(e) => e.preventDefault()}>
-                <div className="relative flex flex-col sm:flex-row items-stretch bg-white rounded-2xl shadow-[inset_0_2px_10px_rgba(0,0,0,0.03),0_10px_30px_rgba(0,0,0,0.02)] p-2 transition-all duration-700 hover:shadow-[inset_0_2px_15px_rgba(0,0,0,0.04),0_20px_40px_rgba(0,0,0,0.04)] border border-orange-100/20">
+                <div className="relative flex flex-col sm:flex-row items-stretch bg-[#FDFDFB] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.04),0_1px_4px_rgba(0,0,0,0.02)] p-2.5 transition-all duration-700 hover:shadow-[0_40px_80px_rgba(0,0,0,0.06),0_1px_6px_rgba(0,0,0,0.03)] border border-[#E5E0D5]">
+                    {/* Washi texture for form */}
+                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none rounded-2xl overflow-hidden" style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/handmade-paper.png")' }}></div>
+                    
                     <input 
                         type="email" 
                         placeholder="your@email.com" 
-                        className="flex-1 bg-transparent px-8 py-6 md:py-5 text-[#111111] md:text-[#2D2D2D] placeholder:text-[#AAAAAA] md:placeholder:text-[#CCCCCC] outline-none text-lg md:text-base tracking-[0.1em] font-serif"
+                        className="flex-1 bg-transparent z-10 px-8 py-6 md:py-5 text-[#2D2D2D] placeholder:text-[#BBBBBB] outline-none text-base tracking-[0.1em] font-serif"
                     />
-                    <button className="group relative px-10 py-6 md:py-5 rounded-xl bg-[#111111] md:bg-[#2D2D2D] text-white text-[15px] md:text-xs font-bold tracking-[0.2em] overflow-hidden transition-all hover:bg-black mt-2 md:mt-0">
+                    <button className="group relative z-10 px-10 py-6 md:py-5 rounded-xl bg-[#2D2D2D] text-white text-base md:text-xs font-medium tracking-[0.25em] overflow-hidden transition-all hover:bg-[#111111] shadow-lg shadow-black/5 active:scale-[0.98] font-sans">
                         <span className="relative z-10 flex items-center justify-center gap-4">
-                             ご縁を結ぶ <Send className="w-[18px] h-[18px] md:w-[14px] md:h-[14px] group-hover:translate-x-1 transition-transform stroke-[2px] md:stroke-[1.5px]" />
+                             ご縁を結ぶ <Send className="w-[18px] h-[18px] md:w-[15px] md:h-[15px] group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform stroke-[1.5px]" />
                         </span>
                         
-                        {/* Golden Glow: Heat of life warmth */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-amber-400/0 via-amber-200/10 to-amber-400/0 opacity-0 group-hover:opacity-100 group-hover:translate-x-[100%] transition-all duration-1000 ease-in-out"></div>
+                        {/* Elegant Shine */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out"></div>
                     </button>
                 </div>
             </form>
         </Section>
 
         {/* Footer */}
-        <footer className="py-12 text-center border-t border-[#EAEAEA]">
+        <footer className="pt-12 pb-32 md:pb-12 text-center border-t border-[#EAEAEA]">
             <div className="mb-8">
                 <button 
                   onClick={handleNavigate} 
-                  className="group relative inline-block px-12 py-5 bg-white border border-[#E5E5E5] rounded-xl hover:shadow-2xl transition-all duration-700 tracking-[0.2em] text-[11px] uppercase text-[#777777] hover:text-[#2D2D2D] overflow-hidden"
+                  className="group relative inline-block px-12 py-5 bg-white border border-[#E5E5E5] rounded-xl hover:shadow-2xl transition-all duration-700 tracking-[0.2em] text-xs uppercase text-[#777777] hover:text-[#2D2D2D] overflow-hidden font-sans"
                 >
-                  <span className="relative z-10">ご縁を結ぶ</span>
+                  <span className="relative z-10 font-medium">舞台の扉を開く</span>
                   
                   {/* Mizuhiki / Red Thread Animation */}
                   <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-1000">
@@ -394,7 +467,7 @@ export const LandingPage = () => {
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out"></div>
                 </button>
             </div>
-            <p className="text-[10px] text-[#AAAAAA] tracking-[0.2em] uppercase font-serif">
+            <p className="text-xs text-[#AAAAAA] tracking-[0.2em] uppercase font-serif">
                 © 2026 Existence Ticker.
             </p>
         </footer>
@@ -440,12 +513,12 @@ const ScenarioCard = ({ icon, label, desc, color }: { icon: React.ReactNode, lab
 
 // --- Helper Components ---
 
-const Section = ({ children, className }: { children: React.ReactNode, className?: string }) => {
+const Section = ({ children, className, id }: { children: React.ReactNode, className?: string, id?: string }) => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-10%" });
 
   return (
-    <section ref={ref} className={className}>
+    <section ref={ref} className={className} id={id}>
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}

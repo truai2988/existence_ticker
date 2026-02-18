@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
   Handshake,
   Loader2,
@@ -17,6 +16,8 @@ import {
   Check,
   Mail,
 } from "lucide-react";
+
+import React, { useState } from "react";
 import { Wish } from "../types";
 import {
   calculateDecayedValue,
@@ -97,11 +98,11 @@ const ApplicantItem: React.FC<{
           <button
             onClick={() => !isMasked && onOpenProfile(applicant.id)}
             disabled={isMasked}
-            className={`text-sm font-bold text-left truncate w-full block transition-colors ${isMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:text-blue-600 hover:underline"}`}
+            className={`text-base font-bold text-left truncate w-full block transition-colors font-sans ${isMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:text-blue-600 hover:underline"}`}
           >
             {displayName}
             {metadata && (
-              <span className="ml-1.5 text-xs font-normal text-slate-400 opacity-80 whitespace-nowrap">
+              <span className="ml-1.5 text-xs font-normal text-slate-400 opacity-80 whitespace-nowrap font-sans">
                 {metadata}
               </span>
             )}
@@ -128,7 +129,7 @@ const ApplicantItem: React.FC<{
       <button
         onClick={() => onApprove(applicant.id, displayName)}
         disabled={isActionLoading}
-        className="w-full py-2.5 bg-slate-900 text-white text-xs rounded-xl font-bold hover:bg-slate-800 disabled:opacity-50 shadow-sm transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02] active:scale-[0.98]"
+        className="w-full py-2.5 bg-slate-900 text-white text-xs rounded-xl font-bold hover:bg-slate-800 disabled:opacity-50 shadow-sm transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02] active:scale-[0.98] font-sans"
       >
         {isActionLoading ? (
           <Loader2 className="w-3 h-3 animate-spin" />
@@ -443,13 +444,13 @@ export const WishCard: React.FC<WishCardProps> = ({
             <div className="relative bg-white border-2 border-red-200 rounded-2xl p-6 shadow-sm overflow-hidden animate-in fade-in duration-300">
                 <div className="flex items-center gap-2 mb-4 text-red-600">
                     <AlertTriangle size={20} />
-                    <span className="text-sm font-bold">通信エラー: 願いが届きませんでした</span>
+                    <span className="text-base font-bold font-sans">通信エラー: 願いが届きませんでした</span>
                 </div>
-                <p className="text-slate-600 text-sm mb-6 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
+                <p className="text-slate-600 text-base mb-6 leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100 font-sans">
                     {wish.content}
                 </p>
                 <div className="flex flex-col gap-3">
-                    <p className="text-xs text-red-400 font-medium">理由: {wish.error}</p>
+                    <p className="text-xs text-red-400 font-medium font-sans">理由: {wish.error}</p>
                     <button 
                         onClick={() => removeOptimisticWish(wish.id)}
                         className="w-full py-3 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
@@ -457,7 +458,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                         <Trash2 size={14} />
                         この内容を消去する
                     </button>
-                    <p className="text-xs text-slate-400 text-center">※このお願いのLm予約はすでに解除されています</p>
+                    <p className="text-xs text-slate-400 text-center font-sans">※このお願いのLm予約はすでに解除されています</p>
                 </div>
             </div>
         );
@@ -477,7 +478,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                 <div className="h-4 w-5/6 bg-slate-100 rounded" />
             </div>
             <div className="h-10 w-full bg-slate-200 rounded-xl" />
-            <div className="absolute top-4 right-6 flex items-center gap-1.5 text-slate-300 text-xs font-bold uppercase tracking-widest">
+            <div className="absolute top-4 right-6 flex items-center gap-1.5 text-slate-300 text-xs font-bold uppercase tracking-widest font-sans">
                 <Loader2 size={12} className="animate-spin" />
                 伝搬中...
             </div>
@@ -491,7 +492,7 @@ export const WishCard: React.FC<WishCardProps> = ({
       <div className="flex items-center gap-2 mb-3">
         {viewType === "radiance" ? (
           isMyWish ? (
-            <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100/50 uppercase tracking-tighter">
+            <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100/50 uppercase tracking-tighter font-sans">
               [ 自分が願ったこと ]
             </span>
           ) : wish.helper_id === currentUserId ? (
@@ -535,7 +536,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                         if (wish.helper_id && !isHelperMasked)
                           openUserProfile(wish.helper_id, isMasked); 
                       }}
-                      className={`text-sm font-bold tracking-wide text-left transition-colors whitespace-nowrap ${isHelperMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:text-blue-600 hover:underline"}`}
+                      className={`text-base font-bold tracking-wide text-left transition-colors whitespace-nowrap font-sans ${isHelperMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:text-blue-600 hover:underline"}`}
                     >
                       {helperProfile?.name ||
                         wish.helper_name ||
@@ -544,7 +545,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                         wish.helper_id?.slice(0, 8) ||
                         "隣人"}
                     </button>
-                    <span className="text-xs uppercase font-bold text-slate-400 tracking-wider whitespace-nowrap">
+                    <span className="text-xs uppercase font-bold text-slate-400 tracking-wider whitespace-nowrap font-sans">
                       {wish.status === "fulfilled" || wish.status === "completed" 
                         ? "さんに感謝を届けました" 
                         : wish.status === "interrupted"
@@ -564,7 +565,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                     <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
                       <User className="w-5 h-5 text-slate-300" />
                     </div>
-                    <div className="text-xs text-slate-600 font-bold">
+                    <div className="text-xs text-slate-600 font-bold font-sans">
                       未成立
                     </div>
                   </div>
@@ -602,7 +603,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                       e.stopPropagation();
                       if (!isMasked) openUserProfile(wish.requester_id, isMasked);
                     }}
-                    className={`block text-sm font-bold tracking-wide text-left truncate max-w-full transition-colors ${isMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:underline"}`}
+                    className={`block text-base font-bold tracking-wide text-left truncate max-w-full transition-colors font-sans ${isMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:underline"}`}
                   >
                     {isMyWish
                       ? "あなたの想い"
@@ -643,13 +644,13 @@ export const WishCard: React.FC<WishCardProps> = ({
                 </div>
                 {/* Bio snippet - replaces headline - HIDE IF MASKED */}
                 {!isMasked && requesterProfile?.bio && (
-                  <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed font-sans">
                     {requesterProfile.bio.length > 60
                       ? `${requesterProfile.bio.slice(0, 60)}...`
                       : requesterProfile.bio}
                   </p>
                 )}
-                <span className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
+                <span className="flex items-center gap-1 text-xs text-slate-500 mt-0.5 font-sans">
                   <Clock className="w-3 h-3" />
                   <span>{formatDate(wish.created_at)}</span>
                 </span>
@@ -738,7 +739,7 @@ export const WishCard: React.FC<WishCardProps> = ({
         {/* System Note - Gentle Explanation for Status Changes */}
         {wish.system_note && (
           <div className="mt-3 p-3 bg-amber-50/50 border border-amber-100 rounded-xl">
-            <p className="text-xs text-amber-800 leading-relaxed font-bold">
+            <p className="text-xs text-amber-800 leading-relaxed font-bold font-sans">
               {wish.system_note}
             </p>
           </div>
@@ -771,7 +772,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                 <Archive size={16} className="text-slate-400" />
               )}
               <span
-                className={`text-xs font-bold ${
+                className={`text-xs font-bold font-sans ${
                   wish.status === "fulfilled"
                     ? "text-green-700"
                     : wish.status === "cancelled"
