@@ -13,6 +13,8 @@ import {
   Sun,
   Key,
   Plus,
+  Copy,
+  Check,
 } from "lucide-react";
 import { ProtocolManual } from "./ProtocolManual";
 import { useStats, MetabolismStatus } from "../hooks/useStats";
@@ -61,6 +63,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [lastVisibleDoc, setLastVisibleDoc] = useState<QueryDocumentSnapshot | null>(null);
   const [hasMoreUsers, setHasMoreUsers] = useState(true);
   const [superAdminIds, setSuperAdminIds] = useState<string[]>([]);
+  const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
 
   // Safety: Ensure activeTab is always valid (prevents empty screen after tab removal)
   React.useEffect(() => {
@@ -248,6 +251,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     } catch (e) {
       console.error(e);
       alert("変更に失敗しました");
+    }
+  };
+
+  const handleCopyInvitation = async (codeId: string) => {
+    const template = `重機を降りて、存在を祝うインフラへ。
+あなたを『Existence Ticker』の共同創設者として招待します。
+
+私たちは豊かさを求めて走り続けてきましたが、
+ときにはその轟音を離れて、ただ「ここにいること」を祝福する場所が必要です。
+
+まずは、このインフラの「原典（Story）」を読んでみてください：
+https://www.existenceticker.com/story
+
+【舞台への鍵（招待コード）】
+${codeId}
+
+【扉はこちら】
+https://www.existenceticker.com
+
+一緒に、新しい呼吸を始めましょう。`;
+
+    try {
+      await navigator.clipboard.writeText(template);
+      setCopiedCodeId(codeId);
+      setTimeout(() => setCopiedCodeId(null), 3000);
+    } catch (err) {
+      console.error("Failed to copy invitation:", err);
+      alert("コピーに失敗しました");
     }
   };
 
@@ -465,9 +496,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                                   )}
                                 </div>
                               ) : (
-                                <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold ring-1 ring-emerald-500/20 shadow-[0_0_10px_rgba(52,211,153,0.1)]">
-                                  未使用 (Active)
-                                </span>
+                                <div className="flex items-center gap-3">
+                                  <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold ring-1 ring-emerald-500/20 shadow-[0_0_10px_rgba(52,211,153,0.1)]">
+                                    Active
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleCopyInvitation(code.id)}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all duration-300 text-[10px] font-bold tracking-widest uppercase active:scale-95 ${
+                                      copiedCodeId === code.id
+                                        ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
+                                        : "bg-slate-800/50 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500"
+                                    }`}
+                                  >
+                                    {copiedCodeId === code.id ? (
+                                      <>
+                                        <Check size={12} />
+                                        <span>招待状をコピーしました</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Copy size={12} />
+                                        <span>招待状をコピー</span>
+                                      </>
+                                    )}
+                                  </button>
+                                </div>
                               )}
                             </div>
                           </div>

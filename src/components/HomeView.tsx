@@ -114,7 +114,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             >
               <span className="text-xs font-bold text-slate-500 tracking-widest uppercase whitespace-nowrap opacity-80 mb-[-4px] font-sans">
                 手持ちのゆとり： {Math.floor(balance).toLocaleString()}
-                <span className="ml-1 text-slate-400 font-medium text-xs">(社会へ還るまで あと{daysLeft}日)</span>
+                <span className="ml-1 text-slate-400 font-medium text-xs">(あと{daysLeft}日)</span>
               </span>
               <div className="text-6xl font-serif font-medium tracking-tighter tabular-nums leading-none bg-gradient-to-b from-[#4A4A4A] via-[#6B5A4F] to-[#8B7E74] bg-clip-text text-transparent transform drop-shadow-sm pb-2">
                 {Math.floor(availableLm).toLocaleString()}

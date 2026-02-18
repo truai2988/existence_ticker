@@ -301,7 +301,7 @@ export const LandingPage = () => {
             <FeatureCard 
               icon={<Droplets size={32} className="text-blue-200 stroke-[1.5px]" />}
               title="巡り (Flow)"
-              desc="白磁の器から水が溢れ、社会へ還っていくような。一時間ごとに 10 Lm が豊かな循環へと戻ります。"
+              desc="白磁の器から水が溢れ、一時間ごとに 10 Lm が豊かな循環へと戻ります。"
             />
             <FeatureCard 
               icon={<HeartHandshake size={32} className="text-rose-300 stroke-[1.5px]" />}
