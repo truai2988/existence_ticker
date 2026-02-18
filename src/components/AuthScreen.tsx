@@ -36,6 +36,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
     const [mode, setMode] = useState<'login' | 'signup' | 'forgot'>('login');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [isSuccess, setIsSuccess] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
     // ゴースト是正後のフィードバック検知
@@ -69,6 +70,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+        setIsSuccess(false);
         setIsLoading(true);
 
         // 標準的なバリデーション (メール形式チェック)
@@ -113,7 +115,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
             } else if (mode === 'forgot') {
                  if (!email) throw new Error('メールアドレスを入力してください。');
                  await resetPassword(email);
-                 setError('パスワード再設定メールを送信しました。');
+                 setIsSuccess(true);
                  setIsLoading(false);
                  return;
             }
@@ -342,6 +344,28 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                             >
                                 <AlertCircle size={16} className="mt-0.5 shrink-0" />
                                 <span>{error}</span>
+                            </motion.div>
+                        )}
+                        {isSuccess && (
+                            <motion.div 
+                                initial={{ opacity: 0, height: 0 }} 
+                                animate={{ opacity: 1, height: 'auto' }} 
+                                exit={{ opacity: 0, height: 0 }}
+                                className="bg-emerald-50 text-emerald-600 p-4 rounded-xl text-sm flex items-start gap-3 mb-2 border border-emerald-100 shadow-sm"
+                            >
+                                <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ type: "spring", damping: 12 }}
+                                >
+                                    <Mail size={18} className="mt-0.5 shrink-0 text-emerald-500" />
+                                </motion.div>
+                                <div className="flex flex-col gap-1">
+                                    <span className="font-bold">パスワード再設定メールを送信しました</span>
+                                    <p className="text-xs text-emerald-600/80 leading-relaxed">
+                                        メールが届かない場合は、迷惑メールフォルダもご確認ください。
+                                    </p>
+                                </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
