@@ -320,22 +320,22 @@ export const LandingPage = () => {
 
              <div className="max-w-5xl mx-auto flex flex-col md:grid md:grid-cols-3 gap-8 md:gap-8 mb-12 md:mb-16 px-0 md:px-0">
                 <ScenarioCard 
-                    icon={<Smile size={28} />}
-                    label="100 Lm：軽い手助け"
-                    desc="「ちょっと助かったよ」というお礼に。スマホの操作や、重い荷物運び、日常の「ありがとう」を光に託します。"
-                    color="text-orange-500"
+                    icon={<Heart size={28} />}
+                    label="1,000 Lm：人生への敬意"
+                    desc="約4日分の生命力を託す、最大級の信頼。専門的な支えや、数日にわたる見守りなど、人生の重なりを助け合うための黄金の光です。"
+                    color="text-[#B8860B]"
                 />
                 <ScenarioCard 
                     icon={<Users size={28} />}
-                    label="500 Lm：しっかりした仕事"
-                    desc="約2日分のエネルギーを贈る、まとまった感謝に。草むしりや片付け、趣味の相談など、相手の時間を大切に受け取ったときに。"
-                    color="text-blue-500"
+                    label="500 Lm：温かな感謝"
+                    desc="約2日分のエネルギーを贈る、まとまった感謝に。草むしりや片付け、日常の困難を共に乗り越えた相手への、灯火のようなしるし。"
+                    color="text-[#8B4513]"
                 />
                 <ScenarioCard 
-                    icon={<Heart size={28} />}
-                    label="1,000 Lm：深い献身"
-                    desc="約4日分の生命力を託す、最大級の信頼。専門的な支えや、数日にわたる見守りなど、人生の節目を助け合うための光です。"
-                    color="text-rose-500"
+                    icon={<Smile size={28} />}
+                    label="0 Lm：純粋な共鳴"
+                    desc="計算を超えた先の、魂の響き合い。見返りを求めない純粋な祈りや、ただ『そこにいてくれてありがとう』という想いを、無限のギフトとして。"
+                    color="text-pink-300"
                 />
              </div>
              <p className="text-center text-base text-[#111111] md:text-[#888888] font-medium md:font-normal tracking-[0.1em] md:tracking-[0.2em] font-serif italic leading-relaxed px-2 md:px-4">
