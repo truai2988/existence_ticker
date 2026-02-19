@@ -46,9 +46,9 @@ export const CompleteWishModal = ({ wishTitle, helperName, preset, cost, onConfi
             <div>
                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">感謝</span>
                <span className="text-xs text-slate-600 font-medium">
-                 {preset === 'light' && '軽い手助け'}
-                 {preset === 'medium' && 'しっかりした仕事'}
-                 {preset === 'heavy' && '深い献身'}
+                 {preset === 'light' && '魂の共鳴'}
+                 {preset === 'medium' && '日常の手助け'}
+                 {preset === 'heavy' && '人生の節目'}
                </span>
             </div>
             <div className="text-right">

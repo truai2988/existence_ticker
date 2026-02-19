@@ -84,24 +84,24 @@ const SLIDES = [
     content: (
         <div className="space-y-3 w-full max-w-[280px] mx-auto">
             <div className="bg-white/60 p-3 rounded-xl flex items-center gap-4">
-                <span className="text-xl font-bold text-amber-400 w-12 text-right shrink-0 font-mono">100</span>
+                <span className="text-xl font-bold text-pink-400 w-12 text-right shrink-0 font-mono">0</span>
                 <div className="text-left">
-                    <div className="text-sm font-bold text-slate-700">軽い手助け</div>
-                    <div className="text-xs text-slate-400">荷物運び、スマホ操作など</div>
+                    <div className="text-sm font-bold text-slate-700">魂の共鳴</div>
+                    <div className="text-xs text-slate-400">損得を超えた、純粋な繋がりを求めて</div>
                 </div>
             </div>
             <div className="bg-white/60 p-3 rounded-xl flex items-center gap-4">
                 <span className="text-xl font-bold text-amber-600 w-12 text-right shrink-0 font-mono">500</span>
                 <div className="text-left">
-                    <div className="text-sm font-bold text-slate-700">しっかりしたお礼</div>
-                    <div className="text-xs text-slate-400">草むしり、相談、片付けなど</div>
+                    <div className="text-sm font-bold text-slate-700">日常の手助け</div>
+                    <div className="text-xs text-slate-400">暮らしのなかの、ささやかな支え合いに</div>
                 </div>
             </div>
             <div className="bg-white/60 p-3 rounded-xl flex items-center gap-4">
-                <span className="text-xl font-bold text-rose-500 w-12 text-right shrink-0 font-mono">1,000</span>
+                <span className="text-xl font-bold text-[#B8860B] w-12 text-right shrink-0 font-mono">1,000</span>
                 <div className="text-left">
-                    <div className="text-sm font-bold text-slate-700">深い献身</div>
-                    <div className="text-xs text-slate-400">専門スキル、長時間の見守り</div>
+                    <div className="text-sm font-bold text-slate-700">人生の節目</div>
+                    <div className="text-xs text-slate-400">大切な局面を、共に歩んでほしいとき</div>
                 </div>
             </div>
         </div>
