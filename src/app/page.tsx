@@ -172,7 +172,7 @@ export const LandingPage = () => {
                             <span className="text-8xl md:text-[160px] font-bold tabular-nums bg-gradient-to-b from-[#111111] via-[#4A4A4A] to-[#6B5A4F] bg-clip-text text-transparent pb-4 md:pb-8 leading-tight">
                                 {bigPart}
                             </span>
-                            <span className="text-2xl md:text-[50px] font-medium tabular-nums ml-1 bg-gradient-to-b from-[#111111] via-[#4A4A4A] to-[#6B5A4F] bg-clip-text text-transparent opacity-90 pb-2 md:pb-4 leading-tight">
+                            <span className="text-3xl md:text-[50px] font-medium tabular-nums ml-1 bg-gradient-to-b from-[#111111] via-[#4A4A4A] to-[#6B5A4F] bg-clip-text text-transparent opacity-90 pb-2 md:pb-4 leading-tight">
                                 .{smallPart}
                             </span>
                         </motion.div>
@@ -181,7 +181,7 @@ export const LandingPage = () => {
                     <motion.span 
                         animate={{ opacity: [0.4, 0.7, 0.4] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                        className="text-sm md:text-base font-medium md:font-light text-[#6A5F51] md:text-[#A89F91] ml-2 md:ml-4 mb-2 md:mb-4 italic tracking-widest font-sans"
+                        className="text-xs md:text-base font-medium md:font-light text-[#6A5F51] md:text-[#A89F91] ml-2 md:ml-4 mb-2 md:mb-4 italic tracking-widest font-sans"
                     >
                         Lm
                     </motion.span>
@@ -376,7 +376,7 @@ export const LandingPage = () => {
                             <span className="text-[10px] md:text-xs tracking-[0.3em] text-[#BBBBBB] mb-8 font-sans">
                                 Chapter {chapter.id.toString().padStart(2, '0')}
                             </span>
-                            <blockquote className="text-[15px] md:text-3xl font-serif italic text-[#444444] leading-[2.2] md:leading-relaxed mb-6 tracking-widest px-4">
+                            <blockquote className="text-base md:text-3xl font-serif italic text-[#444444] leading-[2.2] md:leading-relaxed mb-6 tracking-widest px-4">
                                 「{chapter.fragment}」
                             </blockquote>
                             <div className="h-[1px] w-8 bg-[#E5E0D5]" />
@@ -500,11 +500,11 @@ const ScenarioCard = ({ icon, label, desc, color }: { icon: React.ReactNode, lab
           >
             {icon}
           </div>
-          <h5 className="text-[18px] md:text-xl font-bold md:font-medium tracking-[0.05em] md:tracking-[0.1em] text-[#111111] md:text-[#333333] font-serif leading-tight">
+          <h5 className="text-3xl font-bold md:font-medium tracking-[0.05em] md:tracking-[0.1em] text-[#111111] md:text-[#333333] font-serif leading-tight">
             {label}
           </h5>
       </div>
-      <p className="text-[15px] md:text-base font-normal text-[#333333] md:text-[#666666] leading-relaxed tracking-normal font-sans pl-0 md:px-2 w-full">
+      <p className="text-base font-normal text-[#333333] md:text-[#666666] leading-relaxed tracking-normal font-sans pl-0 md:px-2 w-full">
         {desc}
       </p>
     </div>
@@ -537,10 +537,10 @@ const FeatureCard = ({ icon, title, desc }: { icon: React.ReactNode, title: stri
       <div className="mb-4 md:mb-6 p-4 md:p-5 bg-white shadow-sm md:bg-white/40 rounded-full group-hover:bg-white/80 transition-colors duration-500">
         {icon}
       </div>
-      <h4 className="text-[18px] md:text-xl font-bold md:font-medium tracking-[0.1em] md:tracking-[0.15em] text-[#111111] md:text-[#333333] mb-3 md:mb-4 font-serif">
+      <h4 className="text-3xl font-bold md:font-medium tracking-[0.1em] md:tracking-[0.15em] text-[#111111] md:text-[#333333] mb-3 md:mb-4 font-serif">
         {title}
       </h4>
-      <p className="text-[15px] md:text-base font-normal text-[#333333] md:text-[#666666] leading-relaxed tracking-normal group-hover:text-[#111111] md:group-hover:text-[#444444] transition-colors duration-500 font-sans">
+      <p className="text-base font-normal text-[#333333] md:text-[#666666] leading-relaxed tracking-normal group-hover:text-[#111111] md:group-hover:text-[#444444] transition-colors duration-500 font-sans">
         {desc}
       </p>
     </div>

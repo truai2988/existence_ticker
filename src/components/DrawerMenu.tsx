@@ -97,7 +97,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
                                             strokeWidth={isActive ? 2 : 1.5}
                                             className={`${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'} transition-colors`} 
                                         />
-                                        <span className={`text-lg tracking-[0.2em] font-light ${isActive ? 'text-blue-600' : 'text-slate-800'}`}>
+                                        <span className={`text-3xl tracking-[0.2em] font-light ${isActive ? 'text-blue-600' : 'text-slate-800'}`}>
                                             {item.label}
                                         </span>
                                     </button>
@@ -119,7 +119,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
                                         strokeWidth={1.5}
                                         className="text-red-400 group-hover:text-red-500 transition-colors" 
                                     />
-                                    <span className="text-lg tracking-[0.2em] font-light">
+                                    <span className="text-3xl tracking-[0.2em] font-light">
                                         管理コンソール
                                     </span>
                                 </button>

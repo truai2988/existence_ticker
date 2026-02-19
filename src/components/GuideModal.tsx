@@ -53,7 +53,7 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 <div className="inline-flex items-center justify-center p-3 mb-6 bg-white rounded-full shadow-sm">
                     <Sparkles size={20} className="text-amber-400" />
                 </div>
-                <h2 className="text-2xl md:text-3xl font-serif font-medium text-slate-800 tracking-[0.2em] mb-4">
+                <h2 className="text-3xl font-serif font-medium text-slate-800 tracking-[0.2em] mb-4">
                     お裾分けの目安とお作法
                 </h2>
                 <p className="text-xs md:text-sm text-slate-500 font-serif tracking-widest opacity-80">
@@ -63,7 +63,7 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
 
                 {/* Introduction */}
                 <section className="mb-20 text-center font-serif leading-loose text-slate-600">
-                <p className="mb-8 text-base md:text-lg tracking-wide">
+                <p className="mb-8 text-base tracking-wide">
                     Lm（ルーメン）は、あなたの「源気」のしるし。<br className="hidden md:block" />
                     感謝の気持ちを光に乗せて、誰かに手渡してみましょう。
                 </p>
@@ -75,14 +75,14 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 {/* 100 Lm */}
                 <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-slate-100 shadow-sm md:grid md:grid-cols-12 md:gap-8 items-center cursor-default hover:shadow-md transition-shadow duration-500">
                     <div className="md:col-span-4 mb-4 md:mb-0 text-center md:text-left">
-                    <span className="inline-block text-2xl font-mono font-bold text-amber-500 mb-1">100 <span className="text-xs font-normal text-slate-400">Lm</span></span>
-                    <h3 className="text-lg font-serif font-bold text-slate-800">軽い手助け</h3>
+                    <span className="inline-block text-3xl font-mono font-bold text-amber-500 mb-1">100 <span className="text-xs font-normal text-slate-400">Lm</span></span>
+                    <h3 className="text-3xl font-serif font-bold text-slate-800">軽い手助け</h3>
                     <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Casual Help</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
                     <div className="md:pl-8">
-                        <p className="text-slate-700 leading-relaxed text-sm">
+                        <p className="text-slate-700 leading-relaxed text-base">
                         荷物運び、スマホ操作、ちょっとした相談など。<br/>
                         100 Lmは、お茶をご馳走するような気軽な感謝のしるしです。
                         </p>
@@ -93,14 +93,14 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 {/* 500 Lm */}
                 <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-slate-100 shadow-sm md:grid md:grid-cols-12 md:gap-8 items-center cursor-default hover:shadow-md transition-shadow duration-500">
                     <div className="md:col-span-4 mb-4 md:mb-0 text-center md:text-left">
-                    <span className="inline-block text-2xl font-mono font-bold text-amber-600 mb-1">500 <span className="text-xs font-normal text-slate-400">Lm</span></span>
-                    <h3 className="text-lg font-serif font-bold text-slate-800">しっかりしたお礼</h3>
+                    <span className="inline-block text-3xl font-mono font-bold text-amber-600 mb-1">500 <span className="text-xs font-normal text-slate-400">Lm</span></span>
+                    <h3 className="text-3xl font-serif font-bold text-slate-800">しっかりしたお礼</h3>
                     <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Solid Gratitude</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
                     <div className="md:pl-8">
-                        <p className="text-slate-700 leading-relaxed text-sm">
+                        <p className="text-slate-700 leading-relaxed text-base">
                         草むしり、お悩み相談、不用品回収の手伝いなど。<br/>
                         500 Lmは、ランチをご馳走するような、しっかりとした誠意を伝えます。
                         </p>
@@ -111,14 +111,14 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 {/* 1000 Lm */}
                 <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-slate-100 shadow-sm md:grid md:grid-cols-12 md:gap-8 items-center cursor-default hover:shadow-md transition-shadow duration-500">
                     <div className="md:col-span-4 mb-4 md:mb-0 text-center md:text-left">
-                    <span className="inline-block text-2xl font-mono font-bold text-rose-500 mb-1">1,000 <span className="text-xs font-normal text-slate-400">Lm</span></span>
-                    <h3 className="text-lg font-serif font-bold text-slate-800">深い献身</h3>
+                    <span className="inline-block text-3xl font-mono font-bold text-rose-500 mb-1">1,000 <span className="text-xs font-normal text-slate-400">Lm</span></span>
+                    <h3 className="text-3xl font-serif font-bold text-slate-800">深い献身</h3>
                     <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Deep Dedication</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
                     <div className="md:pl-8">
-                        <p className="text-slate-700 leading-relaxed text-sm">
+                        <p className="text-slate-700 leading-relaxed text-base">
                         専門スキル、一晩の見守り、大掛かりな片付けなど。<br/>
                         1,000 Lmは、ディナーをご馳走するような、深い信頼と献身への賛辞です。
                         </p>
@@ -136,7 +136,7 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                     ハイブリッドな使い方のススメ
                 </h4>
                 <div className="inline-block bg-white px-6 py-4 rounded-xl border border-amber-100 shadow-sm mb-6 relative z-10">
-                    <p className="text-sm font-bold text-slate-800">
+                    <p className="text-base font-bold text-slate-800">
                         実費（材料費や交通費）は『円』で。<br/>
                         手間や感謝は『Lm』で。
                     </p>
@@ -150,7 +150,7 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 <div className="mt-12 text-center">
                     <button 
                         onClick={onClose}
-                        className="px-8 py-3 rounded-full bg-slate-200 text-slate-600 text-sm font-bold hover:bg-slate-300 transition-colors tracking-widest"
+                        className="px-8 py-3 rounded-full bg-slate-200 text-slate-600 text-base font-bold hover:bg-slate-300 transition-colors tracking-widest"
                     >
                         閉じる
                     </button>

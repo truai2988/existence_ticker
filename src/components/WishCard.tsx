@@ -16,7 +16,6 @@ import {
   Check,
   Mail,
   Heart,
-  Infinity,
 } from "lucide-react";
 
 import React, { useState } from "react";
@@ -85,7 +84,7 @@ const ApplicantItem: React.FC<{
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="text-lg font-bold text-slate-400">
+            <span className="text-base font-bold text-slate-400">
               {isMasked ? (
                 <User className="w-5 h-5 text-slate-400" />
               ) : (
@@ -588,7 +587,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-lg font-bold text-slate-400">
+                  <span className="text-base font-bold text-slate-400">
                     {isMasked ? (
                       <User className="w-5 h-5 text-slate-400" />
                     ) : (
@@ -820,7 +819,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                     : "期限により自然消滅"}
               </span>
             </div>
-            <div className="text-lg font-bold font-mono text-slate-900 tracking-tight">
+            <div className="text-3xl font-bold font-mono text-slate-900 tracking-tight">
               {wish.status === "fulfilled" ? (
                 initialCost === 0 ? (
                   <span className="text-pink-500 font-bold tracking-widest">∞ Gift</span>

@@ -79,7 +79,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                
                {/* Input Section */}
                <div className="space-y-3">
-                  <label className="block text-sm font-bold text-slate-700 font-sans">
+                  <label className="block text-xs uppercase tracking-widest font-bold text-slate-500 font-sans">
                       内容を入力
                   </label>
                   <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 focus-within:ring-2 focus-within:ring-orange-200 transition-all">
@@ -102,7 +102,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                <div className="space-y-4">
                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-1">
                        <div className="flex items-baseline flex-wrap gap-x-3 gap-y-1">
-                           <label className="text-sm font-bold text-slate-800 shrink-0">
+                           <label className="text-xs uppercase tracking-widest font-bold text-slate-500 shrink-0">
                                お裾分けする Lm <span className="text-xs font-normal text-slate-400 ml-0.5">(源気)</span>
                            </label>
                            <button 
@@ -150,21 +150,21 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                              `}
                            >
                              <div className="flex flex-col items-start gap-1">
-                               <span className={`text-sm font-bold tracking-wide ${selectedTier === tier.id 
+                               <span className={`text-base font-bold tracking-wide ${selectedTier === tier.id 
                                  ? tier.cost === 1000 ? "text-slate-900" : tier.cost === 500 ? "text-[#8B4513]" : "text-pink-900" 
                                  : "text-slate-600"}`}>
                                  {tier.label}
                                </span>
-                               <span className="text-[10px] text-slate-400 font-medium">
+                               <span className="text-xs text-slate-400 font-bold uppercase tracking-tighter opacity-70">
                                  {tier.subLabel}
                                </span>
                              </div>
 
                              <div className="flex items-center gap-4">
-                                <span className={`text-xl font-mono font-bold tracking-tighter ${selectedTier === tier.id 
+                                <span className={`text-3xl font-mono font-bold tracking-tighter ${selectedTier === tier.id 
                                   ? tier.cost === 1000 ? "text-[#B8860B]" : tier.cost === 500 ? "text-amber-700" : "text-pink-400" 
                                   : "text-slate-200"}`}>
-                                  {tier.cost === 0 ? "∞" : tier.cost.toLocaleString()} <span className="text-[10px] font-sans font-bold opacity-60 uppercase">{tier.cost === 0 ? "Gift" : UNIT_LABEL}</span>
+                                  {tier.cost === 0 ? "∞" : tier.cost.toLocaleString()} <span className="text-xs font-sans font-bold opacity-60 uppercase">{tier.cost === 0 ? "Gift" : UNIT_LABEL}</span>
                                 </span>
                              </div>
                              
@@ -204,7 +204,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                            </svg>
                        </div>
                        <div className="flex-1">
-                           <span className={`text-sm font-bold transition-colors ${isAnonymous ? "text-slate-800" : "text-slate-600"}`}>
+                           <span className={`text-base font-bold transition-colors ${isAnonymous ? "text-slate-800" : "text-slate-600"}`}>
                                匿名でお願いする
                            </span>
                            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
