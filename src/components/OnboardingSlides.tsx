@@ -21,10 +21,10 @@ const SLIDES = [
             </p>
             <div className="py-2">
                 <span className="text-3xl font-bold text-amber-600 font-serif tracking-tight">2,400 Lm</span>
-                <span className="text-lg text-slate-600 ml-2">の</span><br/>
-                <span className="text-lg text-slate-600">Lmが与えられます。</span>
+                <span className="text-base text-slate-600 ml-2">の</span><br/>
+                <span className="text-base text-slate-600">Lmが与えられます。</span>
             </div>
-            <p className="text-sm opacity-80 font-sans text-slate-500">
+            <p className="text-xs opacity-80 font-sans text-slate-500">
                 これがあなたの源気の源です。
             </p>
         </div>
@@ -43,9 +43,9 @@ const SLIDES = [
             </p>
             <div className="py-2">
                 <span className="text-3xl font-bold text-blue-500 font-serif">徐々に</span><br/>
-                <span className="text-lg">空へと還っていきます。</span>
+                <span className="text-base">空へと還っていきます。</span>
             </div>
-            <div className="text-sm opacity-80 font-sans space-y-2 text-slate-500">
+            <div className="text-xs opacity-80 font-sans space-y-2 text-slate-500">
                 <p>留めておくことはできません。</p>
                 <p>だからこそ、今あるLmを大切に。</p>
             </div>
@@ -60,17 +60,17 @@ const SLIDES = [
     bgColor: "#FFF5F7", // Faint Warm Pink
     content: (
         <div className="space-y-8 text-center leading-relaxed font-serif text-slate-700">
-            <p className="text-lg font-medium">
-                減っていくLmを、<br/>
-                誰かのために使いましょう。
+            <p className="text-base font-medium">
+                <span className="inline-block">減っていくLmを、</span><br/>
+                <span className="inline-block">誰かのために使いましょう。</span>
             </p>
-            <div className="flex justify-center gap-10 text-lg font-bold">
+            <div className="flex justify-center gap-10 text-base font-bold">
                 <span className="text-amber-500">お願い</span>
                 <span className="text-blue-500">応える</span>
             </div>
-            <div className="text-sm opacity-80 font-sans leading-loose text-slate-500">
-                「ありがとう」と受け取ってもらえた時、<br/>
-                そのLmは永遠の輝きに変わります。
+            <div className="text-xs opacity-80 font-sans leading-loose text-slate-500">
+                <span className="inline-block">「ありがとう」と受け取ってもらえた時、</span><br/>
+                <span className="inline-block">そのLmは永遠の輝きに変わります。</span>
             </div>
         </div>
     )
@@ -84,24 +84,24 @@ const SLIDES = [
     content: (
         <div className="space-y-3 w-full max-w-[280px] mx-auto">
             <div className="bg-white/60 p-3 rounded-xl flex items-center gap-4">
-                <span className="text-xl font-bold text-pink-400 w-12 text-right shrink-0 font-mono">0</span>
+                <span className="text-xl font-bold text-[#B8860B] w-12 text-right shrink-0 font-mono">1,000</span>
                 <div className="text-left">
-                    <div className="text-sm font-bold text-slate-700">魂の共鳴</div>
-                    <div className="text-xs text-slate-400">損得を超えた、純粋な繋がりを求めて</div>
+                    <div className="text-base font-bold text-slate-700">人生の節目</div>
+                    <div className="text-xs text-slate-400">大切な局面を、誰かの助けとともに越えていきたいとき</div>
                 </div>
             </div>
             <div className="bg-white/60 p-3 rounded-xl flex items-center gap-4">
                 <span className="text-xl font-bold text-amber-600 w-12 text-right shrink-0 font-mono">500</span>
                 <div className="text-left">
-                    <div className="text-sm font-bold text-slate-700">日常の手助け</div>
-                    <div className="text-xs text-slate-400">暮らしのなかの、ささやかな支え合いに</div>
+                    <div className="text-base font-bold text-slate-700">日常の手助け</div>
+                    <div className="text-xs text-slate-400">日々の暮らしのなかで、ふと誰かの手を借りたいとき</div>
                 </div>
             </div>
             <div className="bg-white/60 p-3 rounded-xl flex items-center gap-4">
-                <span className="text-xl font-bold text-[#B8860B] w-12 text-right shrink-0 font-mono">1,000</span>
+                <span className="text-xl font-bold text-pink-400 w-12 text-right shrink-0 font-mono">0</span>
                 <div className="text-left">
-                    <div className="text-sm font-bold text-slate-700">人生の節目</div>
-                    <div className="text-xs text-slate-400">大切な局面を、共に歩んでほしいとき</div>
+                    <div className="text-sm font-bold text-slate-700">魂の共鳴</div>
+                    <div className="text-xs text-slate-400">対価や計算を超えて、ただ響き合うこと</div>
                 </div>
             </div>
         </div>
@@ -116,16 +116,16 @@ const SLIDES = [
     content: (
         <div className="space-y-4 text-center leading-relaxed font-serif w-full mb-4">
             <div className="bg-white text-slate-800 py-4 px-3 rounded-xl shadow-sm border border-slate-100 mx-auto w-full max-w-[280px]">
-                <p className="font-bold text-sm mb-2 leading-relaxed">
-                    実費（円）は<br /><span className="inline-block">「お財布」から。</span>
+                <p className="font-bold text-base mb-2 leading-relaxed">
+                    <span className="inline-block">実費（円）は</span><span className="inline-block">「お財布」から。</span>
                 </p>
                 <p className="font-bold text-base leading-relaxed">
-                    感謝（Lm）は<br /><span className="inline-block">「心」から。</span>
+                    <span className="inline-block">感謝（Lm）は</span><span className="inline-block">「心」から。</span>
                 </p>
             </div>
             <div className="text-xs text-slate-600 font-sans leading-loose opacity-90">
-                <p>お金では伝えきれない<br />「ありがとう」を。</p>
-                <p className="mt-2">さあ、新しい循環を<br className="sm:hidden" />始めましょう。</p>
+                <p><span className="inline-block">お金では伝えきれない</span><span className="inline-block">「ありがとう」を。</span></p>
+                <p className="mt-2 text-base"><span className="inline-block">さあ、新しい循環を</span><span className="inline-block">始めましょう。</span></p>
             </div>
         </div>
     )
@@ -217,7 +217,7 @@ export const OnboardingSlides: React.FC<Props> = ({ isOpen, onClose }) => {
 
                         {/* Titles - Reduced margin */}
                         <div className="text-center mb-2 shrink-0">
-                            <h2 className="text-2xl font-serif font-medium text-slate-800 tracking-widest mb-2">
+                            <h2 className="text-3xl font-serif font-medium text-slate-800 tracking-widest mb-2">
                                 {SLIDES[currentSlide].title}
                             </h2>
                             <p className="text-xs text-slate-300 font-bold tracking-[0.3em] uppercase">

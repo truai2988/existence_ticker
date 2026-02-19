@@ -99,6 +99,13 @@ export interface CreateWishInput {
   isAnonymous?: boolean;
 }
 
+export interface SeedPlaceholder {
+  id: string;
+  tier: 1000 | 500 | 0;
+  content: string;
+  createdAt: { seconds: number; nanoseconds: number; toDate?: () => Date } | null;
+}
+
 export type AppViewMode =
   | "home"
   | "history"

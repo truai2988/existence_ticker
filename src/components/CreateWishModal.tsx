@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Loader2, Send } from 'lucide-react';
 import { GuideModal } from './GuideModal';
 import { useWishActions } from '../hooks/useWishActions';
 import { useWallet } from '../hooks/useWallet';
-import { GratitudeTier } from '../types';
+import { GratitudeTier, SeedPlaceholder } from '../types';
+import { db } from '../lib/firebase';
 import { WISH_COST, UNIT_LABEL } from '../constants';
 import { useToast } from '../contexts/ToastContext';
 
@@ -34,24 +35,16 @@ const TIERS: TierOption[] = [
     cost: WISH_COST.SPARK,
   },
 ];
-const PLACEHOLDERS = {
-  heavy: [
-    "例：止まったままのチェロに、もう一度光を当ててほしいのです。...",
-    "例：私のとりとめのない人生の断片を、一通の手紙に編み直してくれませんか。...",
-    "例：実家の古い書庫にある、傷んだ古文書を一緒に紐解いてほしいのです。..."
-  ],
-  medium: [
-    "例：高いところの電球を、ひとつだけ替えてくれませんか。...",
-    "例：雨の午後、静かに隣で本を読んでいてほしいのです。...",
-    "例：スマホの奥に眠っている、数年前の家族写真を一緒に探してほしい。..."
-  ],
-  light: [
-    "例：作りすぎた肉じゃがを、お裾分けさせてください。...",
-    "例：今夜、あなたが住む場所から見える一番綺麗な月を教えて。...",
-    "例：あなたが人生の最期に見たい景色は、どこですか？...",
-    "例：深夜2時、宇宙の広さについて語り合いませんか。..."
-  ]
+const TIER_MAP: Record<GratitudeTier, 1000 | 500 | 0> = {
+  heavy: 1000,
+  medium: 500,
+  light: 0
 };
+
+const FALLBACK_PLACEHOLDER = "あなたの今の願いを、静かに綴ってください";
+
+// Session-level cache for seeds
+let cachedSeeds: SeedPlaceholder[] | null = null;
 
 interface CreateWishModalProps {
     onClose: () => void;
@@ -64,20 +57,48 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
     
     const [newWishContent, setNewWishContent] = useState('');
     const [selectedTier, setSelectedTier] = useState<GratitudeTier>('heavy');
-    const [currentPlaceholder, setCurrentPlaceholder] = useState(() => {
-        const options = PLACEHOLDERS['heavy'];
-        return options[Math.floor(Math.random() * options.length)];
-    });
+    const [currentPlaceholder, setCurrentPlaceholder] = useState(FALLBACK_PLACEHOLDER);
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [showGuide, setShowGuide] = useState(false);
 
-    // Update placeholder when tier changes (if content is empty)
+    // Fetch seeds and set initial placeholder
+    useEffect(() => {
+        const loadSeeds = async () => {
+            if (cachedSeeds) {
+                updatePlaceholder(selectedTier, cachedSeeds);
+                return;
+            }
+
+            try {
+                if (!db) throw new Error("Database not initialized");
+                const { collection, getDocs } = await import('firebase/firestore');
+                const snap = await getDocs(collection(db, 'seed_placeholders'));
+                const fetched = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as SeedPlaceholder[];
+                cachedSeeds = fetched;
+                updatePlaceholder(selectedTier, fetched);
+            } catch (e) {
+                console.error("Failed to load seeds, using fallback", e);
+            }
+        };
+        loadSeeds();
+    }, [selectedTier]);
+
+    const updatePlaceholder = (tier: GratitudeTier, seedsList: SeedPlaceholder[]) => {
+        const numericTier = TIER_MAP[tier];
+        const tierSeeds = seedsList.filter(s => s.tier === numericTier);
+        if (tierSeeds.length > 0) {
+            const random = tierSeeds[Math.floor(Math.random() * tierSeeds.length)];
+            setCurrentPlaceholder(`例えば：\n${random.content}`);
+        } else {
+            setCurrentPlaceholder(FALLBACK_PLACEHOLDER);
+        }
+    };
+
+    // Update placeholder when tier changes (if content is empty or placeholder was recently refreshed)
     const handleTierChange = (tier: GratitudeTier) => {
         setSelectedTier(tier);
-        if (!newWishContent.trim()) {
-            const options = PLACEHOLDERS[tier];
-            const random = options[Math.floor(Math.random() * options.length)];
-            setCurrentPlaceholder(random);
+        if (!newWishContent.trim() && cachedSeeds) {
+            updatePlaceholder(tier, cachedSeeds);
         }
     };
 

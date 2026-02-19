@@ -15,13 +15,16 @@ import {
   Plus,
   Copy,
   Check,
+  Sprout,
+  Trash2,
+  RefreshCw,
 } from "lucide-react";
 import { ProtocolManual } from "./ProtocolManual";
 import { useStats, MetabolismStatus } from "../hooks/useStats";
 import { useDiagnostics } from "../hooks/useDiagnostics";
 import { DiagnosticModal } from "./DiagnosticModal";
 import { db } from "../lib/firebase";
-import { UserProfile } from "../types";
+import { UserProfile, SeedPlaceholder } from "../types";
 import {
   getMillis,
   calculateDecayedValue,
@@ -54,7 +57,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
   // User Management State
   const [activeTab, setActiveTab] = useState<
-    "monitor" | "citizens" | "invitations"
+    "monitor" | "citizens" | "invitations" | "seeds"
   >("monitor");
   const [userList, setUserList] = useState<UserProfile[]>([]);
   const [inviteCodes, setInviteCodes] = useState<InviteCode[]>([]);
@@ -65,9 +68,51 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [superAdminIds, setSuperAdminIds] = useState<string[]>([]);
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
 
+  // Seed Library State
+  const [seeds, setSeeds] = useState<SeedPlaceholder[]>([]);
+  const [isAddingSeed, setIsAddingSeed] = useState(false);
+  const [newSeedTier, setNewSeedTier] = useState<1000 | 500 | 0>(1000);
+  const [newSeedContent, setNewSeedContent] = useState("");
+  const [isLoadingSeeds, setIsLoadingSeeds] = useState(false);
+
+  const INITIAL_SEEDS = [
+    { tier: 1000, content: "止まったままのチェロに、もう一度光を当ててほしいのです。・・・" },
+    { tier: 1000, content: "私のとりとめのない人生の断片を、一通の手紙に編み直してくれませんか。・・・" },
+    { tier: 1000, content: "実家の古い書庫にある、傷んだ古文書を一緒に紐解いてほしい。・・・" },
+    { tier: 500, content: "高いところの電球を、ひとつだけ替えてくれませんか。・・・" },
+    { tier: 500, content: "雨の午後、静かに隣で本を読んでいてほしいのです。・・・" },
+    { tier: 500, content: "スマホの奥に眠っている、数年前の家族写真を一緒に探してほしい。・・・" },
+    { tier: 0, content: "作りすぎた肉じゃがを、お裾分けさせてください。・・・" },
+    { tier: 0, content: "今夜、あなたが住む場所から見える一番綺麗な月を教えて。・・・" },
+    { tier: 0, content: "あなたが人生の最期に見たい景色は、どこですか？・・・" },
+    { tier: 0, content: "深夜2時、宇宙の広さについて語り合いませんか。・・・" },
+  ];
+
+  const seedLibrary = async () => {
+    if (!window.confirm("初期の種を一括で蒔きますか？")) return;
+    setIsLoadingSeeds(true);
+    try {
+      if (!db) return;
+      const { collection, addDoc, serverTimestamp } = await import("firebase/firestore");
+      for (const seed of INITIAL_SEEDS) {
+        await addDoc(collection(db, "seed_placeholders"), {
+          ...seed,
+          createdAt: serverTimestamp()
+        });
+      }
+      alert("初期の種をすべて蒔きました。");
+      fetchSeeds();
+    } catch (e) {
+      console.error(e);
+      alert("不具合が発生しました。");
+    } finally {
+      setIsLoadingSeeds(false);
+    }
+  };
+
   // Safety: Ensure activeTab is always valid (prevents empty screen after tab removal)
   React.useEffect(() => {
-    const validTabs = ["monitor", "citizens", "invitations"];
+    const validTabs = ["monitor", "citizens", "invitations", "seeds"];
     if (!validTabs.includes(activeTab)) {
       setActiveTab("monitor");
     }
@@ -284,14 +329,67 @@ https://www.existenceticker.com
 
   // Data Fetching Logic: Only trigger when switching TO the tab
   React.useEffect(() => {
-    if (activeTab === "citizens") {
-      fetchUsers();
-    }
     if (activeTab === "invitations") {
       fetchInviteCodes();
     }
+    if (activeTab === "seeds") {
+      fetchSeeds();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
+
+  const fetchSeeds = useCallback(async () => {
+    setIsLoadingSeeds(true);
+    try {
+      if (!db) return;
+      const { collection, getDocs, query, orderBy } = await import("firebase/firestore");
+      const q = query(collection(db, "seed_placeholders"), orderBy("createdAt", "desc"));
+      const snap = await getDocs(q);
+      const fetchedSeeds = snap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as SeedPlaceholder[];
+      setSeeds(fetchedSeeds);
+    } catch (e) {
+      console.error("Failed to fetch seeds", e);
+    } finally {
+      setIsLoadingSeeds(false);
+    }
+  }, []);
+
+  const addSeed = async () => {
+    if (!newSeedContent.trim()) return;
+    setIsAddingSeed(true);
+    try {
+      if (!db) return;
+      const { collection, addDoc, serverTimestamp } = await import("firebase/firestore");
+      await addDoc(collection(db, "seed_placeholders"), {
+        tier: newSeedTier,
+        content: newSeedContent.trim(),
+        createdAt: serverTimestamp()
+      });
+      setNewSeedContent("");
+      fetchSeeds();
+    } catch (e) {
+      console.error("Failed to add seed", e);
+      alert("種の蒔画に失敗しました");
+    } finally {
+      setIsAddingSeed(false);
+    }
+  };
+
+  const deleteSeed = async (id: string) => {
+    if (!window.confirm("この種を削除しますか？")) return;
+    try {
+      if (!db) return;
+      const { doc, deleteDoc } = await import("firebase/firestore");
+      await deleteDoc(doc(db, "seed_placeholders", id));
+      fetchSeeds();
+    } catch (e) {
+      console.error("Failed to delete seed", e);
+      alert("種の削除に失敗しました");
+    }
+  };
 
   const filteredUsers = userList.filter(
     (u) =>
@@ -418,10 +516,151 @@ https://www.existenceticker.com
           >
             <Key size={16} /> 招待
           </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("seeds")}
+            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "seeds" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-300"}`}
+          >
+            <Sprout size={16} /> 種子の書庫
+          </button>
         </div>
 
         {/* Content Stack */}
         <div className="flex flex-col gap-6">
+          {activeTab === "seeds" && (
+            <div className="animate-in fade-in duration-300 space-y-6">
+                <div className="flex justify-between items-center mb-2">
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-200 flex items-center gap-2">
+                      <Sprout className="text-emerald-400" />
+                      種子の書庫 (Seed Library)
+                    </h3>
+                    <p className="text-xs text-slate-500 font-serif italic mt-1">
+                      この世界に蒔かれる「願いの種」を管理します
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={seedLibrary}
+                      className="text-[10px] text-emerald-500/70 border border-emerald-500/30 hover:bg-emerald-500/10 px-2 py-1 rounded transition-colors"
+                    >
+                      初期の種を蒔く
+                    </button>
+                    <button
+                      type="button"
+                      onClick={fetchSeeds}
+                      className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+                      title="Refresh Seeds"
+                    >
+                      <RefreshCw size={18} className={isLoadingSeeds ? "animate-spin" : ""} />
+                    </button>
+                  </div>
+                </div>
+
+              {/* Add Seed Form */}
+              <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6 space-y-4">
+                <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">
+                  <Plus size={14} /> 新しい種を蒔く
+                </h4>
+                <div className="flex flex-col gap-4">
+                  <div className="flex gap-2">
+                    {[1000, 500, 0].map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => setNewSeedTier(t as 1000 | 500 | 0)}
+                        className={`flex-1 py-3 rounded-xl border text-sm font-bold tracking-tight transition-all active:scale-[0.98] ${
+                          newSeedTier === t
+                            ? t === 1000 ? "bg-amber-500/10 border-amber-500 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.1)]" :
+                              t === 500 ? "bg-orange-500/10 border-orange-500 text-orange-500" :
+                              "bg-pink-500/10 border-pink-500 text-pink-500"
+                            : "bg-slate-800/50 border-slate-700 text-slate-500 hover:border-slate-500"
+                        }`}
+                      >
+                        {t === 1000 ? "人生の節目" : t === 500 ? "日常の手助け" : "魂の共鳴"}
+                        <span className="block text-[10px] opacity-70 font-mono mt-0.5">{t} Lm</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="relative">
+                    <textarea
+                      value={newSeedContent}
+                      onChange={(e) => setNewSeedContent(e.target.value)}
+                      placeholder="「例えば：...」静かな願いの種を綴ってください"
+                      className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-4 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all min-h-[100px] font-serif"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={addSeed}
+                    disabled={isAddingSeed || !newSeedContent.trim()}
+                    className="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold tracking-widest text-sm transition-all shadow-lg shadow-emerald-600/20 active:scale-[0.98] disabled:opacity-30 disabled:grayscale"
+                  >
+                    {isAddingSeed ? "種を蒔いています..." : "生命のインフラに種を蒔く"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Seeds List */}
+              <div className="space-y-4">
+                {[1000, 500, 0].map((t) => {
+                  const tierSeeds = seeds.filter((s) => s.tier === t);
+                  if (tierSeeds.length === 0) return null;
+                  return (
+                    <div key={t} className="space-y-3">
+                      <div className="flex items-center gap-4">
+                        <div className={`h-[1px] flex-1 ${t === 1000 ? "bg-amber-500/30" : t === 500 ? "bg-orange-500/30" : "bg-pink-500/30"}`} />
+                        <h5 className={`text-[10px] font-bold uppercase tracking-widest ${t === 1000 ? "text-amber-500" : t === 500 ? "text-orange-500" : "text-pink-500"}`}>
+                          {t === 1000 ? "人生の節目" : t === 500 ? "日常の手助け" : "魂の共鳴"}
+                        </h5>
+                        <div className={`h-[1px] flex-1 ${t === 1000 ? "bg-amber-500/30" : t === 500 ? "bg-orange-500/30" : "bg-pink-500/30"}`} />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        {tierSeeds.map((seed) => (
+                          <div
+                            key={seed.id}
+                            className="group bg-slate-900/30 border border-slate-800 hover:border-slate-700 p-4 rounded-xl flex justify-between items-start gap-4 transition-all"
+                          >
+                            <div className="flex-1">
+                              <p className="text-slate-300 font-serif leading-relaxed text-sm">
+                                {seed.content}
+                              </p>
+                              <div className="mt-2 text-[9px] text-slate-600 font-mono uppercase tracking-tighter">
+                                PLANTED AT: {
+                                  seed.createdAt?.toDate 
+                                    ? seed.createdAt.toDate().toLocaleString() 
+                                    : seed.createdAt 
+                                      ? new Date(seed.createdAt.seconds * 1000).toLocaleString() 
+                                      : "Ancient Times"
+                                }
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => deleteSeed(seed.id)}
+                              className="p-2 text-slate-700 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all active:scale-90"
+                              title="Delete Seed"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {seeds.length === 0 && !isLoadingSeeds && (
+                <div className="p-12 text-center text-slate-600 border border-dashed border-slate-800 rounded-2xl">
+                  <Sprout size={24} className="mx-auto mb-2 opacity-30" />
+                  <p className="text-sm">まだ「種」がありません。最初の種を蒔いてください。</p>
+                </div>
+              )}
+            </div>
+          )}
+
           {activeTab === "invitations" && (
             <div className="animate-in fade-in duration-300 space-y-4">
               <div className="flex justify-between items-center mb-4">

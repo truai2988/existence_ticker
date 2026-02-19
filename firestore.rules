@@ -110,6 +110,12 @@ service cloud.firestore {
                     || isAdmin();
     }
 
+    // --- Seed Placeholders (Dynamic Wish Suggestions) ---
+    match /seed_placeholders/{seedId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // --- Super Admins ---
     match /super_admins/{uid} {
       allow read: if isSignedIn() && (isAdmin() || request.auth.uid == uid);

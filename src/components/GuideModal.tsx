@@ -64,27 +64,27 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 {/* Introduction */}
                 <section className="mb-20 text-center font-serif leading-loose text-slate-600">
                 <p className="mb-8 text-base tracking-wide">
-                    Lm（ルーメン）は、あなたの「源気」のしるし。<br className="hidden md:block" />
-                    感謝の気持ちを光に乗せて、誰かに手渡してみましょう。
+                    <span className="inline-block">Lm（ルーメン）は、</span><span className="inline-block">あなたの「源気」のしるし。</span><br className="hidden md:block" />
+                    <span className="inline-block">感謝の気持ちを光に乗せて、</span><span className="inline-block">誰かに手渡してみましょう。</span>
                 </p>
                 <div className="w-12 h-[1px] bg-slate-200 mx-auto my-8"></div>
                 </section>
 
                 {/* Examples Section */}
                 <section className="space-y-6 mb-20">
-                {/* 0 Lm */}
+                {/* 1000 Lm */}
                 <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-slate-100 shadow-sm md:grid md:grid-cols-12 md:gap-8 items-center cursor-default hover:shadow-md transition-shadow duration-500">
                     <div className="md:col-span-4 mb-4 md:mb-0 text-center md:text-left">
-                    <span className="inline-block text-3xl font-mono font-bold text-pink-400 mb-1">0 <span className="text-xs font-normal text-slate-400">Lm</span></span>
-                    <h3 className="text-3xl font-serif font-bold text-slate-800">魂の共鳴</h3>
-                    <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Priceless</p>
+                    <span className="inline-block text-3xl font-mono font-bold text-[#B8860B] mb-1">1,000 <span className="text-xs font-normal text-slate-400">Lm</span></span>
+                    <h3 className="text-3xl font-serif font-bold text-slate-800">人生の節目</h3>
+                    <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Respect</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
                     <div className="md:pl-8">
                         <p className="text-slate-700 leading-relaxed text-base">
-                        損得を超えた、純粋な繋がりを求めて。<br/>
-                        0 Lm（共鳴）は、相手と響き合うことそのものを願うギフトのしるしです。
+                        <span className="inline-block">大切な局面を、</span><span className="inline-block">誰かの助けとともに</span><span className="inline-block">越えていきたいとき。</span><br/>
+                        <span className="inline-block">この源気（Lm）は、</span><span className="inline-block">相手に寄せる最大の信頼と</span><span className="inline-block">敬意を託すしるしです。</span>
                         </p>
                     </div>
                 </div>
@@ -101,26 +101,26 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
                     <div className="md:pl-8">
                         <p className="text-slate-700 leading-relaxed text-base">
-                        暮らしのなかの、ささやかな支え合いに。<br/>
-                        500 Lmは、ランチをご馳走するような、等身大の願いと素直な感謝を伝えます。
+                        <span className="inline-block">日々の暮らしのなかで、</span><span className="inline-block">ふと誰かの手を</span><span className="inline-block">借りたいとき。</span><br/>
+                        <span className="inline-block">この源気（Lm）は、</span><span className="inline-block">差し出された温もりへの</span><span className="inline-block">素直な感謝を伝えます。</span>
                         </p>
                     </div>
                 </div>
                 </div>
 
-                {/* 1000 Lm */}
+                {/* 0 Lm */}
                 <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-slate-100 shadow-sm md:grid md:grid-cols-12 md:gap-8 items-center cursor-default hover:shadow-md transition-shadow duration-500">
                     <div className="md:col-span-4 mb-4 md:mb-0 text-center md:text-left">
-                    <span className="inline-block text-3xl font-mono font-bold text-[#B8860B] mb-1">1,000 <span className="text-xs font-normal text-slate-400">Lm</span></span>
-                    <h3 className="text-3xl font-serif font-bold text-slate-800">人生の節目</h3>
-                    <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Respect</p>
+                    <span className="inline-block text-3xl font-mono font-bold text-pink-400 mb-1">0 <span className="text-xs font-normal text-slate-400">Lm</span></span>
+                    <h3 className="text-3xl font-serif font-bold text-slate-800">魂の共鳴</h3>
+                    <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Priceless / ∞</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
                     <div className="md:pl-8">
                         <p className="text-slate-700 leading-relaxed text-base">
-                        大切な局面を、共に歩んでほしいとき。<br/>
-                        1,000 Lmは、ディナーをご馳走するような、特別な状況への最大の敬意を託します。
+                        <span className="inline-block">対価や計算を超えて、</span><span className="inline-block">ただ響き合うこと。</span><br/>
+                        <span className="inline-block">この0（∞）は、</span><span className="inline-block">共にこの瞬間を生きていること</span><span className="inline-block">そのものを祝う、</span><span className="inline-block">純粋なギフトです。</span>
                         </p>
                     </div>
                 </div>
