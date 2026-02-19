@@ -50,7 +50,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
     const { showToast } = useToast();
     
     const [newWishContent, setNewWishContent] = useState('');
-    const [selectedTier, setSelectedTier] = useState<GratitudeTier>('light');
+    const [selectedTier, setSelectedTier] = useState<GratitudeTier>('heavy');
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [showGuide, setShowGuide] = useState(false);
 
