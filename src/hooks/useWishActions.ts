@@ -29,7 +29,7 @@ export const useWishActions = () => {
 
   // Calculate costs matches logic in UI/Types
   // Calculate costs matches logic in UI/Types
-  const costMap: Record<string, number> = { light: 100, medium: 500, heavy: 1000 };
+  const costMap: Record<string, number> = { light: 0, medium: 500, heavy: 1000 };
 
 
 
@@ -550,7 +550,7 @@ export const useWishActions = () => {
       );
       const issuerActiveSnap = await getDocs(issuerActiveQ);
       let issuerQueryCommittedMilli = 0;
-      const costMap: Record<string, number> = { light: 100, medium: 500, heavy: 1000 };
+      const costMap: Record<string, number> = { light: 0, medium: 500, heavy: 1000 };
 
       issuerActiveSnap.forEach(wishDoc => {
         const w = wishDoc.data();
@@ -634,7 +634,8 @@ export const useWishActions = () => {
 
         const tags = wishData.tags || [];
         let txType = "SPARK";
-        if (paymentAmount >= 900) txType = "BONFIRE";
+        if (paymentAmount === 0) txType = "PRICELESS";
+        else if (paymentAmount >= 900) txType = "BONFIRE";
         else if (paymentAmount >= 400) txType = "CANDLE";
 
         // 1. Sender (Issuer) Record
@@ -654,7 +655,9 @@ export const useWishActions = () => {
           tags: tags,
           description: isBankruptcy 
             ? "感謝を贈りましたが、余力が足りず一部のみが結晶になりました" 
-            : "願いを叶えてくれた感謝を、源気（Lm）に込めて贈りました",
+            : paymentAmount === 0
+              ? "想いが巡りました（Priceless）"
+              : "願いを叶えてくれた感謝を、源気（Lm）に込めて贈りました",
           message: message || null 
         });
 
@@ -676,7 +679,9 @@ export const useWishActions = () => {
           tags: tags,
           description: isBankruptcy 
             ? "感謝が届きましたが、余力が足りず一部のみが結晶になりました" 
-            : "感謝が結晶（Lm）になって届きました",
+            : paymentAmount === 0
+              ? "想いが巡りました（Priceless）"
+              : "感謝が結晶（Lm）になって届きました",
           message: message || null 
         });
 

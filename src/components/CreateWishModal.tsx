@@ -20,8 +20,8 @@ type TierOption = {
 const TIERS: TierOption[] = [
   {
     id: "light",
-    label: `軽い手助け`,
-    subLabel: "ちょっとした相談・作業",
+    label: `共鳴（Priceless）`,
+    subLabel: "対価を超えた純粋な関係性を求めて",
     cost: WISH_COST.SPARK,
   },
   {
@@ -140,13 +140,15 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                              className={`
                                  relative flex items-center justify-between p-4 rounded-xl border transition-all duration-300
                                  ${selectedTier === tier.id
-                                     ? "border-amber-300 bg-gradient-to-r from-amber-50/80 to-orange-50/50 shadow-[0_0_15px_-3px_rgba(251,191,36,0.4)] ring-1 ring-amber-100"
+                                     ? tier.cost === 0 
+                                       ? "border-pink-200 bg-gradient-to-r from-pink-50/80 to-white shadow-[0_0_15px_-3px_rgba(244,114,182,0.3)] ring-1 ring-pink-100"
+                                       : "border-amber-300 bg-gradient-to-r from-amber-50/80 to-orange-50/50 shadow-[0_0_15px_-3px_rgba(251,191,36,0.4)] ring-1 ring-amber-100"
                                      : "border-slate-100 bg-white text-slate-500 hover:border-slate-200 hover:bg-slate-50/50"
                                  }
                              `}
                            >
                              <div className="flex flex-col items-start gap-0.5">
-                               <span className={`text-sm font-bold ${selectedTier === tier.id ? "text-amber-900" : "text-slate-700"}`}>
+                               <span className={`text-sm font-bold ${selectedTier === tier.id ? tier.cost === 0 ? "text-pink-900" : "text-amber-900" : "text-slate-700"}`}>
                                  {tier.label}
                                </span>
                                <span className="text-xs text-slate-400">
@@ -155,11 +157,11 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                              </div>
 
                              <div className="flex items-center gap-3">
-                                <span className={`text-lg font-mono font-bold ${selectedTier === tier.id ? "text-amber-600" : "text-slate-300"}`}>
-                                  {tier.cost.toLocaleString()} <span className="text-xs font-sans font-medium text-slate-400">{UNIT_LABEL}</span>
+                                <span className={`text-lg font-mono font-bold ${selectedTier === tier.id ? tier.cost === 0 ? "text-pink-500" : "text-amber-600" : "text-slate-300"}`}>
+                                  {tier.cost === 0 ? "∞" : tier.cost.toLocaleString()} <span className="text-xs font-sans font-medium text-slate-400">{tier.cost === 0 ? "Gift" : UNIT_LABEL}</span>
                                 </span>
                                 <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
-                                    selectedTier === tier.id ? "border-amber-500 bg-amber-500 shadow-sm" : "border-slate-200 bg-white"
+                                    selectedTier === tier.id ? tier.cost === 0 ? "border-pink-500 bg-pink-500 shadow-sm" : "border-amber-500 bg-amber-500 shadow-sm" : "border-slate-200 bg-white"
                                 }`}>
                                     {selectedTier === tier.id && <div className="w-2 h-2 rounded-full bg-white shadow-sm" />}
                                 </div>
