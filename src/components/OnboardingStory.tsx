@@ -19,12 +19,12 @@ const getSlides = () => [
     icon: <Sun size={32} className="text-amber-500" />,
     content: (
       <div className="text-center font-serif text-slate-700 leading-loose">
-        <p className="mb-6 text-lg">
+        <p className="mb-6 text-base">
           あなたには、10日（変動あり）ごとに<br />
-          <span className="text-2xl font-bold text-amber-600 mx-1">2,400 Lm</span> の<br />
+          <span className="text-3xl font-bold text-amber-600 mx-1">2,400 Lm</span> の<br />
           Lmが与えられます。
         </p>
-        <p className="text-sm text-slate-600 font-medium">
+        <p className="text-base text-slate-600 font-medium">
           これがあなたの源気の源です。
         </p>
       </div>
@@ -37,12 +37,12 @@ const getSlides = () => [
     icon: <Hourglass size={32} className="text-blue-400" />,
     content: (
       <div className="text-center font-serif text-slate-700 leading-loose">
-        <p className="mb-6 text-lg">
+        <p className="mb-6 text-base">
           このLmは、何もしなくても<br />
-          <span className="text-2xl font-bold text-blue-500 mx-1">徐々に</span> <br />
+          <span className="text-3xl font-bold text-blue-500 mx-1">徐々に</span> <br />
           空へと還っていきます。
         </p>
-        <p className="text-sm text-slate-600 font-medium">
+        <p className="text-base text-slate-600 font-medium">
           留めておくことはできません。<br />
           だからこそ、今あるLmを大切に。
         </p>
@@ -56,11 +56,11 @@ const getSlides = () => [
     icon: <HeartHandshake size={32} className="text-rose-400" />,
     content: (
       <div className="text-center font-serif text-slate-700 leading-loose">
-        <p className="mb-6 text-lg">
+        <p className="mb-6 text-base">
           減っていくLmを、<br />
           誰かのために使いましょう。
         </p>
-        <div className="flex justify-center gap-8 mb-4 text-sm font-bold opacity-80">
+        <div className="flex justify-center gap-8 mb-4 text-base font-bold opacity-80">
           <div className="flex flex-col items-center">
             <span className="text-amber-600 mb-1">お願い</span>
           </div>
@@ -85,21 +85,21 @@ const getSlides = () => [
         <div className="bg-white/60 p-4 rounded-xl border border-slate-100 flex items-center gap-4">
           <span className="font-mono font-bold text-amber-500 w-16 text-right">100</span>
           <div className="text-left">
-            <div className="text-sm font-bold text-slate-700">軽い手助け</div>
+            <div className="text-base font-bold text-slate-700">軽い手助け</div>
             <div className="text-xs text-slate-600 font-bold">荷物運び、スマホ操作など</div>
           </div>
         </div>
         <div className="bg-white/60 p-4 rounded-xl border border-slate-100 flex items-center gap-4">
           <span className="font-mono font-bold text-amber-600 w-16 text-right">500</span>
           <div className="text-left">
-            <div className="text-sm font-bold text-slate-700">しっかりしたお礼</div>
+            <div className="text-base font-bold text-slate-700">しっかりしたお礼</div>
             <div className="text-xs text-slate-600 font-bold">草むしり、相談、片付けなど</div>
           </div>
         </div>
         <div className="bg-white/60 p-4 rounded-xl border border-slate-100 flex items-center gap-4">
           <span className="font-mono font-bold text-rose-500 w-16 text-right">1,000</span>
           <div className="text-left">
-            <div className="text-sm font-bold text-slate-700">深い献身</div>
+            <div className="text-base font-bold text-slate-700">深い献身</div>
             <div className="text-xs text-slate-600 font-bold">専門スキル、長時間の見守り</div>
           </div>
         </div>
@@ -121,7 +121,7 @@ const getSlides = () => [
               <span className="whitespace-nowrap">感謝（Lm）は「心」から。</span>
             </p>
          </div>
-        <p className="text-sm text-slate-600 font-medium">
+        <p className="text-base text-slate-600 font-medium">
           お金では伝えきれない「ありがとう」を。<br />
           さあ、新しい循環を始めましょう。
         </p>

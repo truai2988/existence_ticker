@@ -240,6 +240,7 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
                             
                             if (d === "system_expiration") return "期限を過ぎたため、自動的に整理されました";
                             if (d === "user_cancellation") return "願いを取り下げました";
+                            if (d === "想いが巡りました（Priceless）") return d;
                             if (d === "命が宿りました") return "源気が流れ込んできました";
                             return d;
                         })()}

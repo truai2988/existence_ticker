@@ -19,22 +19,22 @@ type TierOption = {
 
 const TIERS: TierOption[] = [
   {
-    id: "light",
-    label: `軽い手助け`,
-    subLabel: "ちょっとした相談・作業",
-    cost: WISH_COST.SPARK,
+    id: "heavy",
+    label: `深い献身（Respect）`,
+    subLabel: "人生の節目を助け合う、最大級の信頼",
+    cost: WISH_COST.BONFIRE,
   },
   {
     id: "medium",
-    label: `しっかりした仕事`,
-    subLabel: "実務・制作・サポート",
+    label: `しっかりした仕事（Gratitude）`,
+    subLabel: "相手の時間を大切に受け取ったときに",
     cost: WISH_COST.CANDLE,
   },
   {
-    id: "heavy",
-    label: `深い献身`,
-    subLabel: "専門スキル・長期案件",
-    cost: WISH_COST.BONFIRE,
+    id: "light",
+    label: `共鳴（Priceless）`,
+    subLabel: "対価を超えた純粋な関係性を求めて",
+    cost: WISH_COST.SPARK,
   },
 ];
 
@@ -50,7 +50,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
     const { showToast } = useToast();
     
     const [newWishContent, setNewWishContent] = useState('');
-    const [selectedTier, setSelectedTier] = useState<GratitudeTier>('light');
+    const [selectedTier, setSelectedTier] = useState<GratitudeTier>('heavy');
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [showGuide, setShowGuide] = useState(false);
 
@@ -79,7 +79,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                
                {/* Input Section */}
                <div className="space-y-3">
-                  <label className="block text-sm font-bold text-slate-700 font-sans">
+                  <label className="block text-xs uppercase tracking-widest font-bold text-slate-500 font-sans">
                       内容を入力
                   </label>
                   <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 focus-within:ring-2 focus-within:ring-orange-200 transition-all">
@@ -102,7 +102,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                <div className="space-y-4">
                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-1">
                        <div className="flex items-baseline flex-wrap gap-x-3 gap-y-1">
-                           <label className="text-sm font-bold text-slate-800 shrink-0">
+                           <label className="text-xs uppercase tracking-widest font-bold text-slate-500 shrink-0">
                                お裾分けする Lm <span className="text-xs font-normal text-slate-400 ml-0.5">(源気)</span>
                            </label>
                            <button 
@@ -138,32 +138,40 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                              key={tier.id}
                              onClick={() => setSelectedTier(tier.id)}
                              className={`
-                                 relative flex items-center justify-between p-4 rounded-xl border transition-all duration-300
+                                 relative flex items-center justify-between p-4 rounded-xl border transition-all duration-500
                                  ${selectedTier === tier.id
-                                     ? "border-amber-300 bg-gradient-to-r from-amber-50/80 to-orange-50/50 shadow-[0_0_15px_-3px_rgba(251,191,36,0.4)] ring-1 ring-amber-100"
-                                     : "border-slate-100 bg-white text-slate-500 hover:border-slate-200 hover:bg-slate-50/50"
+                                     ? tier.cost === 1000
+                                       ? "border-[#B8860B] bg-white shadow-[0_10px_30px_-5px_rgba(184,134,11,0.2)] ring-1 ring-[#B8860B]/20"
+                                       : tier.cost === 500
+                                         ? "border-[#8B4513] bg-gradient-to-r from-amber-50/50 to-white shadow-[0_8px_20px_-4px_rgba(139,69,19,0.15)] ring-1 ring-[#8B4513]/10"
+                                         : "border-pink-100 bg-white shadow-[0_4px_15px_-3px_rgba(244,114,182,0.1)] ring-1 ring-pink-50 animate-pulse-subtle"
+                                     : "border-slate-100 bg-white text-slate-400 hover:border-slate-200"
                                  }
                              `}
                            >
-                             <div className="flex flex-col items-start gap-0.5">
-                               <span className={`text-sm font-bold ${selectedTier === tier.id ? "text-amber-900" : "text-slate-700"}`}>
+                             <div className="flex flex-col items-start gap-1">
+                               <span className={`text-base font-bold tracking-wide ${selectedTier === tier.id 
+                                 ? tier.cost === 1000 ? "text-slate-900" : tier.cost === 500 ? "text-[#8B4513]" : "text-pink-900" 
+                                 : "text-slate-600"}`}>
                                  {tier.label}
                                </span>
-                               <span className="text-xs text-slate-400">
+                               <span className="text-xs text-slate-400 font-bold uppercase tracking-tighter opacity-70">
                                  {tier.subLabel}
                                </span>
                              </div>
 
-                             <div className="flex items-center gap-3">
-                                <span className={`text-lg font-mono font-bold ${selectedTier === tier.id ? "text-amber-600" : "text-slate-300"}`}>
-                                  {tier.cost.toLocaleString()} <span className="text-xs font-sans font-medium text-slate-400">{UNIT_LABEL}</span>
+                             <div className="flex items-center gap-4">
+                                <span className={`text-3xl font-mono font-bold tracking-tighter ${selectedTier === tier.id 
+                                  ? tier.cost === 1000 ? "text-[#B8860B]" : tier.cost === 500 ? "text-amber-700" : "text-pink-400" 
+                                  : "text-slate-200"}`}>
+                                  {tier.cost === 0 ? "∞" : tier.cost.toLocaleString()} <span className="text-xs font-sans font-bold opacity-60 uppercase">{tier.cost === 0 ? "Gift" : UNIT_LABEL}</span>
                                 </span>
-                                <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
-                                    selectedTier === tier.id ? "border-amber-500 bg-amber-500 shadow-sm" : "border-slate-200 bg-white"
-                                }`}>
-                                    {selectedTier === tier.id && <div className="w-2 h-2 rounded-full bg-white shadow-sm" />}
-                                </div>
                              </div>
+                             
+                             {/* Breathing Glow for 0 Lm */}
+                             {selectedTier === tier.id && tier.cost === 0 && (
+                               <div className="absolute inset-0 rounded-xl bg-pink-100/10 animate-soft-glow pointer-events-none" />
+                             )}
                            </button>
                        ))}
                    </div>
@@ -196,7 +204,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                            </svg>
                        </div>
                        <div className="flex-1">
-                           <span className={`text-sm font-bold transition-colors ${isAnonymous ? "text-slate-800" : "text-slate-600"}`}>
+                           <span className={`text-base font-bold transition-colors ${isAnonymous ? "text-slate-800" : "text-slate-600"}`}>
                                匿名でお願いする
                            </span>
                            <p className="text-xs text-slate-500 mt-1 leading-relaxed">

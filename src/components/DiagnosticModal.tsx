@@ -132,7 +132,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               <div className="relative group">
                   <div className="absolute -top-4 -left-2 text-6xl text-slate-800 font-serif leading-none select-none">“</div>
                   <div className="relative z-10 pl-6 border-l border-slate-700">
-                    <p className="text-slate-300 font-serif text-lg sm:text-xl leading-relaxed italic whitespace-pre-wrap">
+                    <p className="text-slate-300 font-serif text-base sm:text-3xl leading-relaxed italic whitespace-pre-wrap">
                         {content.voice}
                     </p>
                   </div>
@@ -168,7 +168,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
                   </h3>
                   <div className="flex flex-col sm:flex-row justify-between items-start gap-6">
                       <div className="flex-1">
-                          <div className="font-serif text-white text-lg sm:text-xl mb-2 tracking-wide">
+                          <div className="font-serif text-white text-base sm:text-3xl mb-2 tracking-wide">
                               {content.actionTitle}
                           </div>
                           <p className="text-base text-slate-200 leading-relaxed mb-4 font-sans">
@@ -185,7 +185,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
                              onClose();
                              setTimeout(onScrollToSupply, 300);
                          }}
-                         className="w-full sm:w-auto shrink-0 px-6 py-4 bg-white text-slate-900 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-cyan-50 transition-all active:scale-95 shadow-lg shadow-white/5 active:shadow-none translate-y-0 hover:-translate-y-1"
+                         className="w-full sm:w-auto shrink-0 px-6 py-4 bg-white text-slate-900 rounded-xl font-bold text-base flex items-center justify-center gap-2 hover:bg-cyan-50 transition-all active:scale-95 shadow-lg shadow-white/5 active:shadow-none translate-y-0 hover:-translate-y-1"
                       >
                           <Sun size={18} />
                           {diagnosis.currentPhase === 'HEALTHY' ? 'パラメータ調整' : '調整を実行'}

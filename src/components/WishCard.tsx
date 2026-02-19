@@ -15,6 +15,7 @@ import {
   Copy,
   Check,
   Mail,
+  Heart,
 } from "lucide-react";
 
 import React, { useState } from "react";
@@ -35,6 +36,7 @@ import { isProfileComplete } from "../utils/profileCompleteness";
 import { useToast } from "../contexts/ToastContext";
 import { useWishesContext } from "../contexts/WishesContext";
 import { CompleteWishModal } from "./CompleteWishModal";
+import { UNIT_LABEL } from "../constants";
 
 // Internal Component: Individual Applicant Row with Real-time Data
 const ApplicantItem: React.FC<{
@@ -82,7 +84,7 @@ const ApplicantItem: React.FC<{
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="text-lg font-bold text-slate-400">
+            <span className="text-base font-bold text-slate-400">
               {isMasked ? (
                 <User className="w-5 h-5 text-slate-400" />
               ) : (
@@ -217,7 +219,7 @@ export const WishCard: React.FC<WishCardProps> = ({
   const getInitialCost = (tier: string) => {
     switch (tier) {
       case "light":
-        return 100;
+        return 0; // Priceless
       case "medium":
         return 500;
       case "heavy":
@@ -226,7 +228,7 @@ export const WishCard: React.FC<WishCardProps> = ({
         return wish.cost || 0;
     }
   };
-  const initialCost = wish.cost || getInitialCost(wish.gratitude_preset);
+  const initialCost = wish.cost !== undefined ? wish.cost : getInitialCost(wish.gratitude_preset);
 
   // Determine Cycle Days (Creator's metabolism) - Abolished for decay logic but kept for UI meta if needed
 
@@ -585,7 +587,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span className="text-lg font-bold text-slate-400">
+                  <span className="text-base font-bold text-slate-400">
                     {isMasked ? (
                       <User className="w-5 h-5 text-slate-400" />
                     ) : (
@@ -753,7 +755,9 @@ export const WishCard: React.FC<WishCardProps> = ({
           <div
             className={`p-4 rounded-xl border flex justify-between items-center ${
               wish.status === "fulfilled"
-                ? "bg-green-50/50 border-green-100/50"
+                ? initialCost === 0 
+                  ? "bg-pink-50/30 border-pink-100/50" 
+                  : "bg-green-50/50 border-green-100/50"
                 : wish.status === "cancelled"
                   ? "bg-red-50/30 border-red-100/50" // Subtle Red for Cancelled
                   : wish.status === "interrupted"
@@ -763,7 +767,9 @@ export const WishCard: React.FC<WishCardProps> = ({
           >
             <div className="flex items-center gap-2">
               {wish.status === "fulfilled" ? (
-                <CheckCircle size={16} className="text-green-500" />
+                initialCost === 0 
+                  ? <Heart size={16} className="text-pink-400" />
+                  : <CheckCircle size={16} className="text-green-500" />
               ) : wish.status === "cancelled" ? (
                 <X size={16} className="text-red-400" />
               ) : wish.status === "interrupted" ? (
@@ -774,14 +780,14 @@ export const WishCard: React.FC<WishCardProps> = ({
               <span
                 className={`text-xs font-bold font-sans ${
                   wish.status === "fulfilled"
-                    ? "text-green-700"
+                    ? initialCost === 0 ? "text-pink-600" : "text-green-700"
                     : wish.status === "cancelled"
                       ? "text-red-600"
                       : "text-slate-500"
                 }`}
               >
                   {wish.status === "fulfilled"
-                  ? "届けられた感謝 (最終値)"
+                  ? initialCost === 0 ? "共鳴（Priceless）" : "届けられた感謝 (最終値)"
                   : wish.status === "interrupted"
                     ? "退会により終了"
                     : wish.status === "cancelled"
@@ -813,12 +819,16 @@ export const WishCard: React.FC<WishCardProps> = ({
                     : "期限により自然消滅"}
               </span>
             </div>
-            <div className="text-lg font-bold font-mono text-slate-900 tracking-tight">
+            <div className="text-3xl font-bold font-mono text-slate-900 tracking-tight">
               {wish.status === "fulfilled" ? (
-                <>
-                  {Math.floor(wish.val_at_fulfillment || 0).toLocaleString()}{" "}
-                  <span className="text-xs text-slate-400 ml-0.5">Lm</span>
-                </>
+                initialCost === 0 ? (
+                  <span className="text-pink-500 font-bold tracking-widest">∞ Gift</span>
+                ) : (
+                  <>
+                    {Math.floor(wish.val_at_fulfillment || 0).toLocaleString()}{" "}
+                    <span className="text-xs text-slate-400 ml-0.5">Lm</span>
+                  </>
+                )
               ) : wish.status === "cancelled" ? (
                 wish.cancel_reason === "compensatory_cancellation" ||
                 wish.cancel_reason === "helper_cancellation" ||
@@ -880,10 +890,10 @@ export const WishCard: React.FC<WishCardProps> = ({
                 </div>
               )}
             </div>
-            <div className="text-xl font-mono text-slate-800 font-bold tracking-tight">
-              {Math.floor(displayValue).toLocaleString()}{" "}
-              <span className="text-sm font-normal text-slate-500 ml-0.5">
-                Lm
+            <div className={`text-xl font-mono ${initialCost === 0 ? "text-pink-400" : "text-slate-800"} font-bold tracking-tight`}>
+              {initialCost === 0 ? "∞" : Math.floor(displayValue).toLocaleString()}{" "}
+              <span className={`text-sm font-normal ${initialCost === 0 ? "text-pink-300" : "text-slate-500"} ml-0.5`}>
+                {initialCost === 0 ? "Gift" : UNIT_LABEL}
               </span>
             </div>
           </div>

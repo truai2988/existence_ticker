@@ -106,7 +106,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
         {/* Header */}
         <div className="p-6 pb-2 flex justify-between items-start">
             <div>
-                <h2 className="text-xl font-serif text-slate-800 tracking-widest flex items-center gap-2">
+                <h2 className="text-3xl font-serif text-slate-800 tracking-widest flex items-center gap-2">
                     <MapPin className="w-5 h-5 text-slate-400" />
                     <span>エリア別の登録状況</span>
                 </h2>
@@ -167,7 +167,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
                     {loading ? (
                         <div className="flex flex-col items-center gap-2 text-slate-400">
                              <Loader2 className="w-5 h-5 animate-spin" />
-                             <span className="text-xs font-medium">確認中...</span>
+                              <span className="text-xs font-bold uppercase tracking-widest">確認中...</span>
                         </div>
                     ) : (
                         <motion.div
@@ -191,7 +191,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
                     <select 
                         value={selectedPref}
                         onChange={(e) => handlePrefChange(e.target.value)}
-                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-700 text-sm font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-slate-200/50 shadow-sm transition-all"
+                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-700 text-base font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-slate-200/50 shadow-sm transition-all"
                     >
                         <option value="">都道府県を選択</option>
                         {PREFECTURES.map(pref => (
@@ -207,7 +207,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
                         value={selectedCity}
                         onChange={(e) => setSelectedCity(e.target.value)}
                         disabled={!selectedPref || loadingCities}
-                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-700 text-sm font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-slate-200/50 shadow-sm transition-all disabled:opacity-50 disabled:bg-slate-50"
+                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-700 text-base font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-slate-200/50 shadow-sm transition-all disabled:opacity-50 disabled:bg-slate-50"
                     >
                         <option value="">
                             {loadingCities ? "読み込み中..." : "市区町村を選択"}

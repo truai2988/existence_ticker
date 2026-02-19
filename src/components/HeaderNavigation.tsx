@@ -127,7 +127,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                                 className="w-full px-5 py-3 text-left flex items-center gap-3 rounded-xl text-slate-500 hover:bg-slate-50 hover:text-green-600"
                             >
                                 <Sprout size={20} strokeWidth={2} />
-                                <span className="text-sm tracking-[0.1em] font-light">ガイドをみる</span>
+                                <span className="text-base tracking-[0.1em] font-light">ガイドをみる</span>
                             </button>
                             
                             {navItems.map((item) => (
@@ -139,7 +139,7 @@ export const HeaderNavigation: React.FC<HeaderNavigationProps> = ({ currentTab, 
                                     }`}
                                 >
                                     <item.icon size={20} strokeWidth={isTabActive(item.id) ? 2 : 1.5} />
-                                    <span className="text-sm tracking-[0.1em] font-light">{item.label}</span>
+                                    <span className="text-base tracking-[0.1em] font-light">{item.label}</span>
                                 </button>
                             ))}
                         </motion.div>

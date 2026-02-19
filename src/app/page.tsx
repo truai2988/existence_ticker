@@ -142,7 +142,7 @@ export const LandingPage = () => {
                 <h1 className="text-base font-medium md:font-light tracking-[0.3em] md:tracking-[0.4em] text-[#444444] md:text-[#555555] uppercase font-serif">
                     重機を降りて、存在を祝うインフラへ。
                 </h1>
-                <p className="text-xs font-light tracking-[0.2em] text-[#999999] uppercase font-sans">
+                <p className="text-xs font-light tracking-[0.2em] text-[#999999] uppercase font-serif">
                     Heavy machinery for the earth, this infrastructure for the soul.
                 </p>
 
@@ -172,7 +172,7 @@ export const LandingPage = () => {
                             <span className="text-8xl md:text-[160px] font-bold tabular-nums bg-gradient-to-b from-[#111111] via-[#4A4A4A] to-[#6B5A4F] bg-clip-text text-transparent pb-4 md:pb-8 leading-tight">
                                 {bigPart}
                             </span>
-                            <span className="text-2xl md:text-[50px] font-medium tabular-nums ml-1 bg-gradient-to-b from-[#111111] via-[#4A4A4A] to-[#6B5A4F] bg-clip-text text-transparent opacity-90 pb-2 md:pb-4 leading-tight">
+                            <span className="text-3xl md:text-[50px] font-medium tabular-nums ml-1 bg-gradient-to-b from-[#111111] via-[#4A4A4A] to-[#6B5A4F] bg-clip-text text-transparent opacity-90 pb-2 md:pb-4 leading-tight">
                                 .{smallPart}
                             </span>
                         </motion.div>
@@ -181,7 +181,7 @@ export const LandingPage = () => {
                     <motion.span 
                         animate={{ opacity: [0.4, 0.7, 0.4] }}
                         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                        className="text-sm md:text-base font-medium md:font-light text-[#6A5F51] md:text-[#A89F91] ml-2 md:ml-4 mb-2 md:mb-4 italic tracking-widest font-sans"
+                        className="text-xs md:text-base font-medium md:font-light text-[#6A5F51] md:text-[#A89F91] ml-2 md:ml-4 mb-2 md:mb-4 italic tracking-widest font-sans"
                     >
                         Lm
                     </motion.span>
@@ -320,22 +320,22 @@ export const LandingPage = () => {
 
              <div className="max-w-5xl mx-auto flex flex-col md:grid md:grid-cols-3 gap-8 md:gap-8 mb-12 md:mb-16 px-0 md:px-0">
                 <ScenarioCard 
-                    icon={<Smile size={28} />}
-                    label="100 Lm：軽い手助け"
-                    desc="「ちょっと助かったよ」というお礼に。スマホの操作や、重い荷物運び、日常の「ありがとう」を光に託します。"
-                    color="text-orange-500"
+                    icon={<Heart size={28} />}
+                    label="1,000 Lm：人生への敬意"
+                    desc="約4日分の生命力を託す、最大級の信頼。専門的な支えや、数日にわたる見守りなど、人生の重なりを助け合うための黄金の光です。"
+                    color="text-[#B8860B]"
                 />
                 <ScenarioCard 
                     icon={<Users size={28} />}
-                    label="500 Lm：しっかりした仕事"
-                    desc="約2日分のエネルギーを贈る、まとまった感謝に。草むしりや片付け、趣味の相談など、相手の時間を大切に受け取ったときに。"
-                    color="text-blue-500"
+                    label="500 Lm：温かな感謝"
+                    desc="約2日分のエネルギーを贈る、まとまった感謝に。草むしりや片付け、日常の困難を共に乗り越えた相手への、灯火のようなしるし。"
+                    color="text-[#8B4513]"
                 />
                 <ScenarioCard 
-                    icon={<Heart size={28} />}
-                    label="1,000 Lm：深い献身"
-                    desc="約4日分の生命力を託す、最大級の信頼。専門的な支えや、数日にわたる見守りなど、人生の節目を助け合うための光です。"
-                    color="text-rose-500"
+                    icon={<Smile size={28} />}
+                    label="0 Lm：純粋な共鳴"
+                    desc="計算を超えた先の、魂の響き合い。見返りを求めない純粋な祈りや、ただ『そこにいてくれてありがとう』という想いを、無限のギフトとして。"
+                    color="text-pink-300"
                 />
              </div>
              <p className="text-center text-base text-[#111111] md:text-[#888888] font-medium md:font-normal tracking-[0.1em] md:tracking-[0.2em] font-serif italic leading-relaxed px-2 md:px-4">
@@ -352,7 +352,7 @@ export const LandingPage = () => {
                     <h3 className="text-3xl font-light tracking-[0.2em] text-[#2D2D2D] font-serif">
                         アンチ・グラビティ
                     </h3>
-                    <p className="text-xs tracking-[0.3em] text-[#AAAAAA] mt-4 uppercase font-sans">
+                    <p className="text-xs tracking-[0.3em] text-[#AAAAAA] mt-4 uppercase font-serif">
                         Heavy Machinery and Fountain Pens
                     </p>
                     <div className="mt-16 max-w-lg mx-auto">
@@ -376,7 +376,7 @@ export const LandingPage = () => {
                             <span className="text-[10px] md:text-xs tracking-[0.3em] text-[#BBBBBB] mb-8 font-sans">
                                 Chapter {chapter.id.toString().padStart(2, '0')}
                             </span>
-                            <blockquote className="text-[15px] md:text-3xl font-serif italic text-[#444444] leading-[2.2] md:leading-relaxed mb-6 tracking-widest px-4">
+                            <blockquote className="text-base md:text-3xl font-serif italic text-[#444444] leading-[2.2] md:leading-relaxed mb-6 tracking-widest px-4">
                                 「{chapter.fragment}」
                             </blockquote>
                             <div className="h-[1px] w-8 bg-[#E5E0D5]" />
@@ -387,7 +387,7 @@ export const LandingPage = () => {
                 <div className="text-center">
                     <button 
                         onClick={() => navigate('/story')}
-                        className="group flex items-center gap-4 mx-auto text-xs tracking-[0.3em] text-[#777777] hover:text-[#2D2D2D] transition-all duration-500 uppercase font-medium font-sans"
+                        className="group flex items-center gap-4 mx-auto text-xs tracking-[0.3em] text-[#777777] hover:text-[#2D2D2D] transition-all duration-500 uppercase font-medium font-serif"
                     >
                         このインフラの原典をすべて読む
                         <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />
@@ -500,11 +500,11 @@ const ScenarioCard = ({ icon, label, desc, color }: { icon: React.ReactNode, lab
           >
             {icon}
           </div>
-          <h5 className="text-[18px] md:text-xl font-bold md:font-medium tracking-[0.05em] md:tracking-[0.1em] text-[#111111] md:text-[#333333] font-serif leading-tight">
+          <h5 className="text-3xl font-bold md:font-medium tracking-[0.05em] md:tracking-[0.1em] text-[#111111] md:text-[#333333] font-serif leading-tight">
             {label}
           </h5>
       </div>
-      <p className="text-[15px] md:text-base font-normal text-[#333333] md:text-[#666666] leading-relaxed tracking-normal font-sans pl-0 md:px-2 w-full">
+      <p className="text-base font-normal text-[#333333] md:text-[#666666] leading-relaxed tracking-normal font-sans pl-0 md:px-2 w-full">
         {desc}
       </p>
     </div>
@@ -537,10 +537,10 @@ const FeatureCard = ({ icon, title, desc }: { icon: React.ReactNode, title: stri
       <div className="mb-4 md:mb-6 p-4 md:p-5 bg-white shadow-sm md:bg-white/40 rounded-full group-hover:bg-white/80 transition-colors duration-500">
         {icon}
       </div>
-      <h4 className="text-[18px] md:text-xl font-bold md:font-medium tracking-[0.1em] md:tracking-[0.15em] text-[#111111] md:text-[#333333] mb-3 md:mb-4 font-serif">
+      <h4 className="text-3xl font-bold md:font-medium tracking-[0.1em] md:tracking-[0.15em] text-[#111111] md:text-[#333333] mb-3 md:mb-4 font-serif">
         {title}
       </h4>
-      <p className="text-[15px] md:text-base font-normal text-[#333333] md:text-[#666666] leading-relaxed tracking-normal group-hover:text-[#111111] md:group-hover:text-[#444444] transition-colors duration-500 font-sans">
+      <p className="text-base font-normal text-[#333333] md:text-[#666666] leading-relaxed tracking-normal group-hover:text-[#111111] md:group-hover:text-[#444444] transition-colors duration-500 font-sans">
         {desc}
       </p>
     </div>
