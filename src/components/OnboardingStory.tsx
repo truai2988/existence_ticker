@@ -83,24 +83,24 @@ const getSlides = () => [
     content: (
       <div className="space-y-4 w-full max-w-sm mx-auto">
         <div className="bg-white/60 p-4 rounded-xl border border-slate-100 flex items-center gap-4">
-          <span className="font-mono font-bold text-amber-500 w-16 text-right">100</span>
+          <span className="font-mono font-bold text-pink-400 w-16 text-right">0</span>
           <div className="text-left">
-            <div className="text-base font-bold text-slate-700">軽い手助け</div>
-            <div className="text-xs text-slate-600 font-bold">荷物運び、スマホ操作など</div>
+            <div className="text-base font-bold text-slate-700">魂の共鳴</div>
+            <div className="text-xs text-slate-600 font-bold">損得を超えた、純粋な繋がりを求めて</div>
           </div>
         </div>
         <div className="bg-white/60 p-4 rounded-xl border border-slate-100 flex items-center gap-4">
           <span className="font-mono font-bold text-amber-600 w-16 text-right">500</span>
           <div className="text-left">
-            <div className="text-base font-bold text-slate-700">しっかりしたお礼</div>
-            <div className="text-xs text-slate-600 font-bold">草むしり、相談、片付けなど</div>
+            <div className="text-base font-bold text-slate-700">日常の手助け</div>
+            <div className="text-xs text-slate-600 font-bold">暮らしのなかの、ささやかな支え合いに</div>
           </div>
         </div>
         <div className="bg-white/60 p-4 rounded-xl border border-slate-100 flex items-center gap-4">
-          <span className="font-mono font-bold text-rose-500 w-16 text-right">1,000</span>
+          <span className="font-mono font-bold text-[#B8860B] w-16 text-right">1,000</span>
           <div className="text-left">
-            <div className="text-base font-bold text-slate-700">深い献身</div>
-            <div className="text-xs text-slate-600 font-bold">専門スキル、長時間の見守り</div>
+            <div className="text-base font-bold text-slate-700">人生の節目</div>
+            <div className="text-xs text-slate-600 font-bold">大切な局面を、共に歩んでほしいとき</div>
           </div>
         </div>
       </div>

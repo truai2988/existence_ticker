@@ -72,19 +72,19 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
 
                 {/* Examples Section */}
                 <section className="space-y-6 mb-20">
-                {/* 100 Lm */}
+                {/* 0 Lm */}
                 <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-slate-100 shadow-sm md:grid md:grid-cols-12 md:gap-8 items-center cursor-default hover:shadow-md transition-shadow duration-500">
                     <div className="md:col-span-4 mb-4 md:mb-0 text-center md:text-left">
-                    <span className="inline-block text-3xl font-mono font-bold text-amber-500 mb-1">100 <span className="text-xs font-normal text-slate-400">Lm</span></span>
-                    <h3 className="text-3xl font-serif font-bold text-slate-800">軽い手助け</h3>
-                    <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Casual Help</p>
+                    <span className="inline-block text-3xl font-mono font-bold text-pink-400 mb-1">0 <span className="text-xs font-normal text-slate-400">Lm</span></span>
+                    <h3 className="text-3xl font-serif font-bold text-slate-800">魂の共鳴</h3>
+                    <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Priceless</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
                     <div className="md:pl-8">
                         <p className="text-slate-700 leading-relaxed text-base">
-                        荷物運び、スマホ操作、ちょっとした相談など。<br/>
-                        100 Lmは、お茶をご馳走するような気軽な感謝のしるしです。
+                        損得を超えた、純粋な繋がりを求めて。<br/>
+                        0 Lm（共鳴）は、相手と響き合うことそのものを願うギフトのしるしです。
                         </p>
                     </div>
                 </div>
@@ -94,15 +94,15 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-slate-100 shadow-sm md:grid md:grid-cols-12 md:gap-8 items-center cursor-default hover:shadow-md transition-shadow duration-500">
                     <div className="md:col-span-4 mb-4 md:mb-0 text-center md:text-left">
                     <span className="inline-block text-3xl font-mono font-bold text-amber-600 mb-1">500 <span className="text-xs font-normal text-slate-400">Lm</span></span>
-                    <h3 className="text-3xl font-serif font-bold text-slate-800">しっかりしたお礼</h3>
-                    <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Solid Gratitude</p>
+                    <h3 className="text-3xl font-serif font-bold text-slate-800">日常の手助け</h3>
+                    <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Gratitude</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
                     <div className="md:pl-8">
                         <p className="text-slate-700 leading-relaxed text-base">
-                        草むしり、お悩み相談、不用品回収の手伝いなど。<br/>
-                        500 Lmは、ランチをご馳走するような、しっかりとした誠意を伝えます。
+                        暮らしのなかの、ささやかな支え合いに。<br/>
+                        500 Lmは、ランチをご馳走するような、等身大の願いと素直な感謝を伝えます。
                         </p>
                     </div>
                 </div>
@@ -111,16 +111,16 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 {/* 1000 Lm */}
                 <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-slate-100 shadow-sm md:grid md:grid-cols-12 md:gap-8 items-center cursor-default hover:shadow-md transition-shadow duration-500">
                     <div className="md:col-span-4 mb-4 md:mb-0 text-center md:text-left">
-                    <span className="inline-block text-3xl font-mono font-bold text-rose-500 mb-1">1,000 <span className="text-xs font-normal text-slate-400">Lm</span></span>
-                    <h3 className="text-3xl font-serif font-bold text-slate-800">深い献身</h3>
-                    <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Deep Dedication</p>
+                    <span className="inline-block text-3xl font-mono font-bold text-[#B8860B] mb-1">1,000 <span className="text-xs font-normal text-slate-400">Lm</span></span>
+                    <h3 className="text-3xl font-serif font-bold text-slate-800">人生の節目</h3>
+                    <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Respect</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
                     <div className="md:pl-8">
                         <p className="text-slate-700 leading-relaxed text-base">
-                        専門スキル、一晩の見守り、大掛かりな片付けなど。<br/>
-                        1,000 Lmは、ディナーをご馳走するような、深い信頼と献身への賛辞です。
+                        大切な局面を、共に歩んでほしいとき。<br/>
+                        1,000 Lmは、ディナーをご馳走するような、特別な状況への最大の敬意を託します。
                         </p>
                     </div>
                 </div>

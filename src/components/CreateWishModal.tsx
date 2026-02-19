@@ -2,10 +2,7 @@ import React, { useState } from 'react';
 import { Loader2, Send } from 'lucide-react';
 import { GuideModal } from './GuideModal';
 import { useWishActions } from '../hooks/useWishActions';
-import { useProfile } from '../hooks/useProfile';
 import { useWallet } from '../hooks/useWallet';
-import { useAuth } from '../hooks/useAuthHook';
-import { NameResolver } from './NameResolver';
 import { GratitudeTier } from '../types';
 import { WISH_COST, UNIT_LABEL } from '../constants';
 import { useToast } from '../contexts/ToastContext';
@@ -20,39 +17,69 @@ type TierOption = {
 const TIERS: TierOption[] = [
   {
     id: "heavy",
-    label: `深い献身（Respect）`,
-    subLabel: "人生の節目を助け合う、最大級の信頼",
+    label: "人生の節目",
+    subLabel: "大切な局面を、共に歩んでほしいとき",
     cost: WISH_COST.BONFIRE,
   },
   {
     id: "medium",
-    label: `しっかりした仕事（Gratitude）`,
-    subLabel: "相手の時間を大切に受け取ったときに",
+    label: "日常の手助け",
+    subLabel: "暮らしのなかの、ささやかな支え合いに",
     cost: WISH_COST.CANDLE,
   },
   {
     id: "light",
-    label: `共鳴（Priceless）`,
-    subLabel: "対価を超えた純粋な関係性を求めて",
+    label: "魂の共鳴",
+    subLabel: "損得を超えた、純粋な繋がりを求めて",
     cost: WISH_COST.SPARK,
   },
 ];
+const PLACEHOLDERS = {
+  heavy: [
+    "例：止まったままのチェロに、もう一度光を当ててほしいのです。...",
+    "例：私のとりとめのない人生の断片を、一通の手紙に編み直してくれませんか。...",
+    "例：実家の古い書庫にある、傷んだ古文書を一緒に紐解いてほしいのです。..."
+  ],
+  medium: [
+    "例：高いところの電球を、ひとつだけ替えてくれませんか。...",
+    "例：雨の午後、静かに隣で本を読んでいてほしいのです。...",
+    "例：スマホの奥に眠っている、数年前の家族写真を一緒に探してほしい。..."
+  ],
+  light: [
+    "例：作りすぎた肉じゃがを、お裾分けさせてください。...",
+    "例：今夜、あなたが住む場所から見える一番綺麗な月を教えて。...",
+    "例：あなたが人生の最期に見たい景色は、どこですか？...",
+    "例：深夜2時、宇宙の広さについて語り合いませんか。..."
+  ]
+};
 
 interface CreateWishModalProps {
     onClose: () => void;
 }
 
 export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => {
-    const { user } = useAuth();
-    const { profile } = useProfile();
     const { availableLm } = useWallet();
     const { castWish, isSubmitting } = useWishActions();
     const { showToast } = useToast();
     
     const [newWishContent, setNewWishContent] = useState('');
     const [selectedTier, setSelectedTier] = useState<GratitudeTier>('heavy');
+    const [currentPlaceholder, setCurrentPlaceholder] = useState(() => {
+        const options = PLACEHOLDERS['heavy'];
+        return options[Math.floor(Math.random() * options.length)];
+    });
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [showGuide, setShowGuide] = useState(false);
+
+    // Update placeholder when tier changes (if content is empty)
+    const handleTierChange = (tier: GratitudeTier) => {
+        setSelectedTier(tier);
+        if (!newWishContent.trim()) {
+            const options = PLACEHOLDERS[tier];
+            const random = options[Math.floor(Math.random() * options.length)];
+            setCurrentPlaceholder(random);
+        }
+    };
 
     const selectedTierCost = TIERS.find(t => t.id === selectedTier)?.cost || 0;
     const exceedsAvailable = selectedTierCost > availableLm;
@@ -75,30 +102,9 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
 
     return (
         <div className="w-full">
-            <div className="max-w-2xl mx-auto py-4 space-y-8">
+            <div className="max-w-2xl mx-auto py-4 space-y-10">
                
-               {/* Input Section */}
-               <div className="space-y-3">
-                  <label className="block text-xs uppercase tracking-widest font-bold text-slate-500 font-sans">
-                      内容を入力
-                  </label>
-                  <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 focus-within:ring-2 focus-within:ring-orange-200 transition-all">
-                      <div className="mb-2 text-xs text-slate-400 font-medium font-sans">
-                          依頼者: <span className="text-slate-600">
-                              <NameResolver userId={user?.uid || null} initialName={profile?.name || null} />
-                          </span>
-                      </div>
-                      <textarea
-                        value={newWishContent}
-                        onChange={(e) => setNewWishContent(e.target.value)}
-                        placeholder="誰かに手伝ってほしいことや、解決したい悩みを具体的に書きましょう..."
-                        className="w-full bg-transparent text-slate-800 placeholder:text-slate-400 text-base min-h-[120px] resize-none outline-none leading-relaxed font-serif"
-                        autoFocus
-                      />
-                  </div>
-               </div>
-               
-                {/* Reward Selector Section */}
+                {/* Reward Selector Section - MOVED TO TOP */}
                <div className="space-y-4">
                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-1">
                        <div className="flex items-baseline flex-wrap gap-x-3 gap-y-1">
@@ -136,7 +142,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                        {TIERS.map((tier) => (
                            <button
                              key={tier.id}
-                             onClick={() => setSelectedTier(tier.id)}
+                             onClick={() => handleTierChange(tier.id)}
                              className={`
                                  relative flex items-center justify-between p-4 rounded-xl border transition-all duration-500
                                  ${selectedTier === tier.id
@@ -161,11 +167,11 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                              </div>
 
                              <div className="flex items-center gap-4">
-                                <span className={`text-3xl font-mono font-bold tracking-tighter ${selectedTier === tier.id 
-                                  ? tier.cost === 1000 ? "text-[#B8860B]" : tier.cost === 500 ? "text-amber-700" : "text-pink-400" 
-                                  : "text-slate-200"}`}>
-                                  {tier.cost === 0 ? "∞" : tier.cost.toLocaleString()} <span className="text-xs font-sans font-bold opacity-60 uppercase">{tier.cost === 0 ? "Gift" : UNIT_LABEL}</span>
-                                </span>
+                                 <span className={`text-3xl font-mono font-bold tracking-tighter ${selectedTier === tier.id 
+                                   ? tier.cost === 1000 ? "text-[#B8860B]" : tier.cost === 500 ? "text-amber-700" : "text-pink-400" 
+                                   : "text-slate-200"}`}>
+                                   {tier.cost === 0 ? "∞" : tier.cost.toLocaleString()} <span className="text-xs font-sans font-bold opacity-60 uppercase">{tier.cost === 0 ? "Gift" : UNIT_LABEL}</span>
+                                 </span>
                              </div>
                              
                              {/* Breathing Glow for 0 Lm */}
@@ -175,16 +181,27 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                            </button>
                        ))}
                    </div>
-                   
-                   {/* Expense Disclaimer */}
-                   <p className="text-xs text-slate-600 leading-relaxed pl-1">
-                       ※材料費などの実費が必要になりそうな場合は、円での清算を済ませたあとに、最後に感謝として Lm を贈りましょう。
-                   </p>
+                </div>
+
+               {/* Input Section */}
+               <div className="space-y-4">
+                  <label className="block text-xs uppercase tracking-widest font-bold text-slate-500 font-sans">
+                      内容を入力
+                  </label>
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 focus-within:ring-2 focus-within:ring-orange-200/30 transition-all duration-500">
+                      <textarea
+                        value={newWishContent}
+                        onChange={(e) => setNewWishContent(e.target.value)}
+                        placeholder={currentPlaceholder}
+                        className="w-full bg-transparent text-slate-800 placeholder:text-slate-400/50 text-base min-h-[160px] resize-none outline-none leading-relaxed font-serif tracking-wide"
+                        autoFocus
+                      />
+                  </div>
                </div>
 
                {/* Anonymous Option */}
-               <div className="bg-slate-50 rounded-xl p-4 border border-slate-100">
-                   <label className="flex items-start gap-3 cursor-pointer group">
+               <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-100">
+                   <label className="flex items-start gap-4 cursor-pointer group">
                        <div className="relative flex items-center mt-0.5">
                            <input
                                type="checkbox"
@@ -192,7 +209,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                                checked={isAnonymous}
                                onChange={(e) => setIsAnonymous(e.target.checked)}
                            />
-                           <div className="w-5 h-5 border-2 border-slate-300 rounded transition-colors peer-checked:bg-slate-800 peer-checked:border-slate-800 bg-white" />
+                           <div className="w-5 h-5 border-2 border-slate-200 rounded transition-all peer-checked:bg-slate-800 peer-checked:border-slate-800 bg-white" />
                            <svg
                                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"
                                fill="none"
@@ -204,32 +221,32 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                            </svg>
                        </div>
                        <div className="flex-1">
-                           <span className={`text-base font-bold transition-colors ${isAnonymous ? "text-slate-800" : "text-slate-600"}`}>
+                           <span className={`text-base font-bold transition-colors ${isAnonymous ? "text-slate-800" : "text-slate-500"}`}>
                                匿名でお願いする
                            </span>
-                           <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                           <p className="text-xs text-slate-400 mt-1 leading-relaxed">
                                ※相談がまとまる（進行中になる）まで、お互いの名前やアイコンは表示されません
                            </p>
                        </div>
                    </label>
                </div>
 
-               {/* Action Button - Integrated into flow */}
+               {/* Action Button */}
                <div className="pt-4">
                     <button 
                         onClick={handlePostWish}
                         disabled={!newWishContent.trim() || isSubmitting || exceedsAvailable}
-                        className="w-full py-4 rounded-full bg-slate-900 text-white font-bold text-base shadow-lg hover:bg-slate-800 hover:shadow-xl active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full py-5 rounded-full bg-slate-900 text-white font-bold text-base shadow-lg hover:bg-slate-800 hover:shadow-xl active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                     >
                         {isSubmitting ? (
                             <>
                                 <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
-                                <span>送信中...</span>
+                                <span className="tracking-widest">送信中...</span>
                             </>
                         ) : (
                             <>
                                 <Send size={18} />
-                                <span>みんなに想いを届ける</span>
+                                <span className="tracking-widest">みんなに想いを届ける</span>
                             </>
                         )}
                     </button>

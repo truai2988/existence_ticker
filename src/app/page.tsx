@@ -321,20 +321,20 @@ export const LandingPage = () => {
              <div className="max-w-5xl mx-auto flex flex-col md:grid md:grid-cols-3 gap-8 md:gap-8 mb-12 md:mb-16 px-0 md:px-0">
                 <ScenarioCard 
                     icon={<Heart size={28} />}
-                    label="1,000 Lm：人生への敬意"
-                    desc="約4日分の生命力を託す、最大級の信頼。専門的な支えや、数日にわたる見守りなど、人生の重なりを助け合うための黄金の光です。"
+                    label="1,000 Lm：人生の節目"
+                    desc="大切な局面を、共に歩んでほしいとき。生命力の結晶を託す、最大級の信頼。専門的な支えや、人生の重なりを助け合うための黄金の光です。"
                     color="text-[#B8860B]"
                 />
                 <ScenarioCard 
                     icon={<Users size={28} />}
-                    label="500 Lm：温かな感謝"
-                    desc="約2日分のエネルギーを贈る、まとまった感謝に。草むしりや片付け、日常の困難を共に乗り越えた相手への、灯火のようなしるし。"
+                    label="500 Lm：日常の手助け"
+                    desc="暮らしのなかの、ささやかな支え合いに。日々の困難を共に乗り越えた相手への、等身大の願いと素直な感謝を伝える灯火。"
                     color="text-[#8B4513]"
                 />
                 <ScenarioCard 
                     icon={<Smile size={28} />}
-                    label="0 Lm：純粋な共鳴"
-                    desc="計算を超えた先の、魂の響き合い。見返りを求めない純粋な祈りや、ただ『そこにいてくれてありがとう』という想いを、無限のギフトとして。"
+                    label="0 Lm：魂の共鳴"
+                    desc="損得を超えた、純粋な繋がりを求めて。見返りを求めない純粋な祈りや、ただ『そこにいてくれてありがとう』という想いを、無限のギフトとして。"
                     color="text-pink-300"
                 />
              </div>
