@@ -142,7 +142,7 @@ export const LandingPage = () => {
                 <h1 className="text-base font-medium md:font-light tracking-[0.3em] md:tracking-[0.4em] text-[#444444] md:text-[#555555] uppercase font-serif">
                     重機を降りて、存在を祝うインフラへ。
                 </h1>
-                <p className="text-xs font-light tracking-[0.2em] text-[#999999] uppercase font-sans">
+                <p className="text-xs font-light tracking-[0.2em] text-[#999999] uppercase font-serif">
                     Heavy machinery for the earth, this infrastructure for the soul.
                 </p>
 
@@ -352,7 +352,7 @@ export const LandingPage = () => {
                     <h3 className="text-3xl font-light tracking-[0.2em] text-[#2D2D2D] font-serif">
                         アンチ・グラビティ
                     </h3>
-                    <p className="text-xs tracking-[0.3em] text-[#AAAAAA] mt-4 uppercase font-sans">
+                    <p className="text-xs tracking-[0.3em] text-[#AAAAAA] mt-4 uppercase font-serif">
                         Heavy Machinery and Fountain Pens
                     </p>
                     <div className="mt-16 max-w-lg mx-auto">
@@ -387,7 +387,7 @@ export const LandingPage = () => {
                 <div className="text-center">
                     <button 
                         onClick={() => navigate('/story')}
-                        className="group flex items-center gap-4 mx-auto text-xs tracking-[0.3em] text-[#777777] hover:text-[#2D2D2D] transition-all duration-500 uppercase font-medium font-sans"
+                        className="group flex items-center gap-4 mx-auto text-xs tracking-[0.3em] text-[#777777] hover:text-[#2D2D2D] transition-all duration-500 uppercase font-medium font-serif"
                     >
                         このインフラの原典をすべて読む
                         <ArrowRight size={14} className="group-hover:translate-x-2 transition-transform" />

@@ -29,6 +29,10 @@ export default {
             "100%": { opacity: "1" },
         },
       },
+      fontFamily: {
+        sans: ['Inter', 'Noto Sans JP', 'sans-serif'],
+        serif: ['Noto Serif JP', 'serif'],
+      },
       colors: {
         gold: {
           100: "#fff9c4",
