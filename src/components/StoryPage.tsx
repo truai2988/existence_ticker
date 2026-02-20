@@ -1,12 +1,9 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
 import { CHAPTERS, STORY_TITLE } from '../data/storyData';
-import { ArrowLeft, Printer } from 'lucide-react';
+import { X, Printer } from 'lucide-react';
 
 export const StoryPage = () => {
-    const navigate = useNavigate();
-
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -22,11 +19,11 @@ export const StoryPage = () => {
             {/* Navigation (Hidden on Print) */}
             <nav className="fixed top-0 left-0 right-0 z-[60] bg-[#F9F8F4]/80 backdrop-blur-md border-b border-[#E5E0D5] px-6 py-4 flex items-center justify-between print:hidden">
                 <button 
-                    onClick={() => navigate('/app')}
+                    onClick={() => window.close()}
                     className="flex items-center gap-2 text-xs tracking-widest text-[#777777] hover:text-[#2D2D2D] transition-colors group font-sans"
                 >
-                    <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-                    舞台（ホーム）へ戻る
+                    <X size={16} className="group-hover:rotate-90 transition-transform duration-300" />
+                    閉じる
                 </button>
                 <div className="flex items-center gap-6">
                     <button 
@@ -95,10 +92,10 @@ export const StoryPage = () => {
                         ET: Infrastructure for the Soul
                     </p>
                     <button 
-                        onClick={() => navigate('/app')}
+                        onClick={() => window.close()}
                         className="inline-block px-12 py-5 bg-[#2D2D2D] text-white rounded-xl shadow-xl hover:bg-[#111111] transition-all tracking-[0.3em] font-medium text-base font-sans"
                     >
-                        舞台へ向かう
+                        閉じる
                     </button>
                     <p className="mt-20 text-xs tracking-[0.3em] text-[#CCCCCC] uppercase font-serif">
                         © 2026 Existence Ticker Archive.
@@ -129,6 +126,18 @@ export const StoryPage = () => {
                     }
                     p {
                         margin-bottom: 1em !important;
+                    }
+                    /* 和紙テクスチャ・固定オーバーレイを非表示 */
+                    [style*="transparenttextures"],
+                    [style*="backgroundImage"] {
+                        display: none !important;
+                    }
+                    /* Framer Motion アニメーションを印刷時にリセット（メイン本文のみ） */
+                    main, main * {
+                        opacity: 1 !important;
+                        transform: none !important;
+                        animation: none !important;
+                        transition: none !important;
                     }
                 }
             `}} />
