@@ -144,9 +144,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                 className="w-full bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/50 p-8 overflow-hidden"
             >
                 <div className="flex flex-col items-center mb-8">
-                    <h1 className="text-2xl font-serif font-bold text-slate-800 tracking-widest mb-2">
-                        {mode === 'login' && '舞台へ上がる'}
-                        {mode === 'signup' && '舞台への招待状'}
+                    <h1 className="text-2xl font-serif font-bold text-slate-800 tracking-widest mb-2" style={{ fontFamily: "Inter, Noto Sans JP" }}>
+                        {mode === 'login' && 'ET Existence-Ticker'}
+                        {mode === 'signup' && 'ET Existence-Ticker'}
                         {mode === 'forgot' && '灯火の再点火'}
                     </h1>
                     <div className="h-1 w-12 bg-slate-300 rounded-full" />
@@ -385,8 +385,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                         ) : (
                             <>
                                 <span>
-                                    {mode === 'login' && '舞台へ'}
-                                    {mode === 'signup' && '招待を受ける'}
+                                    {mode === 'login' && 'ログイン'}
+                                    {mode === 'signup' && '新規登録'}
                                     {mode === 'forgot' && '再点火する'}
                                 </span>
                                 {mode !== 'forgot' && <ArrowRight size={18} />}

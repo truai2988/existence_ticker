@@ -260,8 +260,6 @@ export const LandingPage = () => {
 
       {/* --- B-Side: Scroll Manifesto (Content Section) --- */}
       <div className="relative z-20 bg-[#F9F8F4]/90 backdrop-blur-md min-h-screen">
-
-
         {/* --- The Scenes --- */}
         <section className="py-20 md:py-48 space-y-40 md:space-y-72">
           {SCENES.map((scene, index) => (
@@ -282,9 +280,7 @@ export const LandingPage = () => {
               </div>
               <div className="w-full md:w-2/5 text-center md:text-left">
                 <p className="text-lg md:text-2xl font-serif text-[#333333] leading-[1.9] tracking-normal md:tracking-[0.1em]">
-                  {scene.text.split('（').map((part, i) =>
-                    i === 0 ? part : <span key={i}><br />（{part}</span>
-                  )}
+                  {scene.text}
                 </p>
               </div>
             </motion.div>
@@ -490,4 +486,3 @@ const Section = ({
     </section>
   );
 };
-

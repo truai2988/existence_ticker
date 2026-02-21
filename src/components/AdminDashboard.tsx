@@ -309,7 +309,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 まずは、このインフラの「原典（Story）」を読んでみてください：
 https://www.existenceticker.com/story
 
-【舞台への鍵（招待コード）】
+【扉を開く（招待コード）】
 ${codeId}
 
 【扉はこちら】

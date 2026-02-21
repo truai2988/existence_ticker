@@ -45,7 +45,7 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
           </button>
 
           {/* Scrollable Area */}
-          <div className="overflow-y-auto flex-1 p-8 md:p-12 relative z-10 scroll-smooth">
+          <div className="overflow-y-auto flex-1 p-5 md:p-12 relative z-10 scroll-smooth">
             
             <div className="max-w-3xl mx-auto">
                 {/* Title Section */}
@@ -71,17 +71,17 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 </section>
 
                 {/* Examples Section */}
-                <section className="space-y-6 mb-20">
+                <section className="bg-white/60 backdrop-blur-sm rounded-3xl p-6 md:p-10 border border-slate-100 shadow-sm divide-y divide-slate-100/80 mb-16 md:mb-20">
                 {/* 1000 Lm */}
-                <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-slate-100 shadow-sm md:grid md:grid-cols-12 md:gap-8 items-center cursor-default hover:shadow-md transition-shadow duration-500">
-                    <div className="md:col-span-4 mb-4 md:mb-0 text-center md:text-left">
+                <div className="py-6 md:py-8 first:pt-0 last:pb-0 md:grid md:grid-cols-12 md:gap-8 items-center cursor-default">
+                    <div className="md:col-span-4 mb-3 md:mb-0 text-center md:text-left">
                     <span className="inline-block text-3xl font-mono font-bold text-[#B8860B] mb-1">1,000 <span className="text-xs font-normal text-slate-400">Lm</span></span>
                     <h3 className="text-3xl font-serif font-bold text-slate-800">人生の節目</h3>
                     <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Respect</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
-                    <div className="md:pl-8">
+                    <div className="md:pl-8 text-center md:text-left">
                         <p className="text-slate-700 leading-relaxed text-base">
                         <span className="inline-block">大切な局面を、</span><span className="inline-block">誰かの助けとともに</span><span className="inline-block">越えていきたいとき。</span><br/>
                         <span className="inline-block">この源気（Lm）は、</span><span className="inline-block">相手に寄せる最大の信頼と</span><span className="inline-block">敬意を託すしるしです。</span>
@@ -91,15 +91,15 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* 500 Lm */}
-                <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-slate-100 shadow-sm md:grid md:grid-cols-12 md:gap-8 items-center cursor-default hover:shadow-md transition-shadow duration-500">
-                    <div className="md:col-span-4 mb-4 md:mb-0 text-center md:text-left">
+                <div className="py-6 md:py-8 first:pt-0 last:pb-0 md:grid md:grid-cols-12 md:gap-8 items-center cursor-default">
+                    <div className="md:col-span-4 mb-3 md:mb-0 text-center md:text-left">
                     <span className="inline-block text-3xl font-mono font-bold text-amber-600 mb-1">500 <span className="text-xs font-normal text-slate-400">Lm</span></span>
                     <h3 className="text-3xl font-serif font-bold text-slate-800">日常の手助け</h3>
                     <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Gratitude</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
-                    <div className="md:pl-8">
+                    <div className="md:pl-8 text-center md:text-left">
                         <p className="text-slate-700 leading-relaxed text-base">
                         <span className="inline-block">日々の暮らしのなかで、</span><span className="inline-block">ふと誰かの手を</span><span className="inline-block">借りたいとき。</span><br/>
                         <span className="inline-block">この源気（Lm）は、</span><span className="inline-block">差し出された温もりへの</span><span className="inline-block">素直な感謝を伝えます。</span>
@@ -109,15 +109,15 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* 0 Lm */}
-                <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-slate-100 shadow-sm md:grid md:grid-cols-12 md:gap-8 items-center cursor-default hover:shadow-md transition-shadow duration-500">
-                    <div className="md:col-span-4 mb-4 md:mb-0 text-center md:text-left">
+                <div className="py-6 md:py-8 first:pt-0 last:pb-0 md:grid md:grid-cols-12 md:gap-8 items-center cursor-default">
+                    <div className="md:col-span-4 mb-3 md:mb-0 text-center md:text-left">
                     <span className="inline-block text-3xl font-mono font-bold text-pink-400 mb-1">0 <span className="text-xs font-normal text-slate-400">Lm</span></span>
                     <h3 className="text-3xl font-serif font-bold text-slate-800">魂の共鳴</h3>
                     <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Priceless / ∞</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
-                    <div className="md:pl-8">
+                    <div className="md:pl-8 text-center md:text-left">
                         <p className="text-slate-700 leading-relaxed text-base">
                         <span className="inline-block">対価や計算を超えて、</span><span className="inline-block">ただ響き合うこと。</span><br/>
                         <span className="inline-block">この0（∞）は、</span><span className="inline-block">共にこの瞬間を生きていること</span><span className="inline-block">そのものを祝う、</span><span className="inline-block">純粋なギフトです。</span>
@@ -128,14 +128,14 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 </section>
 
                 {/* Important Note: Hybrid Usage */}
-                <section className="bg-amber-50/50 text-slate-700 rounded-2xl p-8 md:p-10 text-center relative overflow-hidden border border-amber-100/50 shadow-inner">
+                <section className="bg-amber-50/50 text-slate-700 rounded-3xl p-6 md:p-10 text-center relative overflow-hidden border border-amber-100/50 shadow-inner">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-amber-200/20 rounded-full blur-3xl pointer-events-none"></div>
                 <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-100/20 rounded-full blur-3xl pointer-events-none"></div>
                 
-                <h4 className="text-base font-serif font-bold text-amber-800 mb-6 tracking-widest relative z-10">
+                <h4 className="text-base font-serif font-bold text-amber-800 mb-4 md:mb-6 tracking-widest relative z-10">
                     ハイブリッドな使い方のススメ
                 </h4>
-                <div className="inline-block bg-white px-6 py-4 rounded-xl border border-amber-100 shadow-sm mb-6 relative z-10">
+                <div className="inline-block bg-white px-5 py-3 md:px-6 md:py-4 rounded-xl border border-amber-100 shadow-sm mb-4 md:mb-6 relative z-10 w-full md:w-auto">
                     <p className="text-base font-bold text-slate-800">
                         実費（材料費や交通費）は『円』で。<br/>
                         手間や感謝は『Lm』で。
