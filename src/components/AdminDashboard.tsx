@@ -46,6 +46,7 @@ interface InviteCode {
   used_by?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   used_at?: any;
+  memo?: string;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
@@ -313,7 +314,7 @@ https://www.existenceticker.com/story
 ${codeId}
 
 【扉はこちら】
-https://www.existenceticker.com
+https://www.existenceticker.com/signup?code=${codeId}
 
 一緒に、新しい呼吸を始めましょう。`;
 
@@ -324,6 +325,19 @@ https://www.existenceticker.com
     } catch (err) {
       console.error("Failed to copy invitation:", err);
       alert("コピーに失敗しました");
+    }
+  };
+
+  const updateInviteMemo = async (codeId: string, newMemo: string) => {
+    try {
+      if (!db) return;
+      const { doc, updateDoc } = await import("firebase/firestore");
+      await updateDoc(doc(db, "invitation_codes", codeId), {
+        memo: newMemo
+      });
+      fetchInviteCodes(); // Refresh to show the updated memo
+    } catch (err) {
+      console.error("Failed to update memo:", err);
     }
   };
 
@@ -736,6 +750,19 @@ https://www.existenceticker.com
                                 </div>
                               ) : (
                                 <div className="flex items-center gap-3">
+                                  <div className="relative">
+                                    <input
+                                      type="text"
+                                      placeholder="メモ (誰に渡したか...)"
+                                      defaultValue={code.memo || ""}
+                                      onBlur={(e) => {
+                                        if (e.target.value !== code.memo) {
+                                          updateInviteMemo(code.id, e.target.value);
+                                        }
+                                      }}
+                                      className="bg-slate-800/80 border border-slate-700/50 rounded flex-1 px-3 py-1 text-[11px] text-slate-300 focus:outline-none focus:border-slate-500 placeholder:text-slate-600 transition-colors w-40"
+                                    />
+                                  </div>
                                   <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold ring-1 ring-emerald-500/20 shadow-[0_0_10px_rgba(52,211,153,0.1)]">
                                     Active
                                   </span>
