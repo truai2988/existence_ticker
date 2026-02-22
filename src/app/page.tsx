@@ -10,6 +10,7 @@ import {
 } from "framer-motion";
 import { ArrowDown, Sparkles, Send } from "lucide-react";
 import { CHAPTERS } from "../data/storyData";
+import { useAuth } from "../hooks/useAuthHook";
 
 export const LandingPage = () => {
   // --- A-Side: Ten-Day Lapse (Pure Abundance) ---
@@ -17,7 +18,9 @@ export const LandingPage = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [showFlash, setShowFlash] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const SCENES = [
     {
@@ -37,12 +40,24 @@ export const LandingPage = () => {
     },
   ];
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    if (code) {
+      setInviteCode(code);
+    }
+  }, []);
+
   const handleNavigate = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsExiting(true);
     // Allow animation to finish before navigating
     setTimeout(() => {
-      navigate("/app");
+      if (inviteCode && !user) {
+        navigate(`/app?code=${inviteCode}`);
+      } else {
+        navigate("/app");
+      }
     }, 1500);
   };
 
@@ -405,7 +420,13 @@ export const LandingPage = () => {
               onClick={handleNavigate}
               className="group relative inline-block px-12 py-5 bg-white border border-[#E5E5E5] rounded-xl hover:shadow-2xl transition-all duration-700 tracking-[0.2em] text-xs uppercase text-[#777777] hover:text-[#2D2D2D] overflow-hidden font-sans"
             >
-              <span className="relative z-10 font-medium">扉を開く</span>
+              <span className="relative z-10 font-medium">
+                {user
+                  ? "扉を開け、中へ"
+                  : inviteCode
+                    ? "招待を受け、扉を開ける"
+                    : "扉を開く"}
+              </span>
 
               {/* Mizuhiki / Red Thread Animation */}
               <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-1000">

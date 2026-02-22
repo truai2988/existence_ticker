@@ -314,7 +314,7 @@ https://www.existenceticker.com/story
 ${codeId}
 
 【扉はこちら】
-https://www.existenceticker.com/signup?code=${codeId}
+https://www.existenceticker.com/?code=${codeId}
 
 一緒に、新しい呼吸を始めましょう。`;
 
