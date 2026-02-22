@@ -117,6 +117,9 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
 
         if (result) {
             showToast("願いをシェアしました", "success");
+            import('../utils/pwaEvent').then(({ globalTriggerPWAInstall }) => {
+                globalTriggerPWAInstall();
+            });
             onClose();
         }
     };

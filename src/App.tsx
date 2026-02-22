@@ -253,6 +253,7 @@ const AdminDashboard = lazy(() =>
 // Import components
 import { GuideModal } from "./components/GuideModal";
 import { ReloadPrompt } from "./components/ReloadPrompt";
+import { PWAInstallBanner } from "./components/PWAInstallBanner";
 
 // ローダー（白磁の美学）
 const ScreenLoader = ({ message }: { message?: string }) => (
@@ -492,7 +493,7 @@ function App() {
               <AdminDashboard onClose={() => setShowAdmin(false)} stats={stats} />
             </Suspense>
           )}
-
+          <PWAInstallBanner />
           <ReloadPrompt />
         </div>
       );

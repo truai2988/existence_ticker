@@ -291,6 +291,9 @@ export const WishCard: React.FC<WishCardProps> = ({
     setIsLoading(false);
     if (success) {
       showToast("応える意思を伝えました", "success");
+      import('../utils/pwaEvent').then(({ globalTriggerPWAInstall }) => {
+        globalTriggerPWAInstall();
+      });
 
       if (onActionComplete) onActionComplete("applied");
     } else {
@@ -311,6 +314,9 @@ export const WishCard: React.FC<WishCardProps> = ({
     setIsLoading(false);
     if (success) {
       showToast("願いを託しました", "success");
+      import('../utils/pwaEvent').then(({ globalTriggerPWAInstall }) => {
+        globalTriggerPWAInstall();
+      });
       setShowApplicants(false);
       setApprovalTarget(null);
 
@@ -1139,6 +1145,9 @@ export const WishCard: React.FC<WishCardProps> = ({
                               );
                               if (success) {
                                 showToast("感謝を届けました", "success");
+                                import('../utils/pwaEvent').then(({ globalTriggerPWAInstall }) => {
+                                  globalTriggerPWAInstall();
+                                });
                                 // 完了後は「履歴」タブへ
                                 if (onTabChange) onTabChange("history");
                               }
