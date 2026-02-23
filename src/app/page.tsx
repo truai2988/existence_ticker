@@ -312,7 +312,7 @@ export const LandingPage = () => {
               <span className="text-xs tracking-[0.4em] text-[#AAAAAA] uppercase mb-4 block font-sans">
                 The Journey
               </span>
-              <h3 className="text-3xl font-light tracking-[0.2em] text-[#2D2D2D] font-serif">
+              <h3 className="text-2xl md:text-3xl font-light tracking-[0.2em] md:tracking-[0.3em] text-[#2D2D2D] font-serif whitespace-nowrap">
                 アンチ・グラビティ
               </h3>
               <p className="text-xs tracking-[0.3em] text-[#AAAAAA] mt-4 uppercase font-serif">
