@@ -4,7 +4,6 @@ import {
   motion,
   useScroll,
   useTransform,
-  useInView,
   animate,
   AnimatePresence,
 } from "framer-motion";
@@ -24,17 +23,17 @@ export const LandingPage = () => {
 
   const SCENES = [
     {
-      image: "/scene-1000.png",
+      image: "/scene-1000.webp",
       text: "人生の節目を、誰かの手とともに越える。最大の敬意（1,000 Lm）を込めて。",
       id: 1000,
     },
     {
-      image: "/scene-500.png",
+      image: "/scene-500.webp",
       text: "独りでは届かなかった場所に、誰かの手が届く。日常への感謝（500 Lm）を添えて。",
       id: 500,
     },
     {
-      image: "/scene-0.png",
+      image: "/scene-0.webp",
       text: "ただ共に在る。生きていることを祝う、純粋な共鳴（0 Lm / ∞）。",
       id: 0,
     },
@@ -122,8 +121,8 @@ export const LandingPage = () => {
       ref={containerRef}
       className="bg-[#F9F8F4] min-h-screen text-[#2D2D2D] font-sans selection:bg-orange-100 selection:text-[#2D2D2D] overflow-x-hidden relative"
     >
-      {/* --- Sticky Header / Navigation --- */}
-      <nav className="fixed top-0 left-0 right-0 z-[100] px-6 py-8 flex justify-between items-center mix-blend-difference pointer-events-none">
+      {/* --- Header / Navigation --- */}
+      <nav className="absolute top-0 left-0 right-0 z-[100] px-6 py-8 flex justify-between items-center mix-blend-difference pointer-events-none">
         <div className="flex items-center gap-6 pointer-events-auto">
           <span className="text-xs font-bold tracking-[0.4em] uppercase text-white/90 select-none">
             Existence Ticker
@@ -136,7 +135,7 @@ export const LandingPage = () => {
                 .getElementById("entrance")
                 ?.scrollIntoView({ behavior: "smooth" });
             }}
-            className="text-[9px] min-[375px]:text-[10px] md:text-xs font-medium tracking-[0.1em] text-white/60 hover:text-white transition-colors border-l border-white/20 pl-4 md:pl-6 block"
+            className="text-xs md:text-base font-normal tracking-[0.1em] text-white/60 hover:text-white transition-colors border-l border-white/20 pl-4 md:pl-6 block"
           >
             招待コードをお持ちの方
           </a>
@@ -282,20 +281,18 @@ export const LandingPage = () => {
       {/* --- B-Side: Scroll Manifesto (Content Section) --- */}
       <div className="relative z-20 bg-[#F9F8F4]/90 backdrop-blur-md min-h-screen">
         {/* --- The Scenes --- */}
-        <section className="py-20 md:py-48 space-y-40 md:space-y-72">
+        <section className="py-16 md:py-32 space-y-24 md:space-y-48">
           {SCENES.map((scene, index) => (
-            <motion.div
+            <div
               key={scene.id}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-10%" }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
               className={`flex flex-col ${index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} items-center gap-10 md:gap-16 max-w-4xl mx-auto px-8`}
             >
               <div className="w-full md:w-3/5 overflow-hidden rounded-sm">
-                <motion.img
+                <img
                   src={scene.image}
                   alt={`Scene ${scene.id}`}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-auto mix-blend-multiply sepia-[0.2] grayscale-[0.1] contrast-[1.05] transition-transform duration-[2000ms] hover:scale-105"
                 />
               </div>
@@ -304,14 +301,14 @@ export const LandingPage = () => {
                   {scene.text}
                 </p>
               </div>
-            </motion.div>
+            </div>
           ))}
         </section>
 
         {/* --- C-Side: The Journey (Story Fragments) --- */}
-        <Section className="py-40 flex flex-col items-center bg-[#F9F8F4] overflow-hidden">
+        <Section className="py-24 md:py-32 flex flex-col items-center bg-[#F9F8F4] overflow-hidden">
           <div className="max-w-4xl mx-auto px-6">
-            <div className="text-center mb-32">
+            <div className="text-center mb-16 md:mb-24">
               <span className="text-xs tracking-[0.4em] text-[#AAAAAA] uppercase mb-4 block font-sans">
                 The Journey
               </span>
@@ -330,14 +327,10 @@ export const LandingPage = () => {
               </div>
             </div>
 
-            <div className="space-y-40 md:space-y-64 mb-32">
+            <div className="space-y-24 md:space-y-40 mb-16 md:mb-24">
               {CHAPTERS.filter((c) => c.id % 2 !== 0).map((chapter) => (
-                <motion.div
+                <div
                   key={chapter.id}
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-20%" }}
-                  transition={{ duration: 1.2 }}
                   className="flex flex-col items-center text-center max-w-2xl mx-auto"
                 >
                   <span className="text-[10px] md:text-xs tracking-[0.3em] text-[#BBBBBB] mb-8 font-sans">
@@ -347,16 +340,16 @@ export const LandingPage = () => {
                     「{chapter.fragment}」
                   </blockquote>
                   <div className="h-[1px] w-8 bg-[#E5E0D5]" />
-                </motion.div>
+                </div>
               ))}
             </div>
 
-            <div className="h-[20vh]"></div>
+            <div className="h-[5vh] md:h-[20vh]"></div>
           </div>
         </Section>
 
         {/* --- Story CTA --- */}
-        <Section className="py-32 md:py-48 flex flex-col items-center bg-[#F9F8F4]">
+        <Section className="py-16 md:py-32 flex flex-col items-center bg-[#F9F8F4]">
           <div className="text-center space-y-12 border-t border-b border-slate-300/40 py-16 px-8">
             <p className="text-2xl md:text-3xl font-serif text-[#1A1A1A] tracking-[0.4em] mb-8">
               なぜ、このインフラを作ったのか。
@@ -370,7 +363,7 @@ export const LandingPage = () => {
             </button>
           </div>
         </Section>
-        <Section className="py-24 md:py-40 pb-48 md:pb-40 flex flex-col items-center text-center px-6 bg-gradient-to-b from-transparent to-[#EBE9E4]/40">
+        <Section className="py-20 md:py-32 pb-32 md:pb-32 flex flex-col items-center text-center px-6 bg-gradient-to-b from-transparent to-[#EBE9E4]/40">
           <div className="bg-white p-6 rounded-full mb-8 shadow-[0_8px_30px_rgba(0,0,0,0.02)] mx-auto w-fit">
             <Sparkles size={24} className="text-[#C5A065] stroke-[1px]" />
           </div>
@@ -502,19 +495,11 @@ const Section = ({
   className?: string;
   id?: string;
 }) => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-10%" });
-
   return (
-    <section ref={ref} className={className} id={id}>
-      <motion.div
-        initial={{ opacity: 0, y: 15 }}
-        animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="w-full"
-      >
+    <section className={className} id={id}>
+      <div className="w-full">
         {children}
-      </motion.div>
+      </div>
     </section>
   );
 };
