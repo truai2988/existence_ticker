@@ -77,7 +77,7 @@ export const StoryPage = () => {
 
                             <article className="space-y-8 text-base leading-[2.2] md:leading-[2.4] text-[#333333] tracking-wide print:text-black print:text-base print:leading-normal">
                                 {chapter.content.map((p, pIdx) => (
-                                    <p key={pIdx} className="indent-4 md:indent-8 text-justify">
+                                    <p key={pIdx} className="indent-4 md:indent-8 text-justify break-words break-all sm:break-normal">
                                         {p}
                                     </p>
                                 ))}
