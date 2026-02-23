@@ -76,7 +76,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
             <div className="border-b border-slate-100/50 pt-safe">
                 <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between">
                      <div className="min-w-0">
-                        <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
+                        <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-500 leading-none mb-3 select-none">
                             Existence Ticker
                         </div>
                         <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">応える</h2>
@@ -100,7 +100,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
                             activeTab === 'explore' 
                                 ? 'text-amber-800' 
-                                : exploreWishes.length === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-slate-500'
+                                : exploreWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
                         }`}
                     >
                         <span>募集中 ({exploreWishes.length})</span>
@@ -117,7 +117,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
                             activeTab === 'pending' 
                                 ? 'text-amber-700' 
-                                : pendingWishes.length === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-slate-500'
+                                : pendingWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
                         }`}
                     >
                         返事待ち ({pendingWishes.length})
@@ -134,7 +134,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
                             activeTab === 'active' 
                                 ? 'text-emerald-700' 
-                                : activeWishes.length === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-slate-500'
+                                : activeWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
                         }`}
                     >
                         進行中 ({activeWishes.length})
@@ -159,7 +159,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                             currentUserId={currentUserId}
                             viewType="flow"
                             emptyMessage="条件に合う募集中の依頼はありません"
-                            emptyIcon={<ClipboardList size={48} className="text-slate-300 mb-2" />}
+                            emptyIcon={<ClipboardList size={48} className="text-slate-500 mb-2" />}
                             onOpenProfile={onOpenProfile}
                             onActionComplete={handleActionComplete}
                             onTabChange={onTabChange}
@@ -172,7 +172,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                             currentUserId={currentUserId}
                             viewType="flow"
                             emptyMessage="返事待ちの依頼はありません"
-                            emptyIcon={<Timer size={48} className="text-slate-300 mb-2" />}
+                            emptyIcon={<Timer size={48} className="text-slate-500 mb-2" />}
                             onOpenProfile={onOpenProfile}
                             onActionComplete={handleActionComplete}
                             onTabChange={onTabChange}
@@ -185,7 +185,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                             currentUserId={currentUserId}
                             viewType="flow"
                             emptyMessage="進行中の依頼はありません"
-                            emptyIcon={<PlayCircle size={48} className="text-slate-300 mb-2" />}
+                            emptyIcon={<PlayCircle size={48} className="text-slate-500 mb-2" />}
                             onOpenProfile={onOpenProfile}
                             onActionComplete={handleActionComplete}
                             onTabChange={onTabChange}

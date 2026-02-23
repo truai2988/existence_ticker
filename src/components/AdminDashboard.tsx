@@ -511,7 +511,7 @@ https://www.existenceticker.com/?code=${codeId}
           <button
             type="button"
             onClick={() => setActiveTab("monitor")}
-            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "monitor" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-300"}`}
+            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "monitor" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-400"}`}
           >
             <Activity size={16} />
             監視
@@ -519,21 +519,21 @@ https://www.existenceticker.com/?code=${codeId}
           <button
             type="button"
             onClick={() => setActiveTab("citizens")}
-            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "citizens" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-300"}`}
+            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "citizens" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-400"}`}
           >
             <Users size={16} /> 住民
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("invitations")}
-            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "invitations" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-300"}`}
+            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "invitations" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-400"}`}
           >
             <Key size={16} /> 招待
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("seeds")}
-            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "seeds" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-300"}`}
+            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "seeds" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-400"}`}
           >
             <Sprout size={16} /> 種子の書庫
           </button>
@@ -602,7 +602,7 @@ https://www.existenceticker.com/?code=${codeId}
                       value={newSeedContent}
                       onChange={(e) => setNewSeedContent(e.target.value)}
                       placeholder="「例えば：...」静かな願いの種を綴ってください"
-                      className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-4 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 transition-all min-h-[100px] font-serif"
+                      className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-4 text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50 transition-all min-h-[100px] font-serif"
                     />
                   </div>
                   <button
@@ -637,7 +637,7 @@ https://www.existenceticker.com/?code=${codeId}
                             className="group bg-slate-900/30 border border-slate-800 hover:border-slate-700 p-4 rounded-xl flex justify-between items-start gap-4 transition-all"
                           >
                             <div className="flex-1">
-                              <p className="text-slate-300 font-serif leading-relaxed text-sm">
+                              <p className="text-slate-400 font-serif leading-relaxed text-sm">
                                 {seed.content}
                               </p>
                               <div className="mt-2 text-[9px] text-slate-600 font-mono uppercase tracking-tighter">
@@ -760,7 +760,7 @@ https://www.existenceticker.com/?code=${codeId}
                                           updateInviteMemo(code.id, e.target.value);
                                         }
                                       }}
-                                      className="bg-slate-800/80 border border-slate-700/50 rounded flex-1 px-3 py-1 text-[11px] text-slate-300 focus:outline-none focus:border-slate-500 placeholder:text-slate-600 transition-colors w-40"
+                                      className="bg-slate-800/80 border border-slate-700/50 rounded flex-1 px-3 py-1 text-[11px] text-slate-400 focus:outline-none focus:border-slate-500 placeholder:text-slate-400 transition-colors w-40"
                                     />
                                   </div>
                                   <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold ring-1 ring-emerald-500/20 shadow-[0_0_10px_rgba(52,211,153,0.1)]">
@@ -850,7 +850,7 @@ https://www.existenceticker.com/?code=${codeId}
                           >
                             {/* User Info Col (Mobile: Row 1) */}
                             <div className="col-span-5 flex items-center gap-3 w-full mb-3 md:mb-0">
-                              <div className="w-8 h-8 rounded-full bg-slate-700 flex-shrink-0 flex items-center justify-center text-xs font-bold text-slate-300">
+                              <div className="w-8 h-8 rounded-full bg-slate-700 flex-shrink-0 flex items-center justify-center text-xs font-bold text-slate-400">
                                 {u.name?.charAt(0) || "?"}
                               </div>
                               <div className="min-w-0 flex-1">
@@ -1278,7 +1278,7 @@ https://www.existenceticker.com/?code=${codeId}
                           saturation (Full)
                         </span>
                       </span>
-                      <span className="font-mono text-slate-300">
+                      <span className="font-mono text-slate-400">
                         {distribution.full}{" "}
                         <span className="text-xs opacity-70">
                           ({(distRatio.full * 100).toFixed(1)}%)
@@ -1295,13 +1295,13 @@ https://www.existenceticker.com/?code=${codeId}
                   {/* Quarter */}
                   <div>
                     <div className="flex justify-between text-xs mb-1">
-                      <span className="text-slate-300">
+                      <span className="text-slate-400">
                         🌓 安定 (Stable){" "}
                         <span className="text-xs text-slate-500 ml-1">
                           安定した魂
                         </span>
                       </span>
-                      <span className="font-mono text-slate-300">
+                      <span className="font-mono text-slate-400">
                         {distribution.quarter}{" "}
                         <span className="text-xs opacity-70">
                           ({(distRatio.quarter * 100).toFixed(1)}%)
@@ -1324,7 +1324,7 @@ https://www.existenceticker.com/?code=${codeId}
                           新生した魂
                         </span>
                       </span>
-                      <span className="font-mono text-slate-300">
+                      <span className="font-mono text-slate-400">
                         {distribution.new}{" "}
                         <span className="text-xs opacity-70">
                           ({(distRatio.new * 100).toFixed(1)}%)
@@ -1453,7 +1453,7 @@ https://www.existenceticker.com/?code=${codeId}
                 </button>
                 <p className="text-center text-xs text-slate-500 mt-2">
                   生命贈与額 (Fixed):{" "}
-                  <span className="text-slate-300">2,400 Lm</span> (不変の理)
+                  <span className="text-slate-400">2,400 Lm</span> (不変の理)
                 </p>
               </div>
             </>

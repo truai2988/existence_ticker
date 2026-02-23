@@ -44,7 +44,7 @@ export const HeaderStatusDisplay: React.FC<HeaderStatusDisplayProps> = ({
   // Default Home View
   return (
     <div className="flex flex-col">
-      <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none font-sans">
+      <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-500 leading-none mb-3 select-none font-sans">
         Existence Ticker
       </div>
       <h1 className="text-xl font-bold tracking-widest text-slate-900 uppercase font-sans">

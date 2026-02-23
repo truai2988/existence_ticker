@@ -114,19 +114,22 @@ const SLIDES = [
     subtitle: "THE BEGINNING",
     bgColor: "#F9F9F9", // Faint Neutral Gray
     content: (
-        <div className="space-y-4 text-center leading-relaxed font-serif w-full mb-4">
-            <div className="bg-white text-slate-800 py-4 px-3 rounded-xl shadow-sm border border-slate-100 mx-auto w-full max-w-[280px]">
-                <p className="font-bold text-base mb-2 leading-relaxed">
-                    <span className="inline-block">実費（円）は</span><span className="inline-block">「お財布」から。</span>
-                </p>
-                <p className="font-bold text-base leading-relaxed">
-                    <span className="inline-block">感謝（Lm）は</span><span className="inline-block">「心」から。</span>
-                </p>
-            </div>
-            <div className="text-xs text-slate-600 font-sans leading-loose opacity-90">
-                <p><span className="inline-block">お金では伝えきれない</span><span className="inline-block">「ありがとう」を。</span></p>
-                <p className="mt-2 text-base"><span className="inline-block">さあ、新しい循環を</span><span className="inline-block">始めましょう。</span></p>
-            </div>
+        <div className="text-center font-serif text-slate-700 leading-loose flex flex-col items-center w-full mb-4">
+           <div className="py-2 mb-6 relative w-full">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-slate-200/50 rounded-full blur-2xl pointer-events-none"></div>
+              <p className="text-base font-bold flex flex-col gap-4 relative z-10 w-full text-center">
+                <span className="tracking-wide">
+                  <span className="text-slate-500 mr-1">実費（円）は</span>「お財布」から。
+                </span>
+                <span className="tracking-wide">
+                  <span className="text-slate-500 mr-1">感謝（Lm）は</span>「心」から。
+                </span>
+              </p>
+           </div>
+          <div className="text-xs text-slate-600 font-sans leading-loose opacity-90 w-full text-center">
+            <p className="mb-2"><span className="inline-block">お金では伝えきれない</span><span className="inline-block">「ありがとう」を。</span></p>
+            <p className="text-base font-serif font-bold text-slate-700"><span className="inline-block">さあ、新しい循環を</span><span className="inline-block">始めましょう。</span></p>
+          </div>
         </div>
     )
   }
@@ -220,7 +223,7 @@ export const OnboardingSlides: React.FC<Props> = ({ isOpen, onClose }) => {
                             <h2 className="text-3xl font-serif font-medium text-slate-800 tracking-widest mb-2">
                                 {SLIDES[currentSlide].title}
                             </h2>
-                            <p className="text-xs text-slate-300 font-bold tracking-[0.3em] uppercase">
+                            <p className="text-xs text-slate-400 font-bold tracking-[0.3em] uppercase">
                                 {SLIDES[currentSlide].subtitle}
                             </p>
                         </div>

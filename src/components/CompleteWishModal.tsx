@@ -33,7 +33,7 @@ export const CompleteWishModal = ({ wishTitle, helperName, preset, cost, onConfi
         {/* The Pact (約束の内容) */}
         <div className="bg-slate-50 rounded-xl p-5 border border-slate-100 space-y-4 shadow-inner">
           <div className="space-y-1">
-             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">依頼内容</span>
+             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">依頼内容</span>
              <p className="text-sm text-slate-700 font-medium leading-relaxed break-words">
                  {wishTitle}
              </p>
@@ -44,7 +44,7 @@ export const CompleteWishModal = ({ wishTitle, helperName, preset, cost, onConfi
           {/* Locked Reward Display */}
           <div className="flex justify-between items-center">
             <div>
-               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">感謝</span>
+               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">感謝</span>
                <span className="text-xs text-slate-600 font-medium">
                  {preset === 'light' && '魂の共鳴'}
                  {preset === 'medium' && '日常の手助け'}
@@ -72,7 +72,7 @@ export const CompleteWishModal = ({ wishTitle, helperName, preset, cost, onConfi
             </div>
           </button>
           
-          <button onClick={onCancel} className="w-full text-xs font-bold text-slate-400 hover:text-slate-600 py-3 transition-colors">
+          <button onClick={onCancel} className="w-full text-xs font-bold text-slate-500 hover:text-slate-700 py-3 transition-colors">
             キャンセル
           </button>
         </div>

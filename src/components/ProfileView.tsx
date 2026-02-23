@@ -64,7 +64,7 @@ const ListItem: React.FC<ListItemProps> = ({
         <span className="text-base font-bold text-slate-700 font-sans">{value}</span>
       )}
       {hasArrow && onClick && (
-        <ChevronRight size={16} className="text-slate-300" />
+        <ChevronRight size={16} className="text-slate-500" />
       )}
     </div>
   </button>
@@ -201,7 +201,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       <div className="border-b border-slate-100/50 pt-safe">
           <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between flex-nowrap gap-2">
               <div className="min-w-0">
-                   <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none font-sans">
+                   <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-500 leading-none mb-3 select-none font-sans">
                        Existence Ticker
                    </div>
                    <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900 truncate">プロフィール</h2>
@@ -430,7 +430,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 )}
             </div>
 
-             <div className="text-center text-xs text-slate-300 py-4 font-sans focus:outline-none">
+             <div className="text-center text-xs text-slate-500 py-4 font-sans focus:outline-none">
                Existence Ticker v0.2.0
              </div>
           </div>

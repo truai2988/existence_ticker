@@ -133,7 +133,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-1">
                        <div className="flex items-baseline flex-wrap gap-x-3 gap-y-1">
                            <label className="text-xs uppercase tracking-widest font-bold text-slate-500 shrink-0">
-                               お裾分けする Lm <span className="text-xs font-normal text-slate-400 ml-0.5">(源気)</span>
+                               お裾分けする Lm <span className="text-xs font-normal text-slate-500 ml-0.5">(源気)</span>
                            </label>
                            <button 
                              type="button"
@@ -175,7 +175,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                                        : tier.cost === 500
                                          ? "border-[#8B4513] bg-gradient-to-r from-amber-50/50 to-white shadow-[0_8px_20px_-4px_rgba(139,69,19,0.15)] ring-1 ring-[#8B4513]/10"
                                          : "border-pink-100 bg-white shadow-[0_4px_15px_-3px_rgba(244,114,182,0.1)] ring-1 ring-pink-50 animate-pulse-subtle"
-                                     : "border-slate-100 bg-white text-slate-400 hover:border-slate-200"
+                                     : "border-slate-100 bg-white text-slate-500 hover:border-slate-200"
                                  }
                              `}
                            >
@@ -185,7 +185,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                                  : "text-slate-600"}`}>
                                  {tier.label}
                                </span>
-                               <span className="text-xs text-slate-400 font-bold uppercase tracking-tighter opacity-70">
+                               <span className="text-xs text-slate-500 font-bold uppercase tracking-tighter opacity-70">
                                  {tier.subLabel}
                                </span>
                              </div>
@@ -217,8 +217,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                         value={newWishContent}
                         onChange={(e) => setNewWishContent(e.target.value)}
                         placeholder={currentPlaceholder}
-                        className="w-full bg-transparent text-slate-800 placeholder:text-slate-400/50 text-base min-h-[160px] resize-none outline-none leading-relaxed font-serif tracking-wide"
-                        autoFocus
+                        className="w-full bg-transparent text-slate-800 placeholder:text-slate-400 text-base min-h-[160px] resize-none outline-none leading-relaxed font-serif tracking-wide"
                       />
                   </div>
                </div>
@@ -248,7 +247,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                            <span className={`text-base font-bold transition-colors ${isAnonymous ? "text-slate-800" : "text-slate-500"}`}>
                                匿名でお願いする
                            </span>
-                           <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                           <p className="text-xs text-slate-500 mt-1 leading-relaxed">
                                ※相談がまとまる（進行中になる）まで、お互いの名前やアイコンは表示されません
                            </p>
                        </div>

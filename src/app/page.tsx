@@ -394,7 +394,7 @@ export const LandingPage = () => {
               <input
                 type="email"
                 placeholder="your@email.com"
-                className="flex-1 bg-transparent z-10 px-8 py-6 md:py-5 text-[#2D2D2D] placeholder:text-[#BBBBBB] outline-none text-base tracking-[0.1em] font-serif"
+                className="flex-1 bg-transparent z-10 px-8 py-6 md:py-5 text-[#2D2D2D] placeholder:text-[#888888] outline-none text-base tracking-[0.1em] font-serif"
               />
               <button className="group relative z-10 px-10 py-6 md:py-5 rounded-xl bg-[#2D2D2D] text-white text-base md:text-xs font-medium tracking-[0.25em] overflow-hidden transition-all hover:bg-[#111111] shadow-lg shadow-black/5 active:scale-[0.98] font-sans">
                 <span className="relative z-10 flex items-center justify-center gap-4">

@@ -86,10 +86,10 @@ const ApplicantItem: React.FC<{
           ) : (
             <span className="text-base font-bold text-slate-400">
               {isMasked ? (
-                <User className="w-5 h-5 text-slate-400" />
+                <User className="w-5 h-5 text-slate-500" />
               ) : (
                 displayName?.charAt(0).toUpperCase() || (
-                  <User className="w-5 h-5 text-slate-300" />
+                  <User className="w-5 h-5 text-slate-500" />
                 )
               )}
             </span>
@@ -121,7 +121,7 @@ const ApplicantItem: React.FC<{
 
             {/* Rank Label */}
             <>
-              <span className="text-slate-300">|</span>
+              <span className="text-slate-500">|</span>
               <span className="text-slate-600 font-bold">{rank.label}</span>
             </>
           </div>
@@ -466,7 +466,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                         <Trash2 size={14} />
                         この内容を消去する
                     </button>
-                    <p className="text-xs text-slate-400 text-center font-sans">※このお願いのLm予約はすでに解除されています</p>
+                    <p className="text-xs text-slate-500 text-center font-sans">※このお願いのLm予約はすでに解除されています</p>
                 </div>
             </div>
         );
@@ -486,7 +486,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                 <div className="h-4 w-5/6 bg-slate-100 rounded" />
             </div>
             <div className="h-10 w-full bg-slate-200 rounded-xl" />
-            <div className="absolute top-4 right-6 flex items-center gap-1.5 text-slate-300 text-xs font-bold uppercase tracking-widest font-sans">
+            <div className="absolute top-4 right-6 flex items-center gap-1.5 text-slate-500 text-xs font-bold uppercase tracking-widest font-sans">
                 <Loader2 size={12} className="animate-spin" />
                 伝搬中...
             </div>
@@ -571,7 +571,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                 {["cancelled", "expired"].includes(wish.status) && (
                   <div className="flex items-center gap-2 opacity-50 mb-1">
                     <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
-                      <User className="w-5 h-5 text-slate-300" />
+                      <User className="w-5 h-5 text-slate-500" />
                     </div>
                     <div className="text-xs text-slate-600 font-bold font-sans">
                       未成立
@@ -595,10 +595,10 @@ export const WishCard: React.FC<WishCardProps> = ({
                 ) : (
                   <span className="text-base font-bold text-slate-400">
                     {isMasked ? (
-                      <User className="w-5 h-5 text-slate-400" />
+                      <User className="w-5 h-5 text-slate-500" />
                     ) : (
                       requesterProfile?.name?.charAt(0).toUpperCase() || (
-                        <User className="w-5 h-5 text-slate-300" />
+                        <User className="w-5 h-5 text-slate-500" />
                       )
                     )}
                   </span>
@@ -638,7 +638,7 @@ export const WishCard: React.FC<WishCardProps> = ({
                         ({wish.requester_trust_score || 0})
                       </span>
                     </div>
-                    <span className="text-slate-300">|</span>
+                    <span className="text-slate-500">|</span>
                     <span
                       title="過去に完了/支払いを行った回数"
                       className="text-slate-500 font-bold flex items-center gap-1"
@@ -781,7 +781,7 @@ export const WishCard: React.FC<WishCardProps> = ({
               ) : wish.status === "interrupted" ? (
                 <X size={16} className="text-slate-400" />
               ) : (
-                <Archive size={16} className="text-slate-400" />
+                <Archive size={16} className="text-slate-500" />
               )}
               <span
                 className={`text-xs font-bold font-sans ${

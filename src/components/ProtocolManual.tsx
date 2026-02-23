@@ -12,13 +12,13 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
         {/* Header */}
         <div className="flex justify-between items-start mb-12 border-b-2 border-slate-900 pb-6">
           <div>
-            <div className="flex items-center gap-2 text-slate-500 mb-2 uppercase tracking-[0.2em] text-xs font-sans">
+            <div className="flex items-center gap-2 text-slate-600 mb-2 uppercase tracking-[0.2em] text-xs font-sans">
               <Activity size={14} />
               <span>Existence Ticker Protocol v2.0</span>
             </div>
             <h1 className="text-4xl font-serif font-bold text-slate-900 leading-tight">
               自律分散型互助生態系構想書
-              <span className="block text-lg font-sans font-normal text-slate-500 mt-2">Autonomous Mutual Aid Ecosystem Protocol</span>
+              <span className="block text-lg font-sans font-normal text-slate-600 mt-2">Autonomous Mutual Aid Ecosystem Protocol</span>
             </h1>
           </div>
           <button
@@ -33,7 +33,7 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
           
           {/* Introduction */}
           <section className="prose prose-slate max-w-none">
-            <p className="text-xl italic text-slate-500 border-l-4 border-slate-200 pl-6 py-2">
+            <p className="text-xl italic text-slate-600 border-l-4 border-slate-200 pl-6 py-2">
               本ドキュメントは、本システムの投資家および設計協力者に向けたアーキテクチャ解説書です。<br/>
               我々は「富の保存」ではなく「感謝の循環」を価値の源泉とする、新たな経済物理学を実装しました。
             </p>
@@ -105,7 +105,7 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
             
             <div className="bg-slate-900 text-white p-8 rounded-sm shadow-xl mt-8">
                <h4 className="font-sans text-xs uppercase tracking-widest text-slate-400 mb-4 border-b border-slate-700 pb-2">管理者の誓い (Admin Protocol)</h4>
-               <p className="font-mono text-sm leading-relaxed text-slate-300">
+               <p className="font-mono text-sm leading-relaxed text-slate-400">
                  &gt; We do not manage the economy. <span className="text-slate-500 text-xs">(我々は経済を管理しない)</span><br/>
                  &gt; We design the ecosystem. <span className="text-slate-500 text-xs">(我々は生態系を設計する)</span><br/>
                  &gt; <br/>

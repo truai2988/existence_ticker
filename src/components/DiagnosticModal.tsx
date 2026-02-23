@@ -132,7 +132,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               <div className="relative group">
                   <div className="absolute -top-4 -left-2 text-6xl text-slate-800 font-serif leading-none select-none">“</div>
                   <div className="relative z-10 pl-6 border-l border-slate-700">
-                    <p className="text-slate-300 font-serif text-base sm:text-3xl leading-relaxed italic whitespace-pre-wrap">
+                    <p className="text-slate-400 font-serif text-base sm:text-3xl leading-relaxed italic whitespace-pre-wrap">
                         {content.voice}
                     </p>
                   </div>
@@ -142,13 +142,13 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-0.5 bg-slate-800/50 border border-slate-800 rounded-xl overflow-hidden">
                   <div className="bg-slate-900 p-4 text-center">
                       <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">流通速度 (Flow)</div>
-                      <div className={`font-mono text-xl sm:text-2xl ${metabolism.rate >= 10 ? 'text-cyan-400' : 'text-slate-300'}`}>
+                      <div className={`font-mono text-xl sm:text-2xl ${metabolism.rate >= 10 ? 'text-cyan-400' : 'text-slate-400'}`}>
                           {metabolism.rate}%
                       </div>
                   </div>
                   <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
                       <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">平均残高 (Avg)</div>
-                      <div className="font-mono text-xl sm:text-2xl text-slate-300">
+                      <div className="font-mono text-xl sm:text-2xl text-slate-400">
                           {avgBalance.toLocaleString()}
                       </div>
                   </div>

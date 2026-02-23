@@ -196,7 +196,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                 <div className="border-b border-transparent">
                     <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between flex-nowrap gap-2">
                         <div className="flex flex-col">
-                            <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
+                            <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-400 leading-none mb-3 select-none">
                                 Existence Ticker
                             </div>
                             <div className="flex items-center gap-2">
@@ -287,7 +287,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                             {previewUrl ? (
                                 <CheckCircle size={16} className="text-green-500 shrink-0" strokeWidth={2.5} />
                             ) : (
-                                <XCircle size={16} className="text-slate-300 shrink-0" strokeWidth={2.5} />
+                                <XCircle size={16} className="text-slate-400 shrink-0" strokeWidth={2.5} />
                             )}
                             <span className={`text-xs ${previewUrl ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>
                                 プロフィール画像を登録
@@ -298,7 +298,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                             {bio.length >= 30 ? (
                                 <CheckCircle size={16} className="text-green-500 shrink-0" strokeWidth={2.5} />
                             ) : (
-                                <XCircle size={16} className="text-slate-300 shrink-0" strokeWidth={2.5} />
+                                <XCircle size={16} className="text-slate-400 shrink-0" strokeWidth={2.5} />
                             )}
                             <span className={`text-xs ${bio.length >= 30 ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>
                                 自己紹介を30文字以上入力 <span className="font-mono text-xs">({bio.length}/30)</span>
@@ -309,7 +309,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                             {(links.x || links.instagram || links.website) ? (
                                 <CheckCircle size={16} className="text-green-500 shrink-0" strokeWidth={2.5} />
                             ) : (
-                                <XCircle size={16} className="text-slate-300 shrink-0" strokeWidth={2.5} />
+                                <XCircle size={16} className="text-slate-400 shrink-0" strokeWidth={2.5} />
                             )}
                             <span className={`text-xs ${(links.x || links.instagram || links.website) ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>
                                 SNSを1つ以上連携する
@@ -459,7 +459,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     type="text" 
                                     value={links.x}
                                     onChange={(e) => setLinks(prev => ({ ...prev, x: e.target.value }))}
-                                    className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-300 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
+                                    className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
                                     placeholder="@username or URL"
                                 />
                             </div>
@@ -471,7 +471,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     type="text" 
                                     value={links.instagram}
                                     onChange={(e) => setLinks(prev => ({ ...prev, instagram: e.target.value }))}
-                                    className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-300 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
+                                    className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
                                     placeholder="@username or URL"
                                 />
                             </div>
@@ -483,7 +483,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     type="text" 
                                     value={links.website}
                                     onChange={(e) => setLinks(prev => ({ ...prev, website: e.target.value }))}
-                                    className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-300 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
+                                    className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
                                     placeholder="https://example.com"
                                 />
                             </div>

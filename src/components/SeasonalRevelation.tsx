@@ -52,13 +52,13 @@ export const SeasonalRevelation: React.FC<SeasonalRevelationProps> = ({ eventDat
                          {eventData.season}
                      </h2>
                      
-                     <p className="text-sm text-slate-500 mb-4 font-mono">
+                     <p className="text-sm text-slate-600 mb-4 font-mono">
                          Cycle Duration: {eventData.days} Days
                      </p>
 
                      <div className="flex justify-center mb-4 text-slate-400">
                          {eventData.season === 'Spring' && <Sun size={48} className="text-green-500 animate-pulse" />}
-                         {eventData.season === 'Winter' && <CloudSnow size={48} className="text-slate-500" />}
+                         {eventData.season === 'Winter' && <CloudSnow size={48} className="text-slate-600" />}
                          {eventData.season === 'Equinox' && <Scale size={48} className="text-yellow-500" />}
                      </div>
 

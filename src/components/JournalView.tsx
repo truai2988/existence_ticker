@@ -120,7 +120,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
         <div className="border-b border-slate-100/50 pt-safe">
             <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between">
                  <div className="min-w-0">
-                    <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
+                    <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-500 leading-none mb-3 select-none">
                         Existence Ticker
                     </div>
                     <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">巡りの足跡</h2>
@@ -183,13 +183,13 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
 
     const isExp = isSender && !['REBIRTH', 'BIRTH'].includes(log.type); 
     let amountColor = isExp ? "text-rose-500" : "text-emerald-500";
-    if (log.amount === 0) amountColor = "text-slate-300";
+    if (log.amount === 0) amountColor = "text-slate-500";
 
     return (
         <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }} className="flex items-start gap-3 relative group transition-all rounded-xl p-2 -ml-2">
             <div className="w-12 pt-1 text-right shrink-0">
                 <span className="text-xs font-mono text-slate-400 block">{dateStr}</span>
-                <span className="text-xs font-mono text-slate-300 block">{date.getHours().toString().padStart(2, '0')}:{date.getMinutes().toString().padStart(2, '0')}</span>
+                <span className="text-xs font-mono text-slate-500 block">{date.getHours().toString().padStart(2, '0')}:{date.getMinutes().toString().padStart(2, '0')}</span>
             </div>
             <div className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 z-10 box-content bg-white ${isExp ? 'border-rose-100 shadow-sm' : 'border-emerald-100 shadow-sm'}`}>
                 {(() => {
@@ -248,7 +248,7 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
                 )}
                 <div className="mt-2 flex items-center justify-end gap-1">
                     {log.amount === 0 ? (
-                        <span className="text-xs font-bold text-slate-300 uppercase tracking-widest pl-2">
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-2">
                            {log.type === 'WISH_EXPIRED' ? '期限切れ' : '記録済み'}
                         </span>
                     ) : (

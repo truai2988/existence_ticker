@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X, ChevronRight, ChevronLeft, Sun, Hourglass, HeartHandshake, Scale, Footprints } from 'lucide-react';
+import { X, ChevronRight, ChevronLeft, Sun, Hourglass, HeartHandshake, Scale, Footprints } from 'lucide-react';
 
 interface OnboardingStoryProps {
   isOpen: boolean;
@@ -112,19 +112,22 @@ const getSlides = () => [
     subtitle: 'THE BEGINNING',
     icon: <Footprints size={32} className="text-slate-600" />,
     content: (
-      <div className="text-center font-serif text-slate-700 leading-loose">
-         <div className="bg-white text-slate-800 p-6 rounded-2xl mb-6 shadow-sm border border-slate-100 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl"></div>
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl"></div>
-            <p className="text-base font-bold relative z-10 flex flex-col items-center gap-1">
-              <span className="inline-block">実費（円）は</span><span className="inline-block">「お財布」から。</span>
-              <span className="inline-block">感謝（Lm）は</span><span className="inline-block">「心」から。</span>
+      <div className="text-center font-serif text-slate-700 leading-loose flex flex-col items-center">
+         <div className="py-2 mb-8 relative w-full">
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
+            <p className="text-base font-bold flex flex-col gap-4 relative z-10 text-center w-full">
+              <span className="tracking-wide">
+                <span className="text-slate-500 mr-1">実費（円）は</span>「お財布」から。
+              </span>
+              <span className="tracking-wide">
+                <span className="text-slate-500 mr-1">感謝（Lm）は</span>「心」から。
+              </span>
             </p>
          </div>
-        <p className="text-base text-slate-600 font-medium">
-          <span className="inline-block">お金では伝えきれない</span><span className="inline-block">「ありがとう」を。</span><br />
-          <span className="inline-block">さあ、新しい循環を</span><span className="inline-block">始めましょう。</span>
-        </p>
+        <div className="text-sm text-slate-600 font-medium w-full">
+          <p className="mb-3"><span className="inline-block">お金では伝えきれない</span><span className="inline-block">「ありがとう」を。</span></p>
+          <p className="text-base text-slate-700 font-bold"><span className="inline-block">さあ、新しい循環を</span><span className="inline-block">始めましょう。</span></p>
+        </div>
       </div>
     )
   }
@@ -248,7 +251,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
                 <h2 className="text-3xl font-serif font-medium text-slate-800 tracking-widest mb-2 text-center">
                   {slides[currentSlide].title}
                 </h2>
-                <div className="text-xs font-bold tracking-[0.3em] text-slate-300 uppercase mb-8 text-center">
+                <div className="text-xs font-bold tracking-[0.3em] text-slate-400 uppercase mb-8 text-center">
                   {slides[currentSlide].subtitle}
                 </div>
 
@@ -283,17 +286,10 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
                 className="flex-[2] py-4 rounded-xl bg-white text-slate-800 font-bold shadow-[0_4px_0_0_rgba(203,213,225,0.5)] hover:shadow-[0_2px_0_0_rgba(203,213,225,0.5)] hover:translate-y-[2px] active:translate-y-[4px] active:shadow-none transition-all flex items-center justify-center gap-2 border border-slate-100"
               >
                 {isLastSlide ? (
-                  mode === 'onboarding' ? (
-                      <>
-                        ご縁を結ぶ (はじめる)
-                        <Sparkles size={20} className="text-amber-400" />
-                      </>
-                  ) : (
-                      <>
-                        閉じる
-                        <X size={20} className="text-slate-400" />
-                      </>
-                  )
+                  <>
+                    閉じる
+                    <X size={20} className="text-slate-400" />
+                  </>
                 ) : (
                   <>
                     次へ

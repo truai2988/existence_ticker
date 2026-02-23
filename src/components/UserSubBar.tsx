@@ -63,17 +63,17 @@ export const UserSubBar: React.FC = () => {
                         onClick={() => setShowPresenceModal(true)}
                         className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors group"
                     >
-                        <MapPin size={12} className="text-slate-300 group-hover:text-blue-400 transition-colors" />
+                        <MapPin size={12} className="text-slate-400 group-hover:text-blue-400 transition-colors" />
                         <span className="font-mono tracking-wide">
                             {profile?.location?.prefecture}{profile?.location?.city || "エリア"}: <span className="font-bold text-slate-500 group-hover:text-slate-700">{getStatusText()}</span>
                         </span>
-                        <ChevronRight size={12} className="text-slate-300 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                        <ChevronRight size={12} className="text-slate-400 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
                     </button>
                     
                     {/* User Name (Settings Trigger) */}
                     <button 
                         onClick={() => setShowSettingsModal(true)}
-                        className="text-xs text-slate-300 font-mono tracking-wide flex items-center gap-1 hover:text-slate-200 transition-colors"
+                        className="text-xs text-slate-400 font-mono tracking-wide flex items-center gap-1 hover:text-slate-300 transition-colors"
                     >
                         <span>サインイン:</span>
                         <span className="text-slate-400 font-bold hover:text-blue-500 hover:underline transition-all underline-offset-2">{currentName}</span>

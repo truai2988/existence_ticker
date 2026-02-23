@@ -52,7 +52,7 @@ export const WishesList = ({ currentUserId }: WishesListProps) => {
     if (myQuests.length === 0 && myRequests.length === 0) {
       return (
         <div className="text-center py-20 px-6 border border-dashed border-slate-800 rounded-2xl bg-slate-900/30">
-          <p className="text-slate-500 text-sm">現在進行中の契約はありません。</p>
+          <p className="text-slate-400 text-sm">現在進行中の契約はありません。</p>
         </div>
       );
     }
@@ -131,7 +131,7 @@ export const WishesList = ({ currentUserId }: WishesListProps) => {
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900/50 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-full transition-all group"
             >
                 <MapPin size={14} className="text-slate-400 group-hover:text-blue-400 transition-colors" />
-                <span className="text-xs text-slate-500 group-hover:text-slate-300 font-medium">
+                <span className="text-xs text-slate-400 group-hover:text-slate-300 font-medium">
                     近くの気配を確認する
                 </span>
             </button>
@@ -144,7 +144,7 @@ export const WishesList = ({ currentUserId }: WishesListProps) => {
                 flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium transition-all duration-300
                 ${activeTab === 'all' 
                 ? 'bg-slate-800 text-yellow-400 shadow-sm ring-1 ring-yellow-500/20' 
-                : 'text-slate-500 hover:text-slate-300 hover:bg-slate-900'
+                : 'text-slate-400 hover:text-slate-300 hover:bg-slate-900'
                 }
             `}
             >
@@ -158,7 +158,7 @@ export const WishesList = ({ currentUserId }: WishesListProps) => {
                 flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium transition-all duration-300
                 ${activeTab === 'mine' 
                 ? 'bg-slate-800 text-yellow-400 shadow-sm ring-1 ring-yellow-500/20' 
-                : 'text-slate-500 hover:text-slate-300 hover:bg-slate-900'
+                : 'text-slate-400 hover:text-slate-300 hover:bg-slate-900'
                 }
             `}
             >
@@ -172,7 +172,7 @@ export const WishesList = ({ currentUserId }: WishesListProps) => {
                 flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium transition-all duration-300
                 ${activeTab === 'accepted' 
                 ? 'bg-slate-800 text-yellow-400 shadow-sm ring-1 ring-yellow-500/20' 
-                : 'text-slate-500 hover:text-slate-300 hover:bg-slate-900'
+                : 'text-slate-400 hover:text-slate-300 hover:bg-slate-900'
                 }
             `}
             >
@@ -190,7 +190,7 @@ export const WishesList = ({ currentUserId }: WishesListProps) => {
         ) : (
             filteredWishes.length === 0 ? (
                 <div className="text-center py-20 px-6 border border-dashed border-slate-800 rounded-2xl bg-slate-900/30">
-                <p className="text-slate-500 text-sm mb-2">
+                <p className="text-slate-400 text-sm mb-2">
                     {activeTab === 'all' && '現在、輝く星は見当たりません。'}
                     {activeTab === 'mine' && 'あなたはまだ願いを放っていません。'}
                 </p>

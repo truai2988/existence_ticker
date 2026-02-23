@@ -65,7 +65,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
                             <h1 className="text-6xl font-light tracking-tighter text-slate-800 mb-2 font-['Inter']">
                                 ET
                             </h1>
-                            <p className="text-xs text-slate-400 font-light tracking-[0.5em] uppercase">
+                            <p className="text-xs text-slate-500 font-light tracking-[0.5em] uppercase">
                                 Existence Ticker
                             </p>
                         </div>
@@ -74,7 +74,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
                         <div className="flex justify-end p-6">
                             <button 
                                 onClick={onClose}
-                                className="p-2 rounded-full hover:bg-slate-50 transition-colors text-slate-400"
+                                className="p-2 rounded-full hover:bg-slate-50 transition-colors text-slate-500"
                             >
                                 <X size={24} />
                             </button>
@@ -89,13 +89,13 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
                                         key={item.id}
                                         onClick={() => handleNavigation(item.id as AppViewMode)}
                                         className={`group flex items-center gap-6 text-left transition-all ${
-                                            isActive ? 'text-blue-600' : 'text-slate-400 hover:text-slate-600'
+                                            isActive ? 'text-blue-600' : 'text-slate-500 hover:text-slate-600'
                                         }`}
                                     >
                                         <item.icon 
                                             size={24} 
                                             strokeWidth={isActive ? 2 : 1.5}
-                                            className={`${isActive ? 'text-blue-600' : 'text-slate-400 group-hover:text-slate-600'} transition-colors`} 
+                                            className={`${isActive ? 'text-blue-600' : 'text-slate-500 group-hover:text-slate-600'} transition-colors`}
                                         />
                                         <span className={`text-3xl tracking-[0.2em] font-light ${isActive ? 'text-blue-600' : 'text-slate-800'}`}>
                                             {item.label}
@@ -128,7 +128,7 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
 
                         {/* Footer / Brand (Optional) */}
                         <div className="p-10 text-center">
-                            <p className="text-xs text-slate-300 font-light tracking-[0.4em] uppercase opacity-60">
+                            <p className="text-xs text-slate-500 font-light tracking-[0.4em] uppercase opacity-60">
                                 Existence Ticker
                             </p>
                         </div>

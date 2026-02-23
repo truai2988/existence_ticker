@@ -39,7 +39,7 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
           {/* Close Button */}
           <button 
             onClick={onClose}
-            className="absolute top-6 right-6 z-50 p-2 rounded-full bg-white/50 hover:bg-white text-slate-400 hover:text-slate-600 transition-colors shadow-sm"
+            className="absolute top-6 right-6 z-50 p-2 rounded-full bg-white/50 hover:bg-white text-slate-500 hover:text-slate-600 transition-colors shadow-sm"
           >
             <X size={20} />
           </button>
@@ -75,9 +75,9 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 {/* 1000 Lm */}
                 <div className="py-6 md:py-8 first:pt-0 last:pb-0 md:grid md:grid-cols-12 md:gap-8 items-center cursor-default">
                     <div className="md:col-span-4 mb-3 md:mb-0 text-center md:text-left">
-                    <span className="inline-block text-3xl font-mono font-bold text-[#B8860B] mb-1">1,000 <span className="text-xs font-normal text-slate-400">Lm</span></span>
+                    <span className="inline-block text-3xl font-mono font-bold text-[#B8860B] mb-1">1,000 <span className="text-xs font-normal text-slate-500">Lm</span></span>
                     <h3 className="text-3xl font-serif font-bold text-slate-800">人生の節目</h3>
-                    <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Respect</p>
+                    <p className="text-xs text-slate-500 tracking-widest uppercase mt-1">Respect</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
@@ -93,9 +93,9 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 {/* 500 Lm */}
                 <div className="py-6 md:py-8 first:pt-0 last:pb-0 md:grid md:grid-cols-12 md:gap-8 items-center cursor-default">
                     <div className="md:col-span-4 mb-3 md:mb-0 text-center md:text-left">
-                    <span className="inline-block text-3xl font-mono font-bold text-amber-600 mb-1">500 <span className="text-xs font-normal text-slate-400">Lm</span></span>
+                    <span className="inline-block text-3xl font-mono font-bold text-amber-600 mb-1">500 <span className="text-xs font-normal text-slate-500">Lm</span></span>
                     <h3 className="text-3xl font-serif font-bold text-slate-800">日常の手助け</h3>
-                    <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Gratitude</p>
+                    <p className="text-xs text-slate-500 tracking-widest uppercase mt-1">Gratitude</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
@@ -111,9 +111,9 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 {/* 0 Lm */}
                 <div className="py-6 md:py-8 first:pt-0 last:pb-0 md:grid md:grid-cols-12 md:gap-8 items-center cursor-default">
                     <div className="md:col-span-4 mb-3 md:mb-0 text-center md:text-left">
-                    <span className="inline-block text-3xl font-mono font-bold text-pink-400 mb-1">0 <span className="text-xs font-normal text-slate-400">Lm</span></span>
+                    <span className="inline-block text-3xl font-mono font-bold text-pink-400 mb-1">0 <span className="text-xs font-normal text-slate-500">Lm</span></span>
                     <h3 className="text-3xl font-serif font-bold text-slate-800">魂の共鳴</h3>
-                    <p className="text-xs text-slate-400 tracking-widest uppercase mt-1">Priceless / ∞</p>
+                    <p className="text-xs text-slate-500 tracking-widest uppercase mt-1">Priceless / ∞</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>

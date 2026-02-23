@@ -58,7 +58,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
             <div className="border-b border-slate-100/50 pt-safe">
                 <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between">
                      <div className="min-w-0">
-                        <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-300 leading-none mb-3 select-none">
+                        <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-500 leading-none mb-3 select-none">
                             Existence Ticker
                         </div>
                         <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">お願い</h2>
@@ -101,7 +101,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
                             activeTab === 'active' && modalState !== 'create_wish'
                                 ? 'text-blue-800' 
-                                : myActiveWishes.length === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-slate-500'
+                                : myActiveWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
                         }`}
                     >
                         募集中 ({myActiveWishes.length})
@@ -118,7 +118,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
                             activeTab === 'outbound' && modalState !== 'create_wish'
                                 ? 'text-emerald-800' 
-                                : myOutboundWishes.length === 0 ? 'text-slate-200' : 'text-slate-400 hover:text-slate-500'
+                                : myOutboundWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
                         }`}
                     >
                         進行中 ({myOutboundWishes.length})
