@@ -279,7 +279,7 @@ export const LandingPage = () => {
       </section>
 
       {/* --- B-Side: Scroll Manifesto (Content Section) --- */}
-      <div className="relative z-20 bg-[#F9F8F4]/90 backdrop-blur-md min-h-screen">
+      <div className="relative z-20 bg-[#F9F8F4]/95 min-h-screen">
         {/* --- The Scenes --- */}
         <section className="py-16 md:py-32 space-y-24 md:space-y-48">
           {SCENES.map((scene, index) => (
