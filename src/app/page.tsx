@@ -129,7 +129,13 @@ export const LandingPage = () => {
             Existence Ticker
           </span>
           <a
-            href="#invite"
+            href="#entrance"
+            onClick={(e) => {
+              e.preventDefault();
+              document
+                .getElementById("entrance")
+                ?.scrollIntoView({ behavior: "smooth" });
+            }}
             className="text-[9px] min-[375px]:text-[10px] md:text-xs font-medium tracking-[0.1em] text-white/60 hover:text-white transition-colors border-l border-white/20 pl-4 md:pl-6 block"
           >
             招待コードをお持ちの方
@@ -364,10 +370,7 @@ export const LandingPage = () => {
             </button>
           </div>
         </Section>
-        <Section
-          id="invite"
-          className="py-24 md:py-40 pb-48 md:pb-40 flex flex-col items-center text-center px-6 bg-gradient-to-b from-transparent to-[#EBE9E4]/40"
-        >
+        <Section className="py-24 md:py-40 pb-48 md:pb-40 flex flex-col items-center text-center px-6 bg-gradient-to-b from-transparent to-[#EBE9E4]/40">
           <div className="bg-white p-6 rounded-full mb-8 shadow-[0_8px_30px_rgba(0,0,0,0.02)] mx-auto w-fit">
             <Sparkles size={24} className="text-[#C5A065] stroke-[1px]" />
           </div>
@@ -413,14 +416,17 @@ export const LandingPage = () => {
           </form>
         </Section>
 
-        {/* Footer */}
-        <footer className="pt-12 pb-32 md:pb-12 text-center border-t border-[#EAEAEA]">
-          <div className="mb-8">
+        {/* --- Entrance Section --- */}
+        <Section
+          id="entrance"
+          className="min-h-[70vh] flex flex-col items-center justify-center bg-[#F9F8F4] relative border-t border-[#EAEAEA]"
+        >
+          <div className="flex flex-col items-center flex-grow justify-center">
             <button
               onClick={handleNavigate}
-              className="group relative inline-block px-12 py-5 bg-white border border-[#E5E5E5] rounded-xl hover:shadow-2xl transition-all duration-700 tracking-[0.2em] text-xs uppercase text-[#777777] hover:text-[#2D2D2D] overflow-hidden font-sans"
+              className="group relative inline-block px-14 py-6 bg-gradient-to-b from-[#FFFFFF] to-[#FDFDFB] border border-[#E0DCD0] shadow-[0_4px_20px_rgba(139,107,80,0.05),0_1px_3px_rgba(0,0,0,0.02)] rounded-2xl hover:shadow-[0_8px_30px_rgba(139,107,80,0.1),0_2px_8px_rgba(0,0,0,0.04)] hover:border-[#D0C8B8] transition-all duration-700 tracking-[0.2em] text-xs uppercase text-[#6B5A4F] hover:text-[#2D2D2D] overflow-hidden font-sans"
             >
-              <span className="relative z-10 font-medium">
+              <span className="relative z-10 font-medium tracking-[0.4em] px-2">
                 {user
                   ? "扉を開け、中へ"
                   : inviteCode
@@ -456,14 +462,19 @@ export const LandingPage = () => {
                 </motion.svg>
               </div>
 
+              {/* Subtle inner glow on hover */}
+              <div className="absolute inset-0 border border-white/60 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 mix-blend-overlay"></div>
+
               {/* Porcelain Sheen */}
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out"></div>
             </button>
           </div>
-          <p className="text-xs text-[#AAAAAA] tracking-[0.2em] uppercase font-serif">
-            © 2026 Existence Ticker.
-          </p>
-        </footer>
+          <div className="absolute bottom-12 left-0 right-0 text-center">
+            <p className="text-[10px] md:text-xs text-[#AAAAAA] tracking-[0.3em] uppercase font-serif">
+              © 2026 EXISTENCE TICKER.
+            </p>
+          </div>
+        </Section>
       </div>
 
       {/* Full screen fade to Porcelain White */}
