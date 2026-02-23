@@ -14,9 +14,9 @@ export const LUNAR_CONSTANTS = {
   REBIRTH_AMOUNT: 2400, // Fixed Rebirth Amount (生命の源気の湧出)
   CYCLE_DAYS: 10, // Default Reset Period (The Cycle)
 
-  // Rate: 10 Lm per 1 Hour
-  // 10 / 3600 = 0.002777...
-  DECAY_PER_SEC: 10 / 3600,
+  // Rate: 7.5 Lm per 45 Minutes
+  // 7.5 / 2700 = 0.002777...
+  DECAY_PER_SEC: 7.5 / 2700,
 };
 
 // Alias for compatibility if needed (transition)

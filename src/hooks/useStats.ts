@@ -166,7 +166,7 @@ export const useStats = () => {
                     }
 
                     // Decay = Population * Decay_Per_Sec * 86400
-                    // Default Rate (If 10 days): 10 Lm/hour = 240 Lm/day per person
+                    // Default Rate (If 10 days): 7.5 Lm / 45min = 240 Lm/day per person
                     // New Law: Rate = 100 / (avg scheduled cycle days)
                     // We use 10 as a reference for macro stats if avg is unknown,
                     // but since most people are currently 10, it's consistent.

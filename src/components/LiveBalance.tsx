@@ -30,11 +30,11 @@ export const LiveBalance: React.FC<LiveBalanceProps> = ({
         // Sync immediate on prop change
         setDisplayValue(calculateLifePoints(balance, getMillis(lastUpdated)));
 
-        // Self-contained loop (1-Hour Silence: 1 hour)
+        // Self-contained loop (45-Minute Silence: 45 minutes)
         const interval = setInterval(() => {
             const current = calculateLifePoints(balance, getMillis(lastUpdated));
             setDisplayValue(current);
-        }, 3600000); 
+        }, 2700000); 
 
         return () => clearInterval(interval);
     }, [balance, lastUpdated]);

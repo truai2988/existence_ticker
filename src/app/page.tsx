@@ -90,7 +90,7 @@ export const LandingPage = () => {
   useEffect(() => {
     if (!isInitialized) return;
 
-    // Stage 2: Real-time Flow (1 hour = 10 Lm flows to the world)
+    // Stage 2: Real-time Flow (45 minutes = 7.5 Lm flows to the world)
     const DECAY_PER_10MS = 0.0000277777;
 
     const interval = setInterval(() => {

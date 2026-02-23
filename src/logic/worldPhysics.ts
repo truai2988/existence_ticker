@@ -7,7 +7,7 @@ import { UserProfile } from '../types';
 export const WORLD_CONSTANTS = {
   REBIRTH_AMOUNT: 2400, // 器（Vessel）の最大容量
   MAX_VESSEL_CAPACITY_MILLI: 2400000, // 2,400 Lm = 絶対的な壁
-  DECAY_RATE_MLLM_PER_HOUR: 10000, // 宇宙定数: 10 Lm/h (絶対不変)
+  DECAY_RATE_MLLM_PER_INTERVAL: 7500, // 宇宙定数: 7.5 Lm / 45min (絶対不変)
   MAX_STREAK_FOR_REPAIR: 2, // 穢れ（Crack）を修復するために必要な連続誠実回数
   GLOBAL_METABOLISM_PATH: 'stats/global_metabolism',
 };
@@ -53,7 +53,7 @@ export const fromMilli = (milli: number): number => milli / 1000;
 
 /**
  * 時間経過による価値の減少を計算する (Universal Physical Law)
- * 減価率は 10 Lm/h (10,000 mLm/h) 固定であり、1時間ごとに階段状に発生する。
+ * 減価率は 7.5 Lm / 45min (7,500 mLm / 45min) 固定であり、45分ごとに階段状に発生する。
  * 
  * @param value 初期値 (milli-Lm)
  * @param elapsedSec 経過時間 (秒)
@@ -61,8 +61,8 @@ export const fromMilli = (milli: number): number => milli / 1000;
  */
 export const calculateDecayedValue = (value: number, elapsedSec: number): number => {
   const s = elapsedSec < 0 ? 0 : elapsedSec;
-  const elapsedHours = Math.floor(s / 3600);
-  const decay = elapsedHours * WORLD_CONSTANTS.DECAY_RATE_MLLM_PER_HOUR;
+  const elapsedIntervals = Math.floor(s / 2700); // 45 minutes = 2700 seconds
+  const decay = elapsedIntervals * WORLD_CONSTANTS.DECAY_RATE_MLLM_PER_INTERVAL;
   const result = value - decay;
   return result < 0 ? 0 : result;
 };
