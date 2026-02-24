@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, X, Trash2, BellOff } from "lucide-react";
-import { useNoticeContext } from "../hooks/useNoticeContext"; // nudge
+import { useNoticeContext } from "../hooks/useNoticeContext";
 import { Notice } from "../types/notice";
 
 /** 通知の type に応じた色クラス */
