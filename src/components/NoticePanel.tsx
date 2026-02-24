@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, X, Trash2, BellOff } from "lucide-react";
-import { useNotices } from "../hooks/useNotices";
+import { useNoticeContext } from "../hooks/useNoticeContext"; // nudge
 import { Notice } from "../types/notice";
 
 /** 通知の type に応じた色クラス */
@@ -30,8 +30,8 @@ const formatTime = (ms: number) => {
 };
 
 export const NoticePanel: React.FC = () => {
-  const { notices, unreadCount, dismissNotice, dismissAll } = useNotices();
   const [isOpen, setIsOpen] = useState(false);
+  const { notices, unreadCount, dismissNotice, dismissAll } = useNoticeContext();
   const panelRef = useRef<HTMLDivElement>(null);
 
   // 外側クリックで閉じる
@@ -52,10 +52,10 @@ export const NoticePanel: React.FC = () => {
       {/* ベルアイコン + バッジ */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-all active:scale-95"
+        className="relative p-1 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-all active:scale-95"
         aria-label="お知らせ"
       >
-        <Bell size={20} strokeWidth={1.8} />
+        <Bell size={24} strokeWidth={1.5} />
         {unreadCount > 0 && (
           <motion.span
             initial={{ scale: 0 }}

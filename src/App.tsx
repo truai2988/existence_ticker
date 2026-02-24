@@ -13,6 +13,7 @@ import { AppViewMode } from "./types";
 import { useStartupMachine, AppMode } from "./hooks/useStartupMachine";
 import { useWallet } from "./hooks/useWallet";
 import { useStats, DashboardStats } from "./hooks/useStats";
+import { NoticeProvider } from "./components/NoticeProvider";
 import { GoyenShimmer } from "./components/GoyenShimmer";
 
 // カウントアップ・ダウン演出
@@ -396,121 +397,127 @@ function App() {
   }, [viewMode, data.isAdmin]);
 
   // --- THE DETERMINISTIC SWITCH ---
-  switch (view) {
-    case "LOADING":
-      return <ScreenLoader message={data.message} />;
+  // Wrap everything in a top-level ErrorBoundary for catastrophic failure catching
+  return (
+    <ErrorBoundary>
+      {(() => {
+        switch (view) {
+          case "LOADING":
+            return <ScreenLoader message={data.message} />;
 
-    case "GATE":
-      return (
-        <div className="bg-white min-h-[100dvh] font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
-          <ErrorBoundary>
-            <GoyenShimmer />
-            <div
-              className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply z-0"
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-              }}
-            />
-            <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
-            <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
-            <AuthScreen onSuccess={() => setViewMode("home")} />
-            <ReloadPrompt />
-          </ErrorBoundary>
-        </div>
-      );
-
-    case "APP": {
-      const isRitual = appMode === "RITUAL";
-      
-      return (
-        <div className="bg-white h-[100dvh] font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
-          {/* Washi Texture Overlay for App */}
-          <GoyenShimmer />
-          <div
-            className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply z-0"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-            }}
-          />
-          {/* Ambient Blooms */}
-          <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
-          <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
-
-          {/* Header */}
-          <AnimatePresence>
-            {viewMode === "home" && !isRitual && ritualState === "idle" && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
-                className="absolute top-0 left-0 right-0 z-50"
-              >
-                <Header
-                  viewMode={viewMode}
-                  onTabChange={handleTabChange}
-                  onOpenOnboarding={handleOpenOnboarding}
+          case "GATE":
+            return (
+              <div className="bg-white min-h-[100dvh] font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
+                <GoyenShimmer />
+                <div
+                  className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply z-0"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                  }}
                 />
-              </motion.div>
-            )}
-          </AnimatePresence>
+                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
+                <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
+                <AuthScreen onSuccess={() => setViewMode("home")} />
+                <ReloadPrompt />
+              </div>
+            );
 
-          <main
-            className={`flex-1 relative overflow-y-auto no-scrollbar scroll-smooth flex flex-col`}
-          >
-            <Suspense fallback={<ScreenLoader />}>
-              <motion.div
-                className="w-full h-full flex flex-col flex-1"
-                animate={{ opacity: 1 }}
-              >
-                <MainContent
-                  viewMode={viewMode}
-                  setViewMode={setViewMode}
-                  isAdmin={data.isAdmin}
-                  currentUserId={data.user!.uid}
-                  onGoHome={handleGoHome}
-                  ritualState={ritualState}
-                  setRitualState={setRitualState}
-                  setTargetBalance={setTargetBalance}
-                  appMode={appMode}
-                  onOpenOnboarding={handleOpenOnboarding}
-                  stats={stats}
-                />
-              </motion.div>
-            </Suspense>
-          </main>
+          case "APP": {
+            const isRitual = appMode === "RITUAL";
+            const currentUserId = data.user?.uid || "unknown";
 
-          {/* Ritual Animation Overlay */}
-          <RitualOverlay state={ritualState} targetBalance={targetBalance} />
+            return (
+              <NoticeProvider>
+                <div className="bg-white h-[100dvh] font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
+                  <GoyenShimmer />
+                  <div
+                    className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply z-0"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                    }}
+                  />
+                  <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
+                  <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
 
-          {/* Global Onboarding Story */}
-          <OnboardingStory
-            isOpen={showStoryGuide}
-            mode={guideMode}
-            onClose={() => setShowStoryGuide(false)}
-            onComplete={handleOnboardingComplete}
-          />
+                  {/* Header */}
+                  <AnimatePresence>
+                    {viewMode === "home" && !isRitual && ritualState === "idle" && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        className="absolute top-0 left-0 right-0 z-50"
+                      >
+                        <Header
+                          viewMode={viewMode}
+                          onTabChange={handleTabChange}
+                          onOpenOnboarding={handleOpenOnboarding}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
-          {/* Legacy Guide Modal */}
-          <AnimatePresence>
-            {showLegacyGuide && (
-              <GuideModal
-                isOpen={showLegacyGuide}
-                onClose={() => setShowLegacyGuide(false)}
-              />
-            )}
-          </AnimatePresence>
+                  <main className="flex-1 relative overflow-y-auto no-scrollbar scroll-smooth flex flex-col">
+                    <Suspense fallback={<ScreenLoader />}>
+                      <motion.div
+                        className="w-full h-full flex flex-col flex-1"
+                        animate={{ opacity: 1 }}
+                      >
+                        <MainContent
+                          viewMode={viewMode}
+                          setViewMode={setViewMode}
+                          isAdmin={data.isAdmin}
+                          currentUserId={currentUserId}
+                          onGoHome={handleGoHome}
+                          ritualState={ritualState}
+                          setRitualState={setRitualState}
+                          setTargetBalance={setTargetBalance}
+                          appMode={appMode}
+                          onOpenOnboarding={handleOpenOnboarding}
+                          stats={stats}
+                        />
+                      </motion.div>
+                    </Suspense>
+                  </main>
 
-          {showAdmin && (
-            <Suspense fallback={null}>
-              <AdminDashboard onClose={() => setShowAdmin(false)} stats={stats} />
-            </Suspense>
-          )}
-          <PWAInstallBanner />
-          <ReloadPrompt />
-        </div>
-      );
-    }
-  }
+                  <RitualOverlay state={ritualState} targetBalance={targetBalance} />
+
+                  <OnboardingStory
+                    isOpen={showStoryGuide}
+                    mode={guideMode}
+                    onClose={() => setShowStoryGuide(false)}
+                    onComplete={handleOnboardingComplete}
+                  />
+
+                  <AnimatePresence>
+                    {showLegacyGuide && (
+                      <GuideModal
+                        isOpen={showLegacyGuide}
+                        onClose={() => setShowLegacyGuide(false)}
+                      />
+                    )}
+                  </AnimatePresence>
+
+                  {showAdmin && (
+                    <Suspense fallback={null}>
+                      <AdminDashboard
+                        onClose={() => setShowAdmin(false)}
+                        stats={stats}
+                      />
+                    </Suspense>
+                  )}
+                  <PWAInstallBanner />
+                  <ReloadPrompt />
+                </div>
+              </NoticeProvider>
+            );
+          }
+          default:
+            return <ScreenLoader message="ステートを復元中..." />;
+        }
+      })()}
+    </ErrorBoundary>
+  );
 }
 export default App;

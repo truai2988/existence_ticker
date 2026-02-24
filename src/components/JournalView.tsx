@@ -4,9 +4,9 @@ import { useAuth } from '../hooks/useAuthHook';
 import { db } from '../lib/firebase';
 import { NameResolver } from './NameResolver';
 import { collection, query, where, limit, getDocs, Timestamp } from 'firebase/firestore';
-import { HeaderNavigation } from './HeaderNavigation';
 import { AppViewMode } from '../types';
-import { Sun, Heart, Sparkles, CheckCircle2, Archive } from 'lucide-react';
+import { Sun, Heart, Sparkles, CheckCircle2, Archive, Menu } from 'lucide-react';
+import { SideDrawer } from './SideDrawer';
 
 // ... (comments omitted)
 
@@ -57,6 +57,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
   const { user } = useAuth();
   const [logs, setLogs] = useState<TransactionLog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
    useEffect(() => {
      const fetchLogs = async () => {
@@ -126,17 +127,25 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
                     <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">巡りの足跡</h2>
                     <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">あなたの歩みの記録</p>
                 </div>
-                {onTabChange && (
-                    <div className="flex h-12 items-end gap-2 shrink-0">
-                        <HeaderNavigation 
-                            currentTab="history" 
-                            onTabChange={(tab: AppViewMode) => onTabChange(tab)} 
-                            onOpenOnboarding={onOpenOnboarding} 
-                        />
-                    </div>
-                )}
+                <div className="flex h-12 items-end gap-3 shrink-0">
+                    <button
+                      onClick={() => setIsDrawerOpen(true)}
+                      className="p-1 -mr-1 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
+                      aria-label="メニューを開く"
+                    >
+                      <Menu size={24} strokeWidth={1.5} />
+                    </button>
+                </div>
             </div>
         </div>
+
+        <SideDrawer
+          isOpen={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
+          currentTab="history"
+          onTabChange={(tab: AppViewMode) => onTabChange?.(tab)}
+          onOpenOnboarding={onOpenOnboarding}
+        />
 
         <div className="w-full flex-grow overflow-y-auto no-scrollbar relative flex flex-col items-center">
              <div className="w-full max-w-2xl flex-grow p-6 pt-4 pb-24 relative">

@@ -3,8 +3,9 @@ import { motion } from 'framer-motion';
 import { useWishes } from '../hooks/useWishes';
 import { WishCardList } from './WishCardList';
 import { CreateWishModal } from './CreateWishModal';
-import { HeaderNavigation } from './HeaderNavigation';
 import { AppViewMode } from '../types';
+import { Menu } from 'lucide-react';
+import { SideDrawer } from './SideDrawer';
 
 interface RadianceViewProps {
     currentUserId: string;
@@ -23,6 +24,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
     const [activeTab, setActiveTab] = useState<TabType>('active');
     const [modalState, setModalState] = useState<ModalState>('none');
     const [hasInitialized, setHasInitialized] = useState(false);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     // Filter Logic
     const myActiveWishes = userActiveWishes.filter(w => w.status === 'open');
@@ -64,17 +66,25 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">お願い</h2>
                         <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">お裾分け</p>
                     </div>
-                    <div className="flex h-12 items-end gap-2">
-                        {onTabChange && (
-                            <HeaderNavigation 
-                                currentTab="give" 
-                                onTabChange={(tab: AppViewMode) => onTabChange(tab)}
-                                onOpenOnboarding={onOpenOnboarding || (() => {})}
-                            />
-                        )}
+                    <div className="flex h-12 items-end gap-3 shrink-0">
+                        <button
+                          onClick={() => setIsDrawerOpen(true)}
+                          className="p-1 -mr-1 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
+                          aria-label="メニューを開く"
+                        >
+                          <Menu size={24} strokeWidth={1.5} />
+                        </button>
                     </div>
                 </div>
             </div>
+
+            <SideDrawer
+              isOpen={isDrawerOpen}
+              onClose={() => setIsDrawerOpen(false)}
+              currentTab="give"
+              onTabChange={(tab: AppViewMode) => onTabChange?.(tab)}
+              onOpenOnboarding={onOpenOnboarding || (() => {})}
+            />
 
             {/* Tab Navigation (Subtle Flat Design) */}
             <div className="bg-blue-50/20">

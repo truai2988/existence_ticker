@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { ClipboardList, Timer, PlayCircle } from "lucide-react";
+import { ClipboardList, Timer, PlayCircle, Menu } from "lucide-react";
 import { motion } from "framer-motion";
 import { useWishes } from '../hooks/useWishes';
 import { calculateDecayedValue, getMillis, toMilli, fromMilli } from '../logic/worldPhysics';
 import { WishCardList } from './WishCardList';
-import { HeaderNavigation } from './HeaderNavigation';
 import { AppViewMode } from '../types';
+import { SideDrawer } from './SideDrawer';
 
 interface FlowViewProps {
     currentUserId: string;
@@ -24,6 +24,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
     
     const [activeTab, setActiveTab] = useState<TabType>('explore');
     const [hasInitialized, setHasInitialized] = useState(false);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     // 1. Explore (Active Global Feed)
     const exploreWishes = wishes.filter(w => {
@@ -82,15 +83,25 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900">応える</h2>
                         <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">想いに応える</p>
                     </div>
-                    <div className="flex h-12 items-end gap-2 shrink-0">
-                        <HeaderNavigation 
-                            currentTab="flow" 
-                            onTabChange={(tab: AppViewMode) => onTabChange?.(tab)}
-                            onOpenOnboarding={onOpenOnboarding || (() => {})}
-                        />
+                    <div className="flex h-12 items-end gap-3 shrink-0">
+                        <button
+                          onClick={() => setIsDrawerOpen(true)}
+                          className="p-1 -mr-1 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
+                          aria-label="メニューを開く"
+                        >
+                          <Menu size={24} strokeWidth={1.5} />
+                        </button>
                     </div>
                 </div>
             </div>
+
+            <SideDrawer
+              isOpen={isDrawerOpen}
+              onClose={() => setIsDrawerOpen(false)}
+              currentTab="flow"
+              onTabChange={(tab: AppViewMode) => onTabChange?.(tab)}
+              onOpenOnboarding={onOpenOnboarding || (() => {})}
+            />
 
             {/* Sub-Tabs (Subtle Flat Design) */}
             <div className="bg-amber-50/20">

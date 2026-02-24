@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Inbox, Megaphone, Sparkles, AlertCircle } from "lucide-react";
 import { useWallet } from "../hooks/useWallet";
 import { useProfile } from "../hooks/useProfile";
-import { getMillis } from "../logic/worldPhysics";
 import { AppMode } from "../hooks/useStartupMachine";
 
 interface HomeViewProps {
@@ -25,7 +24,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   setTargetBalance,
   appMode,
 }) => {
-  const { performRebirthReset, availableLm, balance } = useWallet();
+  const { performRebirthReset, availableLm } = useWallet();
   const { profile, updateProfile } = useProfile();
   const [notification, setNotification] = React.useState<string | null>(null);
 
@@ -54,17 +53,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const isRitualReady = appMode === "RITUAL";
   const showColor = appMode === "NORMAL" && ritualState === "idle";
 
-  // Calculate Days
-  const cycleDays = profile?.scheduled_cycle_days || 10;
-  const cycleStartedAt = getMillis(
-    profile?.cycle_started_at || profile?.created_at,
-  );
-  const nextReset = cycleStartedAt + cycleDays * 24 * 60 * 60 * 1000;
-  const daysLeft = Math.max(
-    0,
-    Math.ceil((nextReset - Date.now()) / (1000 * 60 * 60 * 24)),
-  );
-
+  // Metamorphosis Logic driven by State Machine
   // Sound Effect: 528Hz Crystal Tone
   const playCrystalSound = () => {
     try {
@@ -133,12 +122,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center gap-1"
           >
-            <span className="text-xs font-bold text-slate-500 tracking-widest uppercase whitespace-nowrap opacity-80 mb-[-4px] font-sans">
-              手持ちのゆとり： {Math.floor(balance).toLocaleString()}
-              <span className="ml-1 text-slate-400 font-medium text-xs">
-                (あと{daysLeft}日)
-              </span>
-            </span>
             <div className="text-6xl font-serif font-medium tracking-tighter tabular-nums leading-none bg-gradient-to-b from-[#4A4A4A] via-[#6B5A4F] to-[#8B7E74] bg-clip-text text-transparent transform drop-shadow-sm pb-2">
               {Math.floor(availableLm).toLocaleString()}
             </div>

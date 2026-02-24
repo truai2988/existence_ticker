@@ -9,16 +9,23 @@ import {
   MapPin,
   Camera,
   ShieldCheck,
+  Edit2,
+  Shield,
+  Menu,
+  Users,
 } from "lucide-react";
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useProfile } from "../hooks/useProfile";
 import { useAuth } from "../hooks/useAuthHook";
-import { HeaderNavigation } from "./HeaderNavigation";
 import { AppViewMode } from "../types";
 import { getTrustRank } from "../utils/trustRank";
+import { useLocationStats } from "../hooks/useLocationStats";
+import { formatLocationCount } from "../utils/formatLocation";
 import { ProfileEditScreen } from "./ProfileEditScreen";
+import { SideDrawer } from "./SideDrawer";
+import { PresenceModal } from "./PresenceModal";
 
 interface ProfileViewProps {
   userId?: string;
@@ -96,6 +103,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [showPresenceModal, setShowPresenceModal] = useState(false);
 
   const isAnonymous = user?.isAnonymous ?? false;
   const currentName = profile?.name || "名もなき旅人";
@@ -207,17 +216,46 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                    <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900 truncate">プロフィール</h2>
                    <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">あなたの記録</p>
               </div>
-              <div className="flex h-12 items-end gap-2">
-                  {onTabChange && (
-                      <HeaderNavigation 
-                          currentTab={initialEditMode ? "profile_edit" : "profile"} 
-                          onTabChange={(tab: AppViewMode) => onTabChange(tab)} 
-                          onOpenOnboarding={onOpenOnboarding}
-                      />
+              <div className="flex h-12 items-end gap-2 shrink-0">
+                  {/* Page-specific: Admin */}
+                  {user && !user.isAnonymous && profile?.role === 'admin' && (
+                    <button
+                      onClick={() => onTabChange?.("admin")}
+                      className="p-1 text-red-400 hover:text-red-600 transition-colors active:scale-95"
+                      aria-label="管理コンソール"
+                    >
+                      <Shield size={22} strokeWidth={1.5} />
+                    </button>
                   )}
+                  {/* Page-specific: Profile Edit */}
+                  {!initialEditMode && (
+                    <button
+                      onClick={() => setIsEditingProfile(true)}
+                      className="p-1 text-slate-400 hover:text-slate-600 transition-colors active:scale-95"
+                      aria-label="プロフィール編集"
+                    >
+                      <Edit2 size={22} strokeWidth={1.5} />
+                    </button>
+                  )}
+                  {/* Hamburger */}
+                  <button
+                    onClick={() => setIsDrawerOpen(true)}
+                    className="p-1 -mr-1 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
+                    aria-label="メニューを開く"
+                  >
+                    <Menu size={24} strokeWidth={1.5} />
+                  </button>
               </div>
           </div>
       </div>
+
+      <SideDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        currentTab={initialEditMode ? "profile_edit" : "profile"}
+        onTabChange={(tab: AppViewMode) => onTabChange?.(tab)}
+        onOpenOnboarding={onOpenOnboarding}
+      />
 
       <div className="flex-1 overflow-y-auto no-scrollbar w-full">
         <div className="max-w-2xl mx-auto w-full px-6 pt-4 pb-32">
@@ -366,6 +404,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           </div>
 
           <div className="space-y-6">
+            {/* エリア情報 */}
+            <AreaInfoCard 
+              profile={profile} 
+              onClick={() => setShowPresenceModal(true)} 
+            />
             <div>
                <div className="text-xs font-bold text-slate-400 ml-2 mb-2 font-sans">
                 アクティビティ・実績
@@ -645,6 +688,61 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {showPresenceModal && (
+          <PresenceModal onClose={() => setShowPresenceModal(false)} />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+/** エリア情報カード — ProfileView専用 */
+const AreaInfoCard: React.FC<{ 
+  profile: ReturnType<typeof useProfile>["profile"],
+  onClick: () => void 
+}> = ({ profile, onClick }) => {
+  const { statsCount } = useLocationStats(
+    profile?.location?.prefecture,
+    profile?.location?.city,
+  );
+
+  const locationText = profile?.location
+    ? `${profile.location.prefecture}${profile.location.city}`
+    : "エリア未設定";
+
+  const userCountText = statsCount === null ? "確認中..." : formatLocationCount(statsCount);
+
+  return (
+    <div className="group">
+      <div className="text-xs font-bold text-slate-400 ml-2 mb-2 font-sans group-hover:text-slate-500 transition-colors">
+        エリア情報
+      </div>
+      <button 
+        onClick={onClick}
+        className="w-full bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md active:scale-[0.99] text-left"
+      >
+        <div className="p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-full bg-emerald-50 group-hover:bg-emerald-100 transition-colors">
+              <MapPin size={18} className="text-emerald-500" />
+            </div>
+            <div>
+              <p className="text-base font-bold text-slate-800 font-sans">
+                {locationText}
+              </p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <Users size={12} className="text-slate-400" />
+                <span className="text-xs text-slate-500 font-mono">
+                  {userCountText}
+                </span>
+              </div>
+            </div>
+          </div>
+          <ChevronRight size={16} className="text-slate-300 group-hover:text-slate-400 transition-colors" />
+        </div>
+      </button>
     </div>
   );
 };
