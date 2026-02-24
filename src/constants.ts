@@ -1,6 +1,6 @@
 // Poetic Cost Constants (The weight of existence shared)
 export const WISH_COST = {
-  SPARK: 0, // Gift (共鳴・ギフト)
+  SPARK: 0, // Echo (共鳴)
   CANDLE: 500, // Ray (月光)
   BONFIRE: 1000, // Halo (月暈)
 };

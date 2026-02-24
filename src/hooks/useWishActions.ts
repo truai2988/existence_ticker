@@ -18,6 +18,7 @@ import {
 } from "firebase/firestore";
 
 import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS, getMillis } from "../logic/worldPhysics";
+import { addNotice } from "../utils/addNotice";
 
 // タイムスタンプと初期値から現在価値を計算
 
@@ -185,6 +186,20 @@ export const useWishActions = () => {
           applicant_ids: [...currentApplicantIds, user.uid],
         });
       });
+
+      // 通知: 願い主に「応募がありました」を送る
+      const wishDocSnap = await getDocs(query(collection(db, 'wishes'), where('__name__', '==', wishId)));
+      if (!wishDocSnap.empty) {
+        const wishData = wishDocSnap.docs[0].data();
+        const applicantName = user.displayName || "奏者";
+        addNotice({
+          userId: wishData.requester_id,
+          message: `「${wishData.content?.slice(0, 20)}…」に ${applicantName} さんが手を挙げました`,
+          type: "application_received",
+          createdAt: Date.now(),
+        });
+      }
+
       return true;
     } catch (e) {
       console.error(e);
@@ -339,6 +354,14 @@ export const useWishActions = () => {
                 pending_interruption_notification: notificationMsg,
             });
 
+            // 永続通知: ヘルパーへ
+            addNotice({
+              userId: wishData.helper_id,
+              message: notificationMsg,
+              type: "wish_cancelled",
+              createdAt: Date.now(),
+            });
+
             if (!txCheck.exists()) {
                 // 1. Sender (Requester) Record
                 transaction.set(txRef, {
@@ -381,6 +404,14 @@ export const useWishActions = () => {
 
             transaction.update(requesterRef, {
                 pending_interruption_notification: "助け手様が辞退されたため、願いが再び募集に戻りました。Lmは安全に守られています。",
+            });
+
+            // 永続通知: リクエスターへ
+            addNotice({
+              userId: wishData.requester_id,
+              message: "助け手様が辞退されたため、願いが再び募集に戻りました。Lmは安全に守られています。",
+              type: "helper_resigned",
+              createdAt: Date.now(),
             });
             
             transaction.update(wishRef, {
@@ -466,6 +497,14 @@ export const useWishActions = () => {
         transaction.update(rRef, {
             pending_interruption_notification: "助け手様が辞退されたため、願いが再び募集に戻りました。Lmは安全に守られています。",
             last_updated: serverTimestamp()
+        });
+
+        // 永続通知: リクエスターへ
+        addNotice({
+          userId: wishData.requester_id,
+          message: "助け手様が辞退されたため、願いが再び募集に戻りました。Lmは安全に守られています。",
+          type: "helper_resigned",
+          createdAt: Date.now(),
         });
 
         // 3. Reset Wish Status

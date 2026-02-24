@@ -12,6 +12,7 @@ import { PresenceModal } from "./PresenceModal";
 import { AnimatePresence } from "framer-motion";
 import { useLocationStats } from "../hooks/useLocationStats";
 import { HeaderStatusDisplay } from "./HeaderStatusDisplay";
+import { NoticePanel } from "./NoticePanel";
 
 interface HeaderProps {
   viewMode?: AppViewMode;
@@ -118,6 +119,9 @@ export const Header: React.FC<HeaderProps> = ({ viewMode, onTabChange, onOpenOnb
                     <div className="absolute inset-x-1.5 top-1 bottom-1 border-r border-white/20 rounded-full opacity-40 pointer-events-none" />
                     <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/45 to-transparent opacity-60 pointer-events-none" />
                   </div>
+
+                  {/* Notice Bell */}
+                  <NoticePanel />
 
                   {/* Navigation - No longer needs margin-top, aligned by items-end */}
                   <HeaderNavigation
