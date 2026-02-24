@@ -210,35 +210,57 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
               {/* Left Side (Yin) */}
               {/* Base: Monotone Shadow (Always there) */}
-              <path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 1 0 50 Z" fill="url(#cocoonShadow)" />
+              <path
+                d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 1 0 50 Z"
+                fill="url(#cocoonShadow)"
+              />
               {/* Layer: Blue Gradient (Fade in when Color) */}
-              <motion.path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 1 0 50 Z" 
+              <motion.path
+                d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 1 0 50 Z"
                 fill="url(#yinGrad)"
                 initial={{ opacity: 0 }}
-                animate={{ 
+                animate={{
                   opacity: showColor ? 1 : 0,
-                  filter: isHoveringWish ? "brightness(1.15) contrast(1.05)" : "brightness(1) contrast(1)",
+                  filter: isHoveringWish
+                    ? "brightness(1.15) contrast(1.05)"
+                    : "brightness(1) contrast(1)",
                 }}
-                transition={{ 
+                transition={{
                   opacity: { duration: 1.5, ease: "easeInOut" },
-                  filter: { duration: 1.2, repeat: isHoveringWish ? Infinity : 0, repeatType: "mirror", ease: "easeInOut" }
+                  filter: {
+                    duration: 1.2,
+                    repeat: isHoveringWish ? Infinity : 0,
+                    repeatType: "mirror",
+                    ease: "easeInOut",
+                  },
                 }}
               />
 
               {/* Right Side (Yang) */}
               {/* Base: Monotone Light (Always there) */}
-              <path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 0 0 50 Z" fill="url(#cocoonLight)" />
+              <path
+                d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 0 0 50 Z"
+                fill="url(#cocoonLight)"
+              />
               {/* Layer: Yellow Gradient (Fade in when Color) */}
-              <motion.path d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 0 0 50 Z" 
+              <motion.path
+                d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 0 0 50 Z"
                 fill="url(#yangGrad)"
                 initial={{ opacity: 0 }}
-                animate={{ 
+                animate={{
                   opacity: showColor ? 1 : 0,
-                  filter: isHoveringHelp ? "brightness(1.15) contrast(1.05)" : "brightness(1) contrast(1)",
+                  filter: isHoveringHelp
+                    ? "brightness(1.15) contrast(1.05)"
+                    : "brightness(1) contrast(1)",
                 }}
-                transition={{ 
+                transition={{
                   opacity: { duration: 1.5, ease: "easeInOut" },
-                  filter: { duration: 1.2, repeat: isHoveringHelp ? Infinity : 0, repeatType: "mirror", ease: "easeInOut" }
+                  filter: {
+                    duration: 1.2,
+                    repeat: isHoveringHelp ? Infinity : 0,
+                    repeatType: "mirror",
+                    ease: "easeInOut",
+                  },
                 }}
               />
 
@@ -291,35 +313,51 @@ export const HomeView: React.FC<HomeViewProps> = ({
             // Normal Buttons (Only show when showColor is true)
             showColor && (
               <>
-                <motion.button 
-                      key="btn-help" 
-                      onClick={onOpenFlow} 
-                      onMouseEnter={() => setIsHoveringHelp(true)}
-                      onMouseLeave={() => setIsHoveringHelp(false)}
-                      className="absolute top-[32.32%] left-[67.68%] -translate-x-1/2 -translate-y-1/2 p-4 z-20 outline-none group text-amber-900/70"
-                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                      transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
-                    >
-                        <div className="relative flex justify-center items-center transition-opacity duration-700">
-                           <Inbox size={28} strokeWidth={1} className="opacity-60 group-hover:opacity-100 transition-opacity duration-500 drop-shadow-sm" />
-                           <span className="absolute bottom-[100%] mb-3 text-sm font-serif font-bold tracking-[0.3em] text-amber-950/80 drop-shadow-sm whitespace-nowrap ml-[0.3em]">応える</span>
-                        </div>
-                    </motion.button>
+                <motion.button
+                  key="btn-help"
+                  onClick={onOpenFlow}
+                  onMouseEnter={() => setIsHoveringHelp(true)}
+                  onMouseLeave={() => setIsHoveringHelp(false)}
+                  className="absolute top-[32.32%] left-[67.68%] -translate-x-1/2 -translate-y-1/2 p-4 z-20 outline-none group text-amber-900/70"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
+                >
+                  <div className="relative flex justify-center items-center transition-opacity duration-700">
+                    <Inbox
+                      size={36}
+                      strokeWidth={1}
+                      className="opacity-60 group-hover:opacity-100 transition-opacity duration-500 drop-shadow-sm"
+                    />
+                    <span className="absolute bottom-[100%] mb-3 text-lg font-serif font-bold tracking-[0.3em] text-amber-950/80 drop-shadow-sm whitespace-nowrap ml-[0.3em]">
+                      応える
+                    </span>
+                  </div>
+                </motion.button>
 
-                    <motion.button 
-                      key="btn-wish" 
-                      onClick={onOpenRequest} 
-                      onMouseEnter={() => setIsHoveringWish(true)}
-                      onMouseLeave={() => setIsHoveringWish(false)}
-                      className="absolute top-[67.68%] left-[32.32%] -translate-x-1/2 -translate-y-1/2 p-4 z-20 outline-none group text-indigo-900/70"
-                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                      transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
-                    >
-                        <div className="relative flex justify-center items-center transition-opacity duration-700">
-                           <Megaphone size={28} strokeWidth={1} className="opacity-60 group-hover:opacity-100 transition-opacity duration-500 drop-shadow-sm" />
-                           <span className="absolute top-[100%] mt-3 text-sm font-serif font-bold tracking-[0.3em] text-indigo-950/80 drop-shadow-sm whitespace-nowrap ml-[0.3em]">お願い</span>
-                        </div>
-                    </motion.button>
+                <motion.button
+                  key="btn-wish"
+                  onClick={onOpenRequest}
+                  onMouseEnter={() => setIsHoveringWish(true)}
+                  onMouseLeave={() => setIsHoveringWish(false)}
+                  className="absolute top-[67.68%] left-[32.32%] -translate-x-1/2 -translate-y-1/2 p-4 z-20 outline-none group text-indigo-900/70"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
+                >
+                  <div className="relative flex justify-center items-center transition-opacity duration-700">
+                    <Megaphone
+                      size={36}
+                      strokeWidth={1}
+                      className="opacity-60 group-hover:opacity-100 transition-opacity duration-500 drop-shadow-sm"
+                    />
+                    <span className="absolute top-[100%] mt-3 text-lg font-serif font-bold tracking-[0.3em] text-indigo-950/80 drop-shadow-sm whitespace-nowrap ml-[0.3em]">
+                      お願い
+                    </span>
+                  </div>
+                </motion.button>
               </>
             )
           )}
