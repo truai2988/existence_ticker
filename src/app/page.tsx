@@ -10,6 +10,7 @@ import {
 import { ArrowDown, Sparkles, Send } from "lucide-react";
 import { CHAPTERS } from "../data/storyData";
 import { useAuth } from "../hooks/useAuthHook";
+import { GoyenShimmer } from "../components/GoyenShimmer";
 
 export const LandingPage = () => {
   // --- A-Side: Ten-Day Lapse (Pure Abundance) ---
@@ -143,6 +144,7 @@ export const LandingPage = () => {
       </nav>
 
       {/* --- Ambient: Daybreak Noise & The Tide --- */}
+      <GoyenShimmer zIndex={50} />
       <div
         className="fixed inset-0 pointer-events-none z-0 opacity-[0.03] transform-gpu"
         style={{
@@ -283,8 +285,14 @@ export const LandingPage = () => {
         {/* --- The Scenes --- */}
         <section className="py-16 md:py-32 space-y-24 md:space-y-48">
           {SCENES.map((scene, index) => (
-            <div
+            <motion.div
               key={scene.id}
+              onViewportEnter={() => {
+                if (scene.id === 0) {
+                  window.dispatchEvent(new Event("goyen-celebration"));
+                }
+              }}
+              viewport={{ amount: 0.5, once: false }}
               className={`flex flex-col ${index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} items-center gap-10 md:gap-16 max-w-4xl mx-auto px-8`}
             >
               <div className="w-full md:w-3/5 overflow-hidden rounded-sm">
@@ -301,7 +309,7 @@ export const LandingPage = () => {
                   {scene.text}
                 </p>
               </div>
-            </div>
+            </motion.div>
           ))}
         </section>
 

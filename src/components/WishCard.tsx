@@ -291,6 +291,7 @@ export const WishCard: React.FC<WishCardProps> = ({
     setIsLoading(false);
     if (success) {
       showToast("応える意思を伝えました", "success");
+      window.dispatchEvent(new Event("goyen-celebration"));
       import('../utils/pwaEvent').then(({ globalTriggerPWAInstall }) => {
         globalTriggerPWAInstall();
       });
@@ -1407,6 +1408,7 @@ export const WishCard: React.FC<WishCardProps> = ({
               setIsLoading(false);
               if (success) {
                   showToast("感謝を届けました", "success");
+                  window.dispatchEvent(new Event("goyen-celebration"));
                   if (onActionComplete) onActionComplete("completed");
               } else {
                   showToast("完了報告に失敗しました", "error");

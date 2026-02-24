@@ -179,7 +179,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 w-full max-w-2xl mx-auto relative z-10">
+    <div className="flex flex-col items-center justify-center min-h-[100dvh] p-4 w-full mx-auto relative z-10">
       <motion.div
         layout
         initial={{ opacity: 0, y: 20 }}

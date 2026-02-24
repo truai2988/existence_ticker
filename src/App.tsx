@@ -13,6 +13,7 @@ import { AppViewMode } from "./types";
 import { useStartupMachine, AppMode } from "./hooks/useStartupMachine";
 import { useWallet } from "./hooks/useWallet";
 import { useStats, DashboardStats } from "./hooks/useStats";
+import { GoyenShimmer } from "./components/GoyenShimmer";
 
 // カウントアップ・ダウン演出
 const CountingNumber: React.FC<{ value: number; duration: number }> = ({
@@ -401,10 +402,21 @@ function App() {
 
     case "GATE":
       return (
-        <ErrorBoundary>
-          <AuthScreen onSuccess={() => setViewMode("home")} />
-          <ReloadPrompt />
-        </ErrorBoundary>
+        <div className="bg-white min-h-[100dvh] font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
+          <ErrorBoundary>
+            <GoyenShimmer />
+            <div
+              className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply z-0"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+              }}
+            />
+            <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
+            <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
+            <AuthScreen onSuccess={() => setViewMode("home")} />
+            <ReloadPrompt />
+          </ErrorBoundary>
+        </div>
       );
 
     case "APP": {
@@ -413,6 +425,7 @@ function App() {
       return (
         <div className="bg-white h-[100dvh] font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
           {/* Washi Texture Overlay for App */}
+          <GoyenShimmer />
           <div
             className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply z-0"
             style={{
