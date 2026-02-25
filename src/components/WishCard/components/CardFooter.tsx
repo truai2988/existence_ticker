@@ -95,7 +95,7 @@ export const CardFooter: React.FC<{
 
         {isMyWish && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 ml-1">
-            <span className="flex items-center gap-1 text-xs text-slate-400">
+            <span className="flex items-center gap-1 text-xs text-slate-500">
               <Clock className="w-3.5 h-3.5" />
               <span>{formatDate(wish.created_at)}</span>
             </span>
@@ -231,7 +231,7 @@ export const CardFooter: React.FC<{
                   <button
                     onClick={handleCancel}
                     disabled={isLoading}
-                    className="text-slate-400 hover:text-red-500 text-base font-bold transition-all underline decoration-slate-200 hover:decoration-red-200 underline-offset-4"
+                    className="text-slate-600 hover:text-red-500 text-base font-bold transition-all underline decoration-slate-300 hover:decoration-red-200 underline-offset-4"
                   >
                     辞退する
                   </button>

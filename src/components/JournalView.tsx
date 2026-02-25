@@ -135,7 +135,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
                     </button>
                     {/* Text Group */}
                     <div className="flex flex-col min-w-0">
-                        <h2 className="text-xl font-semibold tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>巡りの足跡</h2>
+                        <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>巡りの足跡</h2>
                         <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate">あなたの歩みの記録</p>
                     </div>
                 </div>

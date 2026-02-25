@@ -224,7 +224,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                    </button>
                    {/* Text Group */}
                    <div className="flex flex-col min-w-0">
-                       <h2 className="text-xl font-semibold tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>プロフィール</h2>
+                                <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>プロフィール</h2>
                        <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate">あなたの記録</p>
                    </div>
               </div>
@@ -233,7 +233,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   {user && !user.isAnonymous && profile?.role === 'admin' && (
                     <button
                       onClick={() => onTabChange?.("admin")}
-                      className="p-1 text-red-400 hover:text-red-600 transition-colors active:scale-95"
+                      className="p-3 text-red-400 hover:text-red-600 transition-colors active:scale-95"
                       aria-label="管理コンソール"
                     >
                       <Shield size={22} strokeWidth={1.5} />
@@ -243,7 +243,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   {!initialEditMode && (
                     <button
                       onClick={() => setIsEditingProfile(true)}
-                      className="p-1 text-slate-400 hover:text-slate-600 transition-colors active:scale-95"
+                      className="p-3 text-slate-400 hover:text-slate-600 transition-colors active:scale-95"
                       aria-label="プロフィール編集"
                     >
                       <Edit2 size={22} strokeWidth={1.5} />
@@ -252,7 +252,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   {/* Hamburger */}
                   <button
                     onClick={() => setIsDrawerOpen(true)}
-                    className="p-1 -mr-1 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
+                    className="p-3 -mr-1 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
                     aria-label="メニューを開く"
                   >
                     <Menu size={24} strokeWidth={1.5} />
@@ -633,14 +633,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setShowLinkModal(false)}
-                      className="flex-1 py-2 bg-slate-100 rounded-lg text-xs font-bold text-slate-600"
+                      className="flex-1 py-3 bg-slate-100 rounded-lg text-base font-bold text-slate-600"
                     >
                       閉じる
                     </button>
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="flex-1 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold"
+                      className="flex-1 py-3 bg-blue-600 text-white rounded-lg text-base font-bold"
                     >
                       登録
                     </button>
@@ -682,14 +682,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setShowPassModal(false)}
-                      className="flex-1 py-2 bg-slate-100 rounded-lg text-xs font-bold text-slate-600"
+                      className="flex-1 py-3 bg-slate-100 rounded-lg text-base font-bold text-slate-600"
                     >
                       閉じる
                     </button>
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="flex-1 py-2 bg-slate-800 text-white rounded-lg text-xs font-bold"
+                      className="flex-1 py-3 bg-slate-800 text-white rounded-lg text-base font-bold"
                     >
                       変更
                     </button>

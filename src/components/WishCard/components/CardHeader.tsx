@@ -130,18 +130,18 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                 <button
                   onClick={() => setIsEditing(!isEditing)}
                   disabled={isLoading}
-                  className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                  className="p-3 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
                   title="編集 (内容のみ)"
                 >
-                  <Pencil size={14} />
+                  <Pencil size={16} />
                 </button>
                 <button
                   onClick={handleCancel}
                   disabled={isLoading}
-                  className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                  className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
                   title="取り下げ (削除)"
                 >
-                  <Trash2 size={14} />
+                  <Trash2 size={16} />
                 </button>
               </>
             )}
@@ -149,10 +149,10 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
               <button
                 onClick={handleCancel}
                 disabled={isLoading}
-                className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
                 title="誠実のしるしを渡して中断"
               >
-                <AlertTriangle size={14} />
+                <AlertTriangle size={16} />
               </button>
             )}
           </div>

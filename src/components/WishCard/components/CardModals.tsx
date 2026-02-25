@@ -40,13 +40,13 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
                   手伝ってくれる人々 <span className="text-slate-400 font-normal ml-1">({applicants.length})</span>
                 </h4>
               </div>
-              <button onClick={() => setShowApplicants(false)} className="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
+              <button onClick={() => setShowApplicants(false)} className="p-2.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="overflow-y-auto p-4 space-y-3 custom-scrollbar">
               {applicants.length === 0 ? (
-                <div className="py-8 text-center text-slate-400 text-sm">まだ申し出はありません</div>
+                <div className="py-8 text-center text-slate-500 text-sm">まだ申し出はありません</div>
               ) : (
                 applicants.map((app: { id: string; name: string; trust_score?: number }) => (
                   <ApplicantItem
@@ -61,7 +61,7 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
               )}
             </div>
             <div className="p-3 bg-slate-50 border-t border-slate-100 text-center">
-              <p className="text-xs text-slate-400">お願いする人を一人選んでください</p>
+              <p className="text-xs text-slate-500">お願いする人を一人選んでください</p>
             </div>
           </div>
         </div>

@@ -18,7 +18,7 @@ export const CardContact: React.FC<{ state: WishCardState; handlers: WishCardHan
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2 mb-1">
             <Megaphone size={14} className="text-slate-400" />
-            <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
+            <span className="text-xs uppercase font-bold text-slate-500 tracking-wider">
               {isMyWish ? "相手の連絡先" : "依頼主の連絡先"}
             </span>
           </div>
@@ -30,7 +30,7 @@ export const CardContact: React.FC<{ state: WishCardState; handlers: WishCardHan
                 </span>
                 <button
                   onClick={handleCopyEmail}
-                  className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors shrink-0"
+                  className="p-3 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-md transition-colors shrink-0"
                   title="アドレスをコピー"
                 >
                   {isCopied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
@@ -39,20 +39,20 @@ export const CardContact: React.FC<{ state: WishCardState; handlers: WishCardHan
 
               <a
                 href={mailtoLink}
-                className="flex items-center justify-center gap-2 w-full py-2 text-xs font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-md transition-colors group"
+                className="flex items-center justify-center gap-2 w-full py-3 text-base font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-100 rounded-md transition-colors group"
               >
-                <Mail size={14} className="text-slate-400 group-hover:text-slate-600" />
+                <Mail size={16} className="text-slate-400 group-hover:text-slate-600" />
                 メールを作成する
               </a>
             </div>
           ) : (
-            <span className="text-xs text-slate-400 italic">連絡先は設定されていません</span>
+            <span className="text-xs text-slate-500 italic">連絡先は設定されていません</span>
           )}
         </div>
 
         {wish.contact_note && (
           <div className="flex flex-col gap-1 pt-2 border-t border-slate-100">
-            <span className="text-xs uppercase font-bold text-slate-400 tracking-wider">
+            <span className="text-xs uppercase font-bold text-slate-500 tracking-wider">
               {isMyWish ? `${requesterProfile?.name || '自分'}さんのメモ` : "依頼者さんより"}
             </span>
             <p className="text-xs text-slate-600 bg-white p-2 rounded-lg border border-slate-100 whitespace-pre-wrap">

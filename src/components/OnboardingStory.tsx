@@ -18,8 +18,8 @@ const getSlides = () => [
     subtitle: 'THE VESSEL',
     icon: <Sun size={32} className="text-amber-500" />,
     content: (
-      <div className="text-center font-serif text-slate-700 leading-loose">
-        <p className="mb-6 text-base">
+      <div className="text-center font-serif text-slate-700 leading-relaxed">
+        <p className="mb-3 text-base">
           <span className="inline-block">あなたには、</span><span className="inline-block">10日（変動あり）ごとに</span><br />
           <span className="text-3xl font-bold text-amber-600 mx-1">2,400 Lm</span> の<br />
           <span className="inline-block">Lmが与えられます。</span>
@@ -36,8 +36,8 @@ const getSlides = () => [
     subtitle: 'THE DECAY',
     icon: <Hourglass size={32} className="text-blue-400" />,
     content: (
-      <div className="text-center font-serif text-slate-700 leading-loose">
-        <p className="mb-6 text-base">
+      <div className="text-center font-serif text-slate-700 leading-relaxed">
+        <p className="mb-3 text-base">
           <span className="inline-block">このLmは、</span><span className="inline-block">何もしなくても</span><br />
           <span className="text-3xl font-bold text-blue-500 mx-1">徐々に</span> <br />
           <span className="inline-block">空へと還っていきます。</span>
@@ -55,12 +55,12 @@ const getSlides = () => [
     subtitle: 'THE CONNECTION',
     icon: <HeartHandshake size={32} className="text-rose-400" />,
     content: (
-      <div className="text-center font-serif text-slate-700 leading-loose">
-        <p className="mb-6 text-base">
+      <div className="text-center font-serif text-slate-700 leading-relaxed">
+        <p className="mb-3 text-base">
           <span className="inline-block">減っていくLmを、</span><br />
           <span className="inline-block">誰かののために使いましょう。</span>
         </p>
-        <div className="flex justify-center gap-8 mb-4 text-base font-bold opacity-80">
+        <div className="flex justify-center gap-8 mb-3 text-base font-bold opacity-80">
           <div className="flex flex-col items-center">
             <span className="text-amber-600 mb-1">お願い</span>
           </div>
@@ -81,26 +81,26 @@ const getSlides = () => [
     subtitle: 'THE STANDARD',
     icon: <Scale size={32} className="text-emerald-500" />,
     content: (
-      <div className="space-y-4 w-full max-w-sm mx-auto">
-        <div className="bg-white/60 p-4 rounded-xl border border-slate-100 flex items-center gap-4">
-          <span className="font-mono font-bold text-[#B8860B] w-16 text-right">1,000</span>
+      <div className="space-y-3 w-full max-w-sm mx-auto">
+        <div className="bg-white/60 p-3 rounded-xl border border-slate-100 flex items-center gap-3">
+          <span className="font-mono font-bold text-[#B8860B] w-14 text-right shrink-0">1,000</span>
           <div className="text-left">
             <div className="text-base font-bold text-slate-800">人生の節目</div>
-            <div className="text-xs text-slate-600 font-bold">大切な局面を、誰かの助けとともに越えていきたいとき</div>
+            <div className="text-xs text-slate-600">大切な局面を、誰かの助けとともに越えていきたいとき</div>
           </div>
         </div>
-        <div className="bg-white/60 p-4 rounded-xl border border-slate-100 flex items-center gap-4">
-          <span className="font-mono font-bold text-amber-600 w-16 text-right">500</span>
+        <div className="bg-white/60 p-3 rounded-xl border border-slate-100 flex items-center gap-3">
+          <span className="font-mono font-bold text-amber-600 w-14 text-right shrink-0">500</span>
           <div className="text-left">
             <div className="text-base font-bold text-slate-700">日常の手助け</div>
-            <div className="text-xs text-slate-600 font-bold">日々の暮らしのなかで、ふと誰かの手を借りたいとき</div>
+            <div className="text-xs text-slate-600">日々の暮らしのなかで、ふと誰かの手を借りたいとき</div>
           </div>
         </div>
-        <div className="bg-white/60 p-4 rounded-xl border border-slate-100 flex items-center gap-4">
-          <span className="font-mono font-bold text-pink-400 w-16 text-right">0</span>
+        <div className="bg-white/60 p-3 rounded-xl border border-slate-100 flex items-center gap-3">
+          <span className="font-mono font-bold text-pink-400 w-14 text-right shrink-0">0</span>
           <div className="text-left">
             <div className="text-base font-bold text-slate-800">魂の共鳴</div>
-            <div className="text-xs text-slate-600 font-bold">対価や計算を超えて、ただ響き合うこと</div>
+            <div className="text-xs text-slate-600">対価や計算を超えて、ただ響き合うこと</div>
           </div>
         </div>
       </div>
@@ -112,10 +112,10 @@ const getSlides = () => [
     subtitle: 'THE BEGINNING',
     icon: <Footprints size={32} className="text-slate-600" />,
     content: (
-      <div className="text-center font-serif text-slate-700 leading-loose flex flex-col items-center">
-         <div className="py-2 mb-8 relative w-full">
+      <div className="text-center font-serif text-slate-700 leading-relaxed flex flex-col items-center">
+         <div className="py-1 mb-4 relative w-full">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
-            <p className="text-base font-bold flex flex-col gap-4 relative z-10 text-center w-full">
+            <p className="text-base font-bold flex flex-col gap-3 relative z-10 text-center w-full">
               <span className="tracking-wide">
                 <span className="text-slate-500 mr-1">実費（円）は</span>「お財布」から。
               </span>
@@ -125,7 +125,7 @@ const getSlides = () => [
             </p>
          </div>
         <div className="text-sm text-slate-600 font-medium w-full">
-          <p className="mb-3"><span className="inline-block">お金では伝えきれない</span><span className="inline-block">「ありがとう」を。</span></p>
+          <p className="mb-2"><span className="inline-block">お金では伝えきれない</span><span className="inline-block">「ありがとう」を。</span></p>
           <p className="text-base text-slate-700 font-bold"><span className="inline-block">さあ、新しい循環を</span><span className="inline-block">始めましょう。</span></p>
         </div>
       </div>
@@ -175,7 +175,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
         {/* Backdrop */}
         <motion.div 
           initial={{ opacity: 0 }}
@@ -191,7 +191,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="relative w-full max-w-lg bg-[#F9F8F4] rounded-[2rem] shadow-2xl overflow-hidden flex flex-col min-h-[500px]"
+          className="relative w-full max-w-lg bg-[#F9F8F4] rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[calc(100dvh-2rem)]"
         >
           {/* Background Textures (Washi) */}
           <div className="absolute inset-0 pointer-events-none opacity-[0.05] mix-blend-multiply z-0"
@@ -220,10 +220,10 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
           </button>
 
           {/* Slide Content Area */}
-          <div className="flex-1 flex flex-col relative z-10 p-8 sm:p-10">
+          <div className="flex-1 flex flex-col relative z-10 p-5 sm:p-8 md:p-10">
             
             {/* Slide Indicators */}
-            <div className="flex justify-center gap-2 mb-8">
+            <div className="flex justify-center gap-2 mb-4">
               {slides.map((_, idx) => (
                 <div 
                   key={idx}
@@ -243,15 +243,15 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
                 className="flex-1 flex flex-col items-center justify-center"
               >
                 {/* Icon Circle */}
-                <div className="w-20 h-20 bg-white rounded-full shadow-md flex items-center justify-center mb-6 ring-4 ring-white/50">
+                <div className="w-14 h-14 bg-white rounded-full shadow-md flex items-center justify-center mb-3 ring-4 ring-white/50">
                   {slides[currentSlide].icon}
                 </div>
 
                 {/* Typography */}
-                <h2 className="text-3xl font-serif font-medium text-slate-800 tracking-widest mb-2 text-center">
+                <h2 className="text-2xl font-serif font-medium text-slate-800 tracking-widest mb-1 text-center">
                   {slides[currentSlide].title}
                 </h2>
-                <div className="text-xs font-bold tracking-[0.3em] text-slate-400 uppercase mb-8 text-center">
+                <div className="text-xs font-bold tracking-[0.3em] text-slate-400 uppercase mb-4 text-center">
                   {slides[currentSlide].subtitle}
                 </div>
 
@@ -266,24 +266,24 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
           </div>
 
           {/* Footer / Navigation - High Accessibility */}
-          <div className="p-8 pt-0 relative z-20">
+          <div className="px-5 pb-5 pt-2 sm:px-8 sm:pb-8 relative z-20 shrink-0">
             <div className="flex gap-4">
               
               {/* Back Button (Hidden on first slide) */}
               <button
                 onClick={handleBack}
                 disabled={currentSlide === 0}
-                className={`flex-1 py-4 rounded-xl font-bold text-slate-500 transition-all flex items-center justify-center gap-2
+                className={`flex-1 py-3 rounded-xl font-bold text-slate-500 transition-all flex items-center justify-center gap-2
                   ${currentSlide === 0 ? 'opacity-0 pointer-events-none' : 'hover:bg-slate-100 active:scale-[0.98]'}`}
               >
-                <ChevronLeft size={20} />
+                <ChevronLeft size={18} />
                 戻る
               </button>
 
-              {/* Next / Finish Button - Porcelain Texture */}
+              {/* Next / Finish Button */}
               <button
                 onClick={handleNext}
-                className="flex-[2] py-4 rounded-xl bg-white text-slate-800 font-bold shadow-[0_4px_0_0_rgba(203,213,225,0.5)] hover:shadow-[0_2px_0_0_rgba(203,213,225,0.5)] hover:translate-y-[2px] active:translate-y-[4px] active:shadow-none transition-all flex items-center justify-center gap-2 border border-slate-100"
+                className="flex-[2] py-3 rounded-xl bg-white text-slate-800 font-bold shadow-[0_4px_0_0_rgba(203,213,225,0.5)] hover:shadow-[0_2px_0_0_rgba(203,213,225,0.5)] hover:translate-y-[2px] active:translate-y-[4px] active:shadow-none transition-all flex items-center justify-center gap-2 border border-slate-100"
               >
                 {isLastSlide ? (
                   <>

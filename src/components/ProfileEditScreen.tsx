@@ -210,7 +210,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                             </button>
                             {/* Text Group */}
                             <div className="flex flex-col min-w-0">
-                                <h2 className="text-xl font-semibold tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>
+                                <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>
                                     プロフィール編集
                                 </h2>
                             </div>

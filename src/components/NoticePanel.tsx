@@ -52,7 +52,7 @@ export const NoticePanel: React.FC = () => {
       {/* ベルアイコン + バッジ */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-1 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-all active:scale-95"
+        className="relative p-3 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-all active:scale-95"
         aria-label="お知らせ"
       >
         <Bell size={24} strokeWidth={1.5} />
@@ -75,7 +75,7 @@ export const NoticePanel: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 top-full mt-2 w-80 max-h-[70vh] bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col"
+            className="fixed left-4 right-4 top-[70px] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 max-h-[70vh] bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col z-50"
           >
             {/* ヘッダー */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50/50">
@@ -86,7 +86,7 @@ export const NoticePanel: React.FC = () => {
                 {notices.length > 0 && (
                   <button
                     onClick={dismissAll}
-                    className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                     title="すべて畳む"
                   >
                     <Trash2 size={14} />
@@ -94,7 +94,7 @@ export const NoticePanel: React.FC = () => {
                 )}
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                  className="p-2.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                 >
                   <X size={14} />
                 </button>
@@ -146,7 +146,7 @@ export const NoticePanel: React.FC = () => {
                       {/* 削除ボタン */}
                       <button
                         onClick={() => dismissNotice(notice.id)}
-                        className="p-1 text-slate-300 hover:text-slate-500 hover:bg-slate-100 rounded-md transition-colors opacity-0 group-hover:opacity-100 shrink-0 mt-0.5"
+                        className="p-2.5 text-slate-300 hover:text-slate-500 hover:bg-slate-100 rounded-md transition-colors opacity-0 group-hover:opacity-100 shrink-0 mt-0.5"
                         title="お知らせを畳む"
                       >
                         <X size={14} />
