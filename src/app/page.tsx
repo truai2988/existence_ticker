@@ -123,9 +123,9 @@ export const LandingPage = () => {
       className="bg-[#F9F8F4] min-h-screen text-[#2D2D2D] font-sans selection:bg-orange-100 selection:text-[#2D2D2D] overflow-x-hidden relative antialiased"
     >
       {/* --- Header / Navigation --- */}
-      <nav className="absolute top-0 left-0 right-0 z-[100] px-6 py-8 flex justify-between items-center mix-blend-difference pointer-events-none">
+      <nav className="absolute top-0 left-0 right-0 z-[100] px-6 py-8 flex justify-center items-center mix-blend-difference pointer-events-none">
         <div className="flex items-center gap-6 pointer-events-auto">
-          <span className="text-xs font-bold tracking-[0.4em] uppercase text-white/90 select-none">
+          <span className="text-xs md:text-base font-bold tracking-[0.4em] uppercase text-white/90 select-none">
             Existence Ticker
           </span>
           <a
@@ -190,14 +190,6 @@ export const LandingPage = () => {
           style={{ opacity: opacityHero, scale: scaleHero }}
           className="flex flex-col items-center text-center px-4 relative w-full pt-20 md:pt-24 pb-12"
         >
-          <div className="mb-4 md:mb-20 space-y-4 md:space-y-6">
-            <h1 className="text-base font-medium md:font-light tracking-[0.3em] md:tracking-[0.4em] text-[#444444] md:text-[#555555] uppercase font-serif">
-              重機を降りて、存在を祝うインフラへ。
-            </h1>
-            <p className="text-xs font-light tracking-[0.2em] text-[#999999] uppercase font-serif">
-              Heavy machinery for the earth, this infrastructure for the soul.
-            </p>
-          </div>
 
           {/* The Massive Vessel of Light */}
           <div className="relative group cursor-default mb-6 md:mb-16">
@@ -222,29 +214,38 @@ export const LandingPage = () => {
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
-                className="flex items-baseline pb-2 md:pb-4"
+                className="relative flex items-baseline pb-2 md:pb-4"
               >
-                <span className="text-8xl md:text-[160px] font-bold tabular-nums bg-gradient-to-b from-[#111111] via-[#4A4A4A] to-[#6B5A4F] bg-clip-text text-transparent pb-4 md:pb-8 leading-tight">
+                {/* 整数部分（中央揃えの基準） */}
+                <span
+                  className="font-bold tabular-nums bg-gradient-to-b from-[#111111] via-[#4A4A4A] to-[#6B5A4F] bg-clip-text text-transparent pb-4 md:pb-8 leading-tight"
+                  style={{ fontSize: 'clamp(2.5rem, 16vw, 160px)' }}
+                >
                   {bigPart}
                 </span>
-                <span className="text-3xl md:text-[50px] font-medium tabular-nums ml-1 bg-gradient-to-b from-[#111111] via-[#4A4A4A] to-[#6B5A4F] bg-clip-text text-transparent opacity-90 pb-2 md:pb-4 leading-tight">
-                  .{smallPart}
-                </span>
-              </motion.div>
 
-              {/* Living Unit: Lm */}
-              <motion.span
-                animate={{ opacity: [0.4, 0.7, 0.4] }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 1,
-                }}
-                className="text-xs md:text-base font-medium md:font-light text-[#6A5F51] md:text-[#A89F91] ml-2 md:ml-4 mb-2 md:mb-4 italic tracking-widest font-sans"
-              >
-                Lm
-              </motion.span>
+                {/* 小数部分＋Lm を整数の右に絶対配置 */}
+                <div className="absolute left-full bottom-0 flex items-baseline pb-2 md:pb-4">
+                  <span
+                    className="font-medium tabular-nums ml-1 bg-gradient-to-b from-[#111111] via-[#4A4A4A] to-[#6B5A4F] bg-clip-text text-transparent opacity-90 leading-tight"
+                    style={{ fontSize: 'clamp(0.9rem, 5.3vw, 50px)' }}
+                  >
+                    .{smallPart}
+                  </span>
+                  <motion.span
+                    animate={{ opacity: [0.4, 0.7, 0.4] }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: 1,
+                    }}
+                    className="text-xs md:text-base font-medium md:font-light text-[#6A5F51] md:text-[#A89F91] ml-2 md:ml-4 mb-2 md:mb-4 italic tracking-widest font-sans"
+                  >
+                    Lm
+                  </motion.span>
+                </div>
+              </motion.div>
             </div>
           </div>
 
