@@ -185,10 +185,10 @@ export const LandingPage = () => {
       )}
 
       {/* --- A-Side: The Amber Core (Hero Section) --- */}
-      <section className="min-h-screen md:min-h-screen flex flex-col items-center justify-center sticky top-0 z-10 overflow-hidden bg-[#F9F8F4]">
+      <section className="min-h-screen md:min-h-screen flex flex-col items-center justify-center sticky top-0 z-10 overflow-hidden bg-[#F9F8F4] pt-16 md:pt-20">
         <motion.div
           style={{ opacity: opacityHero, scale: scaleHero }}
-          className="flex flex-col items-center text-center px-4 relative w-full pt-20 md:pt-24 pb-12"
+          className="flex flex-col items-center text-center px-4 relative w-full py-8"
         >
 
           {/* The Massive Vessel of Light */}
@@ -277,8 +277,8 @@ export const LandingPage = () => {
       {/* --- B-Side: Scroll Manifesto (Content Section) --- */}
       <div className="relative z-20 bg-[#F9F8F4]/95 min-h-screen">
         {/* --- The Scenes --- */}
-        <section className="py-16 md:py-32 space-y-24 md:space-y-48">
-          {SCENES.map((scene, index) => (
+        <section className="py-16 md:py-32 space-y-32 md:space-y-48">
+          {SCENES.map((scene) => (
             <motion.div
               key={scene.id}
               onViewportEnter={() => {
@@ -286,23 +286,26 @@ export const LandingPage = () => {
                   window.dispatchEvent(new Event("goyen-celebration"));
                 }
               }}
-              viewport={{ amount: 0.5, once: false }}
-              className={`flex flex-col ${index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"} items-center gap-10 md:gap-16 max-w-4xl mx-auto px-8`}
+              viewport={{ amount: 0.4, once: false }}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, ease: "easeOut" }}
+              className="flex flex-col items-center gap-10 md:gap-12 max-w-md mx-auto px-6"
             >
-              <div className="w-full md:w-3/5 overflow-hidden rounded-sm">
+              {/* 画像：中央寄せ、十分な幅 */}
+              <div className="w-full overflow-hidden rounded-sm shadow-[0_4px_30px_rgba(0,0,0,0.06)]">
                 <img
                   src={scene.image}
                   alt={`Scene ${scene.id}`}
                   loading="lazy"
                   decoding="async"
-                  className="w-full h-auto mix-blend-multiply sepia-[0.2] grayscale-[0.1] contrast-[1.05] transition-transform duration-[2000ms] hover:scale-105"
+                  className="w-full h-auto mix-blend-multiply sepia-[0.15] grayscale-[0.1] contrast-[1.05] transition-transform duration-[2000ms] hover:scale-[1.03]"
                 />
               </div>
-              <div className="w-full md:w-2/5 text-center md:text-left">
-                <p className="text-lg md:text-2xl font-serif text-[#333333] leading-[1.9] tracking-normal md:tracking-[0.1em]">
-                  {scene.text}
-                </p>
-              </div>
+              {/* テキスト：画像の下、中央揃え、十分な行間 */}
+              <p className="text-base md:text-lg font-serif text-[#444444] leading-[2.4] tracking-[0.08em] text-center">
+                {scene.text}
+              </p>
             </motion.div>
           ))}
         </section>
