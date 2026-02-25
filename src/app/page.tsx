@@ -251,14 +251,6 @@ export const LandingPage = () => {
 
           <div className="space-y-6 max-w-2xl mx-auto mb-4 md:mb-20">
             <p className="text-base leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#222222] md:text-[#444444]">
-              私たちは「豊かさ」という名の重機を動かし、大地を拓き、文明を築きました。
-              <br className="hidden md:block" />
-              しかし、その轟音の中で「ただ、そこにいること」の安らぎを
-              <br className="hidden md:block" />
-              忘れてしまったのではないでしょうか。
-            </p>
-            <div className="h-[1px] w-12 bg-[#8B6B50]/30 mx-auto my-8"></div>
-            <p className="text-base leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#222222] md:text-[#444444]">
               ET（Existence Ticker）は、新しい通貨ではありません。
               <br className="hidden md:block" />
               借金や利息に追い立てられる「重力」からあなたを解放し、
@@ -269,6 +261,7 @@ export const LandingPage = () => {
               </span>
               です。
             </p>
+
           </div>
 
           <motion.div
