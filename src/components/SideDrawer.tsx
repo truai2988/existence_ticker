@@ -157,8 +157,17 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
             </nav>
 
             {/* Footer */}
-            <div className="px-7 pb-8">
-              <div className="text-[10px] text-slate-300 tracking-[0.2em] uppercase font-mono text-center">
+            <div className="px-7 pb-10 pt-4 border-t border-slate-200/50 flex flex-col items-center gap-3">
+              <button
+                onClick={() => {
+                  window.open('/trust', '_blank');
+                  onClose();
+                }}
+                className="text-xs font-serif text-slate-400 tracking-[0.15em] hover:text-slate-600 transition-colors duration-200"
+              >
+                約束と庭師について
+              </button>
+              <div className="text-[10px] text-slate-300 tracking-[0.2em] uppercase font-mono">
                 万年筆の引き出し
               </div>
             </div>
