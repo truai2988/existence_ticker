@@ -208,15 +208,27 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     <div className="flex-1 flex flex-col w-full h-full">
       {/* Subtle Section Header */}
       <div className="border-b border-slate-100/50 pt-safe">
-          <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between flex-nowrap gap-2">
-              <div className="min-w-0">
-                   <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-500 leading-none mb-3 select-none font-sans">
-                       Existence Ticker
+          <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between flex-nowrap gap-2">
+              <div className="flex items-center gap-3 min-w-0">
+                   {/* Logo: ホームへ戻るボタン */}
+                   <button
+                       onClick={() => onTabChange?.('home')}
+                       aria-label="ホームへ戻る"
+                       className="shrink-0 focus:outline-none active:scale-95 transition-transform"
+                   >
+                       <img
+                           src="/logo.png"
+                           alt="Existence Ticker"
+                           className="w-10 h-10 rounded-lg shadow-sm border border-slate-200/50 object-cover hover:opacity-80 transition-opacity"
+                       />
+                   </button>
+                   {/* Text Group */}
+                   <div className="flex flex-col min-w-0">
+                       <h2 className="text-xl font-semibold tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>プロフィール</h2>
+                       <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate">あなたの記録</p>
                    </div>
-                   <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900 truncate">プロフィール</h2>
-                   <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase mt-1 truncate">あなたの記録</p>
               </div>
-              <div className="flex h-12 items-end gap-2 shrink-0">
+              <div className="flex h-12 items-center gap-2 shrink-0">
                   {/* Page-specific: Admin */}
                   {user && !user.isAnonymous && profile?.role === 'admin' && (
                     <button

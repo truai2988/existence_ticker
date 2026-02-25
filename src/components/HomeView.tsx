@@ -4,6 +4,7 @@ import { Inbox, Megaphone, Sparkles, AlertCircle } from "lucide-react";
 import { useWallet } from "../hooks/useWallet";
 import { useProfile } from "../hooks/useProfile";
 import { AppMode } from "../hooks/useStartupMachine";
+import { LUNAR_CONSTANTS } from "../constants";
 
 interface HomeViewProps {
   onOpenFlow: () => void;
@@ -24,9 +25,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
   setTargetBalance,
   appMode,
 }) => {
-  const { performRebirthReset, availableLm } = useWallet();
+  const { performRebirthReset, availableLm, committedLm } = useWallet();
   const { profile, updateProfile } = useProfile();
   const [notification, setNotification] = React.useState<string | null>(null);
+
+  // Water Clock calculations
+  const maxCapacity = LUNAR_CONSTANTS.REBIRTH_AMOUNT;
+  const committedHeight = Math.min(100, (committedLm / maxCapacity) * 100);
+  const availableHeight = Math.min(100, (availableLm / maxCapacity) * 100);
 
   // Hover states for organic button interaction
   const [isHoveringHelp, setIsHoveringHelp] = React.useState(false);
@@ -116,21 +122,60 @@ export const HomeView: React.FC<HomeViewProps> = ({
     <div className="flex-1 flex flex-col items-center justify-center w-full relative pt-safe pt-20 md:pt-24">
       {/* 1. Balance Display (Only when Alive/Color) */}
       {showColor && (
-        <div className="absolute top-[18%] left-0 right-0 flex flex-col items-center z-20 pointer-events-none">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col items-center gap-1"
-          >
-            <div className="text-6xl font-serif font-medium tracking-tighter tabular-nums leading-none bg-gradient-to-b from-[#4A4A4A] via-[#6B5A4F] to-[#8B7E74] bg-clip-text text-transparent transform drop-shadow-sm pb-2">
-              {Math.floor(availableLm).toLocaleString()}
+        <>
+          {/* Lm数値 (左寄り) */}
+          <div className="absolute top-[18%] left-0 right-0 flex flex-col items-center z-20 pointer-events-none">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col items-center gap-1"
+            >
+              <div className="text-6xl font-serif font-medium tracking-tighter tabular-nums leading-none bg-gradient-to-b from-[#4A4A4A] via-[#6B5A4F] to-[#8B7E74] bg-clip-text text-transparent transform drop-shadow-sm pb-2">
+                {Math.floor(availableLm).toLocaleString()}
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Water Clock — ヘッダーと同じ max-w-2xl px-6 基準で右端に揃え */}
+          <div className="absolute top-[18%] left-0 right-0 z-20 pointer-events-none">
+            <div className="w-full max-w-2xl mx-auto px-6 flex justify-end">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1.0, delay: 0.3 }}
+                className="w-10 h-14 md:w-11 md:h-16 bg-white/60 backdrop-blur-sm rounded-full overflow-hidden border border-slate-200/60 shadow-[inset_0_1px_4px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.06)]"
+              >
+                {/* Committed Lm (Bottom - Sediment) */}
+                <motion.div
+                  className="absolute bottom-0 left-0 right-0 bg-slate-400/60 saturate-[0.2]"
+                  initial={{ height: 0 }}
+                  animate={{ height: `${committedHeight}%` }}
+                  transition={{ duration: 1.2, ease: "easeOut" }}
+                />
+                {/* Available Lm (Top - Liquid Light) */}
+                <motion.div
+                  className="absolute left-0 right-0 bg-amber-300/70"
+                  initial={{ height: 0, bottom: 0 }}
+                  animate={{
+                    height: `${availableHeight}%`,
+                    bottom: `${committedHeight}%`,
+                  }}
+                  transition={{ duration: 1.2, ease: "easeOut", delay: 0.1 }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-transparent animate-pulse" />
+                </motion.div>
+                {/* Glass Reflection */}
+                <div className="absolute inset-x-2 top-1 bottom-1 border-r border-white/30 rounded-full opacity-40 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/50 to-transparent opacity-60 pointer-events-none" />
+              </motion.div>
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </>
       )}
 
       {/* 2. The Vessel (YinYang Coin) */}
       <div className="relative w-[80%] md:w-[70%] lg:w-[45%] max-w-[540px] lg:max-w-[480px] max-h-[70vh] aspect-square z-10">
+
         <motion.div
           className="absolute inset-0 rounded-full shadow-2xl shadow-slate-200/50 border-[1.5px] border-white overflow-hidden bg-white text-slate-900"
           // Breathing animation only when waiting for ritual

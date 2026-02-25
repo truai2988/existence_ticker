@@ -48,7 +48,7 @@ export const NoticePanel: React.FC = () => {
   }, [isOpen]);
 
   return (
-    <div ref={panelRef} className="relative z-50">
+    <div ref={panelRef} className="relative z-50 flex items-center">
       {/* ベルアイコン + バッジ */}
       <button
         onClick={() => setIsOpen(!isOpen)}

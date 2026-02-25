@@ -194,21 +194,28 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
             {/* Header */}
             <div className="w-full bg-slate-50 sticky top-0 z-10 shrink-0 pt-safe">
                 <div className="border-b border-transparent">
-                    <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-start justify-between flex-nowrap gap-2">
-                        <div className="flex flex-col">
-                            <div className="text-xs font-light tracking-[0.4em] uppercase text-slate-400 leading-none mb-3 select-none">
-                                Existence Ticker
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <button onClick={onBack} className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-500 -ml-2">
-                                    <ChevronLeft size={24} />
-                                </button>
-                                <h2 className="text-xl font-bold tracking-widest uppercase text-slate-900 truncate">
+                    <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between flex-nowrap gap-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                            {/* Logo: 戻るボタン */}
+                            <button
+                                onClick={onBack}
+                                aria-label="戻る"
+                                className="shrink-0 focus:outline-none active:scale-95 transition-transform"
+                            >
+                                <img
+                                    src="/logo.png"
+                                    alt="Existence Ticker"
+                                    className="w-10 h-10 rounded-lg shadow-sm border border-slate-200/50 object-cover hover:opacity-80 transition-opacity"
+                                />
+                            </button>
+                            {/* Text Group */}
+                            <div className="flex flex-col min-w-0">
+                                <h2 className="text-xl font-semibold tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>
                                     プロフィール編集
                                 </h2>
                             </div>
                         </div>
-                        <div className="flex h-12 items-end">
+                        <div className="flex h-12 items-center">
                             <button 
                                 onClick={handleSave} 
                                 disabled={isLoading}
