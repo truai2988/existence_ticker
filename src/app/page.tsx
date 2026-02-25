@@ -470,9 +470,26 @@ export const LandingPage = () => {
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out"></div>
             </button>
           </div>
-          <div className="absolute bottom-12 left-0 right-0 text-center">
+          <div className="absolute bottom-8 left-0 right-0 text-center space-y-2">
             <p className="text-[10px] md:text-xs text-[#AAAAAA] tracking-[0.3em] uppercase font-serif">
               © 2026 EXISTENCE TICKER.
+            </p>
+            <p className="text-[10px] md:text-xs text-[#BBBBBB] tracking-[0.15em] font-serif">
+              庭師（開発・運営）：玉置士朗 / 合同会社カイシュウ
+            </p>
+            <p className="text-[10px] md:text-xs text-[#BBBBBB] tracking-[0.15em] font-serif">
+              URL：{" "}
+              <a
+                href="https://yori-somaru.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:text-[#8B6B50] transition-colors duration-300"
+              >
+                https://yori-somaru.com/
+              </a>
+            </p>
+            <p className="text-[10px] md:text-xs text-[#BBBBBB] tracking-[0.15em] font-serif">
+              お問い合わせ：trueeye792@gmail.com
             </p>
           </div>
         </Section>
@@ -505,9 +522,7 @@ const Section = ({
 }) => {
   return (
     <section className={className} id={id}>
-      <div className="w-full">
-        {children}
-      </div>
+      <div className="w-full">{children}</div>
     </section>
   );
 };
