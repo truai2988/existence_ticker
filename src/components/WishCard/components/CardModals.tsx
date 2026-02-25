@@ -99,11 +99,11 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
                    }
                 }}
                 disabled={isLoading}
-                className={`w-full py-3 rounded-xl text-sm font-bold text-white shadow-md transition-all active:scale-[0.98] ${confirmAction === "compensate" ? "bg-red-500 hover:bg-red-600 shadow-red-200" : "bg-slate-700 hover:bg-slate-800 shadow-slate-200"}`}
+                className={`w-full py-3 rounded-xl text-base font-bold text-white shadow-md transition-all active:scale-[0.98] ${confirmAction === "compensate" ? "bg-red-500 hover:bg-red-600 shadow-red-200" : "bg-slate-700 hover:bg-slate-800 shadow-slate-200"}`}
               >
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : confirmAction === "compensate" ? "補償してキャンセルする" : confirmAction === "resign" ? "辞退する" : "取り下げる"}
               </button>
-              <button onClick={() => setConfirmAction(null)} disabled={isLoading} className="w-full py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 transition-colors">
+              <button onClick={() => setConfirmAction(null)} disabled={isLoading} className="w-full py-3 rounded-xl text-base font-bold text-slate-500 hover:bg-slate-100 transition-colors">
                 戻る
               </button>
             </div>
@@ -124,16 +124,16 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
               value={contactNote}
               onChange={(e) => setContactNote(e.target.value)}
               placeholder="例: よろしくお願いします。詳細はメールでご連絡します。"
-              className="w-full p-3 border border-slate-200 rounded-xl mb-4 text-sm focus:ring-2 focus:ring-green-100 focus:border-green-400 outline-none resize-none min-h-[80px]"
+              className="w-full p-3 border border-slate-200 rounded-xl mb-4 text-base focus:ring-2 focus:ring-green-100 focus:border-green-400 outline-none resize-none min-h-[80px]"
             />
             <div className="flex flex-col gap-2 w-full">
-              <button onClick={executeApprove} disabled={isLoading} className="w-full py-3 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200 transition-all active:scale-[0.98]">
+              <button onClick={executeApprove} disabled={isLoading} className="w-full py-3 rounded-xl text-base font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200 transition-all active:scale-[0.98]">
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "承認して開始する"}
               </button>
               <button
                 onClick={() => { setApprovalTarget(null); setContactNote(""); }}
                 disabled={isLoading}
-                className="w-full py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 transition-colors"
+                className="w-full py-3 rounded-xl text-base font-bold text-slate-500 hover:bg-slate-100 transition-colors"
               >
                 キャンセル
               </button>

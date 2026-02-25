@@ -27,14 +27,14 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
                   setIsEditing(false);
                   setEditContent(wish.content);
                 }}
-                className="px-3 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg"
+                className="px-3 py-2 text-base font-bold text-slate-500 hover:bg-slate-100 rounded-lg"
               >
                 キャンセル
               </button>
               <button
                 onClick={handleUpdate}
                 disabled={isLoading || !editContent.trim()}
-                className="px-3 py-1.5 text-xs font-bold text-white bg-blue-500 hover:bg-blue-600 rounded-lg shadow-sm disabled:opacity-50"
+                className="px-3 py-2 text-base font-bold text-white bg-blue-500 hover:bg-blue-600 rounded-lg shadow-sm disabled:opacity-50"
               >
                 {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "更新する"}
               </button>

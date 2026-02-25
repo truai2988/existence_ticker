@@ -114,7 +114,7 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                                             onChange={(e) => setPassword(e.target.value)}
                                             disabled={isDeleting}
                                             placeholder="パスワードを入力"
-                                            className="w-full px-3 py-2 text-xs border border-red-200 rounded-lg focus:outline-none focus:border-red-400 disabled:bg-red-50/50 font-sans"
+                                            className="w-full px-3 py-2 text-base border border-red-200 rounded-lg focus:outline-none focus:border-red-400 disabled:bg-red-50/50 font-sans"
                                         />
                                     </div>
                                 )}

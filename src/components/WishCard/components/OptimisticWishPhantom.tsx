@@ -20,7 +20,7 @@ export const OptimisticWishPhantom: React.FC<{ wish: Wish }> = ({ wish }) => {
           <p className="text-xs text-red-400 font-medium font-sans">理由: {wish.error}</p>
           <button
             onClick={() => removeOptimisticWish(wish.id)}
-            className="w-full py-3 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 bg-slate-900 text-white text-base font-bold rounded-xl hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
           >
             <Trash2 size={14} />
             この内容を消去する

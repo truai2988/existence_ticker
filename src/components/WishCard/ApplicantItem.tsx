@@ -94,7 +94,7 @@ export const ApplicantItem: React.FC<{
       <button
         onClick={() => onApprove(applicant.id, displayName)}
         disabled={isActionLoading}
-        className="w-full py-2.5 bg-slate-900 text-white text-xs rounded-xl font-bold hover:bg-slate-800 disabled:opacity-50 shadow-sm transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02] active:scale-[0.98] font-sans"
+        className="w-full py-2.5 bg-slate-900 text-white text-base rounded-xl font-bold hover:bg-slate-800 disabled:opacity-50 shadow-sm transition-all flex items-center justify-center gap-2 group-hover:scale-[1.02] active:scale-[0.98] font-sans"
       >
         {isActionLoading ? (
           <Loader2 className="w-3 h-3 animate-spin" />
