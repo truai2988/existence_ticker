@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import App from './App.tsx'
 import { LandingPage } from './app/page'
 import { StoryPage } from './components/StoryPage'
+import { TrustPage } from './components/TrustPage'
 import './index.css'
 import { UserViewProvider } from './contexts/UserViewContext'
 import { WishesProvider } from './contexts/WishesContext'
@@ -32,6 +33,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
                   
                   {/* 原典：物語のページ */}
                   <Route path="/story" element={<StoryPage />} />
+
+                  {/* 約束と庭師について */}
+                  <Route path="/trust" element={<TrustPage />} />
 
                   {/* 招待リンクからのリダイレクト */}
                   <Route path="/signup" element={<SignupRedirect />} />

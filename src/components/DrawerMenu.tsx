@@ -126,6 +126,19 @@ export const DrawerMenu: React.FC<DrawerMenuProps> = ({
                             )}
                         </nav>
 
+                        {/* Trust / Covenant Link */}
+                        <div className="px-8 pb-2">
+                            <button
+                                onClick={() => {
+                                    window.open('/trust', '_blank');
+                                    onClose();
+                                }}
+                                className="text-xs text-slate-400 font-light tracking-[0.2em] hover:text-slate-600 transition-colors font-serif"
+                            >
+                                約束と庭師について
+                            </button>
+                        </div>
+
                         {/* Footer / Brand (Optional) */}
                         <div className="p-10 text-center">
                             <p className="text-xs text-slate-500 font-light tracking-[0.4em] uppercase opacity-60">
