@@ -98,7 +98,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                     <div className="flex h-12 items-center gap-3 shrink-0">
                         <button
                           onClick={() => setIsDrawerOpen(true)}
-                          className="p-1 -mr-1 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
+                          className="p-3 -mr-3 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
                           aria-label="メニューを開く"
                         >
                           <Menu size={24} strokeWidth={1.5} />

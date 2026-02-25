@@ -228,7 +228,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                        <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate">あなたの記録</p>
                    </div>
               </div>
-              <div className="flex h-12 items-center gap-2 shrink-0">
+              <div className="flex h-12 items-center gap-3 shrink-0">
                   {/* Page-specific: Admin */}
                   {user && !user.isAnonymous && profile?.role === 'admin' && (
                     <button
@@ -252,7 +252,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   {/* Hamburger */}
                   <button
                     onClick={() => setIsDrawerOpen(true)}
-                    className="p-3 -mr-1 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
+                    className="p-3 -mr-3 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
                     aria-label="メニューを開く"
                   >
                     <Menu size={24} strokeWidth={1.5} />
