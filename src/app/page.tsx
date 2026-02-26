@@ -19,6 +19,7 @@ export const LandingPage = () => {
   const [showFlash, setShowFlash] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
+  const [showToast, setShowToast] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -334,8 +335,12 @@ export const LandingPage = () => {
 
             <div className="space-y-24 md:space-y-40 mb-16 md:mb-24">
               {CHAPTERS.filter((c) => c.id % 2 !== 0).map((chapter) => (
-                <div
+                <motion.div
                   key={chapter.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.3 }}
+                  transition={{ duration: 1, ease: "easeOut" }}
                   className="flex flex-col items-center text-center max-w-2xl mx-auto"
                 >
                   <span className="text-[10px] md:text-xs tracking-[0.3em] text-[#BBBBBB] mb-8 font-sans">
@@ -344,8 +349,25 @@ export const LandingPage = () => {
                   <blockquote className="text-base md:text-3xl font-serif italic text-[#444444] leading-[2.2] md:leading-relaxed mb-6 tracking-widest px-4">
                     「{chapter.fragment}」
                   </blockquote>
+
+                  {/* Annotation: Developer's Margin Note */}
+                  {chapter.annotation && (
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      whileInView={{ opacity: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
+                      className="text-sm md:text-base font-serif text-[#8B7355] leading-[2.2] tracking-[0.08em] mt-4 mb-6 px-6 md:px-12 relative"
+                    >
+                      <span className="absolute -left-1 md:left-2 top-0 text-[#C5A065]/40 text-lg select-none" aria-hidden="true">
+                        ——
+                      </span>
+                      {chapter.annotation}
+                    </motion.p>
+                  )}
+
                   <div className="h-[1px] w-8 bg-[#E5E0D5]" />
-                </div>
+                </motion.div>
               ))}
             </div>
 
@@ -360,11 +382,13 @@ export const LandingPage = () => {
               なぜ、このインフラを作ったのか。
             </p>
             <button
-              onClick={() => window.open("/story", "_blank")}
-              className="group relative px-16 py-5 border border-[#2D2D2D]/30 text-[#2D2D2D]/60 hover:text-[#2D2D2D] hover:border-[#2D2D2D] transition-all duration-700 tracking-[0.5em] text-xs uppercase font-serif overflow-hidden"
+              onClick={() => {
+                setShowToast(true);
+                setTimeout(() => setShowToast(false), 3500);
+              }}
+              className="group relative px-8 md:px-16 py-5 border border-[#CCCCCC] text-[#999999] transition-all duration-700 tracking-[0.3em] md:tracking-[0.5em] text-xs uppercase font-serif overflow-hidden cursor-default"
             >
-              <span className="relative z-10">原典（Story）を読む</span>
-              <div className="absolute inset-0 bg-[#2D2D2D]/[0.02] translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+              <span className="relative z-10">現在、推敲中<br />（COMING SOON）</span>
             </button>
           </div>
         </Section>
@@ -501,6 +525,24 @@ export const LandingPage = () => {
             transition={{ duration: 1.5, ease: "easeInOut" }}
             className="fixed inset-0 z-[1000] bg-[#F9F8F4] pointer-events-none"
           />
+        )}
+      </AnimatePresence>
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {showToast && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="fixed bottom-8 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 z-[200] px-6 md:px-8 py-4 bg-white/95 backdrop-blur-sm border border-[#E5E0D5] rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] md:max-w-md md:mx-auto"
+          >
+            <p className="text-sm md:text-base text-[#666666] font-serif tracking-wide text-center leading-relaxed">
+              現在、最終調整を行っています。
+              まもなく公開されます。
+            </p>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
