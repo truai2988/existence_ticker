@@ -311,8 +311,7 @@ export const LandingPage = () => {
           ))}
         </section>
 
-        {/* --- C-Side: The Journey (Story Fragments) --- */}
-        <Section className="py-24 md:py-32 flex flex-col items-center bg-[#F9F8F4] overflow-hidden">
+        <Section className="py-24 md:py-32 flex flex-col items-center bg-[#F9F8F4]">
           <div className="max-w-4xl mx-auto px-6">
             <div className="text-center mb-16 md:mb-24">
               <span className="text-xs tracking-[0.4em] text-[#AAAAAA] uppercase mb-4 block font-sans">
@@ -333,14 +332,10 @@ export const LandingPage = () => {
               </div>
             </div>
 
-            <div className="space-y-24 md:space-y-40 mb-16 md:mb-24">
+            <div className="space-y-24 md:space-y-40">
               {CHAPTERS.filter((c) => c.id % 2 !== 0).map((chapter) => (
-                <motion.div
+                <div
                   key={chapter.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  transition={{ duration: 1, ease: "easeOut" }}
                   className="flex flex-col items-center text-center max-w-2xl mx-auto"
                 >
                   <span className="text-[10px] md:text-xs tracking-[0.3em] text-[#BBBBBB] mb-8 font-sans">
@@ -349,29 +344,10 @@ export const LandingPage = () => {
                   <blockquote className="text-base md:text-3xl font-serif italic text-[#444444] leading-[2.2] md:leading-relaxed mb-6 tracking-widest px-4">
                     「{chapter.fragment}」
                   </blockquote>
-
-                  {/* Annotation: Developer's Margin Note */}
-                  {chapter.annotation && (
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      whileInView={{ opacity: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
-                      className="text-sm md:text-base font-serif text-[#8B7355] leading-[2.2] tracking-[0.08em] mt-4 mb-6 px-6 md:px-12 relative"
-                    >
-                      <span className="absolute -left-1 md:left-2 top-0 text-[#C5A065]/40 text-lg select-none" aria-hidden="true">
-                        ——
-                      </span>
-                      {chapter.annotation}
-                    </motion.p>
-                  )}
-
                   <div className="h-[1px] w-8 bg-[#E5E0D5]" />
-                </motion.div>
+                </div>
               ))}
             </div>
-
-            <div className="h-[5vh] md:h-[20vh]"></div>
           </div>
         </Section>
 
