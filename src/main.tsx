@@ -5,12 +5,12 @@ import {
   Routes,
   Route,
   Navigate,
-  useLocation,
 } from "react-router-dom";
 import App from "./App.tsx";
 import { LandingPage } from "./app/page";
 
 import { TrustPage } from "./components/TrustPage";
+import { SignupRedirect } from "./components/SignupRedirect";
 import "./index.css";
 import { UserViewProvider } from "./contexts/UserViewContext";
 import { WishesProvider } from "./contexts/WishesContext";
@@ -18,11 +18,6 @@ import { ToastProvider } from "./contexts/ToastContext";
 import { WalletProvider } from "./contexts/WalletContext.tsx";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";
-
-const SignupRedirect = () => {
-  const location = useLocation();
-  return <Navigate to={`/app${location.search}`} replace />;
-};
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
