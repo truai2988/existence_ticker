@@ -8,7 +8,6 @@ import {
   AnimatePresence,
 } from "framer-motion";
 import { ArrowDown, Sparkles, Send } from "lucide-react";
-import { CHAPTERS } from "../data/storyData";
 import { useAuth } from "../hooks/useAuthHook";
 import { GoyenShimmer } from "../components/GoyenShimmer";
 
@@ -191,7 +190,6 @@ export const LandingPage = () => {
           style={{ opacity: opacityHero, scale: scaleHero }}
           className="flex flex-col items-center text-center px-4 relative w-full py-8"
         >
-
           {/* The Massive Vessel of Light */}
           <div className="relative group cursor-default mb-6 md:mb-16">
             {/* Core Amber Glow (Bloom) */}
@@ -220,7 +218,7 @@ export const LandingPage = () => {
                 {/* 整数部分（中央揃えの基準） */}
                 <span
                   className="font-bold tabular-nums bg-gradient-to-b from-[#111111] via-[#4A4A4A] to-[#6B5A4F] bg-clip-text text-transparent pb-4 md:pb-8 leading-tight"
-                  style={{ fontSize: 'clamp(2.5rem, 16vw, 160px)' }}
+                  style={{ fontSize: "clamp(2.5rem, 16vw, 160px)" }}
                 >
                   {bigPart}
                 </span>
@@ -229,7 +227,7 @@ export const LandingPage = () => {
                 <div className="absolute left-full bottom-0 flex items-baseline pb-2 md:pb-4">
                   <span
                     className="font-medium tabular-nums ml-1 bg-gradient-to-b from-[#111111] via-[#4A4A4A] to-[#6B5A4F] bg-clip-text text-transparent opacity-90 leading-tight"
-                    style={{ fontSize: 'clamp(0.9rem, 5.3vw, 50px)' }}
+                    style={{ fontSize: "clamp(0.9rem, 5.3vw, 50px)" }}
                   >
                     .{smallPart}
                   </span>
@@ -250,19 +248,44 @@ export const LandingPage = () => {
             </div>
           </div>
 
-          <div className="space-y-6 max-w-2xl mx-auto mb-4 md:mb-20">
-            <p className="text-base leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#222222] md:text-[#444444]">
-              ET（Existence Ticker）は、新しい通貨ではありません。
-              <br className="hidden md:block" />
-              借金や利息に追い立てられる「重力」からあなたを解放し、
-              <br className="hidden md:block" />
-              呼吸するように感謝を巡らせるための、静かな
-              <span className="text-[#8B6B50] md:text-[#9C7C60] font-bold md:font-medium text-base">
-                「生命のインフラ」
-              </span>
-              です。
-            </p>
+          <div className="space-y-8 md:space-y-12 max-w-3xl mx-auto mb-10 md:mb-24">
+            <div className="space-y-2">
+              <p className="text-base md:text-lg leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#1A1A1A] md:text-[#2D2D2D]">
+                減ることは、失うことではありません。それは、深呼吸（代謝）です。
+              </p>
+            </div>
 
+            <div className="space-y-2">
+              <p className="text-sm md:text-base leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#444444]">
+                ずっと貯め込まなければならないなんて、苦しいはずです。
+                <br className="hidden md:block" />
+                水が流れるように、息を吐いて吸うように。
+                <br className="hidden md:block" />
+                本当の価値とは、留まることのない「循環」の中に宿ります。
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm md:text-base leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#444444]">
+                私たちが作ったのは、時間が経つと消えてしまう
+                <span className="text-[#8B6B50] font-medium px-1">源気（げんき）</span>
+                です。
+                <br className="hidden md:block" />
+                でも、怖がらないでください。
+                <br className="hidden md:block" />
+                それは喪失ではなく、生きている証拠なのですから。
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-base md:text-lg leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#1A1A1A] md:text-[#2D2D2D] font-medium md:font-normal">
+                未来への不安（負債）を手放して、
+                <br className="hidden md:block" />
+                いま生きている鼓動（存在）を贈り合う。
+                <br className="hidden md:block" />
+                そんな、やさしい経済の形を始めませんか。
+              </p>
+            </div>
           </div>
 
           <motion.div
@@ -313,59 +336,68 @@ export const LandingPage = () => {
 
         <Section className="py-24 md:py-32 flex flex-col items-center bg-[#F9F8F4]">
           <div className="max-w-4xl mx-auto px-6">
-            <div className="text-center mb-16 md:mb-24">
-              <span className="text-xs tracking-[0.4em] text-[#AAAAAA] uppercase mb-4 block font-sans">
+            <div className="text-center mb-20 md:mb-32">
+              <span className="text-[10px] md:text-sm tracking-[0.5em] text-[#AAAAAA] uppercase mb-8 block font-sans">
                 The Journey
               </span>
-              <h3 className="text-2xl md:text-3xl font-light tracking-[0.2em] md:tracking-[0.3em] text-[#2D2D2D] font-serif whitespace-nowrap">
-                アンチ・グラビティ
+              <h3 className="text-3xl md:text-5xl font-light tracking-[0.2em] md:tracking-[0.4em] text-[#2D2D2D] font-serif whitespace-nowrap mb-6">
+                重機と万年筆
               </h3>
-              <p className="text-xs tracking-[0.3em] text-[#AAAAAA] mt-4 uppercase font-serif">
+              <p className="text-[10px] md:text-xs tracking-[0.4em] text-[#AAAAAA] uppercase font-serif mb-16">
                 Heavy Machinery and Fountain Pens
               </p>
-              <div className="mt-16 max-w-lg mx-auto">
-                <p className="text-base text-[#666666] leading-relaxed font-serif tracking-widest text-justify md:text-center">
-                  このインフラはいかにして産声を上げたのか。
-                  <br className="hidden md:block" />
-                  重機（資本主義）の唸りが止まない深夜、筆を執った一人の開発者の記録。
+              <div className="max-w-2xl mx-auto space-y-12">
+                <p className="text-xl md:text-3xl font-serif text-[#1A1A1A] tracking-[0.3em] leading-relaxed">
+                  なぜ、このインフラを作ったのか。
                 </p>
+                <p className="text-sm md:text-base text-[#666666] leading-loose font-serif tracking-widest">
+                  重機（資本主義）の唸りが止まない深夜、
+                  <br className="hidden md:block" />
+                  筆を執った一人の開発者の記録。
+                </p>
+                <div className="pt-4">
+                  <button
+                    onClick={() => {
+                      setShowToast(true);
+                      setTimeout(() => setShowToast(false), 3500);
+                    }}
+                    className="group relative px-8 md:px-16 py-5 border border-[#CCCCCC] text-[#999999] transition-all duration-700 tracking-[0.3em] md:tracking-[0.5em] text-[10px] md:text-xs uppercase font-serif overflow-hidden cursor-default"
+                  >
+                    <span className="relative z-10">
+                      現在、推敲中
+                      <br />
+                      （COMING SOON）
+                    </span>
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-24 md:space-y-40">
-              {CHAPTERS.filter((c) => c.id % 2 !== 0).map((chapter) => (
-                <div
-                  key={chapter.id}
-                  className="flex flex-col items-center text-center max-w-2xl mx-auto"
-                >
-                  <span className="text-[10px] md:text-xs tracking-[0.3em] text-[#BBBBBB] mb-8 font-sans">
-                    Chapter {chapter.id.toString().padStart(2, "0")}
-                  </span>
-                  <blockquote className="text-base md:text-3xl font-serif italic text-[#444444] leading-[2.2] md:leading-relaxed mb-6 tracking-widest px-4">
-                    「{chapter.fragment}」
-                  </blockquote>
-                  <div className="h-[1px] w-8 bg-[#E5E0D5]" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </Section>
+            <div className="max-w-3xl mx-auto space-y-16 pb-20">
+              <div className="text-center space-y-4">
+                <h4 className="text-sm md:text-base font-serif tracking-[0.3em] text-[#8B6B50] font-medium">
+                  存在の鼓動（Existence Ticker）
+                </h4>
+                <p className="text-xs md:text-sm tracking-[0.2em] text-[#AAAAAA] uppercase font-sans">
+                  ——新時代の価値循環に関する宣言文
+                </p>
+              </div>
 
-        {/* --- Story CTA --- */}
-        <Section className="py-16 md:py-32 flex flex-col items-center bg-[#F9F8F4]">
-          <div className="text-center space-y-12 border-t border-b border-slate-300/40 py-16 px-8">
-            <p className="text-2xl md:text-3xl font-serif text-[#1A1A1A] tracking-[0.4em] mb-8">
-              なぜ、このインフラを作ったのか。
-            </p>
-            <button
-              onClick={() => {
-                setShowToast(true);
-                setTimeout(() => setShowToast(false), 3500);
-              }}
-              className="group relative px-8 md:px-16 py-5 border border-[#CCCCCC] text-[#999999] transition-all duration-700 tracking-[0.3em] md:tracking-[0.5em] text-xs uppercase font-serif overflow-hidden cursor-default"
-            >
-              <span className="relative z-10">現在、推敲中<br />（COMING SOON）</span>
-            </button>
+              <div className="space-y-12 md:space-y-16 text-[#444444] font-serif leading-[2.2] md:leading-[2.6] tracking-widest text-justify">
+                <p>
+                  現代社会は、資本主義という名の巨大な重機に頼りすぎいています。この重機は「未来の先食い」を燃料とし、欠乏と競争を点火剤として爆発的な発展をもたらしてきました。しかし、重機は大地を穿つには適していても、人の心に安らぎを綴るにはあまりに無骨すぎます。蓄積こそが価値であるという信仰は、やがて富を澱ませ、失うことへの終わりのない恐怖を全人類に植え付けてしまいました。
+                </p>
+                <p>
+                  本来、価値とは生命のように循環すべきものです。流れを止めた川が濁るように、死蔵される富は腐敗していきます。私たちが必要としているのは、価値を腐らせないための「減価（ディケイ）」の導入です。時間と共に消えゆくという健全な焦燥こそが、停滞した世界を流動化させ、他者への譲渡を促す駆動力となります。減価とは喪失ではなく、生きるための代謝なのです。
+                </p>
+                <p>
+                  さらに、価値の源泉を「外側」から「内側」へと取り戻さなければなりません。既存のシステムが「負債」から始まるのに対し、私たちは「存在」から価値を定義します。生きているという物理現象、その鼓動（ティッカー）そのものを採掘（マイニング）の裏付けとするのです。誰かに養われるのではなく、ただ呼吸を続けるだけで、自らが価値の源泉＝中央銀行となります。この「存在の価値」への確信こそが、未来への生存本能的な恐怖を解除する唯一のプロトコルです。
+                </p>
+                <p>
+                  私たちは資本主義を否定しません。開拓には重機の馬鹿力が必要です。ですが、質を重んじ、生の感触を確かめ合う局面では、そのエンジンを切り、万年筆を手に取る知恵を持つべきです。借金に追われるスリルとサスペンスの時代から、存在を肯定し合うヒューマンドラマの時代へ。二つの道具を使い分け、信頼と安らぎで呼吸する時間を取り戻しましょう。それが、私たちの提唱する「真の豊かさ」の設計図です。
+                </p>
+              </div>
+            </div>
           </div>
         </Section>
         <Section className="py-20 md:py-32 pb-32 md:pb-32 flex flex-col items-center text-center px-6 bg-gradient-to-b from-transparent to-[#EBE9E4]/40">
@@ -515,8 +547,7 @@ export const LandingPage = () => {
             className="fixed bottom-8 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 z-[200] px-6 md:px-8 py-4 bg-white/95 backdrop-blur-sm border border-[#E5E0D5] rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] md:max-w-md md:mx-auto"
           >
             <p className="text-sm md:text-base text-[#666666] font-serif tracking-wide text-center leading-relaxed">
-              現在、最終調整を行っています。
-              まもなく公開されます。
+              現在、最終調整を行っています。 まもなく公開されます。
             </p>
           </motion.div>
         )}
