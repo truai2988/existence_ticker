@@ -268,7 +268,9 @@ export const LandingPage = () => {
             <div className="space-y-2">
               <p className="text-sm md:text-base leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#444444]">
                 私たちが作ったのは、時間が経つと消えてしまう
-                <span className="text-[#8B6B50] font-medium px-1">源気（げんき）</span>
+                <span className="text-[#8B6B50] font-medium px-1">
+                  源気（げんき）
+                </span>
                 です。
                 <br className="hidden md:block" />
                 でも、怖がらないでください。
@@ -405,14 +407,50 @@ export const LandingPage = () => {
             <Sparkles size={24} className="text-[#C5A065] stroke-[1px]" />
           </div>
 
-          <h3 className="text-3xl font-bold md:font-light tracking-[0.1em] md:tracking-[0.3em] text-[#111111] md:text-[#444444] mb-8 uppercase font-serif">
-            Phase 2: Invite Only
+          <h3 className="text-2xl md:text-3xl font-bold md:font-light tracking-[0.1em] md:tracking-[0.2em] text-[#111111] md:text-[#444444] mb-12 font-serif">
+            Phase 2 (創世記)：30名の「守人」を募集します
           </h3>
-          <p className="text-[#333333] md:text-[#555555] mb-12 font-medium md:font-normal tracking-wide text-base leading-relaxed max-w-lg mx-auto font-sans">
-            30名の仲間と共に、新しい支え合いの形を実験しています。
-            <br />
-            現在は静かに招待制での運用準備中です。
-          </p>
+
+          <div className="text-[#333333] md:text-[#555555] mb-16 font-medium md:font-normal tracking-wide text-base leading-relaxed max-w-2xl mx-auto font-serif space-y-6">
+            <p>Existence Tickerは、単なるアプリの配布ではありません。</p>
+            <p>
+              私たちは今、資本主義の轟音を離れ、この「物語」を現実にする30名の守人（Steward）を探しています。
+            </p>
+            <p>
+              一度に30人を集めることを急ぎません。
+              <br className="hidden md:block" />
+              たとえ一人ずつであっても、この哲学を共に磨き、「存在が価値になる」瞬間を共創できる同志と、静かに、深く、始めたいと考えています。
+            </p>
+          </div>
+
+          <div className="mb-12 max-w-lg mx-auto text-center">
+            <p className="text-xs tracking-[0.4em] text-[#AAAAAA] uppercase mb-6 italic font-serif">
+              魂のフィルター
+            </p>
+            <div className="text-left bg-black/[0.01] p-6 md:p-8 rounded-2xl border border-black/[0.03] backdrop-blur-[2px]">
+              <p className="text-sm font-semibold tracking-widest text-[#8B6B50] mb-4">
+                【応募条件】
+              </p>
+              <ul className="text-xs md:text-sm text-[#666666] font-serif leading-loose tracking-widest space-y-3">
+                <li className="flex gap-2 items-start">
+                  <span className="text-[#8B6B50] mt-0.5">・</span>
+                  <span>資本主義の計算（損得）を、一時的に手放せること。</span>
+                </li>
+                <li className="flex gap-2 items-start">
+                  <span className="text-[#8B6B50] mt-0.5">・</span>
+                  <span>
+                    あなたの「孤独」と「優しさ」を、このプロジェクトに貸してくれること。
+                  </span>
+                </li>
+                <li className="flex gap-2 items-start">
+                  <span className="text-[#8B6B50] mt-0.5">・</span>
+                  <span>
+                    グッドデザイン賞等の挑戦を通じ、新しい時代の証人となる覚悟があること。
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
 
           <form
             className="w-full max-w-2xl mx-auto group/form relative"
