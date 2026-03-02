@@ -6,8 +6,11 @@ import {
   History as HistoryIcon,
   User,
   Sprout,
+  Download,
 } from "lucide-react";
 import { AppViewMode } from "../types";
+import { usePWAInstall } from "../hooks/usePWAInstall";
+import { globalTriggerPWAInstall } from "../utils/pwaEvent";
 
 interface SideDrawerProps {
   isOpen: boolean;
@@ -24,6 +27,8 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
   onTabChange,
   onOpenOnboarding,
 }) => {
+  const { isStandalone } = usePWAInstall();
+
   const handleNavigate = (tab: AppViewMode) => {
     onTabChange(tab);
     onClose();
@@ -110,8 +115,32 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
             {/* Divider */}
             <div className="mx-7 border-b border-slate-200/50" />
 
+            {/* Install App Button (if not standalone) */}
+            {!isStandalone && (
+              <div className="px-5 pt-6 pb-2">
+                <button
+                  onClick={() => {
+                    globalTriggerPWAInstall(true);
+                    onClose();
+                  }}
+                  className="w-full px-5 py-4 text-left flex items-center gap-4 rounded-xl transition-all duration-200 bg-sky-50 hover:bg-sky-100 text-sky-700 shadow-sm border border-sky-100/50"
+                  aria-label="アプリをインストール"
+                >
+                  <Download size={20} strokeWidth={2} />
+                  <div className="flex flex-col">
+                    <span className="text-base font-bold tracking-wide">
+                      アプリとして追加
+                    </span>
+                    <span className="text-[9px] text-sky-500/80 tracking-[0.3em] uppercase font-mono mt-0.5">
+                      INSTALL
+                    </span>
+                  </div>
+                </button>
+              </div>
+            )}
+
             {/* Menu Items */}
-            <nav className="flex-1 py-8 px-5 space-y-2">
+            <nav className={`flex-1 px-5 ${!isStandalone ? 'pt-2 pb-8' : 'py-8'} space-y-2`}>
               {menuItems.map((item) => {
                 const isOnboarding = item.id === "onboarding";
                 const active = !isOnboarding && isActive(item.id);
