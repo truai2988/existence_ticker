@@ -18,6 +18,7 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/app',
+        scope: '/',
         icons: [
           {
             src: 'pwa-192x192.png',
@@ -36,6 +37,13 @@ export default defineConfig({
             purpose: 'any maskable'
           }
         ]
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff2}'],
+        // Exclude firebase logic from service worker payload to prevent bugs.
+        // It relies on index.html being served and dynamically invoking firebase.
+        navigateFallback: '/index.html',
+        cleanupOutdatedCaches: true,
       },
       devOptions: {
         enabled: true

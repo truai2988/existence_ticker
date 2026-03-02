@@ -55,8 +55,21 @@ export const usePWAInstall = () => {
     const listener = (e: BeforeInstallPromptEvent) => setInstallPromptEvent(e);
     promptListeners.add(listener);
 
+    const handleAppInstalled = () => {
+      // Clear event to prevent further prompts
+      setInstallPromptEvent(null);
+      setIsStandalone(true);
+
+      // We will show success Toast from the component level where context is available.
+      // Dispatching a custom event that UI components can listen to.
+      window.dispatchEvent(new CustomEvent("pwa-installed"));
+    };
+
+    window.addEventListener("appinstalled", handleAppInstalled);
+
     return () => {
       promptListeners.delete(listener);
+      window.removeEventListener("appinstalled", handleAppInstalled);
     };
   }, []);
 
@@ -92,7 +105,9 @@ export const usePWAInstall = () => {
 
   const installPWA = useCallback(async () => {
     if (!installPromptEvent) {
-      alert("ブラウザ側のインストール準備が完了していないか、環境が非対応です。\nブラウザの設定メニューから「アプリをインストール」を選択してください。");
+      alert(
+        "ブラウザ側のインストール準備が完了していないか、環境が非対応です。\nブラウザの設定メニューから「アプリをインストール」を選択してください。",
+      );
       return;
     }
 

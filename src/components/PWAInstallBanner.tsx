@@ -1,15 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { X, Share, PlusSquare } from 'lucide-react';
 import { setGlobalTriggerPWAInstall } from '../utils/pwaEvent';
+import { useToast } from '../contexts/ToastContext';
 
 export const PWAInstallBanner: React.FC = () => {
   const { showBanner, isIOS, triggerPrompt, dismissBanner, installPWA } = usePWAInstall();
+  const { showToast } = useToast();
+  const [hasPromptedIOS, setHasPromptedIOS] = useState(false);
 
   React.useEffect(() => {
     setGlobalTriggerPWAInstall(triggerPrompt);
   }, [triggerPrompt]);
+
+  React.useEffect(() => {
+    const handleInstalled = () => {
+      showToast("アプリのインストールが完了しました。ホーム画面から起動してください。", 'success');
+      dismissBanner();
+    };
+
+    window.addEventListener('pwa-installed', handleInstalled);
+    return () => window.removeEventListener('pwa-installed', handleInstalled);
+  }, [showToast, dismissBanner]);
 
   return (
     <AnimatePresence>
@@ -58,14 +71,32 @@ export const PWAInstallBanner: React.FC = () => {
                   </div>
                   <span>「ホーム画面に追加」を選択</span>
                 </div>
+                {hasPromptedIOS && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    className="mt-2 p-2 bg-orange-50/50 rounded-lg text-orange-800/80 leading-relaxed"
+                  >
+                    追加が完了したら、<strong>このタブを閉じて</strong>ホーム画面のアイコンから起動してください。
+                  </motion.div>
+                )}
               </div>
             )}
 
+            {isIOS && !hasPromptedIOS ? (
+              <button
+                onClick={() => setHasPromptedIOS(true)}
+                className="w-full py-2.5 text-xs font-bold tracking-widest text-slate-500 hover:text-[#2D2D2D] transition-colors"
+                >
+                追加手順を確認しました
+              </button>
+            ) : null}
+
             <button
               onClick={dismissBanner}
-              className="w-full py-2.5 text-xs font-bold tracking-widest text-[#2D2D2D]/50 hover:text-[#2D2D2D] transition-colors"
+              className={`w-full py-2.5 text-xs font-bold tracking-widest transition-colors ${isIOS && hasPromptedIOS ? 'text-[#2D2D2D]/80 hover:text-[#2D2D2D]' : 'text-[#2D2D2D]/50 hover:text-[#2D2D2D]'}`}
             >
-              今はしない
+              {isIOS && hasPromptedIOS ? '閉じる' : '今はしない'}
             </button>
           </div>
         </motion.div>

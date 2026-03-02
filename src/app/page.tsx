@@ -12,6 +12,20 @@ import { useAuth } from "../hooks/useAuthHook";
 import { GoyenShimmer } from "../components/GoyenShimmer";
 
 export const LandingPage = () => {
+  const navigate = useNavigate();
+
+  // Redirect PWA standalone immediately to /app
+  useEffect(() => {
+    const isStandalone = 
+      window.matchMedia('(display-mode: standalone)').matches || 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ('standalone' in window.navigator && (window.navigator as any).standalone);
+      
+    if (isStandalone) {
+      navigate('/app', { replace: true });
+    }
+  }, [navigate]);
+
   // --- A-Side: Ten-Day Lapse (Pure Abundance) ---
   const [lumens, setLumens] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
@@ -19,7 +33,6 @@ export const LandingPage = () => {
   const [isExiting, setIsExiting] = useState(false);
   const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
-  const navigate = useNavigate();
   const { user } = useAuth();
 
   const SCENES = [
