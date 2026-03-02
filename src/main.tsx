@@ -19,6 +19,11 @@ import { WalletProvider } from "./contexts/WalletContext.tsx";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 
+const isStandalone = 
+  window.matchMedia('(display-mode: standalone)').matches || 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ('standalone' in window.navigator && (window.navigator as any).standalone);
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ErrorBoundary>
@@ -30,7 +35,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                 <BrowserRouter>
                   <Routes>
                     {/* 地平：ランディングページ */}
-                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/" element={isStandalone ? <Navigate to="/app" replace /> : <LandingPage />} />
+
 
                     {/* 約束と庭師について */}
                     <Route path="/trust" element={<TrustPage />} />

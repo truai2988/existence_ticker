@@ -60,7 +60,6 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const cappedBalanceMilli = Math.min(initialMilli, Math.max(0, currentBalanceMilli));
 
     return fromMilli(cappedBalanceMilli) + optimisticBalanceOffset;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.cycle_started_at, profile?.spent_lm, globalNow, optimisticBalanceOffset]);
 
   const committedLm = useMemo(() => {
