@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
 // Extend window to support the non-standard beforeinstallprompt event
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: Array<string>;
   readonly userChoice: Promise<{
-    outcome: 'accepted' | 'dismissed';
+    outcome: "accepted" | "dismissed";
     platform: string;
   }>;
   prompt(): Promise<void>;
@@ -17,18 +17,21 @@ declare global {
 }
 
 const DISMISSAL_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
-const DISMISSAL_KEY = 'pwa_banner_dismissed_until';
+const DISMISSAL_KEY = "pwa_banner_dismissed_until";
 
 export const usePWAInstall = () => {
-  const [installPromptEvent, setInstallPromptEvent] = useState<BeforeInstallPromptEvent | null>(null);
+  const [installPromptEvent, setInstallPromptEvent] =
+    useState<BeforeInstallPromptEvent | null>(null);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
     // Check if already in standalone mode (installed)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || ('standalone' in window.navigator && (window.navigator as any).standalone);
+    const _navigator = window.navigator as Navigator & { standalone?: boolean };
+    const _isStandalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      ("standalone" in _navigator && !!_navigator.standalone);
     setIsStandalone(!!_isStandalone);
 
     // Detect iOS Safari (approximate)
@@ -42,33 +45,44 @@ export const usePWAInstall = () => {
       setInstallPromptEvent(e);
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
     return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener(
+        "beforeinstallprompt",
+        handleBeforeInstallPrompt,
+      );
     };
   }, []);
 
-  const triggerPrompt = useCallback(() => {
-    // If already installed, don't show
-    if (isStandalone) return;
+  const triggerPrompt = useCallback(
+    (force: boolean = false) => {
+      // If already installed, don't show
+      if (isStandalone) return;
 
-    // Check dismissal state
-    const dismissedUntil = localStorage.getItem(DISMISSAL_KEY);
-    if (dismissedUntil && Date.now() < parseInt(dismissedUntil, 10)) {
-      return;
-    }
+      if (!force) {
+        // Check dismissal state only if not forced
+        const dismissedUntil = localStorage.getItem(DISMISSAL_KEY);
+        if (dismissedUntil && Date.now() < parseInt(dismissedUntil, 10)) {
+          return;
+        }
+      }
 
-    // Determine if we *can* show something useful
-    // For Android, we need the event. For iOS, we just show instructions.
-    if (installPromptEvent || isIOS) {
-      setShowBanner(true);
-    }
-  }, [installPromptEvent, isIOS, isStandalone]);
+      // Determine if we *can* show something useful
+      // If forced, always show (fallback instructions can be shown in the banner)
+      if (force || installPromptEvent || isIOS) {
+        setShowBanner(true);
+      }
+    },
+    [installPromptEvent, isIOS, isStandalone],
+  );
 
   const dismissBanner = useCallback(() => {
     setShowBanner(false);
-    localStorage.setItem(DISMISSAL_KEY, (Date.now() + DISMISSAL_DURATION).toString());
+    localStorage.setItem(
+      DISMISSAL_KEY,
+      (Date.now() + DISMISSAL_DURATION).toString(),
+    );
   }, []);
 
   const installPWA = useCallback(async () => {
@@ -76,20 +90,23 @@ export const usePWAInstall = () => {
 
     installPromptEvent.prompt();
     const { outcome } = await installPromptEvent.userChoice;
-    
-    if (outcome === 'accepted') {
+
+    if (outcome === "accepted") {
       setInstallPromptEvent(null);
     }
-    
+
     // Hide banner regardless of outcome, and give a cooldown just in case
     setShowBanner(false);
-    localStorage.setItem(DISMISSAL_KEY, (Date.now() + DISMISSAL_DURATION).toString());
-    
+    localStorage.setItem(
+      DISMISSAL_KEY,
+      (Date.now() + DISMISSAL_DURATION).toString(),
+    );
   }, [installPromptEvent]);
 
   return {
     showBanner,
     isIOS,
+    isStandalone,
     canInstallAndroid: !!installPromptEvent,
     triggerPrompt,
     dismissBanner,

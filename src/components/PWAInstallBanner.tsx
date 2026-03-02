@@ -61,6 +61,17 @@ export const PWAInstallBanner: React.FC = () => {
               </div>
             )}
 
+            {!isIOS && !canInstallAndroid && (
+              <div className="bg-white/60 rounded-xl p-3.5 border border-black/5 flex flex-col gap-3 text-xs tracking-wide">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded flex items-center justify-center bg-black/5 text-[#2D2D2D]">
+                    <PlusSquare size={16} />
+                  </div>
+                  <span>ブラウザのメニューから「アプリをインストール」を選択してください</span>
+                </div>
+              </div>
+            )}
+
             <button
               onClick={dismissBanner}
               className="w-full py-2.5 text-xs font-bold tracking-widest text-[#2D2D2D]/50 hover:text-[#2D2D2D] transition-colors"

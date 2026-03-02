@@ -1,4 +1,4 @@
-import { Menu } from "lucide-react";
+import { Menu, Download } from "lucide-react";
 import React, { useState } from "react";
 import { useWallet } from "../hooks/useWallet";
 import { useProfile } from "../hooks/useProfile";
@@ -6,6 +6,8 @@ import { getMillis } from "../logic/worldPhysics";
 import { AppViewMode } from "../types";
 import { SideDrawer } from "./SideDrawer";
 import { NoticePanel } from "./NoticePanel";
+import { usePWAInstall } from "../hooks/usePWAInstall";
+import { globalTriggerPWAInstall } from "../utils/pwaEvent";
 
 interface HeaderProps {
   viewMode?: AppViewMode;
@@ -21,6 +23,7 @@ export const Header: React.FC<HeaderProps> = ({
   const { availableLm, committedLm } = useWallet();
   const { profile } = useProfile();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const { isStandalone } = usePWAInstall();
 
   const balance = availableLm + committedLm;
 
@@ -74,6 +77,17 @@ export const Header: React.FC<HeaderProps> = ({
 
                 {/* Right Cluster: Bell + Hamburger */}
                 <div className="flex h-12 items-center gap-3 shrink-0">
+                  {/* PWA Install Icon */}
+                  {!isStandalone && (
+                    <button
+                      onClick={() => globalTriggerPWAInstall(true)}
+                      className="p-2 -mr-1 text-sky-500 hover:text-sky-600 bg-sky-50/50 hover:bg-sky-50 rounded-full transition-all active:scale-95"
+                      aria-label="アプリをインストール"
+                    >
+                      <Download size={20} strokeWidth={2} />
+                    </button>
+                  )}
+
                   {/* Notice Bell */}
                   <NoticePanel />
 
