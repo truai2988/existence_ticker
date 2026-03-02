@@ -19,9 +19,21 @@ declare global {
 const DISMISSAL_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 const DISMISSAL_KEY = "pwa_banner_dismissed_until";
 
+// Globally capture the event to prevent React race conditions
+let globalInstallPromptEvent: BeforeInstallPromptEvent | null = null;
+const promptListeners: Set<(e: BeforeInstallPromptEvent) => void> = new Set();
+
+if (typeof window !== "undefined") {
+  window.addEventListener("beforeinstallprompt", (e: Event) => {
+    e.preventDefault();
+    globalInstallPromptEvent = e as BeforeInstallPromptEvent;
+    promptListeners.forEach((listener) => listener(globalInstallPromptEvent!));
+  });
+}
+
 export const usePWAInstall = () => {
   const [installPromptEvent, setInstallPromptEvent] =
-    useState<BeforeInstallPromptEvent | null>(null);
+    useState<BeforeInstallPromptEvent | null>(globalInstallPromptEvent);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
@@ -40,18 +52,11 @@ export const usePWAInstall = () => {
     setIsIOS(_isIOS);
 
     // Handle beforeinstallprompt (Android / Chrome)
-    const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
-      e.preventDefault();
-      setInstallPromptEvent(e);
-    };
-
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    const listener = (e: BeforeInstallPromptEvent) => setInstallPromptEvent(e);
+    promptListeners.add(listener);
 
     return () => {
-      window.removeEventListener(
-        "beforeinstallprompt",
-        handleBeforeInstallPrompt,
-      );
+      promptListeners.delete(listener);
     };
   }, []);
 
@@ -86,7 +91,10 @@ export const usePWAInstall = () => {
   }, []);
 
   const installPWA = useCallback(async () => {
-    if (!installPromptEvent) return;
+    if (!installPromptEvent) {
+      alert("ブラウザ側のインストール準備が完了していないか、環境が非対応です。\nブラウザの設定メニューから「アプリをインストール」を選択してください。");
+      return;
+    }
 
     installPromptEvent.prompt();
     const { outcome } = await installPromptEvent.userChoice;
@@ -107,7 +115,7 @@ export const usePWAInstall = () => {
     showBanner,
     isIOS,
     isStandalone,
-    canInstallAndroid: !!installPromptEvent,
+    installPromptEvent,
     triggerPrompt,
     dismissBanner,
     installPWA,

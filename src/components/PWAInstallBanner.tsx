@@ -5,7 +5,7 @@ import { X, Share, PlusSquare } from 'lucide-react';
 import { setGlobalTriggerPWAInstall } from '../utils/pwaEvent';
 
 export const PWAInstallBanner: React.FC = () => {
-  const { showBanner, isIOS, canInstallAndroid, triggerPrompt, dismissBanner, installPWA } = usePWAInstall();
+  const { showBanner, isIOS, triggerPrompt, dismissBanner, installPWA } = usePWAInstall();
 
   React.useEffect(() => {
     setGlobalTriggerPWAInstall(triggerPrompt);
@@ -35,7 +35,7 @@ export const PWAInstallBanner: React.FC = () => {
           </div>
 
           <div className="flex flex-col gap-3 mt-2">
-            {canInstallAndroid && !isIOS && (
+            {!isIOS && (
               <button
                 onClick={installPWA}
                 className="w-full py-3 rounded-xl bg-[#2D2D2D] text-[#F9F8F4] font-bold text-sm tracking-widest shadow-md hover:bg-black active:scale-[0.98] transition-all"
@@ -57,17 +57,6 @@ export const PWAInstallBanner: React.FC = () => {
                     <PlusSquare size={16} />
                   </div>
                   <span>「ホーム画面に追加」を選択</span>
-                </div>
-              </div>
-            )}
-
-            {!isIOS && !canInstallAndroid && (
-              <div className="bg-white/60 rounded-xl p-3.5 border border-black/5 flex flex-col gap-3 text-xs tracking-wide">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded flex items-center justify-center bg-black/5 text-[#2D2D2D]">
-                    <PlusSquare size={16} />
-                  </div>
-                  <span>ブラウザのメニューから「アプリをインストール」を選択してください</span>
                 </div>
               </div>
             )}
