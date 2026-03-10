@@ -161,18 +161,16 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         } else {
             const days = data.scheduled_cycle_days || 10;
             const duration = days * 24 * 60 * 60 * 1000;
-            const theoreticalEnd = cycleStartedAt + duration;
-
-            // If current time is past theoretical end, or if it's way before (meaning cycle was reset early)
-            // then the new anchor time is the current time.
-            // Otherwise, the new anchor time is the theoretical end of the previous cycle.
-            // This ensures that if a user resets early, their next cycle starts from now.
-            // If they reset late, their next cycle starts from when it *should* have ended.
             const now = Date.now();
-            if (now >= theoreticalEnd || (theoreticalEnd - now) > duration) { // The second condition handles early resets
+            const elapsedSinceStart = now - cycleStartedAt;
+            const periodsElapsed = Math.floor(elapsedSinceStart / duration);
+
+            if (periodsElapsed <= 0) {
+                // 早期リセットの場合（期間終了前）は、現在時刻から再スタート
                 newAnchorTimeMillis = now;
             } else {
-                newAnchorTimeMillis = theoreticalEnd;
+                // 遅れてリセットした場合、経過したサイクル数分だけ進めた「直近のリズム境界」にスナップする
+                newAnchorTimeMillis = cycleStartedAt + (periodsElapsed * duration);
             }
         }
 
