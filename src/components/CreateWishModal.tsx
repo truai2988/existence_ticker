@@ -6,7 +6,7 @@ import { useWallet } from '../hooks/useWallet';
 import { GratitudeTier, SeedPlaceholder } from '../types';
 import { db } from '../lib/firebase';
 import { WISH_COST, UNIT_LABEL } from '../constants';
-import { useToast } from '../contexts/ToastContext';
+import { useToast } from '../hooks/useToast';
 
 type TierOption = {
   id: GratitudeTier;

@@ -4,7 +4,7 @@ import { WishCardState, WishCardHandlers } from "../types";
 import { ApplicantItem } from "../ApplicantItem";
 import { CompleteWishModal } from "../../CompleteWishModal";
 import { useWishActions } from "../../../hooks/useWishActions";
-import { useToast } from "../../../contexts/ToastContext";
+import { useToast } from "../../../hooks/useToast";
 import { useUserView } from "../../../contexts/UserViewContext";
 import { toMilli } from "../../../logic/worldPhysics";
 

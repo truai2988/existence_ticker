@@ -14,7 +14,7 @@ import { SignupRedirect } from "./components/SignupRedirect";
 import "./index.css";
 import { UserViewProvider } from "./contexts/UserViewContext";
 import { WishesProvider } from "./contexts/WishesContext";
-import { ToastProvider } from "./contexts/ToastContext";
+import { ToastProvider } from "./contexts/ToastProvider";
 import { WalletProvider } from "./contexts/WalletContext.tsx";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";

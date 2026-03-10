@@ -5,7 +5,7 @@ import { useOtherProfile } from "../../../hooks/useOtherProfile";
 import { useProfile } from "../../../hooks/useProfile";
 import { useWallet } from "../../../hooks/useWallet";
 import { isProfileComplete } from "../../../utils/profileCompleteness";
-import { useToast } from "../../../contexts/ToastContext";
+import { useToast } from "../../../hooks/useToast";
 import { WishCardProps, WishCardState, WishCardHandlers } from "../types";
 
 export function useWishCard(props: WishCardProps): { state: WishCardState; handlers: WishCardHandlers } {

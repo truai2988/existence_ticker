@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { WishCardState, WishCardHandlers } from "../types";
 import { useWishActions } from "../../../hooks/useWishActions";
-import { useToast } from "../../../contexts/ToastContext";
+import { useToast } from "../../../hooks/useToast";
 
 export const CardFooter: React.FC<{
   state: WishCardState;

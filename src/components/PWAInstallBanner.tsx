@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { X, Share, PlusSquare } from 'lucide-react';
 import { setGlobalTriggerPWAInstall } from '../utils/pwaEvent';
-import { useToast } from '../contexts/ToastContext';
+import { useToast } from '../hooks/useToast';
 
 export const PWAInstallBanner: React.FC = () => {
   const { showBanner, isIOS, triggerPrompt, dismissBanner, installPWA } = usePWAInstall();
