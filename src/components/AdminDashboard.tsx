@@ -238,7 +238,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     }
   };
 
+
   const toggleAdmin = async (u: UserProfile) => {
+    // If the user is being demoted from admin
+    if (u.role === "admin") {
+      // Check if this specific user will still be a Super Admin after losing the Admin role
+      const willStillBeSuper = superAdminIds.includes(u.id);
+      
+      // Count OTHER administrators
+      const otherAdmins = userList.filter((user) => 
+        user.id !== u.id && (user.role === "admin" || superAdminIds.includes(user.id))
+      ).length;
+      
+      // If neither this user nor anyone else will have access
+      if (!willStillBeSuper && otherAdmins === 0) {
+        alert("システムには管理画面にアクセスできるユーザーが最低1人は必要です。");
+        return;
+      }
+    }
+
     if (!window.confirm(`⚠️ ${u.name || u.id} の権限を変更しますか？`)) return;
     try {
       if (!db) return;
@@ -257,6 +275,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
   const toggleSuperAdmin = async (u: UserProfile) => {
     const isCurrentlySuper = superAdminIds.includes(u.id);
+    
+    if (isCurrentlySuper) {
+      // Check if this specific user will still be a regular Admin after losing Super Admin
+      const willStillBeAdmin = u.role === "admin";
+      
+      // Count OTHER administrators
+      const otherAdmins = userList.filter((user) => 
+        user.id !== u.id && (user.role === "admin" || superAdminIds.includes(user.id))
+      ).length;
+      
+      // If neither this user nor anyone else will have access
+      if (!willStillBeAdmin && otherAdmins === 0) {
+        alert("システムには管理画面にアクセスできるユーザーが最低1人は必要です。");
+        return;
+      }
+    }
+
     if (
       !window.confirm(
         `⚠️ ${u.name || u.id} の【特別権限（Super Admin）】を${isCurrentlySuper ? "剥奪" : "付与"}しますか？`,
@@ -343,6 +378,9 @@ https://www.existenceticker.com/?code=${codeId}
 
   // Data Fetching Logic: Only trigger when switching TO the tab
   React.useEffect(() => {
+    if (activeTab === "citizens" && userList.length === 0) {
+      fetchUsers();
+    }
     if (activeTab === "invitations") {
       fetchInviteCodes();
     }
@@ -821,8 +859,10 @@ https://www.existenceticker.com/?code=${codeId}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                   </div>
-                  <div className="text-xs text-slate-500 font-mono">
-                    {filteredUsers.length} Users Loaded
+                  <div className="flex items-center gap-4">
+                    <span className="text-xs text-slate-500 font-mono">
+                      {filteredUsers.length} Users Loaded
+                    </span>
                   </div>
                 </div>
 
@@ -909,7 +949,7 @@ https://www.existenceticker.com/?code=${codeId}
                                     SUPER ADMIN
                                   </span>
                                 )}
-                                {u.role === "admin" && (
+                                {u.role === "admin" && !superAdminIds.includes(u.id) && (
                                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-900/50">
                                     <Shield size={10} />
                                     Admin
