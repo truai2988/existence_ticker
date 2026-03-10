@@ -208,6 +208,9 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>
                                     プロフィール編集
                                 </h2>
+                                <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate mt-0.5">
+                                    基本情報の更新
+                                </p>
                             </div>
                         </div>
                         <div className="flex h-12 items-center">
@@ -280,40 +283,40 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                         <ShieldCheck size={18} className="text-blue-500" strokeWidth={2.5} />
                         <h3 className="text-sm font-bold text-slate-800">信頼の証までの道のり</h3>
                     </div>
-                    <p className="text-xs text-slate-600 mb-4 leading-relaxed">
+                    <p className="text-sm text-slate-600 mb-4 leading-relaxed">
                         すべて整えると、プロフィールに<span className="font-bold text-blue-600">信頼の証</span>が灯ります。あなたの誠実さが隣人に伝わり、安心して助け合える関係がここから広がっていきます。
                     </p>
-                    <div className="space-y-2.5">
+                    <div className="space-y-3">
                         {/* Avatar Check */}
                         <div className="flex items-center gap-2.5">
                             {previewUrl ? (
-                                <CheckCircle size={16} className="text-green-500 shrink-0" strokeWidth={2.5} />
+                                <CheckCircle size={18} className="text-green-500 shrink-0" strokeWidth={2.5} />
                             ) : (
-                                <XCircle size={16} className="text-slate-400 shrink-0" strokeWidth={2.5} />
+                                <XCircle size={18} className="text-slate-400 shrink-0" strokeWidth={2.5} />
                             )}
-                            <span className={`text-xs ${previewUrl ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>
+                            <span className={`text-sm ${previewUrl ? 'text-slate-700 font-medium' : 'text-slate-500'}`}>
                                 プロフィール画像を登録
                             </span>
                         </div>
                         {/* Bio Check */}
                         <div className="flex items-center gap-2.5">
                             {bio.length >= 30 ? (
-                                <CheckCircle size={16} className="text-green-500 shrink-0" strokeWidth={2.5} />
+                                <CheckCircle size={18} className="text-green-500 shrink-0" strokeWidth={2.5} />
                             ) : (
-                                <XCircle size={16} className="text-slate-400 shrink-0" strokeWidth={2.5} />
+                                <XCircle size={18} className="text-slate-400 shrink-0" strokeWidth={2.5} />
                             )}
-                            <span className={`text-xs ${bio.length >= 30 ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>
-                                自己紹介を30文字以上入力 <span className="font-mono text-xs">({bio.length}/30)</span>
+                            <span className={`text-sm ${bio.length >= 30 ? 'text-slate-700 font-medium' : 'text-slate-500'}`}>
+                                自己紹介を30文字以上入力 <span className="font-mono text-sm ml-1">({bio.length}/30)</span>
                             </span>
                         </div>
                         {/* Links Check */}
                         <div className="flex items-center gap-2.5">
                             {(links.x || links.instagram || links.website) ? (
-                                <CheckCircle size={16} className="text-green-500 shrink-0" strokeWidth={2.5} />
+                                <CheckCircle size={18} className="text-green-500 shrink-0" strokeWidth={2.5} />
                             ) : (
-                                <XCircle size={16} className="text-slate-400 shrink-0" strokeWidth={2.5} />
+                                <XCircle size={18} className="text-slate-400 shrink-0" strokeWidth={2.5} />
                             )}
-                            <span className={`text-xs ${(links.x || links.instagram || links.website) ? 'text-slate-700 font-medium' : 'text-slate-400'}`}>
+                            <span className={`text-sm ${(links.x || links.instagram || links.website) ? 'text-slate-700 font-medium' : 'text-slate-500'}`}>
                                 SNSを1つ以上連携する
                             </span>
                         </div>
@@ -386,7 +389,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 )}
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1.5">自己紹介 (Bio)</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1.5">自己紹介</label>
                                 <textarea 
                                     value={bio}
                                     onChange={(e) => setBio(e.target.value)}
