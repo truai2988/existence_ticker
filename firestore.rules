@@ -11,11 +11,7 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSuperAdmin() || isDocAdmin();
-    }
-
-    function isSuperAdmin() {
-      return isSignedIn() && exists(/databases/$(database)/documents/super_admins/$(request.auth.uid));
+      return isDocAdmin();
     }
 
     function isDocAdmin() {
@@ -116,10 +112,5 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // --- Super Admins ---
-    match /super_admins/{uid} {
-      allow read: if isSignedIn() && (isAdmin() || request.auth.uid == uid);
-      allow write: if isSignedIn() && isAdmin(); 
-    }
   }
 }

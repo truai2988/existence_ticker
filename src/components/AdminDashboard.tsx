@@ -66,7 +66,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [lastVisibleDoc, setLastVisibleDoc] = useState<QueryDocumentSnapshot | null>(null);
   const [hasMoreUsers, setHasMoreUsers] = useState(true);
-  const [superAdminIds, setSuperAdminIds] = useState<string[]>([]);
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
 
   // Seed Library State
@@ -130,7 +129,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         if (snap.exists()) {
           const data = snap.data();
           if (data.cycleDays) setCycleDays(data.cycleDays);
-          if (data.super_admin_ids) setSuperAdminIds(data.super_admin_ids);
         }
       } catch (e) {
         console.error("Failed to fetch cycle config", e);
@@ -240,18 +238,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
 
   const toggleAdmin = async (u: UserProfile) => {
-    // If the user is being demoted from admin
     if (u.role === "admin") {
-      // Check if this specific user will still be a Super Admin after losing the Admin role
-      const willStillBeSuper = superAdminIds.includes(u.id);
-      
-      // Count OTHER administrators
       const otherAdmins = userList.filter((user) => 
-        user.id !== u.id && (user.role === "admin" || superAdminIds.includes(user.id))
+        user.id !== u.id && user.role === "admin"
       ).length;
       
-      // If neither this user nor anyone else will have access
-      if (!willStillBeSuper && otherAdmins === 0) {
+      if (otherAdmins === 0) {
         alert("システムには管理画面にアクセスできるユーザーが最低1人は必要です。");
         return;
       }
@@ -261,81 +253,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     try {
       if (!db) return;
       const { doc, updateDoc } = await import("firebase/firestore");
-      const isSuper = superAdminIds.includes(u.id);
-      const newRole = (u.role === "admin" || u.role === "super_admin") ? "user" : (isSuper ? "super_admin" : "admin");
+      const newRole = u.role === "admin" ? "user" : "admin";
       await updateDoc(doc(db, "users", u.id), {
         role: newRole,
       });
-      alert(`権限を ${newRole} に変更しました。`);
+      const roleNameMap: Record<string, string> = {
+        "admin": "管理者",
+        "user": "一般ユーザー",
+      };
+      
+      alert(`権限を ${roleNameMap[newRole] || newRole} に変更しました。`);
       fetchUsers();
-    } catch (e) {
-      console.error(e);
-      alert("変更に失敗しました");
-    }
-  };
-
-  const toggleSuperAdmin = async (u: UserProfile) => {
-    const isCurrentlySuper = superAdminIds.includes(u.id);
-    
-    if (isCurrentlySuper) {
-      // Check if this specific user will still be a regular Admin after losing Super Admin
-      const willStillBeAdmin = u.role === "admin";
-      
-      // Count OTHER administrators
-      const otherAdmins = userList.filter((user) => 
-        user.id !== u.id && (user.role === "admin" || superAdminIds.includes(user.id))
-      ).length;
-      
-      // If neither this user nor anyone else will have access
-      if (!willStillBeAdmin && otherAdmins === 0) {
-        alert("システムには管理画面にアクセスできるユーザーが最低1人は必要です。");
-        return;
-      }
-    }
-
-    if (
-      !window.confirm(
-        `⚠️ ${u.name || u.id} の【特別権限（Super Admin）】を${isCurrentlySuper ? "剥奪" : "付与"}しますか？`,
-      )
-    )
-      return;
-
-    try {
-      if (!db) return;
-      const { doc, updateDoc, setDoc, deleteDoc, serverTimestamp } = await import("firebase/firestore");
-      
-      // 1. Update Global Settings (UI / List)
-      const newSuperIds = isCurrentlySuper
-        ? superAdminIds.filter((id) => id !== u.id)
-        : [...superAdminIds, u.id];
-
-      await updateDoc(doc(db, "system_settings", "global"), {
-        super_admin_ids: newSuperIds,
-      });
-
-      // 2. Update Security Collection (Firestore Rules)
-      const adminDocRef = doc(db, "super_admins", u.id);
-      if (isCurrentlySuper) {
-          // Remove privilege
-          await deleteDoc(adminDocRef);
-      } else {
-          // Grant privilege
-          await setDoc(adminDocRef, {
-              uid: u.id,
-              email: u.email || "",
-              is_super: true,
-              granted_at: serverTimestamp()
-          });
-      }
-
-      // 3. Update User Document Role
-      const userRef = doc(db, "users", u.id);
-      await updateDoc(userRef, {
-        role: isCurrentlySuper ? "admin" : "super_admin"
-      });
-
-      setSuperAdminIds(newSuperIds);
-      alert(`特別権限を${isCurrentlySuper ? "剥奪" : "付与"}しました。\n(DBと設定の両方を同期しました)`);
     } catch (e) {
       console.error(e);
       alert("変更に失敗しました");
@@ -950,30 +878,16 @@ https://www.existenceticker.com/?code=${codeId}
                                 権限:
                               </span>
                               <div className="inline-flex flex-col items-start gap-1">
-                                {superAdminIds.includes(u.id) && (
-                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-400 text-black border border-yellow-500 shadow-[0_0_10px_rgba(250,204,21,0.4)]">
-                                    <Shield size={10} fill="black" />
-                                    スーパー管理者
-                                  </span>
-                                )}
-                                {u.role === "admin" && !superAdminIds.includes(u.id) && (
-                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-900/50">
+                                {u.role === "admin" ? (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-900/50 whitespace-nowrap">
                                     <Shield size={10} />
                                     管理者
                                   </span>
-                                )}
-                                {u.role === "super_admin" && (
-                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-400 text-black border border-yellow-500 shadow-[0_0_10px_rgba(250,204,21,0.4)]">
-                                    <Shield size={10} fill="black" />
-                                    スーパー管理者
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-500 whitespace-nowrap">
+                                    一般ユーザー
                                   </span>
                                 )}
-                                {u.role !== "admin" && u.role !== "super_admin" &&
-                                  !superAdminIds.includes(u.id) && (
-                                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-500">
-                                      一般ユーザー
-                                    </span>
-                                  )}
                               </div>
                             </div>
 
@@ -981,37 +895,14 @@ https://www.existenceticker.com/?code=${codeId}
                             <div className="col-span-2 w-full md:w-auto flex justify-end gap-2">
                               <button
                                 type="button"
-                                onClick={() => toggleSuperAdmin(u)}
-                                className={`p-2 rounded-lg transition-colors border ${
-                                  superAdminIds.includes(u.id)
-                                    ? "bg-yellow-400/10 border-yellow-400/30 text-yellow-500 hover:bg-yellow-400/30"
-                                    : "bg-slate-800 border-slate-700 text-slate-500 hover:text-white hover:border-slate-500"
-                                }`}
-                                title={
-                                  superAdminIds.includes(u.id)
-                                    ? "特別権限を剥奪"
-                                    : "特別権限を付与"
-                                }
-                              >
-                                <Shield
-                                  size={16}
-                                  fill={
-                                    superAdminIds.includes(u.id)
-                                      ? "currentColor"
-                                      : "none"
-                                  }
-                                />
-                              </button>
-                              <button
-                                type="button"
                                 onClick={() => toggleAdmin(u)}
                                 className={`p-2 rounded-lg transition-colors border ${
-                                  (u.role === "admin" || u.role === "super_admin")
+                                  u.role === "admin"
                                     ? "bg-red-900/10 border-red-900/30 text-red-400 hover:bg-red-900/30"
                                     : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500"
                                 }`}
                                 title={
-                                  (u.role === "admin" || u.role === "super_admin")
+                                  u.role === "admin"
                                     ? "一般ユーザーに降格"
                                     : "管理者に昇格"
                                 }
