@@ -86,8 +86,8 @@ const RitualOverlay = ({
               <div className="text-6xl font-serif font-bold text-slate-900 tracking-tighter">
                 2,400
               </div>
-              <div className="text-sm tracking-[0.5em] mt-2 text-slate-500 uppercase">
-                Light Restored
+              <div className="text-xs tracking-[0.3em] mt-2 text-slate-500 uppercase font-bold">
+                灯火が還りました
               </div>
             </motion.div>
           )}
@@ -99,8 +99,8 @@ const RitualOverlay = ({
               className="text-center"
             >
               <CountingNumber value={targetBalance} duration={2} />
-              <div className="text-sm tracking-[0.5em] mt-2 text-slate-500 uppercase">
-                Time Synced
+              <div className="text-xs tracking-[0.3em] mt-2 text-slate-500 uppercase font-bold">
+                刻が同期されました
               </div>
             </motion.div>
           )}

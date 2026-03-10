@@ -194,7 +194,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                                  <span className={`text-3xl font-mono font-bold tracking-tighter ${selectedTier === tier.id 
                                    ? tier.cost === 1000 ? "text-[#B8860B]" : tier.cost === 500 ? "text-amber-700" : "text-pink-400" 
                                    : "text-slate-200"}`}>
-                                   {tier.cost === 0 ? "∞" : tier.cost.toLocaleString()} <span className="text-xs font-sans font-bold opacity-60 uppercase">{tier.cost === 0 ? "ECHO" : UNIT_LABEL}</span>
+                                   {tier.cost === 0 ? "∞" : tier.cost.toLocaleString()} <span className="text-xs font-sans font-bold opacity-60 uppercase">{tier.cost === 0 ? "共鳴" : UNIT_LABEL}</span>
                                  </span>
                              </div>
                              

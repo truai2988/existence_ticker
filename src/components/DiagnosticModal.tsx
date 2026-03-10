@@ -49,21 +49,21 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
                       voice: `世界は渇きに喘いでいます。平均残高は ${avgBalance.toLocaleString()} Lm まで落ち込み、魂たちは明日への恐怖に震えています。今すぐ世界の回転を早め、乾いた大地に慈悲の雨を降らせてください。`,
                       actionTitle: "慈悲の降雨 (Spring Shift)",
                       actionDesc: "サイクル期間を短縮（5～7日）し、給付の頻度を高めることで、生存の不安を解消してください。",
-                      targetValue: "Target: 5 Days (Fast)"
+                      targetValue: "目標: 5日 (加速)"
                   };
               case 'SATURATION':
                   return {
                       voice: `世界は贅沢な微睡みに沈んでいます。${richPercentage}% の魂が満たされ、欲求（Wish）が枯れています。Lmの重みを思い出させるために、少し長い冬が必要です。`,
                       actionTitle: "静寂の冬 (Winter Shift)",
                       actionDesc: "サイクル期間を延長（15～20日）し、次の給付を遠ざけてください。枯渇への健全な危機感が、死蔵された富の放出を促します。",
-                      targetValue: "Target: 20 Days (Slow)"
+                      targetValue: "目標: 20日 (減速)"
                   };
               case 'STAGNATION':
                   return {
                       voice: "深刻な機能不全です。動脈硬化のように、流れが完全に止まっています。これは数値の問題ではなく、信頼（Trust）の欠如です。神が動かなければ、人も動きません。",
                       actionTitle: "心臓マッサージ (God's Hand)",
                       actionDesc: "システムの外から、あなた自身が「最初の依頼」あるいは「最初の贈与」を行い、凍りついた時間に楔を打ち込んでください。",
-                      targetValue: "Action: Manual Transact"
+                      targetValue: "操作: 直接取引・贈与"
                   };
               case 'HEALTHY':
               default:
@@ -71,7 +71,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
                       voice: "世界は穏やかな呼吸を繰り返しています。循環と蓄積のバランスは黄金比に近く、理想的な状態です。この美しい均衡を見守ることこそ、最も難しい神の仕事です。",
                       actionTitle: "静観 (Observation)",
                       actionDesc: "不必要な介入は波紋を広げるだけです。今はただ、この命の脈動を信じて見守りましょう。",
-                      targetValue: "Action: Maintain"
+                      targetValue: "操作: 現状維持"
                   };
           }
       };
@@ -111,7 +111,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
             <div>
               <div className="flex items-center gap-2 text-slate-400 mb-1 uppercase tracking-[0.2em] text-xs font-sans">
                 <Activity size={12} />
-                <span>管理者の診断 (Sage's Check)</span>
+                <span>管理者の診断 (賢者の診断)</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-serif text-white leading-tight">
                  {diagnosis.shortDescription.split('】')[1] || diagnosis.shortDescription}
@@ -141,19 +141,19 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               {/* Responsive Metrics Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-0.5 bg-slate-800/50 border border-slate-800 rounded-xl overflow-hidden">
                   <div className="bg-slate-900 p-4 text-center">
-                      <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">流通速度 (Flow)</div>
+                      <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">流通速度</div>
                       <div className={`font-mono text-xl sm:text-2xl ${metabolism.rate >= 10 ? 'text-cyan-400' : 'text-slate-400'}`}>
                           {metabolism.rate}%
                       </div>
                   </div>
                   <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
-                      <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">平均残高 (Avg)</div>
+                      <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">平均残高</div>
                       <div className="font-mono text-xl sm:text-2xl text-slate-400">
                           {avgBalance.toLocaleString()}
                       </div>
                   </div>
                   <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
-                       <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">崩壊係数 (Entropy)</div>
+                       <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">エントロピー損失</div>
                        <div className="font-mono text-xl sm:text-2xl text-red-500/80">
                           -{metabolism.decay24h.toLocaleString()}
                        </div>
@@ -164,7 +164,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               <div className={`p-5 sm:p-6 rounded-xl border transition-colors ${diagnosis.bg}`}>
                   <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2 opacity-80">
                       <Zap size={14} className="text-yellow-400 animate-pulse"/>
-                      処方箋 (Prescription)
+                      処方箋
                   </h3>
                   <div className="flex flex-col sm:flex-row justify-between items-start gap-6">
                       <div className="flex-1">
@@ -195,11 +195,9 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-slate-800/50 bg-slate-900/50 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-500 uppercase tracking-widest text-center">
               <span>存在ルーメン (Existence Ticker)</span>
               <div className="hidden sm:block w-1 h-1 bg-slate-800 rounded-full" />
-              <span>白い器の規約 (White Vessel Protocol)</span>
-          </div>
+              <span>白い器の規約</span>
         </motion.div>
       </div>
     </AnimatePresence>

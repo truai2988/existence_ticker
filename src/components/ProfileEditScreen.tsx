@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, MapPin, Link as LinkIcon, Save, Loader2, ChevronLeft, Mail, AlertCircle, ShieldCheck, CheckCircle, XCircle, Sparkles } from 'lucide-react';
+import { Camera, MapPin, Link as LinkIcon, Save, Loader2, ChevronLeft, Mail, AlertCircle, ShieldCheck, CheckCircle, XCircle, Sparkles, X } from 'lucide-react';
 import imageCompression from 'browser-image-compression';
 import { useProfile } from '../hooks/useProfile';
 import { useLocationData } from '../hooks/useLocationData';
@@ -196,17 +196,12 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                 <div className="border-b border-transparent">
                     <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between flex-nowrap gap-2">
                         <div className="flex items-center gap-3 min-w-0">
-                            {/* Logo: 戻るボタン */}
                             <button
                                 onClick={onBack}
-                                aria-label="戻る"
-                                className="shrink-0 focus:outline-none active:scale-95 transition-transform"
+                                aria-label="閉じる"
+                                className="p-2 -ml-2 text-slate-400 hover:text-slate-600 transition-colors active:scale-95"
                             >
-                                <img
-                                    src="/logo.png"
-                                    alt="Existence Ticker"
-                                    className="w-10 h-10 rounded-lg shadow-sm border border-slate-200/50 object-cover hover:opacity-80 transition-opacity"
-                                />
+                                <X size={24} strokeWidth={1.5} />
                             </button>
                             {/* Text Group */}
                             <div className="flex flex-col min-w-0">
@@ -335,7 +330,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     type="text" 
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
+                                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)] text-base"
                                     placeholder="名前を入力"
                                 />
                             </div>
@@ -345,7 +340,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     <select 
                                         value={age_group}
                                         onChange={(e) => setAgeGroup(e.target.value)}
-                                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
+                                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)] text-base"
                                     >
                                         <option value="">未選択</option>
                                         <option value="20歳未満">20歳未満</option>
@@ -395,7 +390,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 <textarea 
                                     value={bio}
                                     onChange={(e) => setBio(e.target.value)}
-                                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all resize-none h-24 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
+                                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-base focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all resize-none h-24 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
                                     placeholder="自己紹介文を入力してください (最大160文字)"
                                     maxLength={160}
                                 />
@@ -418,7 +413,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                         <select 
                                             value={location.prefecture}
                                             onChange={(e) => setLocation(prev => ({ ...prev, prefecture: e.target.value }))}
-                                            className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
+                                            className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-base font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
                                         >
                                             <option value="">未選択</option>
                                             {PREFECTURES.map(pref => (
@@ -436,7 +431,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                         <select 
                                             value={location.city}
                                             onChange={(e) => setLocation(prev => ({ ...prev, city: e.target.value }))}
-                                            className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-sm font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 disabled:opacity-50 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
+                                            className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-base font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 disabled:opacity-50 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
                                             disabled={!location.prefecture || loadingCities}
                                         >
                                             <option value="">{loadingCities ? '読み込み中...' : '市区町村を選択'}</option>
@@ -467,7 +462,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     value={links.x}
                                     onChange={(e) => setLinks(prev => ({ ...prev, x: e.target.value }))}
                                     className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
-                                    placeholder="@username or URL"
+                                    placeholder="@ユーザー名 または URL"
                                 />
                             </div>
                             <div className="flex items-center gap-3">
@@ -479,7 +474,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     value={links.instagram}
                                     onChange={(e) => setLinks(prev => ({ ...prev, instagram: e.target.value }))}
                                     className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
-                                    placeholder="@username or URL"
+                                    placeholder="@ユーザー名 または URL"
                                 />
                             </div>
                             <div className="flex items-center gap-3">
@@ -491,7 +486,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     value={links.website}
                                     onChange={(e) => setLinks(prev => ({ ...prev, website: e.target.value }))}
                                     className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
-                                    placeholder="https://example.com"
+                                    placeholder="https://などで始まるURL"
                                 />
                             </div>
                         </div>

@@ -29,7 +29,7 @@ export const useAdminRole = (user: User | null) => {
         // 1. Live Profile Role
         const userRef = doc(db, 'users', user.uid);
         unsubscribeFirestore = onSnapshot(userRef, (snap) => {
-            isDocAdmin = snap.exists() && snap.data()?.role === 'admin';
+            isDocAdmin = snap.exists() && (snap.data()?.role === 'admin' || snap.data()?.role === 'super_admin');
             updateAdminState();
         }, () => {});
 

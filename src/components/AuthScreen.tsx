@@ -209,7 +209,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                   exit={{ opacity: 0, y: -10 }}
                   className="flex flex-col gap-1.5"
                 >
-                  <label className="text-xs font-bold text-slate-500 ml-1">
+                  <label className="text-sm font-bold text-slate-600 ml-1">
                     お名前 <span className="text-red-500">*</span>
                   </label>
                   <div className="relative group">
@@ -222,7 +222,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                       placeholder="山田 太郎"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-500"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-500 text-base"
                     />
                   </div>
                 </motion.div>
@@ -230,7 +230,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
             </AnimatePresence>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs font-bold text-slate-500 ml-1">
+              <label className="text-sm font-bold text-slate-600 ml-1">
                 メールアドレス <span className="text-red-500">*</span>
               </label>
               <div className="relative group">
@@ -243,14 +243,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                   placeholder="mail@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-500"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-500 text-base"
                 />
               </div>
             </div>
 
             {mode !== "forgot" && (
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-slate-500 ml-1">
+                <label className="text-sm font-bold text-slate-600 ml-1">
                   パスワード <span className="text-red-500">*</span>
                 </label>
                 <div className="relative group">
@@ -263,7 +263,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                     placeholder="••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-500"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-500 text-base"
                   />
                   <button
                     type="button"
@@ -285,7 +285,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                   className="flex flex-col gap-4 overflow-hidden pt-2"
                 >
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-bold text-slate-500 ml-1">
+                    <label className="text-sm font-bold text-slate-600 ml-1">
                       居住地 <span className="text-red-500">*</span>
                     </label>
                     <div className="grid grid-cols-2 gap-2">
@@ -300,7 +300,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                             setPrefecture(e.target.value);
                             setCity("");
                           }}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all appearance-none"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all appearance-none text-base"
                         >
                           <option value="" disabled>
                             都道府県
@@ -320,7 +320,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                         <select
                           value={city}
                           onChange={(e) => setCity(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all appearance-none disabled:opacity-50"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all appearance-none disabled:opacity-50 text-base"
                           disabled={!prefecture || loadingCities}
                         >
                           <option value="" disabled>
@@ -345,14 +345,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
 
                   <div className="grid grid-cols-2 gap-2">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-bold text-slate-500 ml-1">
+                      <label className="text-sm font-bold text-slate-600 ml-1">
                         年代 <span className="text-red-500">*</span>
                       </label>
                       <div className="relative group">
                         <select
                           value={ageGroup}
                           onChange={(e) => setAgeGroup(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-sm appearance-none"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-base appearance-none"
                         >
                           <option value="" disabled>
                             年代
@@ -373,7 +373,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                       </div>
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-bold text-slate-500 ml-1">
+                      <label className="text-sm font-bold text-slate-600 ml-1">
                         性別 <span className="text-red-500">*</span>
                       </label>
                       <div className="relative group">
@@ -384,7 +384,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                               e.target.value as "male" | "female" | "other",
                             )
                           }
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-sm appearance-none"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-base appearance-none"
                         >
                           <option value="" disabled>
                             性別
@@ -402,7 +402,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                   </div>
 
                   <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-100 mt-2">
-                    <label className="text-xs font-bold text-slate-500 ml-1">
+                    <label className="text-sm font-bold text-slate-600 ml-1">
                       招待の鍵をお持ちですか？{" "}
                       <span className="text-red-500">*</span>
                     </label>
@@ -416,7 +416,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                         placeholder="ALPHA-XXXX"
                         value={invitationCode}
                         onChange={(e) => setInvitationCode(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all font-mono"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all font-mono text-base"
                       />
                     </div>
                     <p className="text-xs text-slate-500 ml-1 mt-1 leading-tight font-medium">
@@ -488,7 +488,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
             )}
           </button>
 
-          <div className="flex flex-col items-center gap-2 mt-4 text-xs font-sans">
+          <div className="flex flex-col items-center gap-2 mt-6 text-base font-sans">
             {mode === "login" && (
               <>
                 <button

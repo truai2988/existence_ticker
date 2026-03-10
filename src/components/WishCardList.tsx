@@ -23,7 +23,7 @@ interface WishCardListProps {
 export const WishCardList: React.FC<WishCardListProps> = ({ 
     wishes, 
     currentUserId, 
-    emptyMessage = "No wishes found.",
+    emptyMessage = "見つかりません。",
     emptyIcon,
     subtitle,
     onLoadMore,
@@ -101,7 +101,7 @@ export const WishCardList: React.FC<WishCardListProps> = ({
                     {isFetchingMore ? (
                         <Loader2 className="w-5 h-5 text-slate-400 animate-spin" />
                     ) : (
-                        <span className="text-xs text-slate-400">Load More...</span>
+                        <span className="text-xs text-slate-400">さらに読み込む</span>
                     )}
                 </div>
             )}

@@ -234,7 +234,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     } catch (err: unknown) {
       console.error(err);
       const msg = err instanceof Error ? err.message : String(err);
-      alert(`Failed to generate code: ${msg}`);
+      alert(`コードの生成に失敗しました: ${msg}`);
     }
   };
 
@@ -261,7 +261,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     try {
       if (!db) return;
       const { doc, updateDoc } = await import("firebase/firestore");
-      const newRole = u.role === "admin" ? "user" : "admin";
+      const isSuper = superAdminIds.includes(u.id);
+      const newRole = (u.role === "admin" || u.role === "super_admin") ? "user" : (isSuper ? "super_admin" : "admin");
       await updateDoc(doc(db, "users", u.id), {
         role: newRole,
       });
@@ -326,6 +327,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               granted_at: serverTimestamp()
           });
       }
+
+      // 3. Update User Document Role
+      const userRef = doc(db, "users", u.id);
+      await updateDoc(userRef, {
+        role: isCurrentlySuper ? "admin" : "super_admin"
+      });
 
       setSuperAdminIds(newSuperIds);
       alert(`特別権限を${isCurrentlySuper ? "剥奪" : "付与"}しました。\n(DBと設定の両方を同期しました)`);
@@ -464,7 +471,7 @@ https://www.existenceticker.com/?code=${codeId}
         <div className="text-center">
           <Activity className="w-10 h-10 text-yellow-500 animate-pulse mx-auto mb-4" />
           <div className="text-white font-mono tracking-widest text-xs">
-            Loading Economy...
+            経済を読み込み中...
           </div>
         </div>
         <button
@@ -509,9 +516,9 @@ https://www.existenceticker.com/?code=${codeId}
             </div>
             <div>
               <h1 className="text-xl font-bold text-slate-200 tracking-wider">
-                管理コンソール (GOD MODE)
+                管理コンソール
               </h1>
-              <p className="text-xs text-slate-500 font-mono uppercase tracking-[0.2em]">
+              <p className="text-sm text-slate-500 font-mono uppercase tracking-[0.2em] mt-0.5">
                 互助生態系 監視モニター
               </p>
             </div>
@@ -522,7 +529,7 @@ https://www.existenceticker.com/?code=${codeId}
               type="button"
               onClick={() => setShowManual(true)}
               className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-white"
-              title="Protocol Whitepaper"
+              title="プロトコル構想書"
             >
               <Book size={24} />
             </button>
@@ -549,7 +556,7 @@ https://www.existenceticker.com/?code=${codeId}
           <button
             type="button"
             onClick={() => setActiveTab("monitor")}
-            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "monitor" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-400"}`}
+            className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "monitor" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-400"}`}
           >
             <Activity size={16} />
             監視
@@ -557,21 +564,21 @@ https://www.existenceticker.com/?code=${codeId}
           <button
             type="button"
             onClick={() => setActiveTab("citizens")}
-            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "citizens" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-400"}`}
+            className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "citizens" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-400"}`}
           >
             <Users size={16} /> 住民
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("invitations")}
-            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "invitations" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-400"}`}
+            className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "invitations" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-400"}`}
           >
             <Key size={16} /> 招待
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("seeds")}
-            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "seeds" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-400"}`}
+            className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "seeds" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-400"}`}
           >
             <Sprout size={16} /> 種子の書庫
           </button>
@@ -584,9 +591,9 @@ https://www.existenceticker.com/?code=${codeId}
                 <div className="flex justify-between items-center mb-2">
                   <div>
                     <h3 className="text-lg font-bold text-slate-200 flex items-center gap-2">
-                      <Sprout className="text-emerald-400" />
-                      種子の書庫 (Seed Library)
-                    </h3>
+                       <Sprout className="text-emerald-400" />
+                       種子の書庫
+                     </h3>
                     <p className="text-xs text-slate-500 font-serif italic mt-1">
                       この世界に蒔かれる「願いの種」を管理します
                     </p>
@@ -603,7 +610,7 @@ https://www.existenceticker.com/?code=${codeId}
                       type="button"
                       onClick={fetchSeeds}
                       className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-                      title="Refresh Seeds"
+                      title="種子を更新"
                     >
                       <RefreshCw size={18} className={isLoadingSeeds ? "animate-spin" : ""} />
                     </button>
@@ -679,12 +686,12 @@ https://www.existenceticker.com/?code=${codeId}
                                 {seed.content}
                               </p>
                               <div className="mt-2 text-[9px] text-slate-600 font-mono uppercase tracking-tighter">
-                                PLANTED AT: {
+                                蒔かれた日時: {
                                   seed.createdAt?.toDate 
                                     ? seed.createdAt.toDate().toLocaleString() 
                                     : seed.createdAt 
                                       ? new Date(seed.createdAt.seconds * 1000).toLocaleString() 
-                                      : "Ancient Times"
+                                      : "悠久の刻"
                                 }
                               </div>
                             </div>
@@ -692,7 +699,7 @@ https://www.existenceticker.com/?code=${codeId}
                               type="button"
                               onClick={() => deleteSeed(seed.id)}
                               className="p-2 text-slate-700 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all active:scale-90"
-                              title="Delete Seed"
+                              title="種子を削除"
                             >
                               <Trash2 size={16} />
                             </button>
@@ -717,7 +724,7 @@ https://www.existenceticker.com/?code=${codeId}
             <div className="animate-in fade-in duration-300 space-y-4">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold text-slate-200">
-                  招待コード管理 (Invitation System)
+                  招待コード管理
                 </h3>
                 <button
                   type="button"
@@ -762,7 +769,7 @@ https://www.existenceticker.com/?code=${codeId}
                                   {code.id}
                                 </div>
                                 <div className="text-[10px] text-slate-500">
-                                  Generated:{" "}
+                                  生成日時:{" "}
                                   {code.created_at?.toDate
                                     ? code.created_at.toDate().toLocaleString()
                                     : new Date(
@@ -775,14 +782,14 @@ https://www.existenceticker.com/?code=${codeId}
                               {code.is_used ? (
                                 <div className="flex flex-col items-end">
                                   <span className="bg-slate-800 text-slate-400 px-3 py-1 rounded-full text-[10px] font-bold ring-1 ring-slate-700">
-                                    使用済み (Used)
+                                    使用済み
                                   </span>
                                   {code.used_by && (
                                     <div
                                       className="text-[10px] text-slate-600 mt-1 select-all"
                                       title={code.used_by}
                                     >
-                                      by {code.used_by.substring(0, 8)}...
+                                      使用者 {code.used_by.substring(0, 8)}...
                                     </div>
                                   )}
                                 </div>
@@ -802,7 +809,7 @@ https://www.existenceticker.com/?code=${codeId}
                                     />
                                   </div>
                                   <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold ring-1 ring-emerald-500/20 shadow-[0_0_10px_rgba(52,211,153,0.1)]">
-                                    Active
+                                    有効
                                   </span>
                                   <button
                                     type="button"
@@ -853,7 +860,7 @@ https://www.existenceticker.com/?code=${codeId}
                     />
                     <input
                       type="text"
-                      placeholder="ID or Check Name..."
+                      placeholder="名前またはIDで検索..."
                       className="w-full bg-slate-800 border border-slate-600 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-yellow-500 placeholder-slate-500"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -861,7 +868,7 @@ https://www.existenceticker.com/?code=${codeId}
                   </div>
                   <div className="flex items-center gap-4">
                     <span className="text-xs text-slate-500 font-mono">
-                      {filteredUsers.length} Users Loaded
+                      {filteredUsers.length} 名のユーザーを読み込み済
                     </span>
                   </div>
                 </div>
@@ -869,16 +876,16 @@ https://www.existenceticker.com/?code=${codeId}
                 <div className="max-h-[60vh] overflow-y-auto">
                   {isLoadingUsers ? (
                     <div className="p-8 text-center text-slate-500">
-                      Scanning bio-signals...
+                      バイオ信号をスキャン中...
                     </div>
                   ) : (
                     <div className="w-full text-slate-400">
                       {/* Responsive Header - Hidden on Mobile */}
                       <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 bg-slate-800/50 text-xs uppercase font-mono text-slate-500 sticky top-0 z-10 backdrop-blur-sm border-b border-slate-700">
-                        <div className="col-span-5">User</div>
-                        <div className="col-span-3">Status</div>
-                        <div className="col-span-2">Role</div>
-                        <div className="col-span-2 text-right">Actions</div>
+                        <div className="col-span-5">ユーザー</div>
+                        <div className="col-span-3">ステータス</div>
+                        <div className="col-span-2">権限</div>
+                        <div className="col-span-2 text-right">操作</div>
                       </div>
 
                       {/* Responsive Body */}
@@ -908,7 +915,7 @@ https://www.existenceticker.com/?code=${codeId}
                                   )}
                                   {!u.email && (
                                     <div className="text-xs text-red-500/70 italic">
-                                      Email Missing
+                                      メール未設定
                                     </div>
                                   )}
                                 </div>
@@ -918,10 +925,10 @@ https://www.existenceticker.com/?code=${codeId}
                             {/* Status Col (Mobile: Row 2) */}
                             <div className="col-span-3 mb-2 md:mb-0 w-full md:w-auto flex items-center md:block text-xs">
                               <span className="md:hidden text-slate-500 w-16 flex-shrink-0">
-                                Status:
+                                ステータス:
                               </span>
                               <div className="flex flex-col gap-0.5">
-                                <span>Warmth: {u.warmth?.toLocaleString()}</span>
+                                <span>熱量: {u.warmth?.toLocaleString()}</span>
                                 {(() => {
                                   const cycleStart = getMillis(u.cycle_started_at, 0);
                                   if (cycleStart === 0) return null;
@@ -940,25 +947,31 @@ https://www.existenceticker.com/?code=${codeId}
                             {/* Role Col (Mobile: Row 3) */}
                             <div className="col-span-2 mb-4 md:mb-0 w-full md:w-auto flex items-center md:block text-xs">
                               <span className="md:hidden text-slate-500 w-16 flex-shrink-0">
-                                Role:
+                                権限:
                               </span>
                               <div className="inline-flex flex-col items-start gap-1">
                                 {superAdminIds.includes(u.id) && (
                                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-400 text-black border border-yellow-500 shadow-[0_0_10px_rgba(250,204,21,0.4)]">
                                     <Shield size={10} fill="black" />
-                                    SUPER ADMIN
+                                    スーパー管理者
                                   </span>
                                 )}
                                 {u.role === "admin" && !superAdminIds.includes(u.id) && (
                                   <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-900/50">
                                     <Shield size={10} />
-                                    Admin
+                                    管理者
                                   </span>
                                 )}
-                                {u.role !== "admin" &&
+                                {u.role === "super_admin" && (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-400 text-black border border-yellow-500 shadow-[0_0_10px_rgba(250,204,21,0.4)]">
+                                    <Shield size={10} fill="black" />
+                                    スーパー管理者
+                                  </span>
+                                )}
+                                {u.role !== "admin" && u.role !== "super_admin" &&
                                   !superAdminIds.includes(u.id) && (
                                     <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-500">
-                                      User
+                                      一般ユーザー
                                     </span>
                                   )}
                               </div>
@@ -993,12 +1006,12 @@ https://www.existenceticker.com/?code=${codeId}
                                 type="button"
                                 onClick={() => toggleAdmin(u)}
                                 className={`p-2 rounded-lg transition-colors border ${
-                                  u.role === "admin"
+                                  (u.role === "admin" || u.role === "super_admin")
                                     ? "bg-red-900/10 border-red-900/30 text-red-400 hover:bg-red-900/30"
                                     : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500"
                                 }`}
                                 title={
-                                  u.role === "admin"
+                                  (u.role === "admin" || u.role === "super_admin")
                                     ? "一般ユーザーに降格"
                                     : "管理者に昇格"
                                 }
@@ -1033,7 +1046,7 @@ https://www.existenceticker.com/?code=${codeId}
                   {!isLoadingUsers && filteredUsers.length === 0 && (
                     <div className="p-12 text-center text-slate-600 flex flex-col items-center gap-2">
                       <Search size={24} className="opacity-50" />
-                      <p>No users found matching "{searchQuery}"</p>
+                      <p>"{searchQuery}" に一致するユーザーは見つかりませんでした</p>
                     </div>
                   )}
                 </div>
@@ -1057,7 +1070,7 @@ https://www.existenceticker.com/?code=${codeId}
                   </div>
                   <div className="text-left">
                     <div className="text-xs uppercase tracking-widest opacity-70 mb-0.5">
-                      World Health Status (現在の生態系診断)
+                      現在の生態系診断
                     </div>
                     <div className="text-lg font-serif font-bold tracking-wide">
                       {diagnostics.shortDescription}
@@ -1065,7 +1078,7 @@ https://www.existenceticker.com/?code=${codeId}
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span>View Analysis</span>
+                  <span>分析を表示</span>
                   <Book size={14} />
                 </div>
               </motion.button>
@@ -1078,19 +1091,19 @@ https://www.existenceticker.com/?code=${codeId}
                   <Moon size={100} />
                 </div>
                 <h2 className="text-xs font-mono uppercase tracking-widest opacity-70 mb-4">
-                  現在の暦 (Cycle Status)
+                  現在の暦
                 </h2>
 
                 <div className="flex flex-col gap-4">
                   <div>
                     <span className="text-3xl font-bold text-slate-200">
-                      Day {cycle.day}
+                      第 {cycle.day} 周期
                     </span>
                     <span className="text-xs text-slate-400 ml-2">
                       現在のサイクル日数
                     </span>
                     <span className="text-xs text-slate-500 ml-2">
-                      ({cycle.season} Phase)
+                       (第 {cycle.season === 'Spring' ? '春' : cycle.season === 'Winter' ? '冬' : '分点'} フェーズ)
                     </span>
                   </div>
 
@@ -1101,10 +1114,10 @@ https://www.existenceticker.com/?code=${codeId}
                       </span>
                       <div className="flex flex-col">
                         <span className="text-sm text-slate-400">
-                          Souls Reborn Today
+                          本日再生された魂
                         </span>
                         <span className="text-xs text-slate-500">
-                          本日の再生数 (Rebirths)
+                          本日の再生数
                         </span>
                       </div>
                     </div>
@@ -1126,7 +1139,7 @@ https://www.existenceticker.com/?code=${codeId}
                               0%
                             </span>
                             <span className="text-xs text-cyan-500 font-bold font-mono">
-                              10% IDEAL
+                              10% (理想)
                             </span>
                             <span className="text-xs text-slate-600 font-mono">
                               20%+
@@ -1146,7 +1159,7 @@ https://www.existenceticker.com/?code=${codeId}
               {/* SECTION B: METABOLISM */}
               <div className="p-6 rounded-2xl border border-slate-800 bg-slate-900/20 relative">
                 <h2 className="text-xs font-mono text-slate-500 uppercase tracking-widest mb-4">
-                  代謝・循環 (Metabolism)
+                  代謝・循環
                 </h2>
 
                 <div className="flex justify-between items-end mb-6">
@@ -1167,7 +1180,7 @@ https://www.existenceticker.com/?code=${codeId}
                   >
                     <div className="text-3xl font-bold">{metabolism.rate}%</div>
                     <div className="text-xs uppercase tracking-wider">
-                      {metabolism.status}
+                      {metabolism.status === "Stagnant" ? "停滞" : metabolism.status === "Active" ? "活性" : "正常"}
                     </div>
                     <div className="text-xs opacity-70">循環効率</div>
                   </div>
@@ -1183,7 +1196,7 @@ https://www.existenceticker.com/?code=${codeId}
                   />
                 </div>
 
-                {/* Metabolic Composition (Tri-State) */}
+                {/* 代謝構成分析 (Tri-State) */}
                 {(() => {
                   const m = metabolism;
                   const total = m.totalSupply;
@@ -1210,10 +1223,10 @@ https://www.existenceticker.com/?code=${codeId}
                   return (
                     <div className="mt-6 border-t border-slate-800/50 pt-4">
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-xs text-slate-400 font-mono">
-                          Metabolic Composition
+                        <span className="text-sm text-slate-400 font-mono">
+                          代謝構成分析
                         </span>
-                        <span className="text-xs text-slate-600">
+                        <span className="text-sm text-slate-500 font-medium">
                           対総資産比率
                         </span>
                       </div>
@@ -1232,15 +1245,15 @@ https://www.existenceticker.com/?code=${codeId}
                         />
                       </div>
 
-                      <div className="flex justify-between text-xs mt-2 font-mono">
+                      <div className="flex justify-between text-sm mt-3 font-mono font-medium">
                         <div className="text-green-400">
-                          <span>⚡ CIRCULATION</span>
+                          <span>⚡ 循環</span>
                           <span className="ml-2 opacity-70">
                             {flowRatio.toFixed(1)}%
                           </span>
                         </div>
                         <div className="text-slate-500">
-                          <span>❄️ STAGNATION</span>
+                          <span>❄️ 停滞</span>
                           <span className="ml-2 opacity-70">
                             {staticRatio.toFixed(1)}%
                           </span>
@@ -1249,9 +1262,9 @@ https://www.existenceticker.com/?code=${codeId}
 
                       {/* Entropy Loss Indicator (Decay + Overflow) */}
                       <div className="mt-4 flex flex-col gap-1">
-                        <div className="flex justify-between text-xs items-center">
+                        <div className="flex justify-between text-sm items-center">
                           <span className="text-red-400 font-mono">
-                            🔥 ENTROPY LOSS (24h)
+                            🔥 エントロピー損失 24h
                           </span>
                           <span className="text-red-300 font-mono">
                             -{totalEntropyLoss.toLocaleString()} Lm{" "}
@@ -1277,8 +1290,8 @@ https://www.existenceticker.com/?code=${codeId}
                           />
                         </div>
                         <div className="flex justify-between text-xs text-slate-600 px-0.5">
-                          <span>Gravity: {decay.toLocaleString()}</span>
-                          <span>Overflow: {overflowLoss.toLocaleString()}</span>
+                          <span>重力: {decay.toLocaleString()}</span>
+                          <span>溢れ: {overflowLoss.toLocaleString()}</span>
                         </div>
                       </div>
 
@@ -1289,11 +1302,11 @@ https://www.existenceticker.com/?code=${codeId}
                         現在のバランス:{" "}
                         {flowRatio > entropyRatio ? (
                           <span className="text-green-400 font-bold">
-                            EXPANDING (成長)
+                            成長中
                           </span>
                         ) : (
                           <span className="text-red-400 font-bold">
-                            CONTRACTING (縮小)
+                            縮小中
                           </span>
                         )}
                       </p>
@@ -1305,7 +1318,7 @@ https://www.existenceticker.com/?code=${codeId}
               {/* SECTION C: MOON DISTRIBUTION */}
               <div className="p-6 rounded-2xl border border-slate-800 bg-slate-900/20 md:col-span-2 lg:col-span-1">
                 <h2 className="text-xs font-mono text-slate-500 uppercase tracking-widest mb-6">
-                  資産分布 (ASSET DISTRIBUTION)
+                  資産分布
                 </h2>
 
                 <div className="space-y-4">
@@ -1313,9 +1326,9 @@ https://www.existenceticker.com/?code=${codeId}
                   <div>
                     <div className="flex justify-between text-xs mb-1">
                       <span className="text-yellow-200">
-                        🌕 潤沢 (Rich) (&gt;1500){" "}
+                        🌕 潤沢 (&gt;1500){" "}
                         <span className="text-xs text-slate-500 ml-1">
-                          saturation (Full)
+                          (飽和)
                         </span>
                       </span>
                       <span className="font-mono text-slate-400">
@@ -1336,7 +1349,7 @@ https://www.existenceticker.com/?code=${codeId}
                   <div>
                     <div className="flex justify-between text-xs mb-1">
                       <span className="text-slate-400">
-                        🌓 安定 (Stable){" "}
+                        🌓 安定{" "}
                         <span className="text-xs text-slate-500 ml-1">
                           安定した魂
                         </span>
@@ -1359,7 +1372,7 @@ https://www.existenceticker.com/?code=${codeId}
                   <div>
                     <div className="flex justify-between text-xs mb-1">
                       <span className="text-slate-400">
-                        🌑 枯渇 (Scarce) (&lt;500){" "}
+                        🌑 枯渇 (&lt;500){" "}
                         <span className="text-xs text-slate-500 ml-1">
                           新生した魂
                         </span>
@@ -1386,7 +1399,7 @@ https://www.existenceticker.com/?code=${codeId}
                     <div className="mt-6 p-3 border border-red-500/30 bg-red-900/10 rounded flex items-center gap-3 text-red-400 text-xs">
                       <AlertTriangle size={16} />
                       <span>
-                        WARNING: High Hoarding detected during Winter.
+                        警告: 冬季の過剰な蓄積を検知しました。
                       </span>
                     </div>
                   )}
@@ -1401,31 +1414,31 @@ https://www.existenceticker.com/?code=${codeId}
                   <Sun size={80} />
                 </div>
                 <h2 className="text-xs font-mono text-yellow-600 uppercase tracking-widest mb-4">
-                  時空調整 (TIME CONTROL)
+                  時空調整
                 </h2>
 
                 <div className="mb-8 text-center">
                   <div className="text-xs text-yellow-600/70 mb-2">
-                    再生サイクル期間 (Cycle Duration)
+                    再生サイクル期間
                     <div className="text-xs">次回リセットまでの日数</div>
                   </div>
                   <div className="text-5xl font-bold text-yellow-500 font-mono tracking-tighter">
-                    {cycleDays} <span className="text-lg">Days</span>
+                    {cycleDays} <span className="text-lg">日</span>
                   </div>
                   <div className="mt-2 text-sm font-bold">
                     {cycleDays < 10 && (
                       <span className="text-green-500">
-                        Spring (豊穣 - 循環加速)
+                        春 (豊穣 - 循環加速)
                       </span>
                     )}
                     {cycleDays === 10 && (
                       <span className="text-yellow-500">
-                        Equinox (調和 - 標準)
+                        分点 (調和 - 標準)
                       </span>
                     )}
                     {cycleDays > 10 && (
                       <span className="text-slate-400">
-                        Winter (試練 - 選別)
+                        冬 (試練 - 選別)
                       </span>
                     )}
                   </div>
@@ -1442,9 +1455,9 @@ https://www.existenceticker.com/?code=${codeId}
                     className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-yellow-500"
                   />
                   <div className="flex justify-between text-xs text-slate-500 font-mono mt-2">
-                    <span>5 Days (Fast)</span>
-                    <span>10 Days (Std)</span>
-                    <span>20 Days (Slow)</span>
+                    <span>5日 (加速)</span>
+                    <span>10日 (標準)</span>
+                    <span>20日 (減速)</span>
                   </div>
                 </div>
 
@@ -1452,7 +1465,7 @@ https://www.existenceticker.com/?code=${codeId}
                   onClick={async () => {
                     if (
                       window.confirm(
-                        `PUBLISH NEW LAW: Cycle Duration = ${cycleDays} Days.\n\nChanges will apply to users upon their NEXT rebirth calculation.\n\nShorter cycle = More frequent 2400 Lm grants.\nLonger cycle = Scarcity.\n\nAre you sure?`,
+                        `法の公布: 再生サイクル = ${cycleDays} 日に設定します。\n\nこの変更は、各ユーザーが「次回再生されるタイミング」で適用されます。\n\n短縮 = 2400 Lm の給付が頻繁になります。\n延長 = 資源が乏しくなります。\n\nよろしいですか？`,
                       )
                     ) {
                       try {
@@ -1489,7 +1502,7 @@ https://www.existenceticker.com/?code=${codeId}
                   }}
                   className="w-full py-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 hover:border-yellow-500/50 text-yellow-500 font-bold uppercase tracking-widest text-xs transition-colors"
                 >
-                  法を公布・改定する (Publish Law)
+                  法を公布・改定する
                 </button>
                 <p className="text-center text-xs text-slate-500 mt-2">
                   生命贈与額 (Fixed):{" "}

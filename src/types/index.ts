@@ -22,7 +22,7 @@ export interface UserProfile {
   committed_lm: number;
   xp: number;
   warmth: number;
-  role?: "user" | "admin";
+  role?: "user" | "admin" | "super_admin";
   age_group?: string;
   gender?: "male" | "female" | "other";
 

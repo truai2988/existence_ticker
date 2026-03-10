@@ -83,7 +83,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onOpenOnboarding,
 }) => {
   const { profile, isLoading: isProfileLoading } = useProfile();
-  const { user, signOut, linkEmail, deleteAccount, updateUserPassword, reauthenticate } =
+  const { user, isAdmin, signOut, linkEmail, deleteAccount, updateUserPassword, reauthenticate } =
     useAuth();
 
   const [isEditingProfile, setIsEditingProfile] = useState(initialEditMode);
@@ -230,7 +230,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               </div>
               <div className="flex h-12 items-center gap-3 shrink-0">
                   {/* Page-specific: Admin */}
-                  {user && !user.isAnonymous && profile?.role === 'admin' && (
+                  {user && !user.isAnonymous && isAdmin && (
                     <button
                       onClick={() => onTabChange?.("admin")}
                       className="p-3 text-red-400 hover:text-red-600 transition-colors active:scale-95"
@@ -308,7 +308,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               {(!profile?.bio || !profile?.avatarUrl) && (
                 <button
                   onClick={() => setIsEditingProfile(true)}
-                  className="mt-1 text-xs text-blue-500 font-bold hover:text-blue-600 hover:underline transition-colors animate-pulse font-sans"
+                  className="mt-1 text-base text-blue-500 font-bold hover:text-blue-600 hover:underline transition-colors animate-pulse font-sans"
                 >
                   自己紹介を入力して信頼を高めましょう
                 </button>
@@ -337,7 +337,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   </div>
                 )}
 
-              <div className="flex flex-wrap items-center justify-center gap-2 text-xs text-slate-400 font-mono mt-1 px-4">
+              <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-slate-500 font-mono mt-1 px-4">
                 <div className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50">
                   <span>ID: {profile?.id?.slice(0, 6)}...</span>
                 </div>
@@ -361,7 +361,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
                {profile?.bio && (
                 <div className="mt-3 max-w-xs text-center">
-                  <p className="text-xs text-slate-600 leading-relaxed bg-slate-50 px-4 py-2 rounded-xl border border-slate-100 font-sans">
+                  <p className="text-base text-slate-700 leading-relaxed bg-slate-50 px-4 py-2 rounded-xl border border-slate-100 font-sans">
                     {profile.bio}
                   </p>
                 </div>
@@ -381,7 +381,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                         rel="noopener noreferrer"
                         className="p-2 bg-slate-900 text-white rounded-full hover:opacity-80 transition-opacity"
                       >
-                        <span className="text-xs font-bold block w-4 h-4 text-center">
+                        <span className="text-sm font-bold block w-4 h-4 text-center">
                           𝕏
                         </span>
                       </a>
@@ -422,7 +422,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               onClick={() => setShowPresenceModal(true)} 
             />
             <div>
-               <div className="text-xs font-bold text-slate-400 ml-2 mb-2 font-sans">
+               <div className="text-sm font-bold text-slate-500 ml-2 mb-2 font-sans">
                 アクティビティ・実績
               </div>
               <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm">

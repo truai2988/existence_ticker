@@ -89,8 +89,8 @@ export const ExistenceTicker: React.FC<ExistenceTickerProps> = ({ balance, lastU
             </div>
             
             {/* Phase Label */}
-            <div className="mt-2 text-xs text-slate-500 font-serif tracking-widest uppercase flex items-center gap-2">
-                <span>Phase: {ratio > 0.9 ? 'FULL MOON' : ratio > 0.4 ? 'WANING' : 'NEW MOON'}</span>
+            <div className="mt-2 text-sm text-slate-500 font-serif tracking-widest uppercase flex items-center gap-2">
+                <span>フェーズ: {ratio > 0.9 ? '満月' : ratio > 0.4 ? '下弦' : '新月'}</span>
                 <span className="opacity-50">|</span>
                 <span>{((ratio) * 100).toFixed(0)}%</span>
             </div>
@@ -98,7 +98,7 @@ export const ExistenceTicker: React.FC<ExistenceTickerProps> = ({ balance, lastU
             {/* Reset Indicator (Flash) */}
             {rationReceived && (
                  <div className="mt-2 text-xs text-yellow-300 animate-pulse font-serif">
-                     ✦ Full Moon Reset ✦
+                     ✦ 満月の再点火 ✦
                  </div>
             )}
         </div>

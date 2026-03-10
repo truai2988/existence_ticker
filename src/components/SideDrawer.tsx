@@ -44,25 +44,21 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
     {
       id: "home",
       label: "ホーム",
-      sub: "HOME",
       icon: Home,
     },
     {
       id: "history",
       label: "巡りの足跡",
-      sub: "JOURNAL",
       icon: HistoryIcon,
     },
     {
       id: "profile",
       label: "自分",
-      sub: "PROFILE",
       icon: User,
     },
     {
       id: "onboarding",
       label: "このインフラについて",
-      sub: "GUIDE",
       icon: Sprout,
     },
   ] as const;
@@ -131,9 +127,6 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
                     <span className="text-base font-bold tracking-wide">
                       アプリとして追加
                     </span>
-                    <span className="text-[9px] text-sky-500/80 tracking-[0.3em] uppercase font-mono mt-0.5">
-                      INSTALL
-                    </span>
                   </div>
                 </button>
               </div>
@@ -175,9 +168,6 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
                         className={`text-base tracking-wide ${active ? "font-bold" : "font-light"}`}
                       >
                         {item.label}
-                      </span>
-                      <span className="text-[9px] text-slate-400 tracking-[0.3em] uppercase font-mono mt-0.5">
-                        {item.sub}
                       </span>
                     </div>
                   </button>

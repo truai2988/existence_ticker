@@ -15,7 +15,7 @@ const getSlides = () => [
   {
     id: 'vessel',
     title: '存在の価値',
-    subtitle: 'THE VESSEL',
+    subtitle: '',
     icon: <Sun size={32} className="text-amber-500" />,
     content: (
       <div className="text-center font-serif text-slate-700 leading-relaxed">
@@ -33,7 +33,7 @@ const getSlides = () => [
   {
     id: 'decay',
     title: 'Lmの儚さ',
-    subtitle: 'THE DECAY',
+    subtitle: '',
     icon: <Hourglass size={32} className="text-blue-400" />,
     content: (
       <div className="text-center font-serif text-slate-700 leading-relaxed">
@@ -52,7 +52,7 @@ const getSlides = () => [
   {
     id: 'connect',
     title: 'Lmの循環',
-    subtitle: 'THE CONNECTION',
+    subtitle: '',
     icon: <HeartHandshake size={32} className="text-rose-400" />,
     content: (
       <div className="text-center font-serif text-slate-700 leading-relaxed">
@@ -78,7 +78,7 @@ const getSlides = () => [
   {
     id: 'standard',
     title: 'お裾分けの目安',
-    subtitle: 'THE STANDARD',
+    subtitle: '',
     icon: <Scale size={32} className="text-emerald-500" />,
     content: (
       <div className="space-y-3 w-full max-w-sm mx-auto">
@@ -109,7 +109,7 @@ const getSlides = () => [
   {
     id: 'start',
     title: '始まりの作法',
-    subtitle: 'THE BEGINNING',
+    subtitle: '',
     icon: <Footprints size={32} className="text-slate-600" />,
     content: (
       <div className="text-center font-serif text-slate-700 leading-relaxed flex flex-col items-center">
@@ -214,7 +214,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
           <button 
             onClick={onClose}
             className="absolute top-6 right-6 z-50 p-3 rounded-full bg-white/50 hover:bg-white text-slate-400 hover:text-slate-600 transition-colors shadow-sm"
-            aria-label="Close"
+            aria-label="閉じる"
           >
             <X size={20} />
           </button>

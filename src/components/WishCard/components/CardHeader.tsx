@@ -99,12 +99,12 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                   </button>
                   {trust.isVerified && <ShieldCheck size={14} className="text-blue-400 fill-blue-50 shrink-0" strokeWidth={2.5} />}
                   <div className="flex items-center gap-2 text-xs shrink-0">
-                    <div title={`Helped ${wish.requester_trust_score || 0} times`} className={`flex items-center gap-0.5 ${trust.color}`}>
+                    <div title={`感謝を届けた回数: ${wish.requester_trust_score || 0}`} className={`flex items-center gap-0.5 ${trust.color}`}>
                       {trust.icon}
                       <span className="font-sans font-medium">({wish.requester_trust_score || 0})</span>
                     </div>
                     <span className="text-slate-500">|</span>
-                    <span title="過去に完了/支払いを行った回数" className="text-slate-500 font-bold flex items-center gap-1">
+                    <span title="過去に完了/お礼を行った回数" className="text-slate-500 font-bold flex items-center gap-1">
                       <Megaphone className="w-3 h-3" /> <span className="font-bold">依頼実績: {wish.requester_completed_requests || 0}</span>
                     </span>
                   </div>
@@ -131,7 +131,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                   onClick={() => setIsEditing(!isEditing)}
                   disabled={isLoading}
                   className="p-3 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
-                  title="編集 (内容のみ)"
+                  title="編集"
                 >
                   <Pencil size={16} />
                 </button>
@@ -139,7 +139,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                   onClick={handleCancel}
                   disabled={isLoading}
                   className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                  title="取り下げ (削除)"
+                  title="取り下げ"
                 >
                   <Trash2 size={16} />
                 </button>
@@ -150,7 +150,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                 onClick={handleCancel}
                 disabled={isLoading}
                 className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                title="誠実のしるしを渡して中断"
+                title="中断 (誠実のしるしを渡す)"
               >
                 <AlertTriangle size={16} />
               </button>

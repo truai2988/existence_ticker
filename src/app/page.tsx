@@ -340,13 +340,13 @@ export const LandingPage = () => {
           <div className="max-w-4xl mx-auto px-6">
             <div className="text-center mb-20 md:mb-32">
               <span className="text-[10px] md:text-sm tracking-[0.5em] text-[#AAAAAA] uppercase mb-8 block font-sans">
-                The Journey
+                巡礼の旅
               </span>
               <h3 className="text-3xl md:text-5xl font-light tracking-[0.2em] md:tracking-[0.4em] text-[#2D2D2D] font-serif whitespace-nowrap mb-6">
                 重機と万年筆
               </h3>
               <p className="text-[10px] md:text-xs tracking-[0.4em] text-[#AAAAAA] uppercase font-serif mb-16">
-                Heavy Machinery and Fountain Pens
+                重機と万年筆
               </p>
               <div className="max-w-2xl mx-auto space-y-12">
                 <p className="text-xl md:text-3xl font-serif text-[#1A1A1A] tracking-[0.3em] leading-relaxed">
@@ -368,7 +368,7 @@ export const LandingPage = () => {
                     <span className="relative z-10">
                       現在、推敲中
                       <br />
-                      （COMING SOON）
+                      （近日公開）
                     </span>
                   </button>
                 </div>
@@ -414,7 +414,7 @@ export const LandingPage = () => {
           <div className="text-[#333333] md:text-[#555555] mb-16 font-medium md:font-normal tracking-wide text-base leading-relaxed max-w-2xl mx-auto font-serif space-y-6">
             <p>Existence Tickerは、単なるアプリの配布ではありません。</p>
             <p>
-              私たちは今、資本主義の轟音を離れ、この「物語」を現実にする30名の守人（Steward）を探しています。
+              私たちは今、資本主義の轟音を離れ、この「物語」を現実にする30名の守人を探しています。
             </p>
             <p>
               一度に30人を集めることを急ぎません。

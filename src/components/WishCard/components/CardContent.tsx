@@ -113,7 +113,7 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
             <div className="text-3xl font-bold font-mono text-slate-900 tracking-tight">
               {wish.status === "fulfilled" ? (
                 initialCost === 0 ? (
-                  <span className="text-pink-500 font-bold tracking-[0.15em]">∞ ECHO</span>
+                  <span className="text-pink-500 font-bold tracking-[0.15em]">∞ 共鳴</span>
                 ) : (
                   <>
                     {Math.floor(wish.val_at_fulfillment || 0).toLocaleString()} <span className="text-xs text-slate-400 ml-0.5">Lm</span>
@@ -154,7 +154,7 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
             <div className={`text-xl font-mono ${initialCost === 0 ? "text-pink-400" : "text-slate-800"} font-bold tracking-tight`}>
               {initialCost === 0 ? "∞" : Math.floor(displayValue).toLocaleString()}{" "}
               <span className={`text-sm font-normal ${initialCost === 0 ? "text-pink-300" : "text-slate-500"} ml-0.5`}>
-                {initialCost === 0 ? "ECHO" : UNIT_LABEL}
+                {initialCost === 0 ? "共鳴" : UNIT_LABEL}
               </span>
             </div>
           </div>
