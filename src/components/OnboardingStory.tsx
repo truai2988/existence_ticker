@@ -200,7 +200,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className="relative w-full max-w-lg bg-[#F9F8F4] rounded-[2rem] shadow-2xl overflow-hidden flex flex-col max-h-[calc(100dvh-2rem)]"
+          className="relative w-full max-w-lg bg-[#F9F8F4] rounded-[2rem] shadow-2xl overflow-hidden flex flex-col h-[600px] max-h-[calc(100dvh-2rem)]"
         >
           {/* Background Textures (Washi) */}
           <div className="absolute inset-0 pointer-events-none opacity-[0.05] mix-blend-multiply z-0"
@@ -229,7 +229,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
           </button>
 
           {/* Slide Content Area */}
-          <div className="flex-1 flex flex-col relative z-10 p-5 sm:p-8 md:p-10">
+          <div className="flex-1 flex flex-col relative z-10 p-5 sm:p-8 md:p-10 overflow-y-auto no-scrollbar">
             
             {/* Slide Indicators */}
             <div className="flex justify-center gap-2 mb-4">
@@ -249,7 +249,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
-                className="flex-1 flex flex-col items-center justify-center"
+                className="flex-1 min-h-full flex flex-col items-center justify-center py-4"
               >
                 {/* Icon Circle */}
                 <div className="w-14 h-14 bg-white rounded-full shadow-md flex items-center justify-center mb-3 ring-4 ring-white/50">
