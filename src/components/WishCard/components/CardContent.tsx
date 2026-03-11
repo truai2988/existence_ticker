@@ -118,13 +118,14 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
                   <span className="text-pink-500 font-bold tracking-[0.15em]">{MESSAGES.WISH_CARD.TAG_ECHO}</span>
                 ) : (
                   <>
-                    {Math.floor(wish.val_at_fulfillment || 0).toLocaleString()} <span className="text-sm text-slate-500 ml-0.5">Lm</span>
+                    {isMyWish ? '-' : '+'}{Math.floor(wish.val_at_fulfillment || 0).toLocaleString()} <span className="text-sm text-slate-500 ml-0.5">Lm</span>
                   </>
                 )
               ) : wish.status === "cancelled" ? (
                 wish.cancel_reason === "compensatory_cancellation" || wish.cancel_reason === "helper_cancellation" || wish.val_at_fulfillment ? (
                   <div className="flex flex-col items-end">
-                    <span className="text-base text-red-500">
+                    <span className={`text-base ${wish.cancel_reason === "helper_cancellation" ? (wish.requester_id === currentUserId ? "text-emerald-500" : "text-red-500") : (wish.requester_id === currentUserId ? "text-red-500" : "text-emerald-500")}`}>
+                      {wish.cancel_reason === "helper_cancellation" ? (wish.requester_id === currentUserId ? '+' : '-') : (wish.requester_id === currentUserId ? '-' : '+')}
                       {wish.val_at_fulfillment !== undefined
                         ? Math.floor(wish.val_at_fulfillment).toLocaleString()
                         : Math.floor(calculateHistoricalValue(wish.cost || 0, wish.created_at || 0, wish.cancelled_at || 0)).toLocaleString()}

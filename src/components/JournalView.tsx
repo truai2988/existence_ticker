@@ -192,7 +192,8 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
         </span>
     );
 
-    const isExp = isSender && !['REBIRTH', 'BIRTH'].includes(log.type); 
+    const isGrant = ['REBIRTH', 'BIRTH'].includes(log.type);
+    const isExp = isSender && !isGrant; 
     let amountColor = isExp ? "text-rose-500" : "text-emerald-500";
     if (log.amount === 0) amountColor = "text-slate-500";
 
@@ -294,7 +295,7 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
                            {log.type === 'WISH_EXPIRED' ? MESSAGES.JOURNAL.TAG_EXPIRED : MESSAGES.JOURNAL.TAG_RECORDED}
                         </span>
                     ) : (
-                        <><span className={`text-base font-mono font-bold ${amountColor}`}>{!isSender ? '+' : '-'}{Math.floor(Math.abs(log.amount)).toLocaleString()}</span><span className="text-sm text-slate-500 ml-1">Lm</span></>
+                        <><span className={`text-base font-mono font-bold ${amountColor}`}>{(!isSender || isGrant) ? '+' : '-'}{Math.floor(Math.abs(log.amount)).toLocaleString()}</span><span className="text-sm text-slate-500 ml-1">Lm</span></>
                     )}
                 </div>
             </div>

@@ -54,7 +54,7 @@ export const CompleteWishModal = ({ wishTitle, helperName, preset, cost, onConfi
                </span>
             </div>
             <div className="text-right">
-              <span className="text-2xl font-bold font-mono text-slate-900">{cost.toLocaleString()}</span>
+              <span className="text-2xl font-bold font-mono text-slate-900">-{cost.toLocaleString()}</span>
               <span className="text-xs text-slate-500 ml-1 font-sans">{UNIT_LABEL}</span>
             </div>
           </div>
