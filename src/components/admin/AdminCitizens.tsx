@@ -8,7 +8,6 @@ interface AdminCitizensProps {
   setSearchQuery: (query: string) => void;
   onToggleAdmin: (user: UserProfile) => void;
   onLoadMore: () => void;
-  hasMore: boolean;
   isLoading: boolean;
 }
 
@@ -18,14 +17,15 @@ export const AdminCitizens = React.memo<AdminCitizensProps>(({
   setSearchQuery,
   onToggleAdmin,
   onLoadMore,
-  hasMore,
   isLoading
 }) => {
-  const filteredUsers = userList.filter(
-    (u) =>
-      u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.id?.includes(searchQuery),
-  );
+  const filteredUsers = searchQuery.trim().length >= 1 
+    ? userList.filter(
+        (u) =>
+          u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          u.id?.toLowerCase().includes(searchQuery.toLowerCase()),
+      )
+    : [];
 
   return (
     <div className="animate-in fade-in duration-300 w-full min-w-0">
@@ -38,10 +38,15 @@ export const AdminCitizens = React.memo<AdminCitizensProps>(({
             />
             <input
               type="text"
-              placeholder="名前で検索..."
+              placeholder="住民を検索..."
               className="w-full bg-slate-800 border border-slate-600 rounded-lg pl-9 pr-3 py-2 text-base text-slate-200 focus:outline-none focus:border-yellow-500 placeholder-slate-500"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') onLoadMore(); // Trigger fetch if Enter is pressed
+              }}
             />
           </div>
           <div className="flex items-center gap-4">
@@ -105,20 +110,23 @@ export const AdminCitizens = React.memo<AdminCitizensProps>(({
             </tbody>
           </table>
 
-          {hasMore && (
+          {isLoading && searchQuery.trim().length > 0 && (
             <div className="p-4 flex justify-center border-t border-slate-800">
-              <button
-                type="button"
-                onClick={onLoadMore}
-                disabled={isLoading}
-                className="text-xs font-bold text-slate-500 hover:text-yellow-500 py-2 px-6 rounded-lg transition-colors disabled:opacity-30"
-              >
-                {isLoading ? "読み込み中..." : "さらに読み込む"}
-              </button>
+              <span className="text-xs font-bold text-slate-500 animate-pulse">
+                検索中...
+              </span>
             </div>
           )}
 
-          {filteredUsers.length === 0 && !isLoading && (
+          {searchQuery.trim().length === 0 && (
+            <div className="p-20 text-center text-slate-600 flex flex-col items-center gap-2">
+              <Search size={24} className="opacity-20" />
+              <p className="text-sm">名前を入力して住民を検索してください</p>
+              <p className="text-xs opacity-60">※部分一致で検索可能です</p>
+            </div>
+          )}
+          
+          {searchQuery.trim().length > 0 && filteredUsers.length === 0 && !isLoading && (
             <div className="p-20 text-center text-slate-600 flex flex-col items-center gap-2">
               <Activity size={24} className="opacity-20" />
               <p className="text-sm">該当する住民が見つかりませんでした</p>

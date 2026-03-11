@@ -54,7 +54,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [lastVisibleDoc, setLastVisibleDoc] = useState<QueryDocumentSnapshot | null>(null);
-  const [hasMoreUsers, setHasMoreUsers] = useState(true);
   const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
 
   // Seed Library State
@@ -145,9 +144,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       setLastVisibleDoc(newLastDoc || null);
       
       if (snapshot.docs.length < 50) {
-        setHasMoreUsers(false);
-      } else {
-        setHasMoreUsers(true);
+        // End of list
       }
 
       const users = snapshot.docs.map((doc) => {
@@ -172,6 +169,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       setIsLoadingUsers(false);
     }
   }, [lastVisibleDoc]);
+
+  // Handle Search Trigger
+  React.useEffect(() => {
+    if (searchQuery.trim().length >= 1 && userList.length === 0 && activeTab === 'citizens') {
+        fetchUsers();
+    }
+  }, [searchQuery, userList.length, activeTab, fetchUsers]);
 
   const fetchInviteCodes = useCallback(async () => {
     try {
@@ -323,10 +327,9 @@ https://www.existenceticker.com/?code=${codeId}
 
   // Data Fetching Logic: Only trigger when switching TO the tab
   React.useEffect(() => {
-    if (activeTab === "citizens" && userList.length === 0) fetchUsers();
     if (activeTab === "invitations" && inviteCodes.length === 0) fetchInviteCodes();
     if (activeTab === "seeds" && seeds.length === 0) fetchSeeds();
-  }, [activeTab, userList.length, inviteCodes.length, seeds.length, fetchUsers, fetchInviteCodes, fetchSeeds]);
+  }, [activeTab, inviteCodes.length, seeds.length, fetchInviteCodes, fetchSeeds]);
 
   // Lock body scroll when dashboard is open
   React.useEffect(() => {
@@ -457,7 +460,6 @@ https://www.existenceticker.com/?code=${codeId}
                 setSearchQuery={setSearchQuery}
                 onToggleAdmin={toggleAdmin}
                 onLoadMore={() => fetchUsers(true)}
-                hasMore={hasMoreUsers}
                 isLoading={isLoadingUsers}
               />
             </div>
