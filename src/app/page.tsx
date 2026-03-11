@@ -7,7 +7,7 @@ import {
   animate,
   AnimatePresence,
 } from "framer-motion";
-import { ArrowDown, Sparkles, Send } from "lucide-react";
+import { ArrowDown, Sparkles, Send, Languages } from "lucide-react";
 import { useAuth } from "../hooks/useAuthHook";
 import { GoyenShimmer } from "../components/GoyenShimmer";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -22,7 +22,7 @@ export const LandingPage = () => {
   const [showToast, setShowToast] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, lang, setLang } = useLanguage();
   const m = t.LP;
 
   const SCENES = [
@@ -131,18 +131,41 @@ export const LandingPage = () => {
           <span className="text-xs md:text-base font-bold tracking-[0.4em] uppercase text-white/90 select-none">
             {m.NAV.TITLE}
           </span>
-          <a
-            href="#entrance"
-            onClick={(e) => {
-              e.preventDefault();
+          <button
+            onClick={() => {
               document
                 .getElementById("entrance")
                 ?.scrollIntoView({ behavior: "smooth" });
             }}
-            className="text-xs md:text-base font-normal tracking-[0.1em] text-white/60 hover:text-white transition-colors border-l border-white/20 pl-4 md:pl-6 block"
+            className="text-[10px] md:text-sm tracking-[0.1em] md:tracking-[0.5em] text-white/40 hover:text-white transition-all uppercase text-left whitespace-nowrap"
           >
-            {m.NAV.INVITE_LINK}
-          </a>
+            <span className="hidden md:inline">{m.NAV.INVITE_LINK}</span>
+            <span className="md:hidden">{m.NAV.INVITE_LINK_SHORT}</span>
+          </button>
+          
+          <div className="border-l border-white/20 pl-3 md:pl-6 h-4 flex items-center">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setLang(lang === 'ja' ? 'en' : 'ja')}
+              className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all group relative overflow-hidden"
+              title={lang === 'ja' ? 'English' : '日本語'}
+            >
+              <Languages size={12} className="md:w-[14px] md:h-[14px] opacity-70 group-hover:opacity-100 transition-opacity" />
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={lang}
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -10, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="text-[9px] md:text-xs tracking-[0.2em] font-bold uppercase"
+                >
+                  {lang === 'ja' ? 'JP' : 'EN'}
+                </motion.span>
+              </AnimatePresence>
+            </motion.button>
+          </div>
         </div>
       </nav>
 
@@ -259,35 +282,35 @@ export const LandingPage = () => {
             </div>
 
             <div className="space-y-2">
-              <p className="text-sm md:text-base leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#444444]">
+              <p className={`text-sm md:text-base leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#444444] ${lang === 'en' ? 'max-w-2xl mx-auto' : ''}`}>
                 {m.HERO.P2}
-                <br className="hidden md:block" />
+                {lang === 'ja' && <br className="hidden md:block" />}
                 {m.HERO.P3}
-                <br className="hidden md:block" />
+                {lang === 'ja' && <br className="hidden md:block" />}
                 {m.HERO.P4}
               </p>
             </div>
 
             <div className="space-y-2">
-              <p className="text-sm md:text-base leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#444444]">
+              <p className={`text-sm md:text-base leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#444444] ${lang === 'en' ? 'max-w-2xl mx-auto' : ''}`}>
                 {m.HERO.P5}
                 <span className="text-[#8B6B50] font-medium px-1">
                   {m.HERO.GENKI_LABEL}
                 </span>
                 {m.HERO.P6}
-                <br className="hidden md:block" />
+                {lang === 'ja' && <br className="hidden md:block" />}
                 {m.HERO.P7}
-                <br className="hidden md:block" />
+                {lang === 'ja' && <br className="hidden md:block" />}
                 {m.HERO.P8}
               </p>
             </div>
 
             <div className="space-y-2">
-              <p className="text-base md:text-lg leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#1A1A1A] md:text-[#2D2D2D] font-medium md:font-normal">
+              <p className={`text-base md:text-lg leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#1A1A1A] md:text-[#2D2D2D] font-medium md:font-normal ${lang === 'en' ? 'max-w-2xl mx-auto' : ''}`}>
                 {m.HERO.P9}
-                <br className="hidden md:block" />
+                {lang === 'ja' && <br className="hidden md:block" />}
                 {m.HERO.P10}
-                <br className="hidden md:block" />
+                {lang === 'ja' && <br className="hidden md:block" />}
                 {m.HERO.P11}
               </p>
             </div>
@@ -345,14 +368,14 @@ export const LandingPage = () => {
               <span className="text-[10px] md:text-sm tracking-[0.5em] text-[#AAAAAA] uppercase mb-8 block font-sans">
                 {m.MANIFESTO.SECTION_TITLE}
               </span>
-              <h3 className="text-3xl md:text-5xl font-light tracking-[0.2em] md:tracking-[0.4em] text-[#2D2D2D] font-serif whitespace-nowrap mb-6">
+              <h3 className="text-3xl md:text-5xl font-light tracking-[0.1em] md:tracking-[0.2em] text-[#2D2D2D] font-serif mb-6 px-4 leading-[1.4] md:leading-[1.6]">
                 {m.MANIFESTO.TITLE}
               </h3>
-              <p className="text-[10px] md:text-xs tracking-[0.4em] text-[#AAAAAA] uppercase font-serif mb-16">
+              <p className="text-[10px] md:text-xs tracking-[0.2em] md:tracking-[0.4em] text-[#AAAAAA] uppercase font-serif mb-16 px-4 break-words leading-loose">
                 {m.MANIFESTO.SUBTITLE}
               </p>
               <div className="max-w-2xl mx-auto space-y-12">
-                <p className="text-xl md:text-3xl font-serif text-[#1A1A1A] tracking-[0.3em] leading-relaxed">
+                <p className="text-xl md:text-3xl font-serif text-[#1A1A1A] tracking-[0.2em] md:tracking-[0.3em] leading-[1.6] md:leading-relaxed">
                   {m.MANIFESTO.QUESTION}
                 </p>
                 <p className="text-sm md:text-base text-[#666666] leading-loose font-serif tracking-widest">
@@ -564,21 +587,23 @@ export const LandingPage = () => {
       </AnimatePresence>
 
       {/* Toast Notification */}
-      <AnimatePresence>
-        {showToast && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="fixed bottom-8 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 z-[200] px-6 md:px-8 py-4 bg-white/95 backdrop-blur-sm border border-[#E5E0D5] rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] md:max-w-md md:mx-auto"
-          >
-            <p className="text-sm md:text-base text-[#666666] font-serif tracking-wide text-center leading-relaxed">
-              {m.TOAST.PREPARING}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div className="fixed bottom-8 inset-x-0 pointer-events-none flex justify-center z-[200]">
+        <AnimatePresence>
+          {showToast && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="pointer-events-auto px-6 md:px-8 py-4 bg-white/95 backdrop-blur-sm border border-[#E5E0D5] rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] w-max max-w-[calc(100vw-2rem)]"
+            >
+              <p className="text-sm md:text-base text-[#666666] font-serif tracking-wide text-center leading-relaxed">
+                {m.TOAST.PREPARING}
+              </p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 };

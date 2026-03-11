@@ -978,6 +978,7 @@ export const MESSAGES = {
     NAV: {
       TITLE: "Existence Ticker",
       INVITE_LINK: "招待コードをお持ちの方",
+      INVITE_LINK_SHORT: "招待コード",
     },
     HERO: {
       P1: "減ることは、失うことではありません。それは、深呼吸（代謝）です。",

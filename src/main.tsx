@@ -18,6 +18,7 @@ import { ToastProvider } from "./contexts/ToastProvider";
 import { WalletProvider } from "./contexts/WalletContext.tsx";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { LanguageProvider } from "./contexts/LanguageContext";
 
 const isStandalone = 
   window.matchMedia('(display-mode: standalone)').matches || 
@@ -26,8 +27,9 @@ const isStandalone =
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ErrorBoundary>
-      <ToastProvider>
+    <LanguageProvider>
+      <ErrorBoundary>
+        <ToastProvider>
         <AuthProvider>
           <UserViewProvider>
             <WishesProvider>
@@ -57,6 +59,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           </UserViewProvider>
         </AuthProvider>
       </ToastProvider>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </LanguageProvider>
   </React.StrictMode>,
 );

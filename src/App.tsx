@@ -15,7 +15,7 @@ import { useWallet } from "./hooks/useWallet";
 import { useStats, DashboardStats } from "./hooks/useStats";
 import { NoticeProvider } from "./components/NoticeProvider";
 import { GoyenShimmer } from "./components/GoyenShimmer";
-import { LanguageProvider } from "./contexts/LanguageContext";
+
 
 // カウントアップ・ダウン演出
 const CountingNumber: React.FC<{ value: number; duration: number }> = ({
@@ -400,8 +400,7 @@ function App() {
   // --- THE DETERMINISTIC SWITCH ---
   // Wrap everything in a top-level ErrorBoundary for catastrophic failure catching
   return (
-    <LanguageProvider>
-      <ErrorBoundary>
+    <ErrorBoundary>
         {(() => {
           switch (view) {
           case "LOADING":
@@ -519,8 +518,7 @@ function App() {
             return <ScreenLoader />;
         }
       })()}
-      </ErrorBoundary>
-    </LanguageProvider>
+    </ErrorBoundary>
   );
 }
 export default App;
