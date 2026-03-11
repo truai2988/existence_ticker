@@ -4,7 +4,7 @@ import { WishCard } from './WishCard';
 import { Wish } from '../types';
 import { useEffect, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
-import { MESSAGES } from '../constants/messages';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface WishCardListProps {
     wishes: Wish[];
@@ -24,7 +24,7 @@ interface WishCardListProps {
 export const WishCardList: React.FC<WishCardListProps> = ({ 
     wishes, 
     currentUserId, 
-    emptyMessage = MESSAGES.WISH.EMPTY_DEFAULT,
+    emptyMessage,
     emptyIcon,
     subtitle,
     onLoadMore,
@@ -35,6 +35,7 @@ export const WishCardList: React.FC<WishCardListProps> = ({
     viewType = 'radiance',
     onTabChange
 }) => {
+    const { t: MESSAGES } = useLanguage();
     const sentinelRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -59,7 +60,7 @@ export const WishCardList: React.FC<WishCardListProps> = ({
         return (
             <div className="flex flex-col items-center justify-center py-20 px-6 border-2 border-dashed border-slate-200 rounded-3xl bg-white/50">
                 {emptyIcon}
-                <p className="text-slate-400 text-sm font-medium">{emptyMessage}</p>
+                <p className="text-slate-400 text-sm font-medium">{emptyMessage || MESSAGES.WISH.EMPTY_DEFAULT}</p>
             </div>
         );
     }

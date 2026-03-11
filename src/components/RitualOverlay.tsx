@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
-import { MESSAGES } from '../constants/messages';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface RitualOverlayProps {
   state: 'idle' | 'breathing' | 'blooming' | 'syncing';
@@ -24,6 +24,7 @@ const CountingNumber = ({ value, duration = 2 }: { value: number; duration?: num
 };
 
 export const RitualOverlay: React.FC<RitualOverlayProps> = ({ state, targetBalance }) => {
+  const { t: MESSAGES } = useLanguage();
   if (state === 'idle') return null;
 
   return (

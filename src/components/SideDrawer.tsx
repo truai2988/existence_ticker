@@ -11,7 +11,7 @@ import {
 import { AppViewMode } from "../types";
 import { usePWAInstall } from "../hooks/usePWAInstall";
 import { globalTriggerPWAInstall } from "../utils/pwaEvent";
-import { MESSAGES } from "../constants/messages";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface SideDrawerProps {
   isOpen: boolean;
@@ -29,6 +29,7 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
   onOpenOnboarding,
 }) => {
   const { isStandalone } = usePWAInstall();
+  const { t: MESSAGES } = useLanguage();
 
   const handleNavigate = (tab: AppViewMode) => {
     onTabChange(tab);

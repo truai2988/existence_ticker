@@ -1,11 +1,12 @@
 import React from "react";
 import { Loader2, Heart, CheckCircle, X, Archive, Hourglass } from "lucide-react";
-import { MESSAGES } from "../../../constants/messages";
+import { useLanguage } from "../../../contexts/LanguageContext";
 import { WishCardState, WishCardHandlers } from "../types";
 import { calculateHistoricalValue } from "../../../logic/worldPhysics";
 import { UNIT_LABEL } from "../../../constants";
 
 export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHandlers }> = ({ state, handlers }) => {
+  const { t: MESSAGES } = useLanguage();
   const {
     wish, isEditing, editContent, isLoading, isExpired, initialCost, currentUserId, displayValue, isMyWish
   } = state;

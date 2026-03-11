@@ -7,42 +7,7 @@ import { GratitudeTier, SeedPlaceholder } from '../types';
 import { db } from '../lib/firebase';
 import { WISH_COST, UNIT_LABEL } from '../constants';
 import { useToast } from '../hooks/useToast';
-import { MESSAGES } from '../constants/messages';
-
-type TierOption = {
-  id: GratitudeTier;
-  label: string;
-  subLabel: string;
-  cost: number;
-}
-
-const TIERS: TierOption[] = [
-  {
-    id: "heavy",
-    label: MESSAGES.CREATE_WISH.TIER_HEAVY_LABEL,
-    subLabel: MESSAGES.CREATE_WISH.TIER_HEAVY_SUB,
-    cost: WISH_COST.BONFIRE,
-  },
-  {
-    id: "medium",
-    label: MESSAGES.CREATE_WISH.TIER_MEDIUM_LABEL,
-    subLabel: MESSAGES.CREATE_WISH.TIER_MEDIUM_SUB,
-    cost: WISH_COST.CANDLE,
-  },
-  {
-    id: "light",
-    label: MESSAGES.CREATE_WISH.TIER_LIGHT_LABEL,
-    subLabel: MESSAGES.CREATE_WISH.TIER_LIGHT_SUB,
-    cost: WISH_COST.SPARK,
-  },
-];
-const TIER_MAP: Record<GratitudeTier, 1000 | 500 | 0> = {
-  heavy: 1000,
-  medium: 500,
-  light: 0
-};
-
-const FALLBACK_PLACEHOLDER = MESSAGES.CREATE_WISH.PLACEHOLDER_FALLBACK;
+import { useLanguage } from '../contexts/LanguageContext';
 
 // Session-level cache for seeds
 let cachedSeeds: SeedPlaceholder[] | null = null;
@@ -55,12 +20,53 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
     const { availableLm } = useWallet();
     const { castWish, isSubmitting } = useWishActions();
     const { showToast } = useToast();
+    const { t: MESSAGES } = useLanguage();
+
+    const TIER_MAP: Record<GratitudeTier, 1000 | 500 | 0> = React.useMemo(() => ({
+      heavy: 1000,
+      medium: 500,
+      light: 0
+    }), []);
+
+    const TIERS = React.useMemo(() => [
+      {
+        id: "heavy",
+        label: MESSAGES.CREATE_WISH.TIER_HEAVY_LABEL,
+        subLabel: MESSAGES.CREATE_WISH.TIER_HEAVY_SUB,
+        cost: WISH_COST.BONFIRE,
+      },
+      {
+        id: "medium",
+        label: MESSAGES.CREATE_WISH.TIER_MEDIUM_LABEL,
+        subLabel: MESSAGES.CREATE_WISH.TIER_MEDIUM_SUB,
+        cost: WISH_COST.CANDLE,
+      },
+      {
+        id: "light",
+        label: MESSAGES.CREATE_WISH.TIER_LIGHT_LABEL,
+        subLabel: MESSAGES.CREATE_WISH.TIER_LIGHT_SUB,
+        cost: WISH_COST.SPARK,
+      },
+    ] as const, [MESSAGES]);
+
+    const FALLBACK_PLACEHOLDER = MESSAGES.CREATE_WISH.PLACEHOLDER_FALLBACK;
     
     const [newWishContent, setNewWishContent] = useState('');
     const [selectedTier, setSelectedTier] = useState<GratitudeTier>('heavy');
     const [currentPlaceholder, setCurrentPlaceholder] = useState<string>(FALLBACK_PLACEHOLDER);
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [showGuide, setShowGuide] = useState(false);
+
+    const updatePlaceholder = React.useCallback((tier: GratitudeTier, seedsList: SeedPlaceholder[]) => {
+        const numericTier = TIER_MAP[tier];
+        const tierSeeds = seedsList.filter(s => s.tier === numericTier);
+        if (tierSeeds.length > 0) {
+            const random = tierSeeds[Math.floor(Math.random() * tierSeeds.length)];
+            setCurrentPlaceholder(`${MESSAGES.CREATE_WISH.PLACEHOLDER_PREFIX}${random.content}`);
+        } else {
+            setCurrentPlaceholder(FALLBACK_PLACEHOLDER);
+        }
+    }, [FALLBACK_PLACEHOLDER, MESSAGES.CREATE_WISH.PLACEHOLDER_PREFIX, TIER_MAP]);
 
     // Fetch seeds and set initial placeholder
     useEffect(() => {
@@ -82,18 +88,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
             }
         };
         loadSeeds();
-    }, [selectedTier]);
-
-    const updatePlaceholder = (tier: GratitudeTier, seedsList: SeedPlaceholder[]) => {
-        const numericTier = TIER_MAP[tier];
-        const tierSeeds = seedsList.filter(s => s.tier === numericTier);
-        if (tierSeeds.length > 0) {
-            const random = tierSeeds[Math.floor(Math.random() * tierSeeds.length)];
-            setCurrentPlaceholder(`${MESSAGES.CREATE_WISH.PLACEHOLDER_PREFIX}${random.content}`);
-        } else {
-            setCurrentPlaceholder(FALLBACK_PLACEHOLDER);
-        }
-    };
+    }, [selectedTier, updatePlaceholder]);
 
     // Update placeholder when tier changes (if content is empty or placeholder was recently refreshed)
     const handleTierChange = (tier: GratitudeTier) => {

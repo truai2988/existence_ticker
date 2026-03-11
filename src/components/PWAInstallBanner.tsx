@@ -4,9 +4,10 @@ import { usePWAInstall } from '../hooks/usePWAInstall';
 import { X, Share, PlusSquare } from 'lucide-react';
 import { setGlobalTriggerPWAInstall } from '../utils/pwaEvent';
 import { useToast } from '../hooks/useToast';
-import { MESSAGES } from '../constants/messages';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const PWAInstallBanner: React.FC = () => {
+  const { t: MESSAGES } = useLanguage();
   const { showBanner, isIOS, triggerPrompt, dismissBanner, installPWA } = usePWAInstall();
   const { showToast } = useToast();
   const [hasPromptedIOS, setHasPromptedIOS] = useState(false);
@@ -23,7 +24,7 @@ export const PWAInstallBanner: React.FC = () => {
 
     window.addEventListener('pwa-installed', handleInstalled);
     return () => window.removeEventListener('pwa-installed', handleInstalled);
-  }, [showToast, dismissBanner]);
+  }, [showToast, dismissBanner, MESSAGES.PWA.INSTALL_SUCCESS]);
 
   return (
     <AnimatePresence>

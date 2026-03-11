@@ -4,6 +4,10 @@ export interface Notice {
   userId: string;
   fromId: string; // 送信元（聖域の防衛用）
   message: string;
+  /** Language-agnostic key pointing to MESSAGES.WISH_ACTIONS.NOTICE_* */
+  messageKey?: string;
+  /** Named substitution params for the message template (e.g. { name: "Alice" }) */
+  params?: Record<string, string>;
   type:
     | "application_received" // 誰かが応募してきた
     | "wish_cancelled"       // 願いがキャンセルされた

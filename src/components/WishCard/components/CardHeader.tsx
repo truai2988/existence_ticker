@@ -1,10 +1,11 @@
 import React from "react";
 import { User, ShieldCheck, Megaphone, Clock, Pencil, Trash2, AlertTriangle } from "lucide-react";
-import { MESSAGES } from "../../../constants/messages";
+import { useLanguage } from "../../../contexts/LanguageContext";
 import { WishCardState, WishCardHandlers } from "../types";
 import { useUserView } from "../../../contexts/UserViewContext";
 
 export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHandlers }> = ({ state, handlers }) => {
+  const { t: MESSAGES } = useLanguage();
   const {
     wish, viewType, isMyWish, isReadOnly, isLoading, isExpired, isMasked, isHelperMasked,
     helperProfile, requesterProfile, trust, displayRequesterName, isEditing

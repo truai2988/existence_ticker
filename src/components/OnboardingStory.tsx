@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, ChevronLeft, Droplets, Wind, Sparkles, Scale, HeartHandshake, Footprints } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 import { MESSAGES } from '../constants/messages';
 
 interface OnboardingStoryProps {
@@ -12,73 +13,73 @@ interface OnboardingStoryProps {
 }
 
 // Define slides function to accept mode
-const getSlides = () => [
+const getSlides = (t: typeof MESSAGES) => [
   {
     id: 'vessel',
-    title: MESSAGES.ONBOARDING.SLIDE1_TITLE,
+    title: t.ONBOARDING.SLIDE1_TITLE,
     subtitle: '',
     icon: <Droplets size={32} className="text-amber-500" />,
     content: (
       <div className="text-center font-serif text-slate-700 leading-relaxed">
         <p className="text-lg text-slate-700 leading-9 tracking-wide font-serif mb-8">
-          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE1_P1}</span><span className="inline-block">{MESSAGES.ONBOARDING.SLIDE1_P2}</span><br />
-          <span className="text-3xl font-bold text-amber-600 mx-1">2,400 Lm</span> {MESSAGES.ONBOARDING.SLIDE1_P3}<br />
-          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE1_P4}</span>
+          <span className="inline-block">{t.ONBOARDING.SLIDE1_P1}</span><span className="inline-block">{t.ONBOARDING.SLIDE1_P2}</span><br />
+          <span className="text-3xl font-bold text-amber-600 mx-1">2,400 Lm</span> {t.ONBOARDING.SLIDE1_P3}<br />
+          <span className="inline-block">{t.ONBOARDING.SLIDE1_P4}</span>
         </p>
         <p className="text-base text-slate-600 font-medium">
-          {MESSAGES.ONBOARDING.SLIDE1_P5}
+          {t.ONBOARDING.SLIDE1_P5}
         </p>
       </div>
     )
   },
   {
     id: 'decay',
-    title: MESSAGES.ONBOARDING.SLIDE2_TITLE,
+    title: t.ONBOARDING.SLIDE2_TITLE,
     subtitle: '',
     icon: <Wind size={32} className="text-blue-400" />,
     content: (
       <div className="text-center font-serif text-slate-700 leading-relaxed">
         <p className="text-lg text-slate-700 leading-9 tracking-wide font-serif mb-8">
-          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE2_P1}</span><span className="inline-block">{MESSAGES.ONBOARDING.SLIDE2_P2}</span><br />
-          <span className="text-3xl font-bold text-slate-400 mx-1">{MESSAGES.ONBOARDING.SLIDE2_P3}</span><br />
-          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE2_P4}</span>
+          <span className="inline-block">{t.ONBOARDING.SLIDE2_P1}</span><span className="inline-block">{t.ONBOARDING.SLIDE2_P2}</span><br />
+          <span className="text-3xl font-bold text-slate-400 mx-1">{t.ONBOARDING.SLIDE2_P3}</span><br />
+          <span className="inline-block">{t.ONBOARDING.SLIDE2_P4}</span>
         </p>
         <p className="text-base text-slate-600 font-medium">
-          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE2_P5}</span><br />
-          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE2_P6}</span>
+          <span className="inline-block">{t.ONBOARDING.SLIDE2_P5}</span><br />
+          <span className="inline-block">{t.ONBOARDING.SLIDE2_P6}</span>
         </p>
       </div>
     )
   },
   {
     id: 'connect',
-    title: MESSAGES.ONBOARDING.SLIDE3_TITLE,
+    title: t.ONBOARDING.SLIDE3_TITLE,
     subtitle: '',
     icon: <Sparkles size={32} className="text-rose-400" />,
     content: (
       <div className="text-center font-serif text-slate-700 leading-relaxed">
         <p className="text-lg text-slate-700 leading-9 tracking-wide font-serif mb-8">
-          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE3_P1}</span><br />
-          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE3_P2}</span>
+          <span className="inline-block">{t.ONBOARDING.SLIDE3_P1}</span><br />
+          <span className="inline-block">{t.ONBOARDING.SLIDE3_P2}</span>
         </p>
         <div className="flex justify-center gap-8 mb-3 text-base font-bold opacity-80">
           <div className="flex flex-col items-center">
-            <span className="text-amber-600 mb-1">{MESSAGES.ONBOARDING.SLIDE3_LBL_REQ}</span>
+            <span className="text-amber-600 mb-1">{t.ONBOARDING.SLIDE3_LBL_REQ}</span>
           </div>
           <div className="flex flex-col items-center">
-            <span className="text-indigo-600 mb-1">{MESSAGES.ONBOARDING.SLIDE3_LBL_RES}</span>
+            <span className="text-indigo-600 mb-1">{t.ONBOARDING.SLIDE3_LBL_RES}</span>
           </div>
         </div>
         <p className="text-xs text-slate-600 font-medium">
-          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE3_P3}</span><br />
-          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE3_P4}</span>
+          <span className="inline-block">{t.ONBOARDING.SLIDE3_P3}</span><br />
+          <span className="inline-block">{t.ONBOARDING.SLIDE3_P4}</span>
         </p>
       </div>
     )
   },
   {
     id: 'standard',
-    title: MESSAGES.ONBOARDING.SLIDE4_TITLE,
+    title: t.ONBOARDING.SLIDE4_TITLE,
     subtitle: '',
     icon: <Scale size={32} className="text-emerald-500" />,
     content: (
@@ -86,27 +87,27 @@ const getSlides = () => [
         <div className="bg-white/60 p-3 rounded-xl border border-slate-100 flex items-center gap-3">
           <span className="font-mono font-bold text-[#B8860B] w-14 text-right shrink-0">1,000</span>
           <div className="flex-1 min-w-0">
-            <h3 className="text-base font-bold text-slate-800 mb-1">{MESSAGES.ONBOARDING.SLIDE4_TIER1_TITLE}</h3>
+            <h3 className="text-base font-bold text-slate-800 mb-1">{t.ONBOARDING.SLIDE4_TIER1_TITLE}</h3>
             <p className="text-xs text-slate-500 leading-relaxed text-left">
-              {MESSAGES.ONBOARDING.SLIDE4_TIER1_DESC}
+              {t.ONBOARDING.SLIDE4_TIER1_DESC}
             </p>
           </div>
         </div>
         <div className="bg-white/60 p-3 rounded-xl border border-slate-100 flex items-center gap-3">
           <span className="font-mono font-bold text-amber-600 w-14 text-right shrink-0">500</span>
           <div className="flex-1 min-w-0">
-            <h3 className="text-base font-bold text-slate-800 mb-1">{MESSAGES.ONBOARDING.SLIDE4_TIER2_TITLE}</h3>
+            <h3 className="text-base font-bold text-slate-800 mb-1">{t.ONBOARDING.SLIDE4_TIER2_TITLE}</h3>
             <p className="text-xs text-slate-500 leading-relaxed text-left">
-              {MESSAGES.ONBOARDING.SLIDE4_TIER2_DESC}
+              {t.ONBOARDING.SLIDE4_TIER2_DESC}
             </p>
           </div>
         </div>
         <div className="bg-white/60 p-3 rounded-xl border border-slate-100 flex items-center gap-3">
           <span className="font-mono font-bold text-pink-400 w-14 text-right shrink-0">0</span>
           <div className="flex-1 min-w-0">
-            <h3 className="text-base font-bold text-slate-800 mb-1">{MESSAGES.ONBOARDING.SLIDE4_TIER3_TITLE}</h3>
+            <h3 className="text-base font-bold text-slate-800 mb-1">{t.ONBOARDING.SLIDE4_TIER3_TITLE}</h3>
             <p className="text-xs text-slate-500 leading-relaxed text-left">
-              {MESSAGES.ONBOARDING.SLIDE4_TIER3_DESC}
+              {t.ONBOARDING.SLIDE4_TIER3_DESC}
             </p>
           </div>
         </div>
@@ -115,7 +116,7 @@ const getSlides = () => [
   },
   {
     id: 'start',
-    title: MESSAGES.ONBOARDING.SLIDE5_TITLE,
+    title: t.ONBOARDING.SLIDE5_TITLE,
     subtitle: '',
     icon: <Footprints size={32} className="text-slate-600" />,
     content: (
@@ -124,16 +125,16 @@ const getSlides = () => [
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
             <p className="text-base font-bold flex flex-col gap-3 relative z-10 text-center w-full">
               <span className="tracking-wide">
-                <span className="text-slate-500 mr-1">{MESSAGES.ONBOARDING.SLIDE5_P1_1}</span>{MESSAGES.ONBOARDING.SLIDE5_P1_2}
+                <span className="text-slate-500 mr-1">{t.ONBOARDING.SLIDE5_P1_1}</span>{t.ONBOARDING.SLIDE5_P1_2}
               </span>
               <span className="tracking-wide">
-                <span className="text-slate-500 mr-1">{MESSAGES.ONBOARDING.SLIDE5_P2_1}</span>{MESSAGES.ONBOARDING.SLIDE5_P2_2}
+                <span className="text-slate-500 mr-1">{t.ONBOARDING.SLIDE5_P2_1}</span>{t.ONBOARDING.SLIDE5_P2_2}
               </span>
             </p>
          </div>
         <div className="text-sm text-slate-600 font-medium w-full">
-          <p className="mb-2"><span className="inline-block">{MESSAGES.ONBOARDING.SLIDE5_P3_1}</span><span className="inline-block">{MESSAGES.ONBOARDING.SLIDE5_P3_2}</span></p>
-          <p className="text-base text-slate-700 font-bold"><span className="inline-block">{MESSAGES.ONBOARDING.SLIDE5_P4_1}</span><span className="inline-block">{MESSAGES.ONBOARDING.SLIDE5_P4_2}</span></p>
+          <p className="mb-2"><span className="inline-block">{t.ONBOARDING.SLIDE5_P3_1}</span><span className="inline-block">{t.ONBOARDING.SLIDE5_P3_2}</span></p>
+          <p className="text-base text-slate-700 font-bold"><span className="inline-block">{t.ONBOARDING.SLIDE5_P4_1}</span><span className="inline-block">{t.ONBOARDING.SLIDE5_P4_2}</span></p>
         </div>
       </div>
     )
@@ -147,9 +148,10 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
   mode = 'reference', 
   initialSlide = 0 
 }) => {
+  const { t: MESSAGES } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(initialSlide);
   
-  const slides = getSlides();
+  const slides = getSlides(MESSAGES);
 
   useEffect(() => {
     if (isOpen) {

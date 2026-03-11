@@ -96,7 +96,8 @@ export const calculateAvailableLm = (currentBalanceMilli: number, committedMilli
 // =========================================================================================
 
 export interface TrustRank {
-    label: string;
+    id: 'VETERAN' | 'REGULAR' | 'BEGINNER';
+    label: string; // Placeholder for backward compatibility
     icon: string;
     color: string;
     bg: string;
@@ -113,9 +114,9 @@ export interface TrustRank {
 export const getTrustRank = (profile: UserProfile | null, snapshotScore: number = 0): TrustRank => {
     if (!profile) {
         // Fallback or Unknown User
-        if (snapshotScore >= 10) return { label: '熟練', icon: '🏆', color: 'text-amber-500', bg: 'bg-amber-100', isVerified: false };
-        if (snapshotScore >= 3) return { label: '馴染み', icon: '★', color: 'text-blue-500', bg: 'bg-blue-100', isVerified: false };
-        return { label: '新顔', icon: '🔰', color: 'text-green-500', bg: 'bg-green-100', isVerified: false };
+        if (snapshotScore >= 10) return { id: 'VETERAN', label: '熟練', icon: '🏆', color: 'text-amber-500', bg: 'bg-amber-100', isVerified: false };
+        if (snapshotScore >= 3) return { id: 'REGULAR', label: '馴染み', icon: '★', color: 'text-blue-500', bg: 'bg-blue-100', isVerified: false };
+        return { id: 'BEGINNER', label: '新顔', icon: '🔰', color: 'text-green-500', bg: 'bg-green-100', isVerified: false };
     }
 
     const score = profile.completed_contracts ?? snapshotScore;
@@ -126,7 +127,7 @@ export const getTrustRank = (profile: UserProfile | null, snapshotScore: number 
 
     if (isImpure) {
         // 穢れ状態: ランク剥奪
-        return { label: '新顔', icon: '🔰', color: 'text-slate-500', bg: 'bg-slate-100', isVerified: false };
+        return { id: 'BEGINNER', label: '新顔', icon: '🔰', color: 'text-slate-500', bg: 'bg-slate-100', isVerified: false };
     }
     
     // --- Verification Criteria ---
@@ -138,14 +139,14 @@ export const getTrustRank = (profile: UserProfile | null, snapshotScore: number 
 
     // Veteran: Score 10+ & Verified & Bio & Avatar
     if (score >= 10 && isVerified && hasBio && hasAvatar) {
-        return { label: '熟練', icon: '🏆', color: 'text-amber-500', bg: 'bg-amber-100', isVerified };
+        return { id: 'VETERAN', label: '熟練', icon: '🏆', color: 'text-amber-500', bg: 'bg-amber-100', isVerified };
     }
     
     // Regular: Score 3+ & (Bio OR Avatar)
     if (score >= 3 && (hasBio || hasAvatar)) {
-        return { label: '馴染み', icon: '★', color: 'text-blue-500', bg: 'bg-blue-100', isVerified };
+        return { id: 'REGULAR', label: '馴染み', icon: '★', color: 'text-blue-500', bg: 'bg-blue-100', isVerified };
     }
     
     // Beginner (Default)
-    return { label: '新顔', icon: '🔰', color: 'text-green-500', bg: 'bg-green-100', isVerified };
+    return { id: 'BEGINNER', label: '新顔', icon: '🔰', color: 'text-green-500', bg: 'bg-green-100', isVerified };
 };

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   motion,
   useScroll,
@@ -10,6 +10,7 @@ import {
 import { ArrowDown, Sparkles, Send } from "lucide-react";
 import { useAuth } from "../hooks/useAuthHook";
 import { GoyenShimmer } from "../components/GoyenShimmer";
+import { useLanguage } from "../contexts/LanguageContext";
 
 export const LandingPage = () => {
   // --- A-Side: Ten-Day Lapse (Pure Abundance) ---
@@ -21,21 +22,23 @@ export const LandingPage = () => {
   const [showToast, setShowToast] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useLanguage();
+  const m = t.LP;
 
   const SCENES = [
     {
       image: "/scene-1000.webp",
-      text: "人生の節目を、誰かの手とともに越える。最大の敬意（1,000 Lm）を込めて。",
+      text: m.SCENES.S1000,
       id: 1000,
     },
     {
       image: "/scene-500.webp",
-      text: "独りでは届かなかった場所に、誰かの手が届く。日常への感謝（500 Lm）を添えて。",
+      text: m.SCENES.S500,
       id: 500,
     },
     {
       image: "/scene-0.webp",
-      text: "ただ共に在る。生きていることを祝う、純粋な共鳴（0 Lm / ∞）。",
+      text: m.SCENES.S0,
       id: 0,
     },
   ];
@@ -126,7 +129,7 @@ export const LandingPage = () => {
       <nav className="absolute top-0 left-0 right-0 z-[100] px-6 py-8 flex justify-center items-center mix-blend-difference pointer-events-none">
         <div className="flex items-center gap-6 pointer-events-auto">
           <span className="text-xs md:text-base font-bold tracking-[0.4em] uppercase text-white/90 select-none">
-            Existence Ticker
+            {m.NAV.TITLE}
           </span>
           <a
             href="#entrance"
@@ -138,7 +141,7 @@ export const LandingPage = () => {
             }}
             className="text-xs md:text-base font-normal tracking-[0.1em] text-white/60 hover:text-white transition-colors border-l border-white/20 pl-4 md:pl-6 block"
           >
-            招待コードをお持ちの方
+            {m.NAV.INVITE_LINK}
           </a>
         </div>
       </nav>
@@ -251,41 +254,41 @@ export const LandingPage = () => {
           <div className="space-y-8 md:space-y-12 max-w-3xl mx-auto mb-10 md:mb-24">
             <div className="space-y-2">
               <p className="text-base md:text-lg leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#1A1A1A] md:text-[#2D2D2D]">
-                減ることは、失うことではありません。それは、深呼吸（代謝）です。
+                {m.HERO.P1}
               </p>
             </div>
 
             <div className="space-y-2">
               <p className="text-sm md:text-base leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#444444]">
-                ずっと貯め込まなければならないなんて、苦しいはずです。
+                {m.HERO.P2}
                 <br className="hidden md:block" />
-                水が流れるように、息を吐いて吸うように。
+                {m.HERO.P3}
                 <br className="hidden md:block" />
-                本当の価値とは、留まることのない「循環」の中に宿ります。
+                {m.HERO.P4}
               </p>
             </div>
 
             <div className="space-y-2">
               <p className="text-sm md:text-base leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#444444]">
-                私たちが作ったのは、時間が経つと消えてしまう
+                {m.HERO.P5}
                 <span className="text-[#8B6B50] font-medium px-1">
-                  源気（げんき）
+                  {m.HERO.GENKI_LABEL}
                 </span>
-                です。
+                {m.HERO.P6}
                 <br className="hidden md:block" />
-                でも、怖がらないでください。
+                {m.HERO.P7}
                 <br className="hidden md:block" />
-                それは喪失ではなく、生きている証拠なのですから。
+                {m.HERO.P8}
               </p>
             </div>
 
             <div className="space-y-2">
               <p className="text-base md:text-lg leading-relaxed md:leading-[2.2] tracking-wide font-serif text-[#1A1A1A] md:text-[#2D2D2D] font-medium md:font-normal">
-                未来への不安（負債）を手放して、
+                {m.HERO.P9}
                 <br className="hidden md:block" />
-                いま生きている鼓動（存在）を贈り合う。
+                {m.HERO.P10}
                 <br className="hidden md:block" />
-                そんな、やさしい経済の形を始めませんか。
+                {m.HERO.P11}
               </p>
             </div>
           </div>
@@ -340,22 +343,25 @@ export const LandingPage = () => {
           <div className="max-w-4xl mx-auto px-6">
             <div className="text-center mb-20 md:mb-32">
               <span className="text-[10px] md:text-sm tracking-[0.5em] text-[#AAAAAA] uppercase mb-8 block font-sans">
-                巡礼の旅
+                {m.MANIFESTO.SECTION_TITLE}
               </span>
               <h3 className="text-3xl md:text-5xl font-light tracking-[0.2em] md:tracking-[0.4em] text-[#2D2D2D] font-serif whitespace-nowrap mb-6">
-                重機と万年筆
+                {m.MANIFESTO.TITLE}
               </h3>
               <p className="text-[10px] md:text-xs tracking-[0.4em] text-[#AAAAAA] uppercase font-serif mb-16">
-                重機と万年筆
+                {m.MANIFESTO.SUBTITLE}
               </p>
               <div className="max-w-2xl mx-auto space-y-12">
                 <p className="text-xl md:text-3xl font-serif text-[#1A1A1A] tracking-[0.3em] leading-relaxed">
-                  なぜ、このインフラを作ったのか。
+                  {m.MANIFESTO.QUESTION}
                 </p>
                 <p className="text-sm md:text-base text-[#666666] leading-loose font-serif tracking-widest">
-                  重機（資本主義）の唸りが止まない深夜、
-                  <br className="hidden md:block" />
-                  筆を執った一人の開発者の記録。
+                  {m.MANIFESTO.TEASER.split('\n').map((line, i) => (
+                    <React.Fragment key={i}>
+                      {line}
+                      {i === 0 && <br className="hidden md:block" />}
+                    </React.Fragment>
+                  ))}
                 </p>
                 <div className="pt-4">
                   <button
@@ -365,10 +371,8 @@ export const LandingPage = () => {
                     }}
                     className="group relative px-8 md:px-16 py-5 border border-[#CCCCCC] text-[#999999] transition-all duration-700 tracking-[0.3em] md:tracking-[0.5em] text-[10px] md:text-xs uppercase font-serif overflow-hidden cursor-default"
                   >
-                    <span className="relative z-10">
-                      現在、推敲中
-                      <br />
-                      （近日公開）
+                    <span className="relative z-10 whitespace-pre-line">
+                      {m.MANIFESTO.BTN_PENDING}
                     </span>
                   </button>
                 </div>
@@ -378,26 +382,18 @@ export const LandingPage = () => {
             <div className="max-w-3xl mx-auto space-y-16 pb-20">
               <div className="text-center space-y-4">
                 <h4 className="text-sm md:text-base font-serif tracking-[0.3em] text-[#8B6B50] font-medium">
-                  存在の鼓動（Existence Ticker）
+                  {m.MANIFESTO.DECLARATION_TITLE}
                 </h4>
                 <p className="text-xs md:text-sm tracking-[0.2em] text-[#AAAAAA] uppercase font-sans">
-                  ——新時代の価値循環に関する宣言文
+                  {m.MANIFESTO.DECLARATION_SUBTITLE}
                 </p>
               </div>
 
               <div className="space-y-12 md:space-y-16 text-[#444444] font-serif leading-[2.2] md:leading-[2.6] tracking-widest text-justify">
-                <p>
-                  現代社会は、資本主義という名の巨大な重機に頼りすぎいています。この重機は「未来の先食い」を燃料とし、欠乏と競争を点火剤として爆発的な発展をもたらしてきました。しかし、重機は大地を穿つには適していても、人の心に安らぎを綴るにはあまりに無骨すぎます。蓄積こそが価値であるという信仰は、やがて富を澱ませ、失うことへの終わりのない恐怖を全人類に植え付けてしまいました。
-                </p>
-                <p>
-                  本来、価値とは生命のように循環すべきものです。流れを止めた川が濁るように、死蔵される富は腐敗していきます。私たちが必要としているのは、価値を腐らせないための「減価（ディケイ）」の導入です。時間と共に消えゆくという健全な焦燥こそが、停滞した世界を流動化させ、他者への譲渡を促す駆動力となります。減価とは喪失ではなく、生きるための代謝なのです。
-                </p>
-                <p>
-                  さらに、価値の源泉を「外側」から「内側」へと取り戻さなければなりません。既存のシステムが「負債」から始まるのに対し、私たちは「存在」から価値を定義します。生きているという物理現象、その鼓動（ティッカー）そのものを採掘（マイニング）の裏付けとするのです。誰かに養われるのではなく、ただ呼吸を続けるだけで、自らが価値の源泉＝中央銀行となります。この「存在の価値」への確信こそが、未来への生存本能的な恐怖を解除する唯一のプロトコルです。
-                </p>
-                <p>
-                  私たちは資本主義を否定しません。開拓には重機の馬鹿力が必要です。ですが、質を重んじ、生の感触を確かめ合う局面では、そのエンジンを切り、万年筆を手に取る知恵を持つべきです。借金に追われるスリルとサスペンスの時代から、存在を肯定し合うヒューマンドラマの時代へ。二つの道具を使い分け、信頼と安らぎで呼吸する時間を取り戻しましょう。それが、私たちの提唱する「真の豊かさ」の設計図です。
-                </p>
+                <p>{m.MANIFESTO.P1}</p>
+                <p>{m.MANIFESTO.P2}</p>
+                <p>{m.MANIFESTO.P3}</p>
+                <p>{m.MANIFESTO.P4}</p>
               </div>
             </div>
           </div>
@@ -408,45 +404,42 @@ export const LandingPage = () => {
           </div>
 
           <h3 className="text-2xl md:text-3xl font-bold md:font-light tracking-[0.1em] md:tracking-[0.2em] text-[#111111] md:text-[#444444] mb-12 font-serif">
-            Phase 2 (創世記)：30名の「守人」を募集します
+            {m.RECRUIT.TITLE}
           </h3>
 
           <div className="text-[#333333] md:text-[#555555] mb-16 font-medium md:font-normal tracking-wide text-base leading-relaxed max-w-2xl mx-auto font-serif space-y-6">
-            <p>Existence Tickerは、単なるアプリの配布ではありません。</p>
+            <p>{m.RECRUIT.P1}</p>
+            <p>{m.RECRUIT.P2}</p>
             <p>
-              私たちは今、資本主義の轟音を離れ、この「物語」を現実にする30名の守人を探しています。
-            </p>
-            <p>
-              一度に30人を集めることを急ぎません。
-              <br className="hidden md:block" />
-              たとえ一人ずつであっても、この哲学を共に磨き、「存在が価値になる」瞬間を共創できる同志と、静かに、深く、始めたいと考えています。
+              {m.RECRUIT.P3.split('\n').map((line, i) => (
+                <React.Fragment key={i}>
+                  {line}
+                  {i === 0 && <br className="hidden md:block" />}
+                </React.Fragment>
+              ))}
             </p>
           </div>
 
           <div className="mb-12 max-w-lg mx-auto text-center">
             <p className="text-xs tracking-[0.4em] text-[#AAAAAA] uppercase mb-6 italic font-serif">
-              魂のフィルター
+              {m.RECRUIT.FILTER_LABEL}
             </p>
             <div className="text-left bg-black/[0.01] p-6 md:p-8 rounded-2xl border border-black/[0.03] backdrop-blur-[2px]">
               <p className="text-sm font-semibold tracking-widest text-[#8B6B50] mb-4">
-                【応募条件】
+                {m.RECRUIT.CONDITION_TITLE}
               </p>
               <ul className="text-xs md:text-sm text-[#666666] font-serif leading-loose tracking-widest space-y-3">
                 <li className="flex gap-2 items-start">
                   <span className="text-[#8B6B50] mt-0.5">・</span>
-                  <span>資本主義の計算（損得）を、一時的に手放せること。</span>
+                  <span>{m.RECRUIT.C1}</span>
                 </li>
                 <li className="flex gap-2 items-start">
                   <span className="text-[#8B6B50] mt-0.5">・</span>
-                  <span>
-                    あなたの「孤独」と「優しさ」を、このプロジェクトに貸してくれること。
-                  </span>
+                  <span>{m.RECRUIT.C2}</span>
                 </li>
                 <li className="flex gap-2 items-start">
                   <span className="text-[#8B6B50] mt-0.5">・</span>
-                  <span>
-                    グッドデザイン賞等の挑戦を通じ、新しい時代の証人となる覚悟があること。
-                  </span>
+                  <span>{m.RECRUIT.C3}</span>
                 </li>
               </ul>
             </div>
@@ -473,7 +466,7 @@ export const LandingPage = () => {
               />
               <button className="group relative z-10 px-10 py-6 md:py-5 rounded-xl bg-[#2D2D2D] text-white text-base md:text-xs font-medium tracking-[0.25em] overflow-hidden transition-all hover:bg-[#111111] shadow-lg shadow-black/5 active:scale-[0.98] font-sans">
                 <span className="relative z-10 flex items-center justify-center gap-4">
-                  ご縁を結ぶ{" "}
+                  {m.RECRUIT.BTN_SUBMIT}{" "}
                   <Send className="w-[18px] h-[18px] md:w-[15px] md:h-[15px] group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform stroke-[1.5px]" />
                 </span>
 
@@ -495,11 +488,7 @@ export const LandingPage = () => {
               className="group relative inline-block px-14 py-6 bg-gradient-to-b from-[#FFFFFF] to-[#FDFDFB] border border-[#E0DCD0] shadow-[0_4px_20px_rgba(139,107,80,0.05),0_1px_3px_rgba(0,0,0,0.02)] rounded-2xl hover:shadow-[0_8px_30px_rgba(139,107,80,0.1),0_2px_8px_rgba(0,0,0,0.04)] hover:border-[#D0C8B8] transition-all duration-700 tracking-[0.2em] text-xs uppercase text-[#6B5A4F] hover:text-[#2D2D2D] overflow-hidden font-sans"
             >
               <span className="relative z-10 font-medium tracking-[0.4em] px-2">
-                {user
-                  ? "扉を開け、中へ"
-                  : inviteCode
-                    ? "招待を受け、扉を開ける"
-                    : "扉を開く"}
+                {user ? m.ENTRANCE.USER : inviteCode ? m.ENTRANCE.INVITE : m.ENTRANCE.GUEST}
               </span>
 
               {/* Mizuhiki / Red Thread Animation */}
@@ -539,13 +528,13 @@ export const LandingPage = () => {
           </div>
           <div className="absolute bottom-8 left-0 right-0 text-center space-y-2">
             <p className="text-[10px] md:text-xs text-[#AAAAAA] tracking-[0.3em] uppercase font-serif">
-              © 2026 EXISTENCE TICKER.
+              {m.FOOTER.COPYRIGHT}
             </p>
             <p className="text-[10px] md:text-xs text-[#BBBBBB] tracking-[0.15em] font-serif">
-              庭師（開発・運営）：玉置士朗 / 合同会社カイシュウ
+              {m.FOOTER.AUTHOR}
             </p>
             <p className="text-[10px] md:text-xs text-[#BBBBBB] tracking-[0.15em] font-serif">
-              URL：{" "}
+              {m.FOOTER.URL}{" "}
               <a
                 href="https://yori-somaru.com/"
                 target="_blank"
@@ -556,7 +545,7 @@ export const LandingPage = () => {
               </a>
             </p>
             <p className="text-[10px] md:text-xs text-[#BBBBBB] tracking-[0.15em] font-serif">
-              お問い合わせ：trueeye792@gmail.com
+              {m.FOOTER.CONTACT}
             </p>
           </div>
         </Section>
@@ -585,7 +574,7 @@ export const LandingPage = () => {
             className="fixed bottom-8 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 z-[200] px-6 md:px-8 py-4 bg-white/95 backdrop-blur-sm border border-[#E5E0D5] rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] md:max-w-md md:mx-auto"
           >
             <p className="text-sm md:text-base text-[#666666] font-serif tracking-wide text-center leading-relaxed">
-              現在、最終調整を行っています。 まもなく公開されます。
+              {m.TOAST.PREPARING}
             </p>
           </motion.div>
         )}

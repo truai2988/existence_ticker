@@ -6,7 +6,7 @@ import { calculateDecayedValue, getMillis, toMilli, fromMilli } from '../logic/w
 import { WishCardList } from './WishCardList';
 import { AppViewMode } from '../types';
 import { SideDrawer } from './SideDrawer';
-import { MESSAGES } from '../constants/messages';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface FlowViewProps {
     currentUserId: string;
@@ -22,6 +22,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
         wishes, // active feed
         involvedActiveWishes, 
     } = useWishes();
+    const { t: MESSAGES } = useLanguage();
     
     const [activeTab, setActiveTab] = useState<TabType>('explore');
     const [hasInitialized, setHasInitialized] = useState(false);

@@ -6,7 +6,7 @@ import { NameResolver } from './NameResolver';
 import { collection, query, where, limit, getDocs, Timestamp } from 'firebase/firestore';
 import { AppViewMode } from '../types';
 import { SideDrawer } from './SideDrawer';
-import { MESSAGES } from '../constants/messages';
+import { useLanguage } from '../contexts/LanguageContext';
 import { Sun, Heart, Sparkles, CheckCircle2, Archive, Menu } from 'lucide-react';
 
 // ... (comments omitted)
@@ -42,7 +42,14 @@ const parseDate = (val: TransactionLog['created_at']): Date => {
     return new Date();
 };
 
-const formatDate = (date: Date): string => {
+export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnboarding }) => {
+  const { user } = useAuth();
+  const { t: MESSAGES } = useLanguage();
+  const [logs, setLogs] = useState<TransactionLog[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const formatDate = (date: Date): string => {
     const now = new Date();
     const isToday = date.getDate() === now.getDate() && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
     const yesterday = new Date(now);
@@ -52,13 +59,7 @@ const formatDate = (date: Date): string => {
     if (isToday) return MESSAGES.JOURNAL.TODAY;
     if (isYesterday) return MESSAGES.JOURNAL.YESTERDAY;
     return `${date.getMonth() + 1}/${date.getDate()}`;
-};
-
-export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnboarding }) => {
-  const { user } = useAuth();
-  const [logs, setLogs] = useState<TransactionLog[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  };
 
    useEffect(() => {
      const fetchLogs = async () => {
@@ -177,7 +178,14 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
                         </div>
                     ) : (
                         logs.map((log, index) => (
-                           <LogItem key={log.id} log={log} index={index} userId={user?.uid || ''} />
+                           <LogItem 
+                             key={log.id} 
+                             log={log} 
+                             index={index} 
+                             userId={user?.uid || ''} 
+                             MESSAGES={MESSAGES}
+                             formatDate={formatDate}
+                           />
                         ))
                     )}
                 </div>
@@ -187,7 +195,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
   );
 };
 
-const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, userId: string }) => {
+const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: TransactionLog, index: number, userId: string, MESSAGES: typeof import('../constants/messages').MESSAGES, formatDate: (d: Date) => string }) => {
     const isSender = log.sender_id === userId;
     const date = parseDate(log.created_at);
     const dateStr = formatDate(date);
@@ -249,21 +257,49 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
                             const d = log.description;
                             const isComp = log.type === 'COMPENSATION';
                             
-                            // Legacy mapping for Compensation (The specific case in the user's image)
+                            // ── Compensation ──
                             if (isComp) {
+                                // New language-agnostic keys
+                                if (d === "compensation_sender") return MESSAGES.JOURNAL.DESC_COMP_SENDER;
+                                if (d === "compensation_recv")   return MESSAGES.JOURNAL.DESC_COMP_RECV;
+                                // Legacy keyword-based matching
                                 if (d.includes(MESSAGES.JOURNAL.KW_COMPENSATION_SENDER) || d.includes(MESSAGES.JOURNAL.KW_COMPENSATION_MAKER)) {
                                     return isSender ? MESSAGES.JOURNAL.DESC_COMP_SENDER : MESSAGES.JOURNAL.DESC_COMP_RECV;
                                 }
+                                // Legacy full Japanese strings
+                                if (d === "中断に伴い、誠実のしるしをお渡ししました") return MESSAGES.JOURNAL.DESC_COMP_SENDER;
+                                if (d === "依頼主の中断に伴い、誠実のしるしが届きました") return MESSAGES.JOURNAL.DESC_COMP_RECV;
                             }
 
-                            // Cleanup legacy tags for Fulfillment
+                            // ── Fulfillment ──
+                            // New language-agnostic keys
+                            if (d === "wish_fulfill_sender")  return MESSAGES.JOURNAL.DESC_WISH_SENDER;
+                            if (d === "wish_fulfill_recv")    return MESSAGES.JOURNAL.DESC_WISH_RECV;
+                            if (d === "wish_priceless")       return MESSAGES.JOURNAL.DESC_PRICELESS;
+                            if (d === "wish_bankrupt_sender") return MESSAGES.JOURNAL.DESC_WISH_PARTIAL_SENDER;
+                            if (d === "wish_bankrupt_recv")   return MESSAGES.JOURNAL.DESC_WISH_PARTIAL_RECV;
+                            // Legacy tag format
                             if (d === "wish_fulfilled [Crystallized]") return isSender ? MESSAGES.JOURNAL.DESC_WISH_SENDER : MESSAGES.JOURNAL.DESC_WISH_RECV;
                             if (d === "wish_fulfilled (Bankruptcy Partial Payment) [Crystallized]") return isSender ? MESSAGES.JOURNAL.DESC_WISH_PARTIAL_SENDER : MESSAGES.JOURNAL.DESC_WISH_PARTIAL_RECV;
-                            
-                            if (d === "system_expiration") return MESSAGES.JOURNAL.DESC_EXPIRED;
-                            if (d === "user_cancellation") return MESSAGES.JOURNAL.LOG_WISH_CANCEL;
-                            if (d === MESSAGES.JOURNAL.KW_PRICELESS) return MESSAGES.JOURNAL.DESC_PRICELESS;
-                            if (d === MESSAGES.JOURNAL.KW_BIRTH) return MESSAGES.JOURNAL.DESC_BIRTH;
+                            // Legacy full Japanese strings
+                            if (d === "願いを叶えてくれた感謝を、源気（Lm）に込めて贈りました") return MESSAGES.JOURNAL.DESC_WISH_SENDER;
+                            if (d === "感謝が結晶（Lm）になって届きました") return MESSAGES.JOURNAL.DESC_WISH_RECV;
+                            if (d === "想いが巡りました（Priceless）") return MESSAGES.JOURNAL.DESC_PRICELESS;
+                            if (d === "感謝を贈りましたが、余力が足りず一部のみが結晶になりました") return MESSAGES.JOURNAL.DESC_WISH_PARTIAL_SENDER;
+                            if (d === "感謝が届きましたが、余力が足りず一部のみが結晶になりました") return MESSAGES.JOURNAL.DESC_WISH_PARTIAL_RECV;
+
+                            // ── Birth / Rebirth ──
+                            if (d === MESSAGES.JOURNAL.KW_BIRTH || d === MESSAGES.JOURNAL.DB_DESC_BIRTH || d === "源気が流れ込んできました" || d === "system_birth" || d === "命が宿りました" || d === "誕生") return MESSAGES.JOURNAL.DESC_BIRTH;
+                            if (d === MESSAGES.JOURNAL.KW_REBIRTH || d === MESSAGES.JOURNAL.DB_DESC_REBIRTH || d === "魂が再生されました" || d === "system_rebirth" || d === "再生") return MESSAGES.JOURNAL.DESC_REBIRTH;
+                            if (d === MESSAGES.JOURNAL.KW_BIRTH_ORIGINAL) return MESSAGES.JOURNAL.DESC_BIRTH;
+                            if (d === MESSAGES.JOURNAL.KW_PRICELESS || d === "無償の願い") return MESSAGES.JOURNAL.DESC_PRICELESS;
+
+                            // ── Cancellation / Expiration ──
+                            if (d === "user_cancellation" || d === "願いを取り下げました") return MESSAGES.JOURNAL.LOG_WISH_CANCEL;
+                            if (d === "system_expiration"
+                              || d === "期限を過ぎたため、自動的に整理されました"
+                              || d === "期限が経過したため、自動的に取り下げられました") return MESSAGES.JOURNAL.DESC_EXPIRED;
+
                             return d;
                         })()}
                     </p>

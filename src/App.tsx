@@ -15,6 +15,7 @@ import { useWallet } from "./hooks/useWallet";
 import { useStats, DashboardStats } from "./hooks/useStats";
 import { NoticeProvider } from "./components/NoticeProvider";
 import { GoyenShimmer } from "./components/GoyenShimmer";
+import { LanguageProvider } from "./contexts/LanguageContext";
 
 // カウントアップ・ダウン演出
 const CountingNumber: React.FC<{ value: number; duration: number }> = ({
@@ -399,9 +400,10 @@ function App() {
   // --- THE DETERMINISTIC SWITCH ---
   // Wrap everything in a top-level ErrorBoundary for catastrophic failure catching
   return (
-    <ErrorBoundary>
-      {(() => {
-        switch (view) {
+    <LanguageProvider>
+      <ErrorBoundary>
+        {(() => {
+          switch (view) {
           case "LOADING":
             return <ScreenLoader message={data.message} />;
 
@@ -514,10 +516,11 @@ function App() {
             );
           }
           default:
-            return <ScreenLoader message="ステートを復元中..." />;
+            return <ScreenLoader />;
         }
       })()}
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </LanguageProvider>
   );
 }
 export default App;

@@ -204,7 +204,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             amount: WORLD_CONSTANTS.REBIRTH_AMOUNT,
             created_at: serverTimestamp(),
             anchor_time: anchorDate,
-            description: isFirstBirth ? '源気が流れ込んできました' : '魂が再生されました'
+            description: isFirstBirth ? 'system_birth' : 'system_rebirth'
         });
 
         const today = new Date().toISOString().split("T")[0];

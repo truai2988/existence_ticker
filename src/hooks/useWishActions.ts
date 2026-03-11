@@ -20,6 +20,11 @@ import {
 
 import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS, getMillis } from "../logic/worldPhysics";
 import { addNotice } from "../utils/addNotice";
+import { MESSAGES } from "../constants/messages";
+
+// NOTE: This hook uses MESSAGES for UI strings so they are language-agnostic at the source.
+// Notices written to Firestore use Japanese (JA) as canonical language keys; the UI layer
+// localizes them when rendering (via JournalView / NoticePanel).
 
 // タイムスタンプと初期値から現在価値を計算
 
@@ -33,6 +38,8 @@ export const useWishActions = () => {
   const sendNoticeSilently = async (noticeData: { 
     userId: string; 
     message: string; 
+    messageKey?: string;
+    params?: Record<string, string>;
     type: Notice["type"]; 
     fromId?: string;
   }) => {
@@ -41,6 +48,8 @@ export const useWishActions = () => {
         userId: noticeData.userId,
         fromId: noticeData.fromId || user?.uid || "system",
         message: noticeData.message,
+        messageKey: noticeData.messageKey,
+        params: noticeData.params,
         type: noticeData.type,
         createdAt: Date.now(),
       });
@@ -57,11 +66,11 @@ export const useWishActions = () => {
 
   const castWish = async (input: CreateWishInput): Promise<boolean> => {
     if (!db) {
-      alert("データベースエラー: 接続されていません。");
+      alert(MESSAGES.WISH_ACTIONS.ALERT_DB_ERROR);
       return false;
     }
     if (!user) {
-      alert("エラー: ログインしていません。");
+      alert(MESSAGES.WISH_ACTIONS.ALERT_NOT_LOGGED_IN);
       return false;
     }
 
@@ -77,7 +86,7 @@ export const useWishActions = () => {
     const optimisticWish: Wish = {
       id: tempId,
       requester_id: user.uid,
-      requester_name: "伝搬中...", 
+      requester_name: MESSAGES.WISH_ACTIONS.PENDING_PROPAGATION, 
       content: input.content,
       gratitude_preset: input.tier,
       status: "open",
@@ -143,7 +152,7 @@ export const useWishActions = () => {
         // 3. Create Wish
         transaction.set(wishRef, {
           requester_id: user.uid,
-          requester_name: userDoc.data().name || user.displayName || "魂の奏者", // 初期値として入れておくが、UI側でNameResolverが追跡する
+          requester_name: userDoc.data().name || user.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_PLAYER, // 初期値として入れておくが、UI側でNameResolverが追跡する
           content: input.content,
           gratitude_preset: input.tier,
           status: "open",
@@ -167,7 +176,7 @@ export const useWishActions = () => {
       updateOptimisticWish(tempId, { error: errorMessage });
       setOptimisticCommittedOffset((prev: number) => Math.max(0, prev - bounty));
       
-      alert(`願いを届けることができませんでした: ${errorMessage}`);
+      alert(`${MESSAGES.WISH_ACTIONS.ALERT_CAST_FAILED} ${errorMessage}`);
       return false;
     } finally {
       setIsSubmitting(false);
@@ -189,7 +198,7 @@ export const useWishActions = () => {
         const userData = (await transaction.get(userRef)).data();
         const applicantInfo = {
           id: user.uid,
-          name: userData?.name || user.displayName || "奏者", 
+          name: userData?.name || user.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_APPLICANT, 
           trust_score: userData?.completed_contracts || 0,
           contact_email: user.email || undefined,
         };
@@ -212,10 +221,12 @@ export const useWishActions = () => {
       const wishDocSnap = await getDocs(query(collection(db, 'wishes'), where('__name__', '==', wishId)));
       if (!wishDocSnap.empty) {
         const wishData = wishDocSnap.docs[0].data();
-        const applicantName = user.displayName || "奏者";
+        const applicantName = user.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_APPLICANT;
         sendNoticeSilently({
           userId: wishData.requester_id,
-          message: `「${wishData.content?.slice(0, 20)}…」に ${applicantName} さんが寄り添おうとしています。`,
+          message: MESSAGES.WISH_ACTIONS.NOTICE_APPLICATION.replace('%name', applicantName),
+          messageKey: "NOTICE_APPLICATION",
+          params: { name: applicantName },
           type: "application_received",
         });
       }
@@ -223,7 +234,7 @@ export const useWishActions = () => {
       return true;
     } catch (e) {
       console.error(e);
-      alert("応募に失敗しました");
+      alert(MESSAGES.WISH_ACTIONS.ALERT_APPLY_FAILED);
       return false;
     } finally {
       setIsSubmitting(false);
@@ -264,7 +275,8 @@ export const useWishActions = () => {
       // 通知: 助け手に「承諾されました」を送る
       sendNoticeSilently({
         userId: applicantId,
-        message: "あなたの願いが、静かに聞き届けられました。",
+        message: MESSAGES.WISH_ACTIONS.NOTICE_APPROVED,
+        messageKey: "NOTICE_APPROVED",
         type: "wish_approved",
       });
 
@@ -299,7 +311,8 @@ export const useWishActions = () => {
       if (!wishSnap.empty) {
         sendNoticeSilently({
           userId: wishSnap.docs[0].data().requester_id,
-          message: "願いが叶い、感謝の言葉を待っています。",
+          message: MESSAGES.WISH_ACTIONS.NOTICE_COMPLETION_PENDING,
+          messageKey: "NOTICE_COMPLETION_PENDING",
           type: "wish_fulfilled", // Review pending通知として流用
         });
       }
@@ -387,7 +400,7 @@ export const useWishActions = () => {
             });
 
             const partnerRef = helperRef;
-            const notificationMsg = "依頼主様のご都合により願いが中断されました。しるしとしてLmが補償されています。";
+            const notificationMsg = MESSAGES.WISH_ACTIONS.NOTICE_REQUESTER_CANCEL;
             transaction.update(partnerRef, {
                 pending_interruption_notification: notificationMsg,
             });
@@ -396,6 +409,7 @@ export const useWishActions = () => {
             sendNoticeSilently({
               userId: wishData.helper_id,
               message: notificationMsg,
+              messageKey: "NOTICE_REQUESTER_CANCEL",
               type: "wish_cancelled",
             });
 
@@ -412,7 +426,7 @@ export const useWishActions = () => {
                   recipient_name: hName,
                   wish_title: wishData.content,
                   wish_id: wishId,
-                  description: "中断に伴い、誠実のしるしをお渡ししました"
+                  description: "compensation_sender"
                 });
 
                 // 2. Recipient (Helper) Record
@@ -428,7 +442,7 @@ export const useWishActions = () => {
                   recipient_name: hName,
                   wish_title: wishData.content,
                   wish_id: wishId,
-                  description: "依頼主の中断に伴い、誠実のしるしが届きました"
+                  description: "compensation_recv"
                 });
             }
             transaction.delete(wishRef);
@@ -440,13 +454,14 @@ export const useWishActions = () => {
             });
 
             transaction.update(requesterRef, {
-                pending_interruption_notification: "助け手様が辞退されたため、願いが再び募集に戻りました。Lmは安全に守られています。",
+                pending_interruption_notification: MESSAGES.WISH_ACTIONS.NOTICE_HELPER_WAIT_RETURN,
             });
 
             // 永続通知: リクエスターへ
             sendNoticeSilently({
               userId: wishData.requester_id,
-              message: "担当者が離れ、願いは再び世界へと還りました。",
+              message: MESSAGES.WISH_ACTIONS.NOTICE_HELPER_RESIGNED,
+              messageKey: "NOTICE_HELPER_RESIGNED",
               type: "helper_resigned",
             });
             
@@ -458,7 +473,7 @@ export const useWishActions = () => {
               helper_name: deleteField(),
               helper_contact_email: deleteField(),
               accepted_at: deleteField(),
-              system_note: "事情により、願いが再び募集されています。"
+              system_note: MESSAGES.WISH_ACTIONS.SYS_NOTE_REOPEN
             });
           }
         } else {
@@ -473,12 +488,12 @@ export const useWishActions = () => {
             amount: 0,
             created_at: serverTimestamp(),
             sender_id: user.uid,
-            sender_name: wishData.requester_name || "依頼主",
+            sender_name: wishData.requester_name || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER,
             recipient_id: wishData.helper_id || null,
             recipient_name: wishData.helper_name || null,
             wish_title: wishData.content,
             wish_id: wishId,
-            description: "願いを取り下げました"
+            description: "user_cancellation"
           });
         }
       });
@@ -531,14 +546,15 @@ export const useWishActions = () => {
 
         // Notify Requester
         transaction.update(rRef, {
-            pending_interruption_notification: "助け手様が辞退されたため、願いが再び募集に戻りました。Lmは安全に守られています。",
+            pending_interruption_notification: MESSAGES.WISH_ACTIONS.NOTICE_HELPER_WAIT_RETURN,
             last_updated: serverTimestamp()
         });
 
         // 永続通知: リクエスターへ
         sendNoticeSilently({
           userId: wishData.requester_id,
-          message: "担当者が離れ、願いは再び世界へと還りました。",
+          message: MESSAGES.WISH_ACTIONS.NOTICE_HELPER_RESIGNED,
+          messageKey: "NOTICE_HELPER_RESIGNED",
           type: "helper_resigned",
         });
 
@@ -549,7 +565,7 @@ export const useWishActions = () => {
             applicant_ids: updatedApplicantIds,
             helper_id: deleteField(),
             accepted_at: deleteField(),
-            system_note: "事情により、願いが再度募集されています。"
+            system_note: MESSAGES.WISH_ACTIONS.SYS_NOTE_REOPEN2
         });
       });
 
@@ -588,7 +604,7 @@ export const useWishActions = () => {
       return true;
     } catch (e) {
       console.error("Failed to update wish:", e);
-      alert(`更新に失敗しました: ${e instanceof Error ? e.message : String(e)}`);
+      alert(`${MESSAGES.WISH_ACTIONS.ALERT_UPDATE_FAILED} ${e instanceof Error ? e.message : String(e)}`);
       return false;
     } finally {
       setIsSubmitting(false);
@@ -723,15 +739,15 @@ export const useWishActions = () => {
           wish_id: wishId,
           wish_title: wishData.content,
           sender_id: wishData.requester_id,
-          sender_name: issuerDoc.data()?.name || wishData.requester_name || "依頼主",
+          sender_name: issuerDoc.data()?.name || wishData.requester_name || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER,
           recipient_id: fulfillerId,
-          recipient_name: fulfillerDoc.data()?.name || wishData.helper_name || "助力者",
+          recipient_name: fulfillerDoc.data()?.name || wishData.helper_name || MESSAGES.WISH_ACTIONS.FALLBACK_HELPER,
           tags: tags,
           description: isBankruptcy 
-            ? "感謝を贈りましたが、余力が足りず一部のみが結晶になりました" 
+            ? "wish_bankrupt_sender"
             : paymentAmount === 0
-              ? "想いが巡りました（Priceless）"
-              : "願いを叶えてくれた感謝を、源気（Lm）に込めて贈りました",
+              ? "wish_priceless"
+              : "wish_fulfill_sender",
           message: message || null 
         });
 
@@ -747,15 +763,15 @@ export const useWishActions = () => {
           wish_id: wishId,
           wish_title: wishData.content,
           sender_id: wishData.requester_id,
-          sender_name: issuerDoc.data()?.name || wishData.requester_name || "依頼主",
+          sender_name: issuerDoc.data()?.name || wishData.requester_name || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER,
           recipient_id: fulfillerId,
-          recipient_name: fulfillerDoc.data()?.name || wishData.helper_name || "助力者",
+          recipient_name: fulfillerDoc.data()?.name || wishData.helper_name || MESSAGES.WISH_ACTIONS.FALLBACK_HELPER,
           tags: tags,
           description: isBankruptcy 
-            ? "感謝が届きましたが、余力が足りず一部のみが結晶になりました" 
+            ? "wish_bankrupt_recv"
             : paymentAmount === 0
-              ? "想いが巡りました（Priceless）"
-              : "感謝が結晶（Lm）になって届きました",
+              ? "wish_priceless"
+              : "wish_fulfill_recv",
           message: message || null 
         });
 
@@ -772,7 +788,8 @@ export const useWishActions = () => {
       // 通知: 助け手に「源気が届けられました」を送る
       sendNoticeSilently({
         userId: fulfillerId,
-        message: "感謝と共に、源気が届けられました。",
+        message: MESSAGES.WISH_ACTIONS.NOTICE_FULFILLED,
+        messageKey: "NOTICE_FULFILLED",
         type: "wish_fulfilled",
       });
 
@@ -780,7 +797,7 @@ export const useWishActions = () => {
     } catch (e) {
       console.error("Fulfillment failed:", e);
       setOptimisticBalanceOffset(0);
-      alert(`感謝の巡りに失敗しました: ${e instanceof Error ? e.message : String(e)}`);
+      alert(`${MESSAGES.WISH_ACTIONS.ALERT_FULFILL_FAILED} ${e instanceof Error ? e.message : String(e)}`);
       return false;
     } finally {
       setIsSubmitting(false);

@@ -6,7 +6,9 @@ import { useLocationData } from '../hooks/useLocationData';
 import { useAuth } from '../hooks/useAuthHook';
 import { PREFECTURES } from '../data/prefectures';
 import { UserProfile } from '../types';
-import { MESSAGES } from '../constants/messages';
+import { useLanguage } from '../contexts/LanguageContext';
+import { MESSAGES as BaseMessages } from '../constants/messages';
+import { mapAgeGroup } from '../utils/formatAgeGroup';
 
 interface ProfileEditScreenProps {
     onClose: () => void;
@@ -14,6 +16,7 @@ interface ProfileEditScreenProps {
 }
 
 export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) => {
+    const { t: MESSAGES } = useLanguage();
     const { profile, updateProfile } = useProfile();
     const { user, updateUserEmail } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
@@ -347,8 +350,8 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                         className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)] text-base"
                                     >
                                         <option value="">{MESSAGES.PROFILE.AGE_UNSELECTED}</option>
-                                        {MESSAGES.PROFILE.AGE_OPTIONS.map(age => (
-                                            <option key={age} value={age}>{age}</option>
+                                        {BaseMessages.PROFILE.AGE_OPTIONS.map(age => (
+                                            <option key={age} value={age}>{mapAgeGroup(age, MESSAGES)}</option>
                                         ))}
                                     </select>
                                     <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">

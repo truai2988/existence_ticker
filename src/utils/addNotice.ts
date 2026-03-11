@@ -16,8 +16,10 @@ export async function addNotice(input: CreateNoticeInput): Promise<void> {
 
     await setDoc(noticeDoc, {
       userId: input.userId,
-      fromId: input.fromId, // 追加
+      fromId: input.fromId,
       message: input.message,
+      ...(input.messageKey ? { messageKey: input.messageKey } : {}),
+      ...(input.params ? { params: input.params } : {}),
       type: input.type,
       createdAt: Date.now(),
       read: false,

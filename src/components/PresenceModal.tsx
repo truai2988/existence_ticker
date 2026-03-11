@@ -6,8 +6,8 @@ import { db } from "../lib/firebase";
 import { PREFECTURES } from "../data/prefectures";
 import { useLocationData } from "../hooks/useLocationData";
 import { useProfile } from "../hooks/useProfile";
-import { formatLocationCount } from "../utils/formatLocation";
-import { MESSAGES } from "../constants/messages";
+import { formatLocationCount, mapPrefecture } from "../utils/formatLocation";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface PresenceModalProps {
   onClose: () => void;
@@ -15,9 +15,10 @@ interface PresenceModalProps {
 
 export const PresenceModal = ({ onClose }: PresenceModalProps) => {
   const { profile } = useProfile();
+  const { t: MESSAGES } = useLanguage();
   
   // Initialize with user's location if available, otherwise Tokyo (default)
-  const [selectedPref, setSelectedPref] = useState(profile?.location?.prefecture || "東京都");
+  const [selectedPref, setSelectedPref] = useState(profile?.location?.prefecture || "");
   const [selectedCity, setSelectedCity] = useState(profile?.location?.city || "");
 
   // Sync state when profile loads or updates
@@ -80,7 +81,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
       // Logic moved to shared utility
       if (loading) return MESSAGES.MODALS.PRESENCE_CHECKING;
       if (count === null) return MESSAGES.MODALS.PRESENCE_PLEASE_SELECT;
-      return formatLocationCount(count);
+      return formatLocationCount(count, MESSAGES);
   };
 
   return (
@@ -196,7 +197,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
                     >
                         <option value="">{MESSAGES.MODALS.PRESENCE_PREF_PLACEHOLDER}</option>
                         {PREFECTURES.map(pref => (
-                            <option key={pref} value={pref}>{pref}</option>
+                            <option key={pref} value={pref}>{mapPrefecture(pref)}</option>
                         ))}
                     </select>
                     <ChevronLeft size={16} className="absolute right-3 top-1/2 -translate-y-1/2 -rotate-90 text-slate-400 pointer-events-none" />

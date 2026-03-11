@@ -207,6 +207,38 @@ export const MESSAGES = {
     ARIA_OPEN_MENU: "メニューを開く",
   },
   
+  WISH_ACTIONS: {
+    FALLBACK_REQUESTER: "依頼主",
+    FALLBACK_HELPER: "助力者",
+    FALLBACK_PLAYER: "魂の奏者",
+    FALLBACK_APPLICANT: "奏者",
+    PENDING_PROPAGATION: "伝搬中...",
+    NOTICE_APPROVED: "あなたの願いが、静かに聞き届けられました。",
+    NOTICE_FULFILLED: "感謝と共に、源気が届けられました。",
+    NOTICE_COMPLETION_PENDING: "願いが叶い、感謝の言葉を待っています。",
+    NOTICE_HELPER_RESIGNED: "担当者が離れ、願いは再び世界へと還りました。",
+    NOTICE_REQUESTER_CANCEL: "依頼主様のご都合により願いが中断されました。しるしとしてLmが補償されています。",
+    NOTICE_HELPER_WAIT_RETURN: "助け手様が辞退されたため、願いが再び募集に戻りました。Lmは安全に守られています。",
+    NOTICE_APPLICATION: "%nameさんが寄り添おうとしています。",
+    DESC_COMP_SENDER: "中断に伴い、誠実のしるしをお渡ししました",
+    DESC_COMP_RECV: "依頼主の中断に伴い、誠実のしるしが届きました",
+    DESC_CANCELLED: "願いを取り下げました",
+    DESC_WISH_PRICELESS: "想いが巡りました（Priceless）",
+    DESC_WISH_FULFILL_SENDER: "願いを叶えてくれた感謝を、源気（Lm）に込めて贈りました",
+    DESC_WISH_FULFILL_RECV: "感謝が結晶（Lm）になって届きました",
+    DESC_WISH_BANKRUPT_SENDER: "感謝を贈りましたが、余力が足りず一部のみが結晶になりました",
+    DESC_WISH_BANKRUPT_RECV: "感謝が届きましたが、余力が足りず一部のみが結晶になりました",
+    SYS_NOTE_REOPEN: "事情により、願いが再び募集されています。",
+    SYS_NOTE_REOPEN2: "事情により、願いが再度募集されています。",
+    ALERT_DB_ERROR: "データベースエラー: 接続されていません。",
+    ALERT_NOT_LOGGED_IN: "エラー: ログインしていません。",
+    ALERT_APPLY_FAILED: "応募に失敗しました",
+    ALERT_UPDATE_FAILED: "更新に失敗した:",
+    ALERT_FULFILL_FAILED: "感謝の巡りに失敗しました:",
+    ALERT_CAST_FAILED: "願いを届けることができませんでした:",
+    INSUFFICIENT_FUNDS: "手持ちが不足しています",
+  },
+
   FLOW: {
     TITLE: "願いのゆくえ", 
     SUBTITLE: "願いの管理と一覧",           // 「管理」という言葉をあえて戻し、機能を示す
@@ -247,7 +279,6 @@ export const MESSAGES = {
     KW_COMPENSATION_SENDER: "中断のお礼",
     KW_COMPENSATION_MAKER: "中断のお礼",
     KW_PRICELESS: "無償の願い",
-    KW_BIRTH: "誕生",
     DESC_COMP_SENDER: "願いを取り下げたため、これまでのお礼として源気を贈りました",
     DESC_COMP_RECV: "相手が願いを取り下げたため、お礼の源気を受け取りました",
     DESC_WISH_SENDER: "願いが叶い、感謝と共に源気を贈りました",
@@ -256,16 +287,22 @@ export const MESSAGES = {
     DESC_WISH_PARTIAL_RECV: "相手の源気が足りず、一部の源気を受け取りました",
     DESC_EXPIRED: "期限が経過したため、自動的に取り下げられました", // 「風に溶ける」を説明文へ
     DESC_PRICELESS: "無償の願いとして、記憶に留まりました",
-    DESC_BIRTH: "この静寂な世界に足を踏み入れました",
+    DESC_REBIRTH: "また新しく、灯火を授かりました",
+    DESC_BIRTH: "この静寂な世界に足を踏み入れました", // Existing
     TAG_EXPIRED: "期限切れ", 
     TAG_RECORDED: "刻まれた",             // 「記録済」を排除
     
     // DB checks (保持しつつ表面の言葉を整える)
+    KW_BIRTH_ORIGINAL: "源気",
+    KW_REBIRTH_ORIGINAL: "魂",
     KEYWORD_WITHDRAWAL: "旅立ち",         // 「退会」を排除
     KEYWORD_COMP_SENDER: "お礼の贈与",     // 「補償金送信」を排除
-    KEYWORD_COMP_REQ: "お礼の発生",       // 「補償金発生」を排除
+    KEYWORD_COMP_REQ: "お礼 of 発生",       // Avoid duplicate from earlier if any
     DB_DESC_PRICELESS: "無償の願い",       // 「無料取引」を排除
     DB_DESC_BIRTH: "誕生",               // 「アカウント作成」を排除
+    DB_DESC_REBIRTH: "再生",
+    KW_BIRTH: "system_birth",
+    KW_REBIRTH: "system_rebirth",
   },
 
   // 4. 願い・ギフト関連 (Wish components)
@@ -418,6 +455,8 @@ export const MESSAGES = {
 
   // 5. プロフィール・設定関連 (ProfileView / ProfileEditScreen)
   PROFILE: {
+    LANG_TITLE: "言語設定",
+    LANG_HELP: "表示言語を切り替えます",
     TITLE: "アカウント設定",
     SUBTITLE: "ユーザー情報",
     EDIT_TITLE: "プロフィール編集",
@@ -443,14 +482,14 @@ export const MESSAGES = {
     BIO_PLACEHOLDER: "自己紹介文を入力してください (最大160文字)",
 
     AGE_OPTIONS: [
-      "20歳未満",
-      "20代",
-      "30代",
-      "40代",
-      "50代",
-      "60代",
-      "70代",
-      "80代以上"
+      "under_20",
+      "20",
+      "30",
+      "40",
+      "50",
+      "60",
+      "70",
+      "over_80"
     ] as const,
 
     LBL_HELPED_COUNT: "手伝った回数",
@@ -904,6 +943,100 @@ export const MESSAGES = {
     
     FOOTER_P1: "所有権および機密情報",
     FOOTER_P2: "互助経済圏のために設計"
+  },
+
+  // DATA Section
+  DATA: {
+    PREFECTURES: [
+      "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
+      "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県",
+      "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県",
+      "静岡県", "愛知県", "三重県", "滋賀県", "京都府", "大阪府", "兵庫県",
+      "奈良県", "和歌山県", "鳥取県", "島根県", "岡山県", "広島県", "山口県",
+      "徳島県", "香川県", "愛媛県", "高知県", "福岡県", "佐賀県", "長崎県",
+      "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"
+    ] as const,
+    RANKS: {
+      VETERAN: "熟練",
+      REGULAR: "馴染み",
+      BEGINNER: "新顔",
+    },
+    WALLET: {
+      DEFAULT_SENDER_NAME: "奏者",
+      FIRST_REBIRTH_DESC: "源気が流れ込んできました",
+      SUBSEQUENT_REBIRTH_DESC: "魂が再生されました",
+    },
+  },
+
+  // 0. ランディングページ (Landing Page)
+  LP: {
+    NAV: {
+      TITLE: "Existence Ticker",
+      INVITE_LINK: "招待コードをお持ちの方",
+    },
+    HERO: {
+      P1: "減ることは、失うことではありません。それは、深呼吸（代謝）です。",
+      P2: "ずっと貯め込まなければならないなんて、苦しいはずです。",
+      P3: "水が流れるように、息を吐いて吸うように。",
+      P4: "本当の価値とは、留まることのない「循環」の中に宿ります。",
+      P5: "私たちが作ったのは、時間と共に静かに消えていく価値：",
+      GENKI_LABEL: "源気(Lm)",
+      P6: "です。",
+      P7: "でも、怖がらないでください。",
+      P8: "それは「失うこと」ではなく、あなたが「生きていること」の証明です。",
+      P9: "未来への不安（借金）を解き放ち、",
+      P10: "今ここにある生命の拍動（存在）を、贈り合いませんか。",
+      P11: "そんな、やさしい経済の形を始めませんか。",
+    },
+    SCENES: {
+      S1000: "人生の節目を、誰かの手と共に。最大の敬意を込めて (1,000 Lm)。",
+      S500: "ひとりでは辿り着けなかった場所へ。日常の感謝を込めて (500 Lm)。",
+      S0: "ただ、一緒にいること。存在を祝い、共鳴すること (0 Lm / ∞)。",
+    },
+    MANIFESTO: {
+      SECTION_TITLE: "Pilage's Progress",
+      TITLE: "重機と万年筆",
+      SUBTITLE: "重機と万年筆",
+      QUESTION: "私たちは、なぜこのインフラを作ったのか？",
+      TEASER: "重機（資本主義）の唸りが止まない真夜中に、\n一本のペンを握った開発者の記録。",
+      BTN_PENDING: "現在、校正中\n(Coming Soon)",
+      DECLARATION_TITLE: "Existence Ticker",
+      DECLARATION_SUBTITLE: "——新時代の価値循環に関する宣言文",
+      P1: "現代社会は、資本主義という名の巨大な「重機」に頼りすぎています。この機械は「未来からの借金」を燃料にし、「無知と競争」をスパークプラグにして、爆発的な発展をもたらしました。しかし、大地を穿つには適していても、一人の人間の心に安らぎを綴るには、重機はあまりに無骨すぎました。蓄積こそが価値であるという信仰は、やがて富を滞留させ、全人類に「失うことへの終わりのない恐怖」を植え付けました。",
+      P2: "本来、価値とは生命と同じように循環するべきものです。流れの止まった川が淀むように、貯め込まれた富は腐ります。私たちに必要なのは、価値が腐らないための「減価（Decay）」の導入でした。時間と共に消えていくという健全な焦燥感が、滞留した世界を流動化させ、他者への譲渡を促します。減ることは損失ではなく、生きるための代謝です。",
+      P3: "さらに、価値の源泉を「外」から「内」へと取り戻さなければなりません。既存のシステムが「借金」から始まるのに対し、私たちは「存在」から価値を定義します。生きているという物理現象、その拍動（Ticker）そのものがマイニングの証明です。あなたは誰かに養われているのではありません。ただ呼吸を続けるだけで、あなた自身が価値の源泉 = 中央銀行になるのです。この「存在の価値」への確信こそが、未来への生存本能的な恐怖を解除するための唯一のプロトコルです。",
+      P4: "私たちは資本主義を否定しません。未開の地を切り拓くには、重機の馬鹿力が必要です。しかし、質を重んじ、生命の手触りを感じる瞬間には、そのエンジンを止め、万年筆を握る知恵を持つべきです。借金に追われて走るスリル＆サスペンスの時代から、存在を肯定し合うヒューマンドラマの時代へ。二つの道具を使い分け、信頼と安らぎと共に呼吸する時間を取り戻す。それが私たちの描く「真の豊かさ」の設計図です。",
+    },
+    RECRUIT: {
+      TITLE: "Phase 2 (創世記)：30名の「守人」を募集します",
+      P1: "Existence Tickerは、単なるアプリの配布ではありません。",
+      P2: "私たちは今、資本主義の轟音を離れ、この「物語」を現実にする30名の守人を探しています。",
+      P3: "一度に30人を集めることを急ぎません。\nたとえ一人ずつであっても、この哲学を共に磨き、「存在が価値になる」瞬間を共創できる同志と、静かに、深く、始めたいと考えています。",
+      FILTER_LABEL: "魂のフィルター",
+      CONDITION_TITLE: "【応募条件】",
+      C1: "資本主義の計算（損得）を、一時的に手放せること。",
+      C2: "あなたの「孤独」と「優しさ」を、このプロジェクトに貸してくれること。",
+      C3: "グッドデザイン賞等の挑戦を通じ、新しい時代の証人となる覚悟があること。",
+      BTN_SUBMIT: "ご縁を結ぶ",
+      BTN_APPLY: "招待コードを入力して参加する",
+      BTN_LOGGED_IN: "システムへ戻る",
+    },
+    ENTRANCE: {
+      USER: "扉を開け、中へ",
+      INVITE: "招待を受け、扉を開ける",
+      GUEST: "扉を開く",
+    },
+    FOOTER: {
+      COPYRIGHT: "© 2026 EXISTENCE TICKER.",
+      AUTHOR: "庭師（開発・運営）：玉置士朗 / 合同会社カイシュウ",
+      URL: "URL：",
+      CONTACT: "お問い合わせ：trueeye792@gmail.com",
+    },
+    TOAST: {
+      COPIED: "招待状をコピーしました",
+      ERROR: "招待コードの検証に失敗しました",
+      PREPARING: "現在準備中です",
+    }
   }
 } as const;
 

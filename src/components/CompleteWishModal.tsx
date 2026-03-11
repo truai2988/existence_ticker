@@ -1,7 +1,7 @@
 import { Check, HeartHandshake } from 'lucide-react';
 import { GratitudeTier } from '../types';
 import { UNIT_LABEL } from '../constants';
-import { MESSAGES } from '../constants/messages';
+import { useLanguage } from '../contexts/LanguageContext';
 
 // 親コンポーネントから、対象の wish データ（作成時に決めた内容）を受け取る
 interface Props {
@@ -14,6 +14,7 @@ interface Props {
 }
 
 export const CompleteWishModal = ({ wishTitle, helperName, preset, cost, onConfirm, onCancel }: Props) => {
+  const { t: MESSAGES } = useLanguage();
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-fade-in">
       <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" onClick={onCancel} />

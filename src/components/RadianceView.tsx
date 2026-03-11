@@ -6,7 +6,7 @@ import { CreateWishModal } from './CreateWishModal';
 import { AppViewMode } from '../types';
 import { Menu } from 'lucide-react';
 import { SideDrawer } from './SideDrawer';
-import { MESSAGES } from '../constants/messages';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface RadianceViewProps {
     currentUserId: string;
@@ -18,6 +18,7 @@ type TabType = 'active' | 'outbound';
 type ModalState = 'none' | 'create_wish';
 
 export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTabChange, onOpenOnboarding }) => {
+    const { t: MESSAGES } = useLanguage();
     const { 
         userActiveWishes
     } = useWishes();

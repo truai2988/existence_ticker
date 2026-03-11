@@ -1,10 +1,30 @@
-import { MESSAGES } from "../constants/messages";
+import { MESSAGES as BaseMessages } from "../constants/messages";
 
-export const formatLocationCount = (count: number | string | null | undefined): string => {
-  if (count === null || count === undefined) return MESSAGES.SYSTEM.LOCATION_FORMAT_CHECKING;
+export const formatLocationCount = (
+  count: number | string | null | undefined,
+  currentMessages: typeof BaseMessages
+): string => {
+  if (count === null || count === undefined) return currentMessages.SYSTEM.LOCATION_FORMAT_CHECKING;
   const numCount = Number(count);
-  if (isNaN(numCount)) return MESSAGES.SYSTEM.LOCATION_FORMAT_ERROR;
-  if (numCount === 0) return MESSAGES.SYSTEM.LOCATION_FORMAT_EMPTY;
-  if (numCount < 5) return MESSAGES.SYSTEM.LOCATION_FORMAT_FEW;
-  return `${numCount}${MESSAGES.SYSTEM.LOCATION_FORMAT_COUNT}`;
+  if (isNaN(numCount)) return currentMessages.SYSTEM.LOCATION_FORMAT_ERROR;
+  if (numCount === 0) return currentMessages.SYSTEM.LOCATION_FORMAT_EMPTY;
+  if (numCount < 5) return currentMessages.SYSTEM.LOCATION_FORMAT_FEW;
+  return `${numCount}${currentMessages.SYSTEM.LOCATION_FORMAT_COUNT}`;
+};
+
+export const mapPrefecture = (
+  prefName: string | undefined | null
+): string => {
+  if (!prefName) return "";
+  return prefName;
+};
+
+export const mapCity = (
+  cityName: string | undefined | null
+): string => {
+  if (!cityName) return "";
+  
+  // As per user preference, we display the original Japanese city name 
+  // even in English mode to maintain consistency with the selection UI.
+  return cityName;
 };

@@ -38,6 +38,18 @@ body {
   }
 }
 
+/* 英語の湿度コントロール設定 (防衛策 1) */
+.lang-en {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+}
+
+.lang-en button, 
+.lang-en .source-power-value {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 400;
+}
 
 #root {
   @apply w-full min-h-[100dvh] flex flex-col;

@@ -6,7 +6,7 @@ import {
   Loader2,
   Archive,
 } from "lucide-react";
-import { MESSAGES } from "../../../constants/messages";
+import { useLanguage } from "../../../contexts/LanguageContext";
 import { WishCardState, WishCardHandlers } from "../types";
 import { useWishActions } from "../../../hooks/useWishActions";
 import { useToast } from "../../../hooks/useToast";
@@ -15,6 +15,7 @@ export const CardFooter: React.FC<{
   state: WishCardState;
   handlers: WishCardHandlers;
 }> = ({ state, handlers }) => {
+  const { t: MESSAGES } = useLanguage();
   const {
     wish,
     isExpired,

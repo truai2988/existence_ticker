@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
-import { MESSAGES } from '../constants/messages';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export const TrustPage = () => {
+    const { t: MESSAGES } = useLanguage();
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);

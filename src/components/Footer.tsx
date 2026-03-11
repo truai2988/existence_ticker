@@ -1,7 +1,6 @@
-import React from 'react';
 import { Home, History, User } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { MESSAGES } from '../constants/messages';
+import { useLanguage } from '../contexts/LanguageContext';
 
 type Tab = 'home' | 'history' | 'profile';
 
@@ -11,6 +10,7 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ currentTab, onTabChange }) => {
+    const { t: MESSAGES } = useLanguage();
     return (
         <footer className="flex-shrink-0 w-full pb-safe border-t border-slate-100 bg-white/95 backdrop-blur-sm">
             <div className="w-full max-w-2xl mx-auto px-6 h-16 flex items-center justify-around">

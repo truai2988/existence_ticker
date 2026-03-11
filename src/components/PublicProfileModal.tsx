@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MESSAGES } from "../constants/messages";
 import { X, Handshake, Megaphone, MapPin, Link as LinkIcon, Camera, ShieldCheck } from 'lucide-react';
 import { useOtherProfile } from '../hooks/useOtherProfile';
 import { getTrustRank } from '../utils/trustRank';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface PublicProfileModalProps {
     userId: string;
@@ -12,6 +12,7 @@ interface PublicProfileModalProps {
 }
 
 export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, isMasked, onClose }) => {
+    const { t: MESSAGES } = useLanguage();
     const { profile, loading } = useOtherProfile(userId);
 
     // If loading or null, show skeleton or something
@@ -100,7 +101,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                         <div className="flex flex-wrap justify-center gap-2 mb-4 items-center px-4">
                             <span className={`text-xs whitespace-nowrap font-bold px-2.5 py-0.5 rounded-full ${rank.bg} ${rank.color} flex items-center gap-1 shadow-sm`}>
                                 {rank.icon}
-                                {rank.label}
+                                {MESSAGES.DATA.RANKS[rank.id]}
                             </span>
                             
                             {!isMasked && (

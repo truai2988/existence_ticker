@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Bell, X, BellOff } from "lucide-react";
 import { useNoticeContext } from "../hooks/useNoticeContext";
 import { Notice } from "../types/notice";
-import { MESSAGES } from "../constants/messages";
+import { useLanguage } from "../contexts/LanguageContext";
 
 /** 通知の type に応じた色クラス */
 const typeColorMap: Record<Notice["type"], string> = {
@@ -16,24 +16,46 @@ const typeColorMap: Record<Notice["type"], string> = {
   system: "bg-blue-400",
 };
 
+/** Resolve a notice message strictly using its messageKey + params. */
+const resolveMessage = (
+  notice: Notice,
+  wishActions: Record<string, string>,
+): string => {
+  if (!notice.messageKey) return "";
+  
+  const template = wishActions[notice.messageKey];
+  if (!template) return "";
+
+  let msg = template;
+  if (notice.params) {
+    for (const [k, v] of Object.entries(notice.params)) {
+      msg = msg.replace(`%${k}`, v);
+    }
+  }
+  return msg;
+};
+
 /** 日時フォーマット */
-const formatTime = (ms: number) => {
+const formatTime = (
+  ms: number,
+  justNow: string,
+  minutesAgo: string,
+  hoursAgo: string,
+) => {
   const d = new Date(ms);
   const now = Date.now();
   const diff = now - ms;
-  if (diff < 60_000) return MESSAGES.NOTICE.TIME_JUST_NOW;
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}${MESSAGES.NOTICE.TIME_MINUTES_AGO}`;
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}${MESSAGES.NOTICE.TIME_HOURS_AGO}`;
-  return d.toLocaleDateString("ja-JP", {
-    month: "short",
-    day: "numeric",
-  });
+  if (diff < 60_000) return justNow;
+  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}${minutesAgo}`;
+  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}${hoursAgo}`;
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 };
 
 export const NoticePanel: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { notices, unreadCount, dismissNotice, dismissAll } = useNoticeContext();
   const panelRef = useRef<HTMLDivElement>(null);
+  const { t } = useLanguage();
 
   // 外側クリックで閉じる
   useEffect(() => {
@@ -48,17 +70,20 @@ export const NoticePanel: React.FC = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
+  // Cast WISH_ACTIONS to a simple string map for resolveMessage
+  const wishActions = t.WISH_ACTIONS as unknown as Record<string, string>;
+
   return (
     <div ref={panelRef} className="relative z-50 flex items-center">
       {/* ベルアイコン + バッジ */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`relative p-3 rounded-full transition-all active:scale-95 ${
-          unreadCount > 0 
-            ? "text-amber-500 bg-amber-50/50" 
+          unreadCount > 0
+            ? "text-amber-500 bg-amber-50/50"
             : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
         }`}
-        aria-label={MESSAGES.NOTICE.TITLE}
+        aria-label={t.NOTICE.TITLE}
       >
         <Bell size={24} strokeWidth={1.5} className={unreadCount > 0 ? "animate-pulse" : ""} />
         {unreadCount > 0 && (
@@ -83,7 +108,7 @@ export const NoticePanel: React.FC = () => {
             {/* ヘッダー */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-slate-50 bg-white">
               <h3 className="text-base font-serif font-medium text-slate-800 tracking-widest">
-                {MESSAGES.NOTICE.TITLE}
+                {t.NOTICE.TITLE}
               </h3>
               <div className="flex items-center gap-3">
                 {notices.length > 0 && (
@@ -91,7 +116,7 @@ export const NoticePanel: React.FC = () => {
                     onClick={dismissAll}
                     className="text-xs text-slate-400 hover:text-amber-600 transition-colors tracking-tighter"
                   >
-                    {MESSAGES.NOTICE.TOOLTIP_DISMISS_ALL}
+                    {t.NOTICE.TOOLTIP_DISMISS_ALL}
                   </button>
                 )}
                 <button
@@ -113,10 +138,10 @@ export const NoticePanel: React.FC = () => {
                     strokeWidth={1.5}
                   />
                   <p className="text-sm text-slate-400 font-medium">
-                    {MESSAGES.NOTICE.EMPTY_TITLE}
+                    {t.NOTICE.EMPTY_TITLE}
                   </p>
                   <p className="text-xs text-slate-300 mt-1">
-                    {MESSAGES.NOTICE.EMPTY_DESC}
+                    {t.NOTICE.EMPTY_DESC}
                   </p>
                 </div>
               ) : (
@@ -130,24 +155,31 @@ export const NoticePanel: React.FC = () => {
                       exit={{ opacity: 0, scale: 0.95 }}
                       className="flex items-start gap-4 px-6 py-5 hover:bg-slate-50/30 transition-colors group relative"
                     >
-                      {/* ドットインジケーター (より淡く) */}
+                      {/* ドットインジケーター */}
                       <span
                         className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 opacity-60 ${typeColorMap[notice.type] || "bg-slate-300"}`}
                       />
 
                       {/* メッセージ */}
+                      <div className="flex-1 min-w-0">
                         <p className="text-[13px] text-slate-600 leading-relaxed font-light tracking-wide">
-                          {notice.message}
+                          {resolveMessage(notice, wishActions)}
                         </p>
                         <span className="text-[10px] text-slate-300 mt-1.5 block font-sans tracking-tight">
-                          {formatTime(notice.createdAt)}
+                          {formatTime(
+                            notice.createdAt,
+                            t.NOTICE.TIME_JUST_NOW,
+                            t.NOTICE.TIME_MINUTES_AGO,
+                            t.NOTICE.TIME_HOURS_AGO,
+                          )}
                         </span>
+                      </div>
 
                       {/* 削除ボタン */}
                       <button
                         onClick={() => dismissNotice(notice.id)}
                         className="p-2.5 text-slate-300 hover:text-slate-500 hover:bg-slate-100 rounded-md transition-colors opacity-0 group-hover:opacity-100 shrink-0 mt-0.5"
-                        title={MESSAGES.NOTICE.TOOLTIP_DISMISS}
+                        title={t.NOTICE.TOOLTIP_DISMISS}
                       >
                         <X size={14} />
                       </button>

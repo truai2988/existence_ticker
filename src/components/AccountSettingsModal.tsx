@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuthHook';
 import { X, LogOut, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
-import { MESSAGES } from '../constants/messages';
+import { useLanguage } from '../contexts/LanguageContext';
 
 /* Typography Rule: font-serif/font-sans, 3sizes (text-3xl, text-base, text-xs) */
 
 export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     const { signOut, deleteAccount, reauthenticate } = useAuth();
+    const { t: MESSAGES } = useLanguage();
     const [isDeleting, setIsDeleting] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
     

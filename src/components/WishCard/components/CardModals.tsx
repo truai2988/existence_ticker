@@ -1,6 +1,6 @@
 import React from "react";
 import { Handshake, Loader2, X, AlertTriangle } from "lucide-react";
-import { MESSAGES } from "../../../constants/messages";
+import { useLanguage } from "../../../contexts/LanguageContext";
 import { WishCardState, WishCardHandlers } from "../types";
 import { ApplicantItem } from "../ApplicantItem";
 import { CompleteWishModal } from "../../CompleteWishModal";
@@ -10,6 +10,7 @@ import { useUserView } from "../../../contexts/UserViewContext";
 import { toMilli } from "../../../logic/worldPhysics";
 
 export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHandlers }> = ({ state, handlers }) => {
+  const { t: MESSAGES } = useLanguage();
   const {
     wish, isLoading, showApplicants, confirmAction, approvalTarget, contactNote, showCompleteModal,
     isMasked, helperProfile, currentUserId, initialCost
@@ -124,7 +125,12 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
             <div className="bg-green-100 text-green-600 p-3 rounded-full mb-4">
               <Handshake size={24} />
             </div>
-            <h4 className="text-base font-bold text-slate-800 mb-1 text-center">{approvalTarget.name}{MESSAGES.WISH_CARD.MODAL_APPROVE_Q}</h4>
+            <h4 className="text-base font-bold text-slate-800 mb-1 text-center">
+              {MESSAGES.WISH_CARD.MODAL_APPROVE_Q.includes('%name') 
+                ? MESSAGES.WISH_CARD.MODAL_APPROVE_Q.replace('%name', approvalTarget.name)
+                : `${approvalTarget.name} ${MESSAGES.WISH_CARD.MODAL_APPROVE_Q}`
+              }
+            </h4>
             <p className="text-xs text-slate-500 mb-6 text-center">{MESSAGES.WISH_CARD.MODAL_MSG_HINT}</p>
             <textarea
               value={contactNote}

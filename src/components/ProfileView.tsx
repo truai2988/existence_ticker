@@ -22,11 +22,12 @@ import { useAuth } from "../hooks/useAuthHook";
 import { AppViewMode } from "../types";
 import { getTrustRank } from "../utils/trustRank";
 import { useLocationStats } from "../hooks/useLocationStats";
-import { formatLocationCount } from "../utils/formatLocation";
+import { formatLocationCount, mapPrefecture, mapCity } from "../utils/formatLocation";
+import { mapAgeGroup } from "../utils/formatAgeGroup";
 import { ProfileEditScreen } from "./ProfileEditScreen";
 import { SideDrawer } from "./SideDrawer";
 import { PresenceModal } from "./PresenceModal";
-import { MESSAGES } from "../constants/messages";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface ProfileViewProps {
   userId?: string;
@@ -84,6 +85,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onOpenOnboarding,
 }) => {
   const { profile, isLoading: isProfileLoading } = useProfile();
+  const { t: MESSAGES, lang, setLang } = useLanguage();
   const { user, isAdmin, signOut, linkEmail, deleteAccount, updateUserPassword, reauthenticate } =
     useAuth();
 
@@ -319,7 +321,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 className={`text-xs font-bold px-3 py-1 rounded-full ${rank.bg} ${rank.color} flex items-center gap-1.5 shadow-sm font-sans`}
               >
                 <span>{rank.icon}</span>
-                <span>{rank.label}</span>
+                <span>{MESSAGES.DATA.RANKS[rank.id]}</span>
               </div>
 
               {profile?.has_cancellation_history &&
@@ -346,14 +348,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50 text-slate-500">
                     <MapPin size={10} className="shrink-0 text-slate-400" />
                     <span className="whitespace-nowrap">
-                      {profile.location.prefecture} {profile.location.city}
+                      {mapPrefecture(profile.location.prefecture)} {mapCity(profile.location.city)}
                     </span>
                   </div>
                 )}
                 {profile?.age_group && (
                   <div className="flex items-center px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50 text-slate-500">
                     <span className="whitespace-nowrap">
-                        {profile.age_group}
+                        {mapAgeGroup(profile.age_group, MESSAGES)}
                         {profile.gender && profile.gender !== 'other' && ` / ${profile.gender === 'male' ? MESSAGES.WISH_CARD.LBL_MALE : MESSAGES.WISH_CARD.LBL_FEMALE}`}
                     </span>
                   </div>
@@ -484,6 +486,38 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     }}
                   />
                 )}
+            </div>
+
+            {/* Language Setting */}
+            <div className="bg-white mt-6 rounded-xl overflow-hidden border border-slate-200 shadow-sm p-4 flex items-center justify-between">
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-slate-700">{MESSAGES.PROFILE.LANG_TITLE}</span>
+                <span className="text-xs text-slate-500 mt-1">
+                  {MESSAGES.PROFILE.LANG_HELP}
+                </span>
+              </div>
+              <div className="flex bg-slate-100 p-1 rounded-lg">
+                <button
+                  onClick={() => setLang('ja')}
+                  className={`px-3 py-1.5 text-sm font-bold rounded-md transition-all ${
+                    lang === 'ja'
+                      ? 'bg-white text-slate-800 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  日本語
+                </button>
+                <button
+                  onClick={() => setLang('en')}
+                  className={`px-3 py-1.5 text-sm font-bold rounded-md transition-all ${
+                    lang === 'en'
+                      ? 'bg-white text-slate-800 shadow-sm'
+                      : 'text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  EN
+                </button>
+              </div>
             </div>
 
              <div className="text-center text-xs text-slate-500 py-4 font-sans focus:outline-none">
@@ -715,15 +749,16 @@ const AreaInfoCard: React.FC<{
   profile: ReturnType<typeof useProfile>["profile"],
   onClick: () => void 
 }> = ({ profile, onClick }) => {
+  const { t: MESSAGES } = useLanguage();
   const { statsCount } = useLocationStats(
     profile?.location?.prefecture,
     profile?.location?.city,
   );
 
   const locationText = profile?.location
-    ? `${profile.location.prefecture} ${profile.location.city}` : MESSAGES.PROFILE.TXT_AREA_NOT_SET;
+    ? `${mapPrefecture(profile.location.prefecture)} ${mapCity(profile.location.city)}`.trim() : MESSAGES.PROFILE.TXT_AREA_NOT_SET;
 
-  const userCountText = statsCount === null ? MESSAGES.PROFILE.TXT_CHECKING : formatLocationCount(statsCount);
+  const userCountText = statsCount === null ? MESSAGES.PROFILE.TXT_CHECKING : formatLocationCount(statsCount, MESSAGES);
 
   return (
     <div className="group">

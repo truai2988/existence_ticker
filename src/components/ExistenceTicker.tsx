@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MESSAGES } from '../constants/messages';
+import { useLanguage } from '../contexts/LanguageContext';
 
 import { UNIT_LABEL, LUNAR_CONSTANTS } from '../constants';
 import { calculateDecayedValue, toMilli, fromMilli, getMillis } from '../logic/worldPhysics';
@@ -11,6 +11,7 @@ interface ExistenceTickerProps {
 }
 
 export const ExistenceTicker: React.FC<ExistenceTickerProps> = ({ balance, lastUpdated, rationReceived }) => {
+  const { t: MESSAGES } = useLanguage();
   const [displayValue, setDisplayValue] = useState(() => {
     const startMs = getMillis(lastUpdated);
     const elapsedSec = ((Date.now() - startMs) / 1000) | 0;

@@ -1,9 +1,10 @@
 import React from "react";
 import { Copy, Mail, Check } from "lucide-react";
-import { MESSAGES } from "../../../constants/messages";
+import { useLanguage } from "../../../contexts/LanguageContext";
 import { WishCardState, WishCardHandlers } from "../types";
 
 export const CardContact: React.FC<{ state: WishCardState; handlers: WishCardHandlers }> = ({ state, handlers }) => {
+  const { t: MESSAGES } = useLanguage();
   const { wish, isReadOnly, isMyWish, currentUserId, contactEmail, isCopied, requesterProfile } = state;
   const { handleCopyEmail } = handlers;
 

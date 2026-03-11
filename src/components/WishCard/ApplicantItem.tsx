@@ -1,6 +1,6 @@
 import React from "react";
 import { User, CheckCircle, Loader2 } from "lucide-react";
-import { MESSAGES } from "../../constants/messages";
+import { useLanguage } from "../../contexts/LanguageContext";
 import { getTrustRank } from "../../logic/worldPhysics";
 import { useOtherProfile } from "../../hooks/useOtherProfile";
 
@@ -11,6 +11,7 @@ export const ApplicantItem: React.FC<{
   isActionLoading: boolean;
   isMasked?: boolean;
 }> = ({ applicant, onApprove, onOpenProfile, isActionLoading, isMasked }) => {
+  const { t: MESSAGES } = useLanguage();
   const { profile } = useOtherProfile(applicant.id);
 
   // MASKING LOGIC
@@ -86,7 +87,7 @@ export const ApplicantItem: React.FC<{
             {/* Rank Label */}
             <>
               <span className="text-slate-500">|</span>
-              <span className="text-slate-600 font-bold">{rank.label}</span>
+              <span className="text-slate-600 font-bold">{MESSAGES.DATA.RANKS[rank.id]}</span>
             </>
           </div>
         </div>

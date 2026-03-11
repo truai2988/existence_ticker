@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuthHook';
 import { useToast } from '../hooks/useToast';
-import { MESSAGES } from '../constants/messages';
+import { useLanguage } from '../contexts/LanguageContext';
 import {
   Eye,
   EyeOff,
@@ -26,6 +26,7 @@ interface AuthScreenProps {
 }
 
 export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
+  const { lang, t: MESSAGES } = useLanguage();
   const { signIn, signUp, resetPassword } = useAuth();
   const { showToast } = useToast();
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
@@ -45,7 +46,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
       setError(MESSAGES.AUTH.GHOST_PURGE_FEEDBACK);
       sessionStorage.removeItem("ghost_pured_feedback_needed");
     }
-  }, []);
+  }, [MESSAGES.AUTH.GHOST_PURGE_FEEDBACK]);
 
   // Form States
   const [email, setEmail] = useState("");
@@ -326,14 +327,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                           <option value="" disabled>
                             {MESSAGES.AUTH.AGE_GROUP_PLACEHOLDER}
                           </option>
-                          <option value="20歳未満">{MESSAGES.AUTH.AGE_GROUP_UNDER_20}</option>
-                          <option value="20代">{MESSAGES.AUTH.AGE_GROUP_20S}</option>
-                          <option value="30代">{MESSAGES.AUTH.AGE_GROUP_30S}</option>
-                          <option value="40代">{MESSAGES.AUTH.AGE_GROUP_40S}</option>
-                          <option value="50代">{MESSAGES.AUTH.AGE_GROUP_50S}</option>
-                          <option value="60代">{MESSAGES.AUTH.AGE_GROUP_60S}</option>
-                          <option value="70代">{MESSAGES.AUTH.AGE_GROUP_70S}</option>
-                          <option value="80代以上">{MESSAGES.AUTH.AGE_GROUP_OVER_80}</option>
+                          <option value="under_20">{MESSAGES.AUTH.AGE_GROUP_UNDER_20}</option>
+                          <option value="20">{MESSAGES.AUTH.AGE_GROUP_20S}</option>
+                          <option value="30">{MESSAGES.AUTH.AGE_GROUP_30S}</option>
+                          <option value="40">{MESSAGES.AUTH.AGE_GROUP_40S}</option>
+                          <option value="50">{MESSAGES.AUTH.AGE_GROUP_50S}</option>
+                          <option value="60">{MESSAGES.AUTH.AGE_GROUP_60S}</option>
+                          <option value="70">{MESSAGES.AUTH.AGE_GROUP_70S}</option>
+                          <option value="over_80">{MESSAGES.AUTH.AGE_GROUP_OVER_80}</option>
                         </select>
                         <ChevronDown
                           className="absolute right-3 top-3 text-slate-400 pointer-events-none"
@@ -491,7 +492,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                 }}
                 className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300"
               >
-                ログイン画面に戻る
+                {lang === 'en' ? MESSAGES.AUTH.TO_LOGIN : 'ログイン画面に戻る'}
               </button>
             )}
             {mode === "forgot" && (
@@ -503,7 +504,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                 }}
                 className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300"
               >
-                ログイン画面に戻る
+                {lang === 'en' ? MESSAGES.AUTH.TO_LOGIN : 'ログイン画面に戻る'}
               </button>
             )}
           </div>
@@ -544,8 +545,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
               className="relative z-10 px-12 py-16 text-center"
             >
               <h2 className="text-3xl md:text-5xl font-serif text-slate-800 tracking-[0.3em] font-bold leading-relaxed whitespace-pre-wrap">
-                あなたの存在を、{"\n"}
-                このインフラは歓迎します
+                {lang === 'en' ? (
+                  <>Your existence is,{"\n"}welcome here.</>
+                ) : (
+                  <>あなたの存在を、{"\n"}このインフラは歓迎します</>
+                )}
               </h2>
               <motion.div
                 initial={{ width: 0 }}

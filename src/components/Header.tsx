@@ -6,7 +6,7 @@ import { getMillis } from "../logic/worldPhysics";
 import { AppViewMode } from "../types";
 import { SideDrawer } from "./SideDrawer";
 import { NoticePanel } from "./NoticePanel";
-import { MESSAGES } from "../constants/messages";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface HeaderProps {
   viewMode?: AppViewMode;
@@ -21,6 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const { availableLm, committedLm } = useWallet();
   const { profile } = useProfile();
+  const { t: MESSAGES } = useLanguage();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const balance = availableLm + committedLm;

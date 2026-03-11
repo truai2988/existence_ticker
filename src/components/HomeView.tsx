@@ -5,7 +5,7 @@ import { useWallet } from "../hooks/useWallet";
 import { useProfile } from "../hooks/useProfile";
 import { AppMode } from "../hooks/useStartupMachine";
 import { LUNAR_CONSTANTS } from "../constants";
-import { MESSAGES } from "../constants/messages";
+import { useLanguage } from "../contexts/LanguageContext";
 
 interface HomeViewProps {
   onOpenFlow: () => void;
@@ -28,6 +28,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 }) => {
   const { performRebirthReset, availableLm, committedLm } = useWallet();
   const { profile, updateProfile } = useProfile();
+  const { t: MESSAGES } = useLanguage();
   const [notification, setNotification] = React.useState<string | null>(null);
 
   // Water Clock calculations
@@ -114,10 +115,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
   };
 
   // Move randomized message logic outside of the conditional button render to follow Hooks rules
-  const ritualMessage = React.useMemo(
-    () => (Math.random() > 0.5 ? MESSAGES.HOME.MONOTONE_MSG_1 : MESSAGES.HOME.MONOTONE_MSG_2),
-    [],
-  );
+  const isMsg1 = React.useMemo(() => Math.random() > 0.5, []);
+  const ritualMessage = isMsg1 ? MESSAGES.HOME.MONOTONE_MSG_1 : MESSAGES.HOME.MONOTONE_MSG_2;
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center w-full relative pt-safe pt-20 md:pt-24">
