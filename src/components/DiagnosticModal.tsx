@@ -104,17 +104,17 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="bg-slate-900 border border-slate-800 w-full max-w-lg sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[100dvh] sm:max-h-[90vh]"
+          className="bg-slate-900 border border-slate-800 w-full max-w-xl sm:rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[100dvh] sm:max-h-[90vh]"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className={`p-6 sm:p-8 pb-4 flex justify-between items-start border-b border-slate-800/50 ${diagnosis.bg.replace('/30', '/10')}`}>
+          <div className={`p-4 sm:p-6 pb-3 flex justify-between items-start border-b border-slate-800/50 ${diagnosis.bg.replace('/30', '/10')}`}>
             <div>
-              <div className="flex items-center gap-2 text-slate-400 mb-1 uppercase tracking-[0.2em] text-sm font-sans">
-                <Activity size={12} />
+              <div className="flex items-center gap-2 text-slate-400 mb-0.5 uppercase tracking-[0.2em] text-[10px] font-sans">
+                <Activity size={10} />
                 <span>{MESSAGES.DIAGNOSTICS.SAGE_TITLE}</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-serif text-white leading-tight">
+              <h2 className="text-lg sm:text-xl font-serif text-white leading-tight">
                  {diagnosis.shortDescription.split('】')[1] || diagnosis.shortDescription}
               </h2>
             </div>
@@ -127,13 +127,13 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
           </div>
 
           {/* Scrollable Body */}
-          <div className="p-6 sm:p-8 pt-6 overflow-y-auto custom-scrollbar space-y-8">
+          <div className="p-4 sm:p-6 pt-4 overflow-y-auto custom-scrollbar space-y-4">
               
               {/* Sage's Voice quote section */}
               <div className="relative group">
-                  <div className="absolute -top-4 -left-2 text-6xl text-slate-800 font-serif leading-none select-none">“</div>
-                  <div className="relative z-10 pl-6 border-l border-slate-700">
-                    <p className="text-slate-400 font-serif text-lg sm:text-3xl leading-relaxed italic whitespace-pre-wrap">
+                  <div className="absolute -top-3 -left-1 text-4xl text-slate-800 font-serif leading-none select-none">“</div>
+                  <div className="relative z-10 pl-5 border-l border-slate-700">
+                    <p className="text-slate-400 font-serif text-sm sm:text-lg leading-relaxed italic whitespace-pre-wrap">
                         {content.voice}
                     </p>
                   </div>
@@ -141,41 +141,41 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
 
               {/* Responsive Metrics Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-0.5 bg-slate-800/50 border border-slate-800 rounded-xl overflow-hidden">
-                  <div className="bg-slate-900 p-4 text-center">
-                      <div className="text-sm text-slate-500 uppercase tracking-widest mb-1">{MESSAGES.DIAGNOSTICS.LBL_SPEED}</div>
-                      <div className={`font-mono text-xl sm:text-2xl ${metabolism.rate >= 10 ? 'text-cyan-400' : 'text-slate-400'}`}>
+                  <div className="bg-slate-900 p-3 text-center">
+                      <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_SPEED}</div>
+                      <div className={`font-mono text-lg sm:text-xl ${metabolism.rate >= 10 ? 'text-cyan-400' : 'text-slate-400'}`}>
                           {metabolism.rate}%
                       </div>
                   </div>
-                  <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
-                      <div className="text-sm text-slate-500 uppercase tracking-widest mb-1">{MESSAGES.DIAGNOSTICS.LBL_SAVINGS}</div>
-                        <div className="font-mono text-xl sm:text-2xl text-slate-400">
+                  <div className="bg-slate-800/50 p-2.5 rounded-lg border border-slate-700/50">
+                      <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_SAVINGS}</div>
+                        <div className="font-mono text-lg sm:text-xl text-slate-400">
                           {avgBalance.toLocaleString()}
                       </div>
                   </div>
-                  <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
-                       <div className="text-sm text-slate-500 uppercase tracking-widest mb-1">{MESSAGES.DIAGNOSTICS.LBL_DECAY}</div>
-                       <div className="font-mono text-xl sm:text-2xl text-red-500/80">
+                  <div className="bg-slate-800/50 p-2.5 rounded-lg border border-slate-700/50">
+                       <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_DECAY}</div>
+                       <div className="font-mono text-lg sm:text-xl text-red-500/80">
                           -{metabolism.decay24h.toLocaleString()}
                        </div>
                   </div>
               </div>
 
               {/* Prescription Action Card */}
-              <div className={`p-5 sm:p-6 rounded-xl border transition-colors ${diagnosis.bg}`}>
-                  <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2 opacity-80">
-                      <Zap size={14} className="text-yellow-400 animate-pulse"/>
+              <div className={`p-4 sm:p-5 rounded-xl border transition-colors ${diagnosis.bg}`}>
+                  <h3 className="text-[10px] font-bold text-white uppercase tracking-widest mb-3 flex items-center gap-2 opacity-80">
+                      <Zap size={12} className="text-yellow-400 animate-pulse"/>
                       {MESSAGES.DIAGNOSTICS.LBL_PRESCRIPTION}
                   </h3>
-                  <div className="flex flex-col sm:flex-row justify-between items-start gap-6">
-                      <div className="flex-1">
-                          <div className="font-serif text-white text-base sm:text-3xl mb-2 tracking-wide">
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                      <div className="flex-1 min-w-0">
+                          <div className="font-serif text-white text-base sm:text-lg mb-1.5 tracking-wide truncate">
                               {content.actionTitle}
                           </div>
-                          <p className="text-base text-slate-200 leading-relaxed mb-4 font-sans">
+                          <p className="text-xs sm:text-sm text-slate-200 leading-relaxed mb-3 font-sans">
                               {content.actionDesc}
                           </p>
-                          <div className="inline-flex items-center gap-2 px-3 py-1 bg-black/40 border border-white/10 text-sm font-mono text-slate-500 rounded-full">
+                          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-black/40 border border-white/10 text-[10px] font-mono text-slate-500 rounded-full">
                               <Info size={10} />
                               {content.targetValue}
                           </div>
@@ -186,20 +186,13 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
                              onClose();
                              setTimeout(onScrollToSupply, 300);
                          }}
-                         className="w-full sm:w-auto shrink-0 px-6 py-4 bg-white text-slate-900 rounded-xl font-bold text-base flex items-center justify-center gap-2 hover:bg-cyan-50 transition-all active:scale-95 shadow-lg shadow-white/5 active:shadow-none translate-y-0 hover:-translate-y-1"
+                         className="w-full sm:w-auto shrink-0 px-5 py-3 bg-white text-slate-900 rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-cyan-50 transition-all active:scale-95 shadow-lg shadow-white/5 active:shadow-none"
                       >
-                          <Sun size={18} />
+                          <Sun size={16} />
                           {diagnosis.currentPhase === 'HEALTHY' ? MESSAGES.DIAGNOSTICS.BTN_ADJUST : MESSAGES.DIAGNOSTICS.BTN_EXECUTE}
                       </button>
                   </div>
               </div>
-          </div>
-
-          {/* Footer */}
-          <div className="p-6 border-t border-slate-800/50 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm font-medium text-slate-500">
-              <span className="shrink-0">{MESSAGES.DIAGNOSTICS.FOOTER_TICKER}</span>
-              <div className="hidden sm:block w-1 h-1 bg-slate-700 rounded-full shrink-0" />
-              <span className="shrink-0">{MESSAGES.DIAGNOSTICS.FOOTER_RULE}</span>
           </div>
         </motion.div>
       </div>
