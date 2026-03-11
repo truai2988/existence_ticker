@@ -576,7 +576,8 @@ export const MESSAGES = {
     SNS_PLACEHOLDER_WEB: "https://で始まるURL",
     EMAIL_NEW_LABEL: "新しいメールアドレス",
     EMAIL_PW_LABEL: "現在のパスワード",
-    BTN_CHANGING: "更新中..."
+    BTN_CHANGING: "更新中...",
+    BTN_CHANGE_PW: "変更する"
   },
 
   // 6. 各種モーダル・ガイド (PresenceModal / GuideModal等)

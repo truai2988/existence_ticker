@@ -725,7 +725,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       disabled={isLoading}
                       className="flex-1 py-3 bg-slate-800 text-white rounded-lg text-base font-bold"
                     >
-                      {MESSAGES.PROFILE.BTN_CHANGE}
+                      {MESSAGES.PROFILE.BTN_CHANGE_PW}
                     </button>
                   </div>
                 </form>
