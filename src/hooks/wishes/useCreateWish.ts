@@ -1,0 +1,138 @@
+import { useState } from "react";
+import { Wish, CreateWishInput } from "../../types";
+import { useAuth } from "../useAuthHook";
+import { useWishesContext } from "../../contexts/WishesContext";
+import { useWallet } from "../useWallet";
+import { db } from "../../lib/firebase";
+import { doc, runTransaction, serverTimestamp } from "firebase/firestore";
+import { MESSAGES } from "../../constants/messages";
+
+export const useCreateWish = () => {
+  const { user } = useAuth();
+  const { addOptimisticWish, updateOptimisticWish } = useWishesContext();
+  const { setOptimisticCommittedOffset } = useWallet();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const costMap: Record<string, number> = { light: 0, medium: 500, heavy: 1000 };
+
+  const castWish = async (input: CreateWishInput): Promise<boolean> => {
+    if (!db) {
+      alert(MESSAGES.WISH_ACTIONS.ALERT_DB_ERROR);
+      return false;
+    }
+    if (!user) {
+      alert(MESSAGES.WISH_ACTIONS.ALERT_NOT_LOGGED_IN);
+      return false;
+    }
+
+    setIsSubmitting(true);
+
+    const userRef = doc(db, "users", user.uid);
+    const wishId = `wish_${user.uid}_${Date.now()}`;
+    const wishRef = doc(db, "wishes", wishId); 
+    const bounty = costMap[input.tier];
+
+    // Optimistic Update
+    const optimisticWish: Wish = {
+      id: wishId,
+      requester_id: user.uid,
+      requester_name: MESSAGES.WISH_ACTIONS.PENDING_PROPAGATION, 
+      content: input.content,
+      gratitude_preset: input.tier,
+      status: "open",
+      cost: bounty,
+      created_at: Date.now(),
+      isAnonymous: input.isAnonymous || false,
+      isOptimistic: true
+    };
+
+    addOptimisticWish(optimisticWish);
+    setOptimisticCommittedOffset((prev: number) => prev + bounty);
+
+    try {
+      await runTransaction(db, async (transaction) => {
+        const userDoc = await transaction.get(userRef);
+        if (!userDoc.exists()) throw "User not found";
+
+        const userData = userDoc.data();
+        const currentBalance = userData.balance || 0;
+        const currentCommitted = userData.committed_balance || 0;
+        
+        // --- 存在ベースの限界ロジック ---
+        // 1. 世界の基本ルールとして、2400Lm以上の源気は同時に存在できない（ウォレット内の残高＋予約中の残高の合計限界）
+        if (currentBalance + currentCommitted > 2400) {
+            throw new Error(`【限界突破】現在の総源気（残高＋予約中）が2400Lmを超えています。`);
+        }
+        // ------------------------------
+        
+        // "Heavy" and "Medium" can be cast if user has 0 balance (they go into negative)
+        // But "Light" (bounty 0) can ALWAYS be cast, even if negative.
+        // Wait, rule: CANNOT cast if balance is deeply negative UNLESS it's Light.
+        // Let's refine: If it's Medium or Heavy, check if they can afford it? 
+        // Actually, existence_ticker allows going negative if you don't have enough to pay upfront. The debt is settled later.
+        // BUT to prevent infinite spam, we might enforce: you can't cast >0 cost wishes IF you are already in debt.
+        // For now, let's keep the existing logic which does not block negative balances explicitly here.
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { isOptimistic: _isOptimistic, ...newWishData } = {
+          ...optimisticWish,
+          requester_name: userData.name || "名称未設定",
+          created_at: serverTimestamp(),
+        };
+
+        transaction.set(wishRef, newWishData);
+        // Reserve the balance
+        transaction.update(userRef, {
+          committed_balance: currentCommitted + bounty,
+        });
+      });
+      return true;
+    } catch (e) {
+      console.error("Failed to cast wish:", e);
+      updateOptimisticWish(wishId, { error: e instanceof Error ? e.message : String(e) });
+      setOptimisticCommittedOffset((prev: number) => prev - bounty);
+      alert(`${MESSAGES.WISH_ACTIONS.ALERT_CAST_FAILED} ${e instanceof Error ? e.message : String(e)}`);
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const updateWish = async (wishId: string, updates: Partial<Wish>): Promise<boolean> => {
+    if (!db || !user) return false;
+    setIsSubmitting(true);
+
+    try {
+      // Optimistic update
+      updateOptimisticWish(wishId, updates);
+
+      const wishRef = doc(db, "wishes", wishId);
+      await runTransaction(db, async (transaction) => {
+        const wishDoc = await transaction.get(wishRef);
+        if (!wishDoc.exists()) throw "Wish not found";
+        
+        // 権限チェック：作成者本人しか更新できない
+        if (wishDoc.data().requester_id !== user.uid) {
+            throw new Error("You don't have permission to edit this wish");
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id: _id, ...dataToUpdate } = updates;
+        
+        transaction.update(wishRef, {
+            ...dataToUpdate,
+            updated_at: serverTimestamp(),
+        });
+      });
+      return true;
+    } catch (e) {
+      console.error("Failed to update wish:", e);
+      alert(`更新に失敗しました: ${e instanceof Error ? e.message : String(e)}`);
+      return false;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return { castWish, updateWish, isSubmitting };
+};

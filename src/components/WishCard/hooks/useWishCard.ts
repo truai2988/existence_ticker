@@ -136,7 +136,7 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
   const handleUpdate = async () => {
     if (!editContent.trim()) return;
     setIsLoading(true);
-    const success = await updateWish(wish.id, editContent);
+    const success = await updateWish(wish.id, { content: editContent });
     if (success) {
       setIsEditing(false);
       showToast("更新しました", "success");
