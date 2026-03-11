@@ -26,7 +26,7 @@ interface AuthScreenProps {
 }
 
 export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
-  const { lang, t: MESSAGES } = useLanguage();
+  const { t: MESSAGES } = useLanguage();
   const { signIn, signUp, resetPassword } = useAuth();
   const { showToast } = useToast();
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
@@ -294,7 +294,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                           disabled={!prefecture || loadingCities}
                         >
                           <option value="" disabled>
-                            {loadingCities ? "..." : MESSAGES.AUTH.CITY_PLACEHOLDER}
+                            {loadingCities ? MESSAGES.AUTH.CITY_LOADING : MESSAGES.AUTH.CITY_PLACEHOLDER}
                           </option>
                           {cities.map((cityName) => (
                             <option key={cityName} value={cityName}>
@@ -492,7 +492,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                 }}
                 className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300"
               >
-                {lang === 'en' ? MESSAGES.AUTH.TO_LOGIN : 'ログイン画面に戻る'}
+                {MESSAGES.AUTH.TO_LOGIN_BACK}
               </button>
             )}
             {mode === "forgot" && (
@@ -504,7 +504,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                 }}
                 className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300"
               >
-                {lang === 'en' ? MESSAGES.AUTH.TO_LOGIN : 'ログイン画面に戻る'}
+                {MESSAGES.AUTH.TO_LOGIN_BACK}
               </button>
             )}
           </div>
@@ -545,11 +545,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
               className="relative z-10 px-12 py-16 text-center"
             >
               <h2 className="text-3xl md:text-5xl font-serif text-slate-800 tracking-[0.3em] font-bold leading-relaxed whitespace-pre-wrap">
-                {lang === 'en' ? (
-                  <>Your existence is,{"\n"}welcome here.</>
-                ) : (
-                  <>あなたの存在を、{"\n"}このインフラは歓迎します</>
-                )}
+                {MESSAGES.AUTH.WELCOME_MSG_1}{"\n"}{MESSAGES.AUTH.WELCOME_MSG_2}
               </h2>
               <motion.div
                 initial={{ width: 0 }}

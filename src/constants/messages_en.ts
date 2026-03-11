@@ -961,7 +961,11 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
     PREFECTURE_REQUIRED: "Please select a prefecture.",
     CITY_REQUIRED: "Please select a city.",
     INVITE_REQUEST: "Invitation code is required.",
-    GHOST_PURGE_FEEDBACK: "Session expired. Please sign up again.",
+    GHOST_PURGE_FEEDBACK: "The previous account was not created successfully. We apologize for the inconvenience, but please register again.",
+    TO_LOGIN_BACK: "Back to Login",
+    WELCOME_MSG_1: "Your existence is,",
+    WELCOME_MSG_2: "welcome here.",
+    CITY_LOADING: "...",
     FIREBASE_ERRORS: {
       "auth/user-not-found": "No entity found with this email.",
       "auth/wrong-password": "Incorrect password.",
