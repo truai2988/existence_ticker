@@ -7,6 +7,7 @@ import { collection, doc, runTransaction, serverTimestamp, Transaction, query, w
 import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS, getMillis } from "../../logic/worldPhysics";
 import { MESSAGES } from "../../constants/messages";
 import { useWishNotice } from "./useWishNotice";
+import { recordFulfillment, recordCompensation, recordCancellation, recordExpiration } from "../../logic/transactionService";
 
 export const useWishLifecycle = () => {
   const { user } = useAuth();
@@ -151,55 +152,22 @@ export const useWishLifecycle = () => {
 
         transaction.delete(wishRef);
 
-        const tags = wishData.tags || [];
         let txType = "SPARK";
         if (paymentAmount === 0) txType = "PRICELESS";
         else if (paymentAmount >= 900) txType = "BONFIRE";
         else if (paymentAmount >= 400) txType = "CANDLE";
 
-        transaction.set(txRef, {
-          owner_id: wishData.requester_id,
-          amount: paymentAmount,
-          timestamp: serverTimestamp(),
-          created_at: serverTimestamp(),
-          type: "WISH_FULFILLMENT",
-          sub_type: txType,
-          wish_id: wishId,
-          wish_title: wishData.content,
-          sender_id: wishData.requester_id,
-          sender_name: issuerDoc.data()?.name || wishData.requester_name || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER,
-          recipient_id: fulfillerId,
-          recipient_name: fulfillerDoc.data()?.name || wishData.helper_name || MESSAGES.WISH_ACTIONS.FALLBACK_HELPER,
-          tags: tags,
-          description: isBankruptcy 
-            ? "wish_bankrupt_sender"
-            : paymentAmount === 0
-              ? "wish_priceless"
-              : "wish_fulfill_sender",
-          message: message || null 
-        });
-
-        const rxRef = doc(collection(db!, "transactions"), `${txId}_RX`);
-        transaction.set(rxRef, {
-          owner_id: fulfillerId,
-          amount: paymentAmount,
-          timestamp: serverTimestamp(),
-          created_at: serverTimestamp(),
-          type: "WISH_FULFILLMENT",
-          sub_type: txType,
-          wish_id: wishId,
-          wish_title: wishData.content,
-          sender_id: wishData.requester_id,
-          sender_name: issuerDoc.data()?.name || wishData.requester_name || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER,
-          recipient_id: fulfillerId,
-          recipient_name: fulfillerDoc.data()?.name || wishData.helper_name || MESSAGES.WISH_ACTIONS.FALLBACK_HELPER,
-          tags: tags,
-          description: isBankruptcy 
-            ? "wish_bankrupt_recv"
-            : paymentAmount === 0
-              ? "wish_priceless"
-              : "wish_fulfill_recv",
-          message: message || null 
+        recordFulfillment(transaction, db!, {
+          wishId,
+          wishData,
+          issuerId: wishData.requester_id,
+          issuerName: issuerDoc.data()?.name || wishData.requester_name || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER,
+          fulfillerId,
+          fulfillerName: fulfillerDoc.data()?.name || wishData.helper_name || MESSAGES.WISH_ACTIONS.FALLBACK_HELPER,
+          paymentAmount,
+          txType,
+          isBankruptcy,
+          message
         });
 
         const today = new Date().toISOString().split("T")[0];
@@ -310,34 +278,15 @@ export const useWishLifecycle = () => {
             });
 
             if (!txCheck.exists()) {
-                transaction.set(txRef, {
-                  owner_id: wishData.requester_id,
-                  type: "COMPENSATION",
-                  amount: fromMilli(actualPaymentMilli), 
-                  created_at: serverTimestamp(),
-                  sender_id: wishData.requester_id,
-                  sender_name: rName, 
-                  recipient_id: wishData.helper_id,
-                  recipient_name: hName,
-                  wish_title: wishData.content,
-                  wish_id: wishId,
-                  description: "compensation_sender"
-                });
-
-                const rxRef = doc(collection(db!, "transactions"), `${txId}_RX`);
-                transaction.set(rxRef, {
-                  owner_id: wishData.helper_id,
-                  type: "COMPENSATION",
-                  amount: fromMilli(actualPaymentMilli), 
-                  created_at: serverTimestamp(),
-                  sender_id: wishData.requester_id,
-                  sender_name: rName, 
-                  recipient_id: wishData.helper_id,
-                  recipient_name: hName,
-                  wish_title: wishData.content,
-                  wish_id: wishId,
-                  description: "compensation_recv"
-                });
+              recordCompensation(transaction, db!, {
+                wishId,
+                wishData,
+                senderId: wishData.requester_id,
+                senderName: rName,
+                recipientId: wishData.helper_id,
+                recipientName: hName,
+                paymentAmount: fromMilli(actualPaymentMilli)
+              });
             }
             transaction.delete(wishRef);
           } else {
@@ -371,20 +320,10 @@ export const useWishLifecycle = () => {
         } else {
           transaction.delete(wishRef);
 
-          const txId = `cancel_${wishId}`;
-          const txRef = doc(collection(db!, "transactions"), txId);
-          transaction.set(txRef, {
-            type: "WISH_CANCELLED",
-            owner_id: user.uid,
-            amount: 0,
-            created_at: serverTimestamp(),
-            sender_id: user.uid,
-            sender_name: wishData.requester_name || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER,
-            recipient_id: wishData.helper_id || null,
-            recipient_name: wishData.helper_name || null,
-            wish_title: wishData.content,
-            wish_id: wishId,
-            description: "user_cancellation"
+          recordCancellation(transaction, db!, {
+            wishId,
+            wishData,
+            ownerId: user.uid
           });
         }
       });
@@ -479,20 +418,9 @@ export const useWishLifecycle = () => {
 
         transaction.delete(wishRef);
 
-        const txId = `expire_${wishId}`;
-        const txRef = doc(collection(db!, "transactions"), txId);
-        transaction.set(txRef, {
-          type: "WISH_EXPIRED",
-          owner_id: wishData.requester_id,
-          amount: 0,
-          created_at: serverTimestamp(),
-          sender_id: wishData.requester_id,
-          sender_name: wishData.requester_name || "依頼主",
-          recipient_id: wishData.helper_id || null,
-          recipient_name: wishData.helper_name || null,
-          wish_title: wishData.content,
-          wish_id: wishId,
-          description: "期限を過ぎたため、自動的に整理されました"
+        recordExpiration(transaction, db!, {
+          wishId,
+          wishData
         });
       });
 
