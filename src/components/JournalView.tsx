@@ -3,36 +3,20 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuthHook';
 import { db } from '../lib/firebase';
 import { NameResolver } from './NameResolver';
-import { collection, query, where, limit, getDocs, Timestamp } from 'firebase/firestore';
+import { collection, query, where, limit, getDocs } from 'firebase/firestore';
 import { AppViewMode } from '../types';
 import { SideDrawer } from './SideDrawer';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Sun, Heart, Sparkles, CheckCircle2, Archive, Menu } from 'lucide-react';
 
-// ... (comments omitted)
-
-type TransactionLog = {
-  id: string;
-  owner_id?: string;
-  type: string; // 'GIFT', 'WISH_FULFILLMENT', 'REBIRTH'
-  amount: number;
-  created_at: Timestamp | { seconds: number, nanoseconds: number } | Date | number | string;
-  
-  sender_id?: string;
-  sender_name?: string;
-  recipient_id?: string;
-  recipient_name?: string;
-  wish_title?: string;
-  wish_id?: string;
-  description?: string;
-};
+import { TransactionRecord } from '../types/transaction';
 
 interface JournalViewProps {
   onTabChange?: (mode: AppViewMode) => void;
   onOpenOnboarding: () => void;
 }
 
-const parseDate = (val: TransactionLog['created_at']): Date => {
+const parseDate = (val: TransactionRecord['created_at']): Date => {
     if (!val) return new Date();
     if (val instanceof Date) return val;
     if (typeof val === 'number') return new Date(val);
@@ -45,7 +29,7 @@ const parseDate = (val: TransactionLog['created_at']): Date => {
 export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnboarding }) => {
   const { user } = useAuth();
   const { t: MESSAGES } = useLanguage();
-  const [logs, setLogs] = useState<TransactionLog[]>([]);
+  const [logs, setLogs] = useState<TransactionRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -75,11 +59,11 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
 
        const results = await Promise.allSettled(queries.map(q => getDocs(q)));
        
-       let allDocs: TransactionLog[] = [];
+       let allDocs: TransactionRecord[] = [];
        results.forEach((res, i) => {
            if (res.status === 'fulfilled') {
                const branchDocs = res.value.docs
-                   .map(d => ({ id: d.id, ...d.data() } as TransactionLog))
+                   .map(d => ({ id: d.id, ...d.data() } as TransactionRecord))
                    .filter(log => log.owner_id !== "__MIGRATED__"); // Skip marked legacy originals
                allDocs = [...allDocs, ...branchDocs];
            } else {
@@ -97,7 +81,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
        });
 
        // 2. Logic-based deduplication
-       const cleanLogs: TransactionLog[] = [];
+       const cleanLogs: TransactionRecord[] = [];
        sorted.forEach((current, i) => {
            if (i === 0) { cleanLogs.push(current); return; }
            const prev = cleanLogs[cleanLogs.length - 1];
@@ -123,7 +107,6 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
         <div className="border-b border-slate-100/50 pt-safe">
             <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between">
                  <div className="flex items-center gap-3 min-w-0">
-                    {/* Logo: ホームへ戻るボタン */}
                     <button
                         onClick={() => onTabChange?.('home')}
                         aria-label={MESSAGES.LAYOUT.RETURN_HOME}
@@ -135,7 +118,6 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
                             className="w-10 h-10 rounded-lg shadow-sm border border-slate-200/50 object-cover hover:opacity-80 transition-opacity"
                         />
                     </button>
-                    {/* Text Group */}
                     <div className="flex flex-col min-w-0">
                         <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>{MESSAGES.JOURNAL.TITLE}</h2>
                         <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate">{MESSAGES.JOURNAL.SUBTITLE}</p>
@@ -195,12 +177,11 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
   );
 };
 
-const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: TransactionLog, index: number, userId: string, MESSAGES: typeof import('../constants/messages').MESSAGES, formatDate: (d: Date) => string }) => {
+const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: TransactionRecord, index: number, userId: string, MESSAGES: typeof import('../constants/messages').MESSAGES, formatDate: (d: Date) => string }) => {
     const isSender = log.sender_id === userId;
     const date = parseDate(log.created_at);
     const dateStr = formatDate(date);
     
-    // --- 世界の理: 単一ソース・スナップショットのみを正義とする ---
     const partnerId = isSender ? log.recipient_id : log.sender_id;
     const partnerName = (
         <span className="font-bold">
@@ -215,6 +196,79 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
     let amountColor = isExp ? "text-rose-500" : "text-emerald-500";
     if (log.amount === 0) amountColor = "text-slate-500";
 
+    const getIcon = () => {
+      const t = log.type;
+      if (t === 'REBIRTH' || t === 'BIRTH') return <Sun size={14} className="text-amber-500 fill-amber-100" />;
+      if (t === 'GIFT') return isSender ? <Heart size={14} className="text-pink-500" /> : <Sparkles size={14} className="text-cyan-500" />;
+      if (t === 'WISH_CANCELLED' || t === 'WISH_EXPIRED') return <Archive size={14} className="text-slate-400" />;
+      if (t === 'COMPENSATION') return isSender ? <CheckCircle2 size={14} className="text-rose-400" /> : <Sun size={14} className="text-amber-500" />;
+      return <CheckCircle2 size={14} className={isExp ? "text-rose-500" : "text-emerald-500"} />;
+    };
+
+    const getTitle = () => {
+      const t = log.type;
+      if (t === 'BIRTH') return MESSAGES.JOURNAL.LOG_BIRTH;
+      if (t === 'REBIRTH') return MESSAGES.JOURNAL.LOG_REBIRTH;
+      if (t === 'GIFT') return isSender ? <>{partnerName}{MESSAGES.JOURNAL.LOG_GIFT_SENT}</> : <>{partnerName}{MESSAGES.JOURNAL.LOG_GIFT_RECV}</>;
+      if (t === 'WISH_CANCELLED') return log.wish_title ? MESSAGES.JOURNAL.LOG_WISH_CANCEL_TITLE.replace('%s', log.wish_title) : MESSAGES.JOURNAL.LOG_WISH_CANCEL;
+      if (t === 'WISH_EXPIRED') return log.wish_title ? MESSAGES.JOURNAL.LOG_WISH_EXPIRE_TITLE.replace('%s', log.wish_title) : MESSAGES.JOURNAL.LOG_WISH_EXPIRE;
+      if (t === 'COMPENSATION') {
+          const isWithdrawal = log.description === "compensation_sender" || log.description === "compensation_recv" || log.description?.includes(MESSAGES.JOURNAL.KW_WITHDRAWAL);
+          if (isSender) return isWithdrawal ? <>{partnerName}{MESSAGES.JOURNAL.LOG_COMP_SENDER_WITHDRAW}</> : <>{partnerName}{MESSAGES.JOURNAL.LOG_COMP_SENDER_NORMAL}</>;
+          return isWithdrawal ? <>{partnerName}{MESSAGES.JOURNAL.LOG_COMP_RECV_WITHDRAW}</> : <>{partnerName}{MESSAGES.JOURNAL.LOG_COMP_RECV_NORMAL}</>;
+      }
+      return isSender ? <>{partnerName}{MESSAGES.JOURNAL.LOG_WISH_SENDER}</> : <>{partnerName}{MESSAGES.JOURNAL.LOG_WISH_RECV}</>;
+    };
+
+    const getDescription = () => {
+      const d = log.description;
+      if (!d) return null;
+      
+      const isComp = log.type === 'COMPENSATION';
+      
+      // 1. Direct Literal Match (Optimized)
+      const directMap: Record<string, string> = {
+        "wish_fulfill_sender": MESSAGES.JOURNAL.DESC_WISH_SENDER,
+        "wish_fulfill_recv": MESSAGES.JOURNAL.DESC_WISH_RECV,
+        "wish_priceless": MESSAGES.JOURNAL.DESC_PRICELESS,
+        "wish_bankrupt_sender": MESSAGES.JOURNAL.DESC_WISH_PARTIAL_SENDER,
+        "wish_bankrupt_recv": MESSAGES.JOURNAL.DESC_WISH_PARTIAL_RECV,
+        "compensation_sender": MESSAGES.JOURNAL.DESC_COMP_SENDER,
+        "compensation_recv": MESSAGES.JOURNAL.DESC_COMP_RECV,
+        "user_cancellation": MESSAGES.JOURNAL.LOG_WISH_CANCEL,
+        "system_expiration": MESSAGES.JOURNAL.DESC_EXPIRED,
+        "system_birth": MESSAGES.JOURNAL.DESC_BIRTH,
+        "system_rebirth": MESSAGES.JOURNAL.DESC_REBIRTH,
+      };
+      if (directMap[d]) return directMap[d];
+
+      // 2. Legacy / Fuzzy Matching fallback
+      if (isComp) {
+          if (d.includes(MESSAGES.JOURNAL.KW_COMPENSATION_SENDER) || d.includes(MESSAGES.JOURNAL.KW_COMPENSATION_MAKER)) {
+              return isSender ? MESSAGES.JOURNAL.DESC_COMP_SENDER : MESSAGES.JOURNAL.DESC_COMP_RECV;
+          }
+          if (d === "中断に伴い、誠実のしるしをお渡ししました") return MESSAGES.JOURNAL.DESC_COMP_SENDER;
+          if (d === "依頼主の中断に伴い、誠実のしるしが届きました") return MESSAGES.JOURNAL.DESC_COMP_RECV;
+      }
+
+      if (d === "wish_fulfilled [Crystallized]") return isSender ? MESSAGES.JOURNAL.DESC_WISH_SENDER : MESSAGES.JOURNAL.DESC_WISH_RECV;
+      if (d === "wish_fulfilled (Bankruptcy Partial Payment) [Crystallized]") return isSender ? MESSAGES.JOURNAL.DESC_WISH_PARTIAL_SENDER : MESSAGES.JOURNAL.DESC_WISH_PARTIAL_RECV;
+      if (d === "願いを叶えてくれた感謝を、源気（Lm）に込めて贈りました") return MESSAGES.JOURNAL.DESC_WISH_SENDER;
+      if (d === "感謝が結晶（Lm）になって届きました") return MESSAGES.JOURNAL.DESC_WISH_RECV;
+      if (d === "想いが巡りました（Priceless）") return MESSAGES.JOURNAL.DESC_PRICELESS;
+      if (d === "感謝を贈りましたが、余力が足りず一部のみが結晶になりました") return MESSAGES.JOURNAL.DESC_WISH_PARTIAL_SENDER;
+      if (d === "感謝が届きましたが、余力が足りず一部のみが結晶になりました") return MESSAGES.JOURNAL.DESC_WISH_PARTIAL_RECV;
+      
+      if ([MESSAGES.JOURNAL.KW_BIRTH, MESSAGES.JOURNAL.DB_DESC_BIRTH, "源気が流れ込んできました", "命が宿りました", "誕生"].includes(d)) return MESSAGES.JOURNAL.DESC_BIRTH;
+      if ([MESSAGES.JOURNAL.KW_REBIRTH, MESSAGES.JOURNAL.DB_DESC_REBIRTH, "魂が再生されました", "再生"].includes(d)) return MESSAGES.JOURNAL.DESC_REBIRTH;
+      if (d === MESSAGES.JOURNAL.KW_BIRTH_ORIGINAL) return MESSAGES.JOURNAL.DESC_BIRTH;
+      if (d === MESSAGES.JOURNAL.KW_PRICELESS || d === "無償の願い") return MESSAGES.JOURNAL.DESC_PRICELESS;
+      if (d === "願いを取り下げました") return MESSAGES.JOURNAL.LOG_WISH_CANCEL;
+      if (["期限を過ぎたため、自動的に整理されました", "期限が経過したため、自動的に取り下げられました"].includes(d)) return MESSAGES.JOURNAL.DESC_EXPIRED;
+
+      return d;
+    };
+
     return (
         <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }} className="flex items-start gap-3 relative group transition-all rounded-xl p-2 -ml-2">
             <div className="w-12 pt-1 text-right shrink-0">
@@ -222,88 +276,18 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
                 <span className="text-xs font-mono text-slate-500 block">{date.getHours().toString().padStart(2, '0')}:{date.getMinutes().toString().padStart(2, '0')}</span>
             </div>
             <div className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 z-10 box-content bg-white ${isExp ? 'border-rose-100 shadow-sm' : 'border-emerald-100 shadow-sm'}`}>
-                {(() => {
-                    const t = log.type;
-                    if (t === 'REBIRTH' || t === 'BIRTH') return <Sun size={14} className="text-amber-500 fill-amber-100" />;
-                    if (t === 'GIFT') return isSender ? <Heart size={14} className="text-pink-500" /> : <Sparkles size={14} className="text-cyan-500" />;
-                    if (t === 'WISH_CANCELLED' || t === 'WISH_EXPIRED') return <Archive size={14} className="text-slate-400" />;
-                    if (t === 'COMPENSATION') return isSender ? <CheckCircle2 size={14} className="text-rose-400" /> : <Sun size={14} className="text-amber-500" />;
-                    return <CheckCircle2 size={14} className={isExp ? "text-rose-500" : "text-emerald-500"} />;
-                })()}
+                {getIcon()}
             </div>
             <div className="flex-1 pb-6 border-b border-slate-100 last:border-0">
                 <p className="text-sm text-slate-700 font-medium leading-relaxed">
-                    {(() => {
-                        const t = log.type;
-                        if (t === 'BIRTH') return MESSAGES.JOURNAL.LOG_BIRTH;
-                        if (t === 'REBIRTH') return MESSAGES.JOURNAL.LOG_REBIRTH;
-                        if (t === 'GIFT') return isSender ? <>{partnerName}{MESSAGES.JOURNAL.LOG_GIFT_SENT}</> : <>{partnerName}{MESSAGES.JOURNAL.LOG_GIFT_RECV}</>;
-                        if (t === 'WISH_CANCELLED') return log.wish_title ? MESSAGES.JOURNAL.LOG_WISH_CANCEL_TITLE.replace('%s', log.wish_title) : MESSAGES.JOURNAL.LOG_WISH_CANCEL;
-                        if (t === 'WISH_EXPIRED') return log.wish_title ? MESSAGES.JOURNAL.LOG_WISH_EXPIRE_TITLE.replace('%s', log.wish_title) : MESSAGES.JOURNAL.LOG_WISH_EXPIRE;
-                        if (t === 'COMPENSATION') {
-                            const isWithdrawal = log.description?.includes(MESSAGES.JOURNAL.KW_WITHDRAWAL);
-                            if (isSender) return isWithdrawal ? <>{partnerName}{MESSAGES.JOURNAL.LOG_COMP_SENDER_WITHDRAW}</> : <>{partnerName}{MESSAGES.JOURNAL.LOG_COMP_SENDER_NORMAL}</>;
-                            return isWithdrawal ? <>{partnerName}{MESSAGES.JOURNAL.LOG_COMP_RECV_WITHDRAW}</> : <>{partnerName}{MESSAGES.JOURNAL.LOG_COMP_RECV_NORMAL}</>;
-                        }
-                        return isSender ? <>{partnerName}{MESSAGES.JOURNAL.LOG_WISH_SENDER}</> : <>{partnerName}{MESSAGES.JOURNAL.LOG_WISH_RECV}</>;
-                    })()}
+                    {getTitle()}
                 </p>
                 {log.wish_title && log.type !== 'WISH_CANCELLED' && log.type !== 'WISH_EXPIRED' && (
                     <p className="text-xs text-slate-400 mt-1 pl-2 border-l-2 border-slate-100 line-clamp-1 italic">"{log.wish_title}"</p>
                 )}
-                {log.description && (
-                    <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">
-                        {(() => {
-                            const d = log.description;
-                            const isComp = log.type === 'COMPENSATION';
-                            
-                            // ── Compensation ──
-                            if (isComp) {
-                                // New language-agnostic keys
-                                if (d === "compensation_sender") return MESSAGES.JOURNAL.DESC_COMP_SENDER;
-                                if (d === "compensation_recv")   return MESSAGES.JOURNAL.DESC_COMP_RECV;
-                                // Legacy keyword-based matching
-                                if (d.includes(MESSAGES.JOURNAL.KW_COMPENSATION_SENDER) || d.includes(MESSAGES.JOURNAL.KW_COMPENSATION_MAKER)) {
-                                    return isSender ? MESSAGES.JOURNAL.DESC_COMP_SENDER : MESSAGES.JOURNAL.DESC_COMP_RECV;
-                                }
-                                // Legacy full Japanese strings
-                                if (d === "中断に伴い、誠実のしるしをお渡ししました") return MESSAGES.JOURNAL.DESC_COMP_SENDER;
-                                if (d === "依頼主の中断に伴い、誠実のしるしが届きました") return MESSAGES.JOURNAL.DESC_COMP_RECV;
-                            }
-
-                            // ── Fulfillment ──
-                            // New language-agnostic keys
-                            if (d === "wish_fulfill_sender")  return MESSAGES.JOURNAL.DESC_WISH_SENDER;
-                            if (d === "wish_fulfill_recv")    return MESSAGES.JOURNAL.DESC_WISH_RECV;
-                            if (d === "wish_priceless")       return MESSAGES.JOURNAL.DESC_PRICELESS;
-                            if (d === "wish_bankrupt_sender") return MESSAGES.JOURNAL.DESC_WISH_PARTIAL_SENDER;
-                            if (d === "wish_bankrupt_recv")   return MESSAGES.JOURNAL.DESC_WISH_PARTIAL_RECV;
-                            // Legacy tag format
-                            if (d === "wish_fulfilled [Crystallized]") return isSender ? MESSAGES.JOURNAL.DESC_WISH_SENDER : MESSAGES.JOURNAL.DESC_WISH_RECV;
-                            if (d === "wish_fulfilled (Bankruptcy Partial Payment) [Crystallized]") return isSender ? MESSAGES.JOURNAL.DESC_WISH_PARTIAL_SENDER : MESSAGES.JOURNAL.DESC_WISH_PARTIAL_RECV;
-                            // Legacy full Japanese strings
-                            if (d === "願いを叶えてくれた感謝を、源気（Lm）に込めて贈りました") return MESSAGES.JOURNAL.DESC_WISH_SENDER;
-                            if (d === "感謝が結晶（Lm）になって届きました") return MESSAGES.JOURNAL.DESC_WISH_RECV;
-                            if (d === "想いが巡りました（Priceless）") return MESSAGES.JOURNAL.DESC_PRICELESS;
-                            if (d === "感謝を贈りましたが、余力が足りず一部のみが結晶になりました") return MESSAGES.JOURNAL.DESC_WISH_PARTIAL_SENDER;
-                            if (d === "感謝が届きましたが、余力が足りず一部のみが結晶になりました") return MESSAGES.JOURNAL.DESC_WISH_PARTIAL_RECV;
-
-                            // ── Birth / Rebirth ──
-                            if (d === MESSAGES.JOURNAL.KW_BIRTH || d === MESSAGES.JOURNAL.DB_DESC_BIRTH || d === "源気が流れ込んできました" || d === "system_birth" || d === "命が宿りました" || d === "誕生") return MESSAGES.JOURNAL.DESC_BIRTH;
-                            if (d === MESSAGES.JOURNAL.KW_REBIRTH || d === MESSAGES.JOURNAL.DB_DESC_REBIRTH || d === "魂が再生されました" || d === "system_rebirth" || d === "再生") return MESSAGES.JOURNAL.DESC_REBIRTH;
-                            if (d === MESSAGES.JOURNAL.KW_BIRTH_ORIGINAL) return MESSAGES.JOURNAL.DESC_BIRTH;
-                            if (d === MESSAGES.JOURNAL.KW_PRICELESS || d === "無償の願い") return MESSAGES.JOURNAL.DESC_PRICELESS;
-
-                            // ── Cancellation / Expiration ──
-                            if (d === "user_cancellation" || d === "願いを取り下げました") return MESSAGES.JOURNAL.LOG_WISH_CANCEL;
-                            if (d === "system_expiration"
-                              || d === "期限を過ぎたため、自動的に整理されました"
-                              || d === "期限が経過したため、自動的に取り下げられました") return MESSAGES.JOURNAL.DESC_EXPIRED;
-
-                            return d;
-                        })()}
-                    </p>
-                )}
+                <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">
+                    {getDescription()}
+                </p>
                 <div className="mt-2 flex items-center justify-end gap-1">
                     {log.amount === 0 ? (
                         <span className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-2">

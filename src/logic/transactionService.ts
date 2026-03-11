@@ -1,10 +1,14 @@
 import { collection, doc, serverTimestamp, Transaction, Firestore } from "firebase/firestore";
 import { MESSAGES } from "../constants/messages";
-import { Wish } from "../types";
+import { Wish } from "./../types/index";
+import { TransactionRecord } from "../types/transaction";
 
-interface FulfillmentParams {
+type BaseParams = {
   wishId: string;
   wishData: Partial<Wish>;
+};
+
+interface FulfillmentParams extends BaseParams {
   issuerId: string;
   issuerName: string;
   fulfillerId: string;
@@ -23,9 +27,7 @@ export const recordFulfillment = (transaction: Transaction, db: Firestore, param
   const rxRef = doc(collection(db, "transactions"), `${txId}_RX`);
   const tags = wishData.tags || [];
 
-  // Sender Record
-  transaction.set(txRef, {
-    owner_id: issuerId,
+  const baseRecord: Partial<TransactionRecord> = {
     amount: paymentAmount,
     timestamp: serverTimestamp(),
     created_at: serverTimestamp(),
@@ -38,33 +40,25 @@ export const recordFulfillment = (transaction: Transaction, db: Firestore, param
     recipient_id: fulfillerId,
     recipient_name: fulfillerName,
     tags,
-    description: isBankruptcy ? "wish_bankrupt_sender" : (paymentAmount === 0 ? "wish_priceless" : "wish_fulfill_sender"),
     message: message || null 
+  };
+
+  // Sender Record
+  transaction.set(txRef, {
+    ...baseRecord,
+    owner_id: issuerId,
+    description: isBankruptcy ? "wish_bankrupt_sender" : (paymentAmount === 0 ? "wish_priceless" : "wish_fulfill_sender"),
   });
 
   // Receiver Record
   transaction.set(rxRef, {
+    ...baseRecord,
     owner_id: fulfillerId,
-    amount: paymentAmount,
-    timestamp: serverTimestamp(),
-    created_at: serverTimestamp(),
-    type: "WISH_FULFILLMENT",
-    sub_type: txType,
-    wish_id: wishId,
-    wish_title: wishData.content,
-    sender_id: issuerId,
-    sender_name: issuerName,
-    recipient_id: fulfillerId,
-    recipient_name: fulfillerName,
-    tags,
     description: isBankruptcy ? "wish_bankrupt_recv" : (paymentAmount === 0 ? "wish_priceless" : "wish_fulfill_recv"),
-    message: message || null 
   });
 };
 
-interface CompensationParams {
-  wishId: string;
-  wishData: Partial<Wish>;
+interface CompensationParams extends BaseParams {
   senderId: string;
   senderName: string;
   recipientId: string;
@@ -79,9 +73,7 @@ export const recordCompensation = (transaction: Transaction, db: Firestore, para
   const txRef = doc(collection(db, "transactions"), txId);
   const rxRef = doc(collection(db, "transactions"), `${txId}_RX`);
 
-  // Sender Record
-  transaction.set(txRef, {
-    owner_id: senderId,
+  const baseRecord: Partial<TransactionRecord> = {
     type: "COMPENSATION",
     amount: paymentAmount, 
     created_at: serverTimestamp(),
@@ -91,28 +83,24 @@ export const recordCompensation = (transaction: Transaction, db: Firestore, para
     recipient_name: recipientName,
     wish_title: wishData.content,
     wish_id: wishId,
+  };
+
+  // Sender Record
+  transaction.set(txRef, {
+    ...baseRecord,
+    owner_id: senderId,
     description: "compensation_sender"
   });
 
   // Receiver Record
   transaction.set(rxRef, {
+    ...baseRecord,
     owner_id: recipientId,
-    type: "COMPENSATION",
-    amount: paymentAmount, 
-    created_at: serverTimestamp(),
-    sender_id: senderId,
-    sender_name: senderName, 
-    recipient_id: recipientId,
-    recipient_name: recipientName,
-    wish_title: wishData.content,
-    wish_id: wishId,
     description: "compensation_recv"
   });
 };
 
-interface SimpleCancelParams {
-  wishId: string;
-  wishData: Partial<Wish>;
+interface SimpleCancelParams extends BaseParams {
   ownerId: string;
 }
 
@@ -121,7 +109,7 @@ export const recordCancellation = (transaction: Transaction, db: Firestore, para
   const txId = `cancel_${wishId}`;
   const txRef = doc(collection(db, "transactions"), txId);
 
-  transaction.set(txRef, {
+  const record: Partial<TransactionRecord> = {
     type: "WISH_CANCELLED",
     owner_id: ownerId,
     amount: 0,
@@ -133,20 +121,19 @@ export const recordCancellation = (transaction: Transaction, db: Firestore, para
     wish_title: wishData.content,
     wish_id: wishId,
     description: "user_cancellation"
-  });
+  };
+
+  transaction.set(txRef, record);
 };
 
-interface ExpirationParams {
-  wishId: string;
-  wishData: Partial<Wish>;
-}
+interface ExpirationParams extends BaseParams {}
 
 export const recordExpiration = (transaction: Transaction, db: Firestore, params: ExpirationParams) => {
   const { wishId, wishData } = params;
   const txId = `expire_${wishId}`;
   const txRef = doc(collection(db, "transactions"), txId);
   
-  transaction.set(txRef, {
+  const record: Partial<TransactionRecord> = {
     type: "WISH_EXPIRED",
     owner_id: wishData.requester_id,
     amount: 0,
@@ -157,6 +144,9 @@ export const recordExpiration = (transaction: Transaction, db: Firestore, params
     recipient_name: wishData.helper_name || null,
     wish_title: wishData.content,
     wish_id: wishId,
-    description: "期限を過ぎたため、自動的に整理されました"
-  });
+    description: "system_expiration"
+  };
+
+  transaction.set(txRef, record);
 };
+
