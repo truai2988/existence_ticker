@@ -13,6 +13,7 @@ import {
   Shield,
   Menu,
   Users,
+  Languages,
 } from "lucide-react";
 
 import React, { useState } from "react";
@@ -45,6 +46,7 @@ interface ListItemProps {
   hasArrow?: boolean;
   iconColor?: string;
   iconBg?: string;
+  children?: React.ReactNode;
 }
 
 const ListItem: React.FC<ListItemProps> = ({
@@ -56,11 +58,11 @@ const ListItem: React.FC<ListItemProps> = ({
   hasArrow = true,
   iconColor = "text-slate-500",
   iconBg = "bg-slate-100",
+  children,
 }) => (
-  <button
+  <div
+    className={`w-full flex items-center justify-between p-4 bg-white border-b border-slate-100 last:border-0 ${onClick ? "hover:bg-slate-50 cursor-pointer active:bg-slate-100 transition-colors" : ""} ${isDestructive ? "text-red-500" : "text-slate-700"}`}
     onClick={onClick}
-    disabled={!onClick}
-    className={`w-full flex items-center justify-between p-4 bg-white border-b border-slate-100 last:border-0 ${onClick ? "hover:bg-slate-50 cursor-pointer" : "cursor-default"} transition-colors ${isDestructive ? "text-red-500" : "text-slate-700"}`}
   >
     <div className="flex items-center gap-3">
       <div className={`p-2 rounded-full ${iconBg}`}>
@@ -72,11 +74,12 @@ const ListItem: React.FC<ListItemProps> = ({
       {value && (
         <span className="text-base font-bold text-slate-700 font-sans">{value}</span>
       )}
+      {children}
       {hasArrow && onClick && (
         <ChevronRight size={16} className="text-slate-500" />
       )}
     </div>
-  </button>
+  </div>
 );
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
@@ -480,45 +483,43 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     onClick={() => {
                       setConfirmMode("delete");
                       setDeleteStep(1);
-                      // Pre-emptively show re-auth if they are registered
                       if (!isAnonymous) setShowReauth(true);
                       else setShowReauth(false);
                     }}
                   />
                 )}
+
+              <ListItem
+                icon={Languages}
+                label={MESSAGES.PROFILE.LANG_TITLE}
+                hasArrow={false}
+              >
+                <div className="flex bg-slate-100 p-0.5 rounded-lg shrink-0">
+                  <button
+                    onClick={() => setLang('ja')}
+                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
+                      lang === 'ja'
+                        ? 'bg-white text-slate-800 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                  >
+                    日本語
+                  </button>
+                  <button
+                    onClick={() => setLang('en')}
+                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
+                      lang === 'en'
+                        ? 'bg-white text-slate-800 shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700'
+                    }`}
+                  >
+                    EN
+                  </button>
+                </div>
+              </ListItem>
             </div>
 
-            {/* Language Setting */}
-            <div className="bg-white mt-6 rounded-xl overflow-hidden border border-slate-200 shadow-sm p-4 flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-sm font-bold text-slate-700">{MESSAGES.PROFILE.LANG_TITLE}</span>
-                <span className="text-xs text-slate-500 mt-1">
-                  {MESSAGES.PROFILE.LANG_HELP}
-                </span>
-              </div>
-              <div className="flex bg-slate-100 p-1 rounded-lg">
-                <button
-                  onClick={() => setLang('ja')}
-                  className={`px-3 py-1.5 text-sm font-bold rounded-md transition-all ${
-                    lang === 'ja'
-                      ? 'bg-white text-slate-800 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-700'
-                  }`}
-                >
-                  日本語
-                </button>
-                <button
-                  onClick={() => setLang('en')}
-                  className={`px-3 py-1.5 text-sm font-bold rounded-md transition-all ${
-                    lang === 'en'
-                      ? 'bg-white text-slate-800 shadow-sm'
-                      : 'text-slate-500 hover:text-slate-700'
-                  }`}
-                >
-                  EN
-                </button>
-              </div>
-            </div>
+
 
              <div className="text-center text-xs text-slate-500 py-4 font-sans focus:outline-none">
                Existence Ticker v0.2.0
