@@ -290,13 +290,13 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
                     {getDescription()}
                 </p>
                 <div className="mt-2 flex items-center justify-end gap-1">
-                    {log.amount === 0 ? (
-                        <span className="text-sm font-bold text-slate-500 uppercase tracking-widest pl-2">
-                           {log.type === 'WISH_EXPIRED' ? MESSAGES.JOURNAL.TAG_EXPIRED : MESSAGES.JOURNAL.TAG_RECORDED}
-                        </span>
-                    ) : (
-                        <><span className={`text-base font-mono font-bold ${amountColor}`}>{(!isSender || isGrant) ? '+' : '-'}{Math.floor(Math.abs(log.amount)).toLocaleString()}</span><span className="text-sm text-slate-500 ml-1">Lm</span></>
-                    )}
+                    <span className={`text-base font-mono font-bold ${amountColor}`}>
+                        {Math.floor(Math.abs(log.amount)) === 0 
+                            ? '±0' 
+                            : `${(!isSender || isGrant) ? '+' : '-'}${Math.floor(Math.abs(log.amount)).toLocaleString()}`
+                        }
+                    </span>
+                    <span className="text-sm text-slate-500 ml-1 font-sans">Lm</span>
                 </div>
             </div>
         </motion.div>
