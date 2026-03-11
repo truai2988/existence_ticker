@@ -29,10 +29,10 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
     <>
       <div className="flex items-center gap-2 mb-3">
         {contextLabel && (
-          <span className={`text-xs font-bold px-2 py-0.5 rounded-md uppercase tracking-tighter font-sans ${
+          <span className={`text-sm font-bold px-2 py-0.5 rounded-md uppercase tracking-tighter font-sans ${
             isMyWish ? "bg-amber-50 text-amber-600 border border-amber-100/50" :
             wish.helper_id === state.currentUserId ? "bg-blue-50 text-blue-600 border border-blue-100/50" :
-            "bg-slate-50 text-slate-400 border border-slate-100"
+            "bg-slate-50 text-slate-500 border border-slate-100"
           }`}>
             {contextLabel}
           </span>
@@ -84,7 +84,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                     <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
                       <User className="w-5 h-5 text-slate-500" />
                     </div>
-                    <div className="text-xs text-slate-600 font-bold font-sans">{MESSAGES.WISH_CARD.HDR_UNFULFILLED}</div>
+                    <div className="text-sm text-slate-600 font-bold font-sans">{MESSAGES.WISH_CARD.HDR_UNFULFILLED}</div>
                   </div>
                 )}
               </div>
@@ -116,13 +116,13 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                   {!isMyWish && (
                     <>
                       {trust.isVerified && <ShieldCheck size={14} className="text-blue-400 fill-blue-50 shrink-0" strokeWidth={2.5} />}
-                      <div className="flex items-center gap-2 text-xs shrink-0">
+                      <div className="flex items-center gap-2 text-sm shrink-0">
                         <div title={`${MESSAGES.WISH_CARD.TTL_THANKS_DELIVERED} ${wish.requester_trust_score || 0}`} className={`flex items-center gap-0.5 ${trust.color}`}>
-                          {trust.icon} <span className="text-xs font-bold leading-none translate-y-px">{trust.label}</span>
+                          {trust.icon} <span className="text-sm font-bold leading-none translate-y-px">{trust.label}</span>
                         </div>
                         {(wish.requester_completed_requests || 0) > 0 && (
-                          <span title={MESSAGES.WISH_CARD.HDR_REQ_COUNT + (wish.requester_completed_requests || 0)} className="text-slate-500 font-bold flex items-center gap-1">
-                            <Megaphone className="w-3 h-3" /> <span className="font-bold">{MESSAGES.WISH_CARD.HDR_REQ_COUNT}{wish.requester_completed_requests || 0}</span>
+                          <span title={MESSAGES.WISH_CARD.HDR_REQ_COUNT + (wish.requester_completed_requests || 0)} className="text-slate-600 font-bold flex items-center gap-1">
+                            <Megaphone className="w-3 h-3" /> <span className="text-sm font-bold">{MESSAGES.WISH_CARD.HDR_REQ_COUNT}{wish.requester_completed_requests || 0}</span>
                           </span>
                         )}
                       </div>
@@ -130,12 +130,12 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                   )}
                 </div>
                 {!isMasked && requesterProfile?.bio && (
-                  <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed font-sans">
+                  <p className="text-sm text-slate-600 mt-1 line-clamp-2 leading-relaxed font-sans">
                     {requesterProfile.bio.length > 60 ? `${requesterProfile.bio.slice(0, 60)}...` : requesterProfile.bio}
                   </p>
                 )}
-                <span className="flex items-center gap-1 text-xs text-slate-500 mt-0.5 font-sans">
-                  <Clock className="w-3 h-3" />
+                <span className="flex items-center gap-1 text-sm text-slate-600 mt-0.5 font-sans">
+                  <Clock className="w-3.5 h-3.5" />
                   <span>{formatDate(wish.created_at)}</span>
                 </span>
               </div>

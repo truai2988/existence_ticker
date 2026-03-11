@@ -330,9 +330,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <span className="text-3xl font-light tracking-[0.2em] text-slate-600 mb-1 drop-shadow-sm pl-[0.8em] font-serif">
                     {ritualMessage}
                   </span>
-                  <span className="text-xs font-medium tracking-[0.3em] text-slate-500 pl-[0.3em] uppercase font-sans">
+                  <span className="text-sm font-medium tracking-[0.3em] text-slate-600 pl-[0.3em] uppercase font-sans">
                     {MESSAGES.HOME.MONOTONE_SUB_1}{" "}
-                    <span className="text-slate-600">{MESSAGES.HOME.MONOTONE_SUB_2}</span>
+                    <span className="text-slate-700">{MESSAGES.HOME.MONOTONE_SUB_2}</span>
                   </span>
                 </div>
               </div>
@@ -404,7 +404,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-4">
                 <AlertCircle className="text-amber-500" size={24} />
               </div>
-              <p className="text-xs text-slate-700 font-medium leading-relaxed mb-6 whitespace-pre-wrap font-sans">
+              <p className="text-sm text-slate-800 font-medium leading-relaxed mb-6 whitespace-pre-wrap font-sans">
                 {notification}
               </p>
               <button

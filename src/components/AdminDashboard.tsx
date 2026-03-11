@@ -227,7 +227,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       }
     }
 
-    if (!window.confirm(`⚠️ ${u.name || u.id} の権限を変更しますか？`)) return;
+    if (!window.confirm(`⚠️ ${u.name || "ユーザー"} の権限を変更しますか？`)) return;
     try {
       if (!db) return;
       const { doc, updateDoc } = await import("firebase/firestore");
@@ -342,7 +342,7 @@ https://www.existenceticker.com/?code=${codeId}
       <div className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center">
         <div className="text-center">
           <Activity className="w-10 h-10 text-yellow-500 animate-pulse mx-auto mb-4" />
-          <div className="text-white font-mono tracking-widest text-xs">
+          <div className="text-white font-mono tracking-widest text-sm">
             経済を読み込み中...
           </div>
         </div>
@@ -365,7 +365,7 @@ https://www.existenceticker.com/?code=${codeId}
       {/* Header (Full Width Sticky) */}
       {showManual && <ProtocolManual onClose={() => setShowManual(false)} />}
       <div className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-slate-800/50 w-full">
-        <div className="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center flex-wrap gap-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-slate-800 rounded-lg">
               <Activity className="w-5 h-5 text-slate-200" />
@@ -400,9 +400,9 @@ https://www.existenceticker.com/?code=${codeId}
         </div>
       </div>
 
-      <div className="min-h-full p-4 pb-40 max-w-3xl mx-auto relative">
+      <div className="min-h-full p-4 pb-40 max-w-3xl mx-auto relative w-full overflow-x-hidden">
         {error && (
-          <div className="mb-4 p-3 border border-red-500/30 bg-red-900/10 rounded text-red-400 text-sm">
+          <div className="mb-4 p-3 border border-red-500/30 bg-red-900/10 rounded text-red-400 text-base">
             ⚠️ {error}
           </div>
         )}
@@ -450,37 +450,43 @@ https://www.existenceticker.com/?code=${codeId}
           )}
 
           {activeTab === "citizens" && (
-            <AdminCitizens 
-              userList={userList}
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              onToggleAdmin={toggleAdmin}
-              onLoadMore={() => fetchUsers(true)}
-              hasMore={hasMoreUsers}
-              isLoading={isLoadingUsers}
-            />
+            <div className="w-full min-w-0">
+              <AdminCitizens 
+                userList={userList}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                onToggleAdmin={toggleAdmin}
+                onLoadMore={() => fetchUsers(true)}
+                hasMore={hasMoreUsers}
+                isLoading={isLoadingUsers}
+              />
+            </div>
           )}
 
           {activeTab === "invitations" && (
-            <AdminInvitations 
-              inviteCodes={inviteCodes}
-              onGenerateCode={generateInviteCode}
-              onCopyInvitation={handleCopyInvitation}
-              onUpdateMemo={updateInviteMemo}
-              copiedCodeId={copiedCodeId}
-            />
+            <div className="w-full min-w-0">
+              <AdminInvitations 
+                inviteCodes={inviteCodes}
+                onGenerateCode={generateInviteCode}
+                onCopyInvitation={handleCopyInvitation}
+                onUpdateMemo={updateInviteMemo}
+                copiedCodeId={copiedCodeId}
+              />
+            </div>
           )}
 
           {activeTab === "seeds" && (
-            <AdminSeeds 
-              seeds={seeds}
-              onFetchSeeds={fetchSeeds}
-              onSeedLibrary={seedLibrary}
-              onAddSeed={addSeed}
-              onDeleteSeed={deleteSeed}
-              isLoading={isLoadingSeeds}
-              isAdding={isAddingSeed}
-            />
+            <div className="w-full min-w-0">
+              <AdminSeeds 
+                seeds={seeds}
+                onFetchSeeds={fetchSeeds}
+                onSeedLibrary={seedLibrary}
+                onAddSeed={addSeed}
+                onDeleteSeed={deleteSeed}
+                isLoading={isLoadingSeeds}
+                isAdding={isAddingSeed}
+              />
+            </div>
           )}
         </div>
       </div>

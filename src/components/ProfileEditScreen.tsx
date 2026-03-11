@@ -212,7 +212,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>
                                     {MESSAGES.PROFILE.EDIT_TITLE}
                                 </h2>
-                                <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate mt-0.5">
+                                <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase truncate mt-0.5">
                                     {MESSAGES.PROFILE.EDIT_SUBTITLE}
                                 </p>
                             </div>
@@ -271,12 +271,12 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                         </div>
                         <div className="flex flex-col items-center gap-1 mt-2">
                            {isOptimizing ? (
-                               <div className="flex items-center gap-1.5 text-blue-600 animate-pulse">
+                               <div className="flex items-center gap-1.5 text-blue-700 animate-pulse">
                                    <Sparkles size={12} />
-                                   <span className="text-xs font-bold tracking-wider">{MESSAGES.PROFILE.PHOTO_OPTIMIZING}</span>
+                                   <span className="text-sm font-bold tracking-wider">{MESSAGES.PROFILE.PHOTO_OPTIMIZING}</span>
                                </div>
                            ) : (
-                               <p className="text-xs text-slate-400 font-medium">{MESSAGES.PROFILE.PHOTO_CHANGE}</p>
+                               <p className="text-sm text-slate-500 font-medium">{MESSAGES.PROFILE.PHOTO_CHANGE}</p>
                            )}
                         </div>
                     </div>
@@ -310,7 +310,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 <XCircle size={18} className="text-slate-400 shrink-0" strokeWidth={2.5} />
                             )}
                             <span className={`text-sm ${bio.length >= 30 ? 'text-slate-700 font-medium' : 'text-slate-500'}`}>
-                                {MESSAGES.PROFILE.REQ_BIO} <span className="font-mono text-sm ml-1">({bio.length}/30)</span>
+                                {MESSAGES.PROFILE.REQ_BIO} <span className="font-mono text-base ml-1">({bio.length}/30)</span>
                             </span>
                         </div>
                         {/* Links Check */}
@@ -329,10 +329,10 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
 
                     {/* Basic Info Group */}
                     <div className="space-y-4">
-                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">{MESSAGES.PROFILE.BASIC_INFO}</h3>
+                        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider ml-1">{MESSAGES.PROFILE.BASIC_INFO}</h3>
                         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.NAME_LABEL}</label>
+                                <label className="block text-sm font-bold text-slate-600 mb-1.5">{MESSAGES.PROFILE.NAME_LABEL}</label>
                                 <input 
                                     type="text" 
                                     value={name}
@@ -342,7 +342,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.AGE_LABEL}</label>
+                                <label className="block text-sm font-bold text-slate-600 mb-1.5">{MESSAGES.PROFILE.AGE_LABEL}</label>
                                 <div className="relative">
                                     <select 
                                         value={age_group}
@@ -360,7 +360,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.GENDER_LABEL}</label>
+                                <label className="block text-sm font-bold text-slate-600 mb-1.5">{MESSAGES.PROFILE.GENDER_LABEL}</label>
                                 <div className="grid grid-cols-3 gap-2">
                                     {[
                                         { value: 'male', label: MESSAGES.AUTH.GENDER_MALE },
@@ -371,10 +371,10 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                             key={opt.value}
                                             type="button"
                                             onClick={() => setGender(opt.value as "male" | "female" | "other")}
-                                            className={`py-2.5 px-2 rounded-xl text-xs font-bold transition-all border ${
+                                            className={`py-2.5 px-2 rounded-xl text-sm font-bold transition-all border ${
                                                 gender === opt.value
                                                     ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                                                    : "bg-slate-50 text-slate-500 border-slate-100 hover:bg-slate-100"
+                                                    : "bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100"
                                             }`}
                                         >
                                             {opt.label}
@@ -382,13 +382,13 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     ))}
                                 </div>
                                 {gender === 'other' && (
-                                    <p className="text-xs text-slate-400 mt-1.5 ml-1">
+                                    <p className="text-sm text-slate-500 mt-1.5 ml-1">
                                         {MESSAGES.PROFILE.GENDER_NOTE}
                                     </p>
                                 )}
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.BIO_LABEL}</label>
+                                <label className="block text-sm font-bold text-slate-600 mb-1.5">{MESSAGES.PROFILE.BIO_LABEL}</label>
                                 <textarea 
                                     value={bio}
                                     onChange={(e) => setBio(e.target.value)}
@@ -396,21 +396,21 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     placeholder={MESSAGES.PROFILE.BIO_PLACEHOLDER}
                                     maxLength={160}
                                 />
-                                <div className="text-right text-xs text-slate-400 mt-1">{bio.length}/160</div>
+                                <div className="text-right text-sm text-slate-500 mt-1">{bio.length}/160</div>
                             </div>
                         </div>
                     </div>
 
                     {/* Location Group */}
                     <div className="space-y-4">
-                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 flex items-center gap-1">
+                        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider ml-1 flex items-center gap-1">
                             <MapPin size={12} />
                             {MESSAGES.PROFILE.LOCATION_TITLE}
                         </h3>
                         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.LOCATION_PREF_LABEL}</label>
+                                    <label className="block text-sm font-bold text-slate-600 mb-1.5">{MESSAGES.PROFILE.LOCATION_PREF_LABEL}</label>
                                     <div className="relative">
                                         <select 
                                             value={location.prefecture}
@@ -428,7 +428,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.LOCATION_CITY_LABEL}</label>
+                                    <label className="block text-sm font-bold text-slate-600 mb-1.5">{MESSAGES.PROFILE.LOCATION_CITY_LABEL}</label>
                                     <div className="relative">
                                         <select 
                                             value={location.city}
@@ -452,18 +452,18 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
 
                     {/* Links Group */}
                     <div className="space-y-4">
-                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 flex items-center gap-1">
+                        <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider ml-1 flex items-center gap-1">
                             <LinkIcon size={12} />
                             {MESSAGES.PROFILE.SNS_TITLE}
                         </h3>
                         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                             <div className="flex items-center gap-3">
-                                <span className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center text-white shrink-0 font-bold text-xs">𝕏</span>
+                                <span className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center text-white shrink-0 font-bold text-sm">𝕏</span>
                                 <input 
                                     type="text" 
                                     value={links.x}
                                     onChange={(e) => setLinks(prev => ({ ...prev, x: e.target.value }))}
-                                    className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
+                                    className="flex-1 min-w-0 p-3 bg-white border border-slate-200 rounded-xl text-slate-700 text-base font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
                                     placeholder={MESSAGES.PROFILE.SNS_PLACEHOLDER_USER}
                                 />
                             </div>
@@ -475,7 +475,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     type="text" 
                                     value={links.instagram}
                                     onChange={(e) => setLinks(prev => ({ ...prev, instagram: e.target.value }))}
-                                    className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
+                                    className="flex-1 min-w-0 p-3 bg-white border border-slate-200 rounded-xl text-slate-700 text-base font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
                                     placeholder={MESSAGES.PROFILE.SNS_PLACEHOLDER_USER}
                                 />
                             </div>
@@ -487,7 +487,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     type="text" 
                                     value={links.website}
                                     onChange={(e) => setLinks(prev => ({ ...prev, website: e.target.value }))}
-                                    className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
+                                    className="flex-1 min-w-0 p-3 bg-white border border-slate-200 rounded-xl text-slate-700 text-base font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
                                     placeholder={MESSAGES.PROFILE.SNS_PLACEHOLDER_WEB}
                                 />
                             </div>
@@ -497,17 +497,17 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                     {/* Email Address Group */}
                     {user?.email && (
                         <div className="space-y-4">
-                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 flex items-center gap-1">
+                            <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider ml-1 flex items-center gap-1">
                                 <Mail size={12} />
                                 {MESSAGES.PROFILE.ACCOUNT_TITLE}
                             </h3>
                             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.EMAIL_LABEL}</label>
-                                    <div className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]">
+                                    <label className="block text-sm font-bold text-slate-600 mb-1.5">{MESSAGES.PROFILE.EMAIL_LABEL}</label>
+                                    <div className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-700 text-base font-mono shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]">
                                         {user.email}
                                     </div>
-                                    <p className="text-xs text-slate-400 mt-1.5 ml-1 flex items-center gap-1">
+                                    <p className="text-sm text-slate-500 mt-1.5 ml-1 flex items-center gap-1">
                                         <AlertCircle size={10} />
                                         {MESSAGES.PROFILE.EMAIL_NOTE}
                                     </p>
@@ -534,29 +534,29 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                         <h3 className="font-bold text-slate-800 mb-4 text-center">{MESSAGES.PROFILE.EMAIL_MODAL_TITLE}</h3>
                         <form onSubmit={handleEmailChange} className="space-y-3">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.EMAIL_NEW_LABEL}</label>
+                                <label className="block text-sm font-bold text-slate-600 mb-1.5">{MESSAGES.PROFILE.EMAIL_NEW_LABEL}</label>
                                 <input 
                                     type="email" 
                                     value={newEmail}
                                     onChange={(e) => setNewEmail(e.target.value)}
                                     placeholder="new@example.com" 
                                     required 
-                                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
+                                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-base font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.EMAIL_PW_LABEL}</label>
+                                <label className="block text-sm font-bold text-slate-600 mb-1.5">{MESSAGES.PROFILE.EMAIL_PW_LABEL}</label>
                                 <input 
                                     type="password" 
                                     value={emailPassword}
                                     onChange={(e) => setEmailPassword(e.target.value)}
                                     placeholder={MESSAGES.PROFILE.PH_PASSWORD} 
                                     required 
-                                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
+                                    className="w-full p-3 bg-white border border-slate-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
                                 />
                             </div>
-                            {emailError && <p className="text-xs text-red-500 bg-red-50 p-2 rounded">{emailError}</p>}
-                            {emailSuccess && <p className="text-xs text-green-500 bg-green-50 p-2 rounded">{emailSuccess}</p>}
+                            {emailError && <p className="text-sm text-red-600 bg-red-50 p-2 rounded">{emailError}</p>}
+                            {emailSuccess && <p className="text-sm text-green-600 bg-green-50 p-2 rounded">{emailSuccess}</p>}
                             
                             <div className="flex gap-3 mt-4">
                                 <button 

@@ -61,17 +61,17 @@ export const CardFooter: React.FC<{
       <div className="flex flex-col gap-1 items-start">
         <div className="">
           {wish.status === "in_progress" && (
-            <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 whitespace-nowrap shrink-0">
+            <span className="text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 whitespace-nowrap shrink-0">
               {MESSAGES.WISH_CARD.FTR_IN_PROGRESS}
             </span>
           )}
           {wish.status === "cancelled" && (
             <span
-              className={`text-xs font-bold px-3 py-1 rounded-full border whitespace-nowrap shrink-0 ${
+              className={`text-sm font-bold px-3 py-1 rounded-full border whitespace-nowrap shrink-0 ${
                 wish.cancel_reason === "helper_cancellation" ||
                 wish.cancel_reason === "compensatory_cancellation"
                   ? "text-red-600 bg-red-50 border-red-100"
-                  : "text-slate-500 bg-slate-100 border-slate-200"
+                  : "text-slate-600 bg-slate-100 border-slate-200"
               }`}
             >
               {wish.cancel_reason === "helper_cancellation" ||
@@ -83,28 +83,28 @@ export const CardFooter: React.FC<{
             </span>
           )}
           {wish.status === "review_pending" && (
-            <span className="text-xs font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full border border-purple-100 animate-pulse whitespace-nowrap shrink-0">
+            <span className="text-sm font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full border border-purple-100 animate-pulse whitespace-nowrap shrink-0">
               {MESSAGES.WISH_CARD.FTR_WAIT_CONFIRM}
             </span>
           )}
           {(wish.status === "fulfilled" || wish.status === "completed") && (
-            <span className="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100 whitespace-nowrap shrink-0">
+            <span className="text-sm font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100 whitespace-nowrap shrink-0">
               {MESSAGES.WISH_CARD.FTR_THANKED}
             </span>
           )}
           {wish.status === "expired" && (
-            <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
+            <span className="text-sm font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
               {MESSAGES.WISH_CARD.FTR_EXPIRED_SETTLED}
             </span>
           )}
           {wish.status === "open" &&
             (isExpired ? (
-              <span className="flex items-center gap-1 text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full border border-red-100 whitespace-nowrap shrink-0">
+              <span className="flex items-center gap-1 text-sm font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-100 whitespace-nowrap shrink-0">
                 <AlertTriangle size={12} />
                 {MESSAGES.WISH_CARD.FTR_EXPIRED}
               </span>
             ) : (
-              <span className="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
+              <span className="text-sm font-bold text-slate-600 bg-slate-50 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
                 {MESSAGES.WISH_CARD.FTR_RECRUITING}
               </span>
             ))}
@@ -112,12 +112,12 @@ export const CardFooter: React.FC<{
 
         {isMyWish && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 ml-1">
-            <span className="flex items-center gap-1 text-xs text-slate-500">
+            <span className="flex items-center gap-1 text-sm text-slate-600">
               <Clock className="w-3.5 h-3.5" />
               <span>{formatDate(wish.created_at)}</span>
             </span>
             {wish.isAnonymous && (
-              <span className="text-xs font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-100 uppercase tracking-tight">
+              <span className="text-sm font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full border border-red-100 uppercase tracking-tight">
                 {MESSAGES.WISH_CARD.FTR_ANON}
               </span>
             )}
@@ -150,7 +150,7 @@ export const CardFooter: React.FC<{
               (wish.status === "review_pending" ||
                 wish.status === "in_progress") && (
                 <div className="flex flex-col items-end gap-2">
-                  <p className="text-xs font-bold text-slate-700">
+                  <p className="text-sm font-bold text-slate-800">
                     {MESSAGES.WISH_CARD.FTR_THANK_CONFIRM_1}
                     <br />
                     {MESSAGES.WISH_CARD.FTR_THANK_CONFIRM_2}
@@ -178,7 +178,7 @@ export const CardFooter: React.FC<{
               <div>
                 {hasApplied ? (
                   <div className="flex items-center gap-2">
-                    <span className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-500 rounded-full text-xs font-bold border border-slate-200 whitespace-nowrap shrink-0">
+                    <span className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-full text-sm font-bold border border-slate-200 whitespace-nowrap shrink-0">
                       <Clock size={14} />
                       {MESSAGES.WISH_CARD.TXT_WAITING_REPLY}
                     </span>

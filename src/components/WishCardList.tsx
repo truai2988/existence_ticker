@@ -60,7 +60,7 @@ export const WishCardList: React.FC<WishCardListProps> = ({
         return (
             <div className="flex flex-col items-center justify-center py-20 px-6 border-2 border-dashed border-slate-200 rounded-3xl bg-white/50">
                 {emptyIcon}
-                <p className="text-slate-400 text-sm font-medium">{emptyMessage || MESSAGES.WISH.EMPTY_DEFAULT}</p>
+                <p className="text-slate-600 text-sm font-medium">{emptyMessage || MESSAGES.WISH.EMPTY_DEFAULT}</p>
             </div>
         );
     }
@@ -70,7 +70,7 @@ export const WishCardList: React.FC<WishCardListProps> = ({
             {subtitle && (
                  <div className="flex items-center gap-2 pl-1 border-b border-slate-200 pb-1 mb-2 mt-2">
                     <span className="w-1 h-4 bg-amber-500/50 rounded-sm"></span>
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                    <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest">
                         {subtitle}
                     </h3>
                 </div>
@@ -103,7 +103,7 @@ export const WishCardList: React.FC<WishCardListProps> = ({
                     {isFetchingMore ? (
                         <Loader2 className="w-5 h-5 text-slate-400 animate-spin" />
                     ) : (
-                        <span className="text-xs text-slate-400">{MESSAGES.WISH.BTN_LOAD_MORE}</span>
+                        <span className="text-sm text-slate-500">{MESSAGES.WISH.BTN_LOAD_MORE}</span>
                     )}
                 </div>
             )}

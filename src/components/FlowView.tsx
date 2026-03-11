@@ -122,7 +122,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                 <div className="max-w-2xl mx-auto px-6 flex items-center gap-6 overflow-x-auto no-scrollbar relative min-h-[52px]">
                     <button 
                         onClick={() => setActiveTab('explore')}
-                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
+                        className={`relative py-3 text-base font-bold transition-all shrink-0 focus:outline-none ${
                             activeTab === 'explore' 
                                 ? 'text-amber-800' 
                                 : exploreWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
@@ -139,7 +139,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
 
                     <button
                         onClick={() => setActiveTab('pending')}
-                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
+                        className={`relative py-3 text-base font-bold transition-all shrink-0 focus:outline-none ${
                             activeTab === 'pending' 
                                 ? 'text-amber-700' 
                                 : pendingWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
@@ -156,7 +156,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
 
                     <button
                         onClick={() => setActiveTab('active')}
-                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
+                        className={`relative py-3 text-base font-bold transition-all shrink-0 focus:outline-none ${
                             activeTab === 'active' 
                                 ? 'text-emerald-700' 
                                 : activeWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'

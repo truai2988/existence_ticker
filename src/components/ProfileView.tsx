@@ -214,7 +214,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     <div className="flex-1 flex flex-col w-full h-full">
       {/* Subtle Section Header */}
       <div className="border-b border-slate-100/50 pt-safe">
-          <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between flex-nowrap gap-2">
+          <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between flex-wrap gap-y-4 gap-x-2">
               <div className="flex items-center gap-3 min-w-0">
                    {/* Logo: ホームへ戻るボタン */}
                    <button
@@ -229,9 +229,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                        />
                    </button>
                    {/* Text Group */}
-                   <div className="flex flex-col min-w-0">
+                   <div className="flex flex-col min-w-0 flex-1">
                                 <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>{MESSAGES.PROFILE.TITLE}</h2>
-                       <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate">{MESSAGES.PROFILE.SUBTITLE}</p>
+                       <p className="text-sm text-slate-500 font-mono tracking-[0.2em] uppercase truncate">{MESSAGES.PROFILE.SUBTITLE}</p>
                    </div>
               </div>
               <div className="flex h-12 items-center gap-3 shrink-0">
@@ -330,8 +330,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               {profile?.has_cancellation_history &&
                 (profile.consecutive_completions || 0) < 2 &&
                 user?.uid === profile.id && (
-                  <div className="mt-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg max-w-[200px]">
-                    <p className="text-xs text-slate-500 text-center leading-snug font-sans">
+                  <div className="mt-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg max-w-[240px]">
+                    <p className="text-sm text-slate-600 text-center leading-relaxed font-sans">
                       {MESSAGES.PROFILE.TRUST_RECOVERY_1}
                       <br />
                       {MESSAGES.PROFILE.TXT_LEFT_DAYS}{" "}
@@ -344,12 +344,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 )}
 
               <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-slate-500 font-mono mt-1 px-4">
-                <div className="flex items-center gap-1.5 px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50">
-                  <span>ID: {profile?.id?.slice(0, 6)}...</span>
-                </div>
                 {(profile?.location?.prefecture || profile?.location?.city) && (
                   <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50 text-slate-500">
-                    <MapPin size={10} className="shrink-0 text-slate-400" />
+                    <MapPin size={12} className="shrink-0 text-slate-400" />
                     <span className="whitespace-nowrap">
                       {mapPrefecture(profile.location.prefecture)} {mapCity(profile.location.city)}
                     </span>
@@ -497,7 +494,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 <div className="flex bg-slate-100 p-0.5 rounded-lg shrink-0">
                   <button
                     onClick={() => setLang('ja')}
-                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
+                    className={`px-3 py-1 text-sm font-bold rounded-md transition-all ${
                       lang === 'ja'
                         ? 'bg-white text-slate-800 shadow-sm'
                         : 'text-slate-500 hover:text-slate-700'
@@ -507,7 +504,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   </button>
                   <button
                     onClick={() => setLang('en')}
-                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
+                    className={`px-3 py-1 text-sm font-bold rounded-md transition-all ${
                       lang === 'en'
                         ? 'bg-white text-slate-800 shadow-sm'
                         : 'text-slate-500 hover:text-slate-700'
@@ -521,7 +518,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
 
 
-             <div className="text-center text-xs text-slate-500 py-4 font-sans focus:outline-none">
+             <div className="text-center text-sm text-slate-500 py-4 font-sans focus:outline-none">
                Existence Ticker v0.2.0
              </div>
           </div>
@@ -542,7 +539,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                    {MESSAGES.PROFILE.LOGOUT_CONFIRM}
                  </h3>
                 {isAnonymous && (
-                   <p className="text-xs text-red-500 mb-4 bg-red-50 p-2 rounded font-sans">
+                   <p className="text-sm text-red-500 mb-4 bg-red-50 p-3 rounded font-sans">
                      {MESSAGES.PROFILE.LOGOUT_GUEST_WARN}
                    </p>
                 )}
@@ -595,7 +592,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
                     {showReauth && (
                       <div className="mb-4 space-y-2 text-left">
-                        <p className="text-xs text-red-600 font-bold">{MESSAGES.PROFILE.PW_VERIFY}</p>
+                        <p className="text-sm text-red-600 font-bold">{MESSAGES.PROFILE.PW_VERIFY}</p>
                         <input
                           type="password"
                           value={reauthPassword}
@@ -645,7 +642,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     type="email"
                     placeholder={MESSAGES.PROFILE.PH_EMAIL}
                     required
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm"
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-lg text-base"
                     value={emailInput}
                     onChange={(e) => setEmailInput(e.target.value)}
                   />
@@ -653,7 +650,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     type="password"
                     placeholder={MESSAGES.PROFILE.PH_PASSWORD}
                     required
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm"
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-lg text-base"
                     value={passInput}
                     onChange={(e) => setPassInput(e.target.value)}
                   />
@@ -694,7 +691,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     type="password"
                     placeholder={MESSAGES.PROFILE.PH_NEW_PASSWORD}
                     required
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm"
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-lg text-base"
                     value={newPass}
                     onChange={(e) => setNewPass(e.target.value)}
                   />
@@ -702,15 +699,15 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     type="password"
                     placeholder={MESSAGES.PROFILE.PH_CONFIRM}
                     required
-                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm"
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-lg text-base"
                     value={confirmNewPass}
                     onChange={(e) => setConfirmNewPass(e.target.value)}
                   />
                   {errorMsg && (
-                    <p className="text-xs text-red-500">{errorMsg}</p>
+                    <p className="text-sm text-red-600">{errorMsg}</p>
                   )}
                   {successMsg && (
-                    <p className="text-xs text-green-500">{successMsg}</p>
+                    <p className="text-sm text-green-600">{successMsg}</p>
                   )}
 
                   <div className="flex gap-3 mt-4">
@@ -763,7 +760,7 @@ const AreaInfoCard: React.FC<{
 
   return (
     <div className="group">
-      <div className="text-xs font-bold text-slate-400 ml-2 mb-2 font-sans group-hover:text-slate-500 transition-colors">
+      <div className="text-sm font-bold text-slate-500 ml-2 mb-2 font-sans group-hover:text-slate-600 transition-colors">
         {MESSAGES.PROFILE.TTL_AREA_INFO}
       </div>
       <button 
@@ -780,14 +777,14 @@ const AreaInfoCard: React.FC<{
                 {locationText}
               </p>
               <div className="flex items-center gap-1.5 mt-0.5">
-                <Users size={12} className="text-slate-400" />
-                <span className="text-xs text-slate-500 font-mono">
+                <Users size={14} className="text-slate-500" />
+                <span className="text-sm text-slate-600 font-mono">
                   {userCountText}
                 </span>
               </div>
             </div>
           </div>
-          <ChevronRight size={16} className="text-slate-300 group-hover:text-slate-400 transition-colors" />
+          <ChevronRight size={16} className="text-slate-400 group-hover:text-slate-500 transition-colors" />
         </div>
       </button>
     </div>

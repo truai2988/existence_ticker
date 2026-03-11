@@ -43,7 +43,7 @@ export const AdminInvitations = React.memo<AdminInvitationsProps>(({
         </button>
       </div>
 
-      <div className="bg-slate-900/50 rounded-xl border border-slate-700 overflow-hidden">
+      <div className="bg-slate-900/50 rounded-xl border border-slate-700 overflow-hidden overflow-x-auto">
         <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
           {inviteCodes.length === 0 ? (
             <div className="p-12 text-center text-slate-500 flex flex-col items-center gap-2">
@@ -66,7 +66,7 @@ export const AdminInvitations = React.memo<AdminInvitationsProps>(({
                 .map((code) => (
                   <div
                     key={code.id}
-                    className="p-4 flex justify-between items-center hover:bg-slate-800/30 transition-colors font-mono"
+                    className="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:bg-slate-800/30 transition-colors font-mono"
                   >
                     <div className="flex items-center gap-4">
                       <div className="p-2 bg-slate-800 rounded border border-slate-700">
@@ -76,7 +76,7 @@ export const AdminInvitations = React.memo<AdminInvitationsProps>(({
                         <div className="text-lg font-bold text-slate-100 tracking-wider font-mono">
                           {code.id}
                         </div>
-                        <div className="text-[10px] text-slate-500">
+                        <div className="text-xs text-slate-500">
                           生成日時:{" "}
                           {code.created_at?.toDate
                             ? code.created_at.toDate().toLocaleString()
@@ -89,15 +89,14 @@ export const AdminInvitations = React.memo<AdminInvitationsProps>(({
                     <div className="flex items-center gap-4">
                       {code.is_used ? (
                         <div className="flex flex-col items-end">
-                          <span className="bg-slate-800 text-slate-400 px-3 py-1 rounded-full text-[10px] font-bold ring-1 ring-slate-700">
+                          <span className="bg-slate-800 text-slate-500 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-slate-700">
                             使用済み
                           </span>
                           {code.used_by && (
                             <div
-                              className="text-[10px] text-slate-600 mt-1 select-all"
-                              title={code.used_by}
+                              className="text-xs text-slate-500 mt-1"
                             >
-                              使用者 {code.used_by.substring(0, 8)}...
+                              使用されました
                             </div>
                           )}
                         </div>
@@ -113,16 +112,16 @@ export const AdminInvitations = React.memo<AdminInvitationsProps>(({
                                   onUpdateMemo(code.id, e.target.value);
                                 }
                               }}
-                              className="bg-slate-800/80 border border-slate-700/50 rounded flex-1 px-3 py-1 text-[11px] text-slate-400 focus:outline-none focus:border-slate-500 placeholder:text-slate-400 transition-colors w-40"
+                              className="bg-slate-800/80 border border-slate-700/50 rounded flex-1 px-3 py-1 text-base text-slate-400 focus:outline-none focus:border-slate-500 placeholder:text-slate-400 transition-colors w-40"
                             />
                           </div>
-                          <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold ring-1 ring-emerald-500/20 shadow-[0_0_10px_rgba(52,211,153,0.1)]">
+                          <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-emerald-500/20 shadow-[0_0_10px_rgba(52,211,153,0.1)]">
                             有効
                           </span>
                           <button
                             type="button"
                             onClick={() => onCopyInvitation(code.id)}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all duration-300 text-[10px] font-bold tracking-widest uppercase active:scale-95 ${
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all duration-300 text-xs font-bold tracking-widest uppercase active:scale-95 ${
                               copiedCodeId === code.id
                                 ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
                                 : "bg-slate-800/50 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500"
@@ -149,7 +148,7 @@ export const AdminInvitations = React.memo<AdminInvitationsProps>(({
           )}
         </div>
       </div>
-      <p className="text-[10px] text-slate-500 italic px-2">
+      <p className="text-xs text-slate-500 italic px-2">
         ※
         招待コードは「ALPHA-XXXX」の形式で自動生成されます。Firestoreの
         `invitation_codes` コレクションに保存されます。

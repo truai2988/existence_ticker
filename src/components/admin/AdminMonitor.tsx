@@ -42,7 +42,7 @@ export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats, onOpenDiagno
               / {metabolism.rate.toFixed(1)}%
             </span>
           </div>
-          <p className="text-[10px] text-slate-600 font-serif italic">
+          <p className="text-xs text-slate-500 font-serif italic">
             全住民のLm減衰と自律分配のバランス指標
           </p>
         </div>
@@ -69,17 +69,17 @@ export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats, onOpenDiagno
               title={`新月: ${distribution.new}`}
             />
           </div>
-          <div className="flex justify-between text-[10px] font-mono text-slate-500">
+          <div className="flex justify-between text-xs font-mono text-slate-500">
             <span className="flex items-center gap-1">
               <Sun size={10} className="text-yellow-400" />
               {distribution.full}
             </span>
             <span className="flex items-center gap-1">
-              <Moon size={10} className="text-slate-400" />
+              <Moon size={10} className="text-slate-500" />
               {distribution.quarter}
             </span>
             <span className="flex items-center gap-1 opacity-60">
-              <Moon size={10} className="text-slate-600" />
+              <Moon size={10} className="text-slate-500" />
               {distribution.new}
             </span>
           </div>

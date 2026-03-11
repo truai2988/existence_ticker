@@ -50,7 +50,7 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
 
         {wish.system_note && (
           <div className="mt-3 p-3 bg-amber-50/50 border border-amber-100 rounded-xl">
-            <p className="text-xs text-amber-800 leading-relaxed font-bold font-sans">
+            <p className="text-sm text-amber-800 leading-relaxed font-bold font-sans">
               {wish.system_note}
             </p>
           </div>
@@ -83,12 +83,12 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
                 <Archive size={16} className="text-slate-500" />
               )}
               <span
-                className={`text-xs font-bold font-sans ${
+                className={`text-sm font-bold font-sans ${
                   wish.status === "fulfilled"
                     ? initialCost === 0 ? "text-pink-600" : "text-green-700"
                     : wish.status === "cancelled"
                     ? "text-red-600"
-                    : "text-slate-500"
+                    : "text-slate-600"
                 }`}
               >
                 {wish.status === "fulfilled"
@@ -118,7 +118,7 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
                   <span className="text-pink-500 font-bold tracking-[0.15em]">{MESSAGES.WISH_CARD.TAG_ECHO}</span>
                 ) : (
                   <>
-                    {Math.floor(wish.val_at_fulfillment || 0).toLocaleString()} <span className="text-xs text-slate-400 ml-0.5">Lm</span>
+                    {Math.floor(wish.val_at_fulfillment || 0).toLocaleString()} <span className="text-sm text-slate-500 ml-0.5">Lm</span>
                   </>
                 )
               ) : wish.status === "cancelled" ? (
@@ -128,9 +128,9 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
                       {wish.val_at_fulfillment !== undefined
                         ? Math.floor(wish.val_at_fulfillment).toLocaleString()
                         : Math.floor(calculateHistoricalValue(wish.cost || 0, wish.created_at || 0, wish.cancelled_at || 0)).toLocaleString()}
-                      <span className="text-xs ml-0.5 whitespace-nowrap">Lm</span>
+                      <span className="text-sm ml-0.5 whitespace-nowrap">Lm</span>
                     </span>
-                    <span className="text-xs text-red-300 font-bold uppercase tracking-wider">
+                    <span className="text-sm text-red-400 font-bold uppercase tracking-wider">
                       {wish.cancel_reason === "helper_cancellation" ? (wish.requester_id === currentUserId ? MESSAGES.WISH_CARD.LBL_RECV_DONE : MESSAGES.WISH_CARD.LBL_SENT_DONE) : (wish.requester_id === currentUserId ? MESSAGES.WISH_CARD.LBL_SENT_DONE : MESSAGES.WISH_CARD.LBL_RECV_DONE)}
                     </span>
                   </div>
@@ -143,19 +143,19 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
             <div>
               <div className="flex items-center gap-2 mb-1.5 opacity-80">
                 <Hourglass size={14} className={isMyWish ? "text-amber-500" : "text-orange-400"} />
-                <span className={`text-xs font-bold ${isMyWish ? "text-amber-600" : "text-slate-500"}`}>
+                <span className={`text-sm font-bold ${isMyWish ? "text-amber-600" : "text-slate-600"}`}>
                   {isMyWish ? MESSAGES.WISH_CARD.LBL_GIVE_THANKS : MESSAGES.WISH_CARD.LBL_SHARE_THANKS}
                 </span>
               </div>
               {displayValue > 0 && (
-                <div className="text-xs text-red-400 font-semibold tracking-wide">
+                <div className="text-sm text-red-500 font-semibold tracking-wide">
                   {MESSAGES.WISH_CARD.TXT_THANKS_DECAY_NOTE}
                 </div>
               )}
             </div>
             <div className={`text-xl font-mono ${initialCost === 0 ? "text-pink-400" : "text-slate-800"} font-bold tracking-tight`}>
               {initialCost === 0 ? "∞" : Math.floor(displayValue).toLocaleString()}{" "}
-              <span className={`text-sm font-normal ${initialCost === 0 ? "text-pink-300" : "text-slate-500"} ml-0.5`}>
+              <span className={`text-base font-normal ${initialCost === 0 ? "text-pink-300" : "text-slate-500"} ml-0.5`}>
                 {initialCost === 0 ? MESSAGES.WISH_CARD.LBL_ECHO : UNIT_LABEL}
               </span>
             </div>

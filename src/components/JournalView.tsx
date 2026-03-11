@@ -148,11 +148,11 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
                 <div className="absolute left-[27px] top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-slate-300/50 to-transparent"></div>
                 <div className="space-y-8 py-4 pl-4">
                     {isLoading ? (
-                         <div className="text-center py-10 text-slate-600 text-xs animate-pulse">{MESSAGES.JOURNAL.LOADING}</div>
+                         <div className="text-center py-10 text-slate-600 text-sm animate-pulse">{MESSAGES.JOURNAL.LOADING}</div>
                     ) : logs.length === 0 ? (
                         <div className="text-center py-20 px-4">
                             <p className="text-sm text-slate-600 font-medium mb-2">{MESSAGES.JOURNAL.EMPTY_TITLE}</p>
-                            <p className="text-xs text-slate-400 leading-relaxed">
+                            <p className="text-sm text-slate-500 leading-relaxed">
                                 {MESSAGES.JOURNAL.EMPTY_DESC_1}<br/>
                                 {MESSAGES.JOURNAL.EMPTY_DESC_2}<br/>
                                 {MESSAGES.JOURNAL.EMPTY_DESC_3}
@@ -271,9 +271,9 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
 
     return (
         <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }} className="flex items-start gap-3 relative group transition-all rounded-xl p-2 -ml-2">
-            <div className="w-12 pt-1 text-right shrink-0">
-                <span className="text-xs font-mono text-slate-400 block">{dateStr}</span>
-                <span className="text-xs font-mono text-slate-500 block">{date.getHours().toString().padStart(2, '0')}:{date.getMinutes().toString().padStart(2, '0')}</span>
+            <div className="w-14 pt-1 text-right shrink-0">
+                <span className="text-sm font-mono text-slate-500 block">{dateStr}</span>
+                <span className="text-sm font-mono text-slate-600 block">{date.getHours().toString().padStart(2, '0')}:{date.getMinutes().toString().padStart(2, '0')}</span>
             </div>
             <div className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 z-10 box-content bg-white ${isExp ? 'border-rose-100 shadow-sm' : 'border-emerald-100 shadow-sm'}`}>
                 {getIcon()}
@@ -283,18 +283,18 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
                     {getTitle()}
                 </p>
                 {log.wish_title && log.type !== 'WISH_CANCELLED' && log.type !== 'WISH_EXPIRED' && (
-                    <p className="text-xs text-slate-400 mt-1 pl-2 border-l-2 border-slate-100 line-clamp-1 italic">"{log.wish_title}"</p>
+                    <p className="text-sm text-slate-500 mt-1 pl-2 border-l-2 border-slate-100 line-clamp-1 italic">"{log.wish_title}"</p>
                 )}
-                <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">
+                <p className="text-sm text-slate-600 mt-1 line-clamp-2 leading-relaxed">
                     {getDescription()}
                 </p>
                 <div className="mt-2 flex items-center justify-end gap-1">
                     {log.amount === 0 ? (
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-2">
+                        <span className="text-sm font-bold text-slate-500 uppercase tracking-widest pl-2">
                            {log.type === 'WISH_EXPIRED' ? MESSAGES.JOURNAL.TAG_EXPIRED : MESSAGES.JOURNAL.TAG_RECORDED}
                         </span>
                     ) : (
-                        <><span className={`text-sm font-mono font-bold ${amountColor}`}>{!isExp ? '+' : '-'}{Math.floor(Math.abs(log.amount)).toLocaleString()}</span><span className="text-xs text-slate-400 ml-1">Lm</span></>
+                        <><span className={`text-base font-mono font-bold ${amountColor}`}>{!isSender ? '+' : '-'}{Math.floor(Math.abs(log.amount)).toLocaleString()}</span><span className="text-sm text-slate-500 ml-1">Lm</span></>
                     )}
                 </div>
             </div>

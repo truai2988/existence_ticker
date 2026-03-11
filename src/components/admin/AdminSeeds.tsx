@@ -38,7 +38,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
             <Sprout className="text-emerald-400" />
             種子の書庫
           </h3>
-          <p className="text-xs text-slate-500 font-serif italic mt-1">
+          <p className="text-sm text-slate-500 font-serif italic mt-1">
             この世界に蒔かれる「願いの種」を管理します
           </p>
         </div>
@@ -46,7 +46,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
           <button
             type="button"
             onClick={onSeedLibrary}
-            className="text-[10px] text-emerald-500/70 border border-emerald-500/30 hover:bg-emerald-500/10 px-2 py-1 rounded transition-colors"
+            className="text-xs text-emerald-500/70 border border-emerald-500/30 hover:bg-emerald-500/10 px-2 py-1 rounded transition-colors"
           >
             初期の種を蒔く
           </button>
@@ -63,7 +63,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
 
       {/* Add Seed Form */}
       <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6 space-y-4">
-        <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">
+        <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">
           <Plus size={14} /> 新しい種を蒔く
         </h4>
         <div className="flex flex-col gap-4">
@@ -82,7 +82,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
                 }`}
               >
                 {t === 1000 ? "人生の節目" : t === 500 ? "日常の手助け" : "魂の共鳴"}
-                <span className="block text-[10px] opacity-70 font-mono mt-0.5">{t} Lm</span>
+                <span className="block text-xs opacity-70 font-mono mt-0.5">{t} Lm</span>
               </button>
             ))}
           </div>
@@ -91,14 +91,14 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
               value={newSeedContent}
               onChange={(e) => setNewSeedContent(e.target.value)}
               placeholder="「例えば：...」静かな願いの種を綴ってください"
-              className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-4 text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50 transition-all min-h-[100px] font-serif"
+              className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-4 text-base text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50 transition-all min-h-[100px] font-serif"
             />
           </div>
           <button
             type="button"
             onClick={handleAdd}
             disabled={isAdding || !newSeedContent.trim()}
-            className="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold tracking-widest text-sm transition-all shadow-lg shadow-emerald-600/20 active:scale-[0.98] disabled:opacity-30 disabled:grayscale"
+            className="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold tracking-widest text-base transition-all shadow-lg shadow-emerald-600/20 active:scale-[0.98] disabled:opacity-30 disabled:grayscale"
           >
             {isAdding ? "種を蒔いています..." : "生命のインフラに種を蒔く"}
           </button>
@@ -114,7 +114,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
             <div key={t} className="space-y-3">
               <div className="flex items-center gap-4">
                 <div className={`h-[1px] flex-1 ${t === 1000 ? "bg-amber-500/30" : t === 500 ? "bg-orange-500/30" : "bg-pink-500/30"}`} />
-                <h5 className={`text-[10px] font-bold uppercase tracking-widest ${t === 1000 ? "text-amber-500" : t === 500 ? "text-orange-500" : "text-pink-500"}`}>
+                <h5 className={`text-xs font-bold uppercase tracking-widest ${t === 1000 ? "text-amber-500" : t === 500 ? "text-orange-500" : "text-pink-500"}`}>
                   {t === 1000 ? "人生の節目" : t === 500 ? "日常の手助け" : "魂の共鳴"}
                 </h5>
                 <div className={`h-[1px] flex-1 ${t === 1000 ? "bg-amber-500/30" : t === 500 ? "bg-orange-500/30" : "bg-pink-500/30"}`} />
@@ -126,10 +126,10 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
                     className="group bg-slate-900/30 border border-slate-800 hover:border-slate-700 p-4 rounded-xl flex justify-between items-start gap-4 transition-all"
                   >
                     <div className="flex-1">
-                      <p className="text-slate-400 font-serif leading-relaxed text-sm">
+                      <p className="text-slate-400 font-serif leading-relaxed text-base">
                         {seed.content}
                       </p>
-                      <div className="mt-2 text-[9px] text-slate-600 font-mono uppercase tracking-tighter">
+                      <div className="mt-2 text-xs text-slate-500 font-mono uppercase tracking-tighter">
                         蒔かれた日時: {
                           seed.createdAt?.toDate 
                             ? seed.createdAt.toDate().toLocaleString() 

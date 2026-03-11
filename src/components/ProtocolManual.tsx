@@ -13,7 +13,7 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
         {/* Header */}
         <div className="flex justify-between items-start mb-12 border-b-2 border-slate-900 pb-6">
           <div>
-            <div className="flex items-center gap-2 text-slate-600 mb-2 uppercase tracking-[0.2em] text-xs font-sans">
+            <div className="flex items-center gap-2 text-slate-700 mb-2 uppercase tracking-[0.2em] text-sm font-sans">
               <Activity size={14} />
               <span>{MESSAGES.PROTOCOL.HEADER_SUB}</span>
             </div>
@@ -102,7 +102,7 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
             </p>
             
             <div className="bg-slate-900 text-white p-8 rounded-sm shadow-xl mt-8">
-               <h4 className="font-sans text-xs uppercase tracking-widest text-slate-400 mb-4 border-b border-slate-700 pb-2">{MESSAGES.PROTOCOL.CH3_OATH_TITLE}</h4>
+               <h4 className="font-sans text-sm uppercase tracking-widest text-slate-500 mb-4 border-b border-slate-700 pb-2">{MESSAGES.PROTOCOL.CH3_OATH_TITLE}</h4>
                 <p className="font-mono text-base leading-relaxed text-slate-500">
                   {MESSAGES.PROTOCOL.CH3_OATH_1}<br/>
                   {MESSAGES.PROTOCOL.CH3_OATH_2}<br/>
@@ -144,7 +144,7 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
                <h4 className="font-bold text-slate-800 mb-2 flex items-center gap-2 border-t border-slate-200 pt-4">
                    <span className="text-yellow-600">⚠</span> {MESSAGES.PROTOCOL.CH4_1_SEC3_TITLE.replace("⚠ ", "")}
                </h4>
-               <p className="text-slate-600 text-sm mb-0 leading-relaxed">
+               <p className="text-slate-700 text-base mb-0 leading-relaxed">
                    {MESSAGES.PROTOCOL.CH4_1_SEC3_P1_1}<br/>
                    {MESSAGES.PROTOCOL.CH4_1_SEC3_P1_2}<strong className="text-slate-900">{MESSAGES.PROTOCOL.CH4_1_SEC3_STRONG}</strong>{MESSAGES.PROTOCOL.CH4_1_SEC3_P1_3}<br/>
                    {MESSAGES.PROTOCOL.CH4_1_SEC3_P1_4}
@@ -161,15 +161,15 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-base mb-2">
                          <div className="bg-slate-50 p-3 rounded">
-                             <div className="text-xs text-slate-400 uppercase tracking-wider mb-1">{MESSAGES.PROTOCOL.CH4_2_A_CALC_LBL}</div>
+                             <div className="text-sm text-slate-500 uppercase tracking-wider mb-1">{MESSAGES.PROTOCOL.CH4_2_A_CALC_LBL}</div>
                              <div className="font-mono text-slate-700">{MESSAGES.PROTOCOL.CH4_2_A_CALC_VAL}</div>
                          </div>
                          <div className="bg-slate-50 p-3 rounded">
-                             <div className="text-xs text-slate-400 uppercase tracking-wider mb-1">{MESSAGES.PROTOCOL.CH4_2_A_TARGET_LBL}</div>
-                             <div className="font-mono text-green-600 font-bold">{MESSAGES.PROTOCOL.CH4_2_A_TARGET_VAL}</div>
+                             <div className="text-sm text-slate-500 uppercase tracking-wider mb-1">{MESSAGES.PROTOCOL.CH4_2_A_TARGET_LBL}</div>
+                             <div className="font-mono text-green-700 font-bold">{MESSAGES.PROTOCOL.CH4_2_A_TARGET_VAL}</div>
                          </div>
                     </div>
-                    <p className="text-slate-600 text-sm">
+                    <p className="text-slate-700 text-base">
                         {MESSAGES.PROTOCOL.CH4_2_A_DESC_1}<br/>
                         {MESSAGES.PROTOCOL.CH4_2_A_DESC_2}
                     </p>
@@ -180,7 +180,7 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
                     <h4 className="border-l-4 border-slate-900 pl-3 font-bold text-lg text-slate-800 mb-2">
                         {MESSAGES.PROTOCOL.CH4_2_B_TITLE}
                     </h4>
-                     <ul className="list-disc list-inside space-y-2 text-slate-600 text-sm">
+                     <ul className="list-disc list-inside space-y-2 text-slate-700 text-base">
                          <li>
                              <strong className="text-slate-800">{MESSAGES.PROTOCOL.CH4_2_B_L1_STRONG}</strong> 
                              {MESSAGES.PROTOCOL.CH4_2_B_L1_DESC}
@@ -202,18 +202,18 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-center text-base mb-2">
                         <div className="bg-green-50 p-2 rounded border border-green-100">
                             <span className="block font-bold text-green-700">{MESSAGES.PROTOCOL.CH4_3_C_SPRING}</span>
-                            <span className="text-xs text-slate-500">{MESSAGES.PROTOCOL.CH4_3_C_SPRING_DESC}</span>
+                            <span className="text-sm text-slate-600">{MESSAGES.PROTOCOL.CH4_3_C_SPRING_DESC}</span>
                         </div>
                         <div className="bg-yellow-50 p-2 rounded border border-yellow-100">
                             <span className="block font-bold text-yellow-700">{MESSAGES.PROTOCOL.CH4_3_C_EQUINOX}</span>
-                            <span className="text-xs text-slate-500">{MESSAGES.PROTOCOL.CH4_3_C_EQUINOX_DESC}</span>
+                            <span className="text-sm text-slate-600">{MESSAGES.PROTOCOL.CH4_3_C_EQUINOX_DESC}</span>
                         </div>
                         <div className="bg-slate-100 p-2 rounded border border-slate-200">
                             <span className="block font-bold text-slate-700">{MESSAGES.PROTOCOL.CH4_3_C_WINTER}</span>
-                            <span className="text-xs text-slate-500">{MESSAGES.PROTOCOL.CH4_3_C_WINTER_DESC}</span>
+                            <span className="text-sm text-slate-600">{MESSAGES.PROTOCOL.CH4_3_C_WINTER_DESC}</span>
                         </div>
                     </div>
-                    <p className="text-slate-600 text-sm">
+                    <p className="text-slate-700 text-base">
                         {MESSAGES.PROTOCOL.CH4_3_C_DESC_1}<br/>
                         <strong>{MESSAGES.PROTOCOL.CH4_3_C_DESC_SPRING}</strong>{MESSAGES.PROTOCOL.CH4_3_C_DESC_2}<br/>
                         <strong>{MESSAGES.PROTOCOL.CH4_3_C_DESC_WINTER}</strong>{MESSAGES.PROTOCOL.CH4_3_C_DESC_3}
@@ -224,7 +224,7 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
                      <h4 className="border-l-4 border-slate-900 pl-3 font-bold text-lg text-slate-800 mb-2">
                          {MESSAGES.PROTOCOL.CH4_3_D_TITLE}
                     </h4>
-                     <ul className="list-disc list-inside space-y-1 text-slate-600 text-sm">
+                     <ul className="list-disc list-inside space-y-1 text-slate-700 text-base">
                          <li><strong className="text-slate-800">{MESSAGES.PROTOCOL.CH4_3_D_L1_STRONG}</strong> {MESSAGES.PROTOCOL.CH4_3_D_L1_DESC}</li>
                          <li>{MESSAGES.PROTOCOL.CH4_3_D_L2}</li>
                      </ul>
@@ -299,7 +299,7 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
 
                 {/* Desktop View (Table) */}
                 <table className="hidden md:table min-w-full text-base text-left text-slate-600">
-                    <thead className="bg-slate-100 text-slate-900 font-sans uppercase text-sm">
+                    <thead className="bg-slate-100 text-slate-900 font-sans uppercase text-base">
                         <tr>
                             <th className="px-6 py-3">{MESSAGES.PROTOCOL.CH4_4_TBL_H1}</th>
                             <th className="px-6 py-3">{MESSAGES.PROTOCOL.CH4_4_TBL_H2}</th>
@@ -347,7 +347,7 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
           {/* Footer */}
           <div className="pt-20 text-center">
              <div className="w-16 h-px bg-slate-200 mx-auto mb-6"></div>
-             <p className="text-slate-400 font-sans text-xs uppercase tracking-widest">
+             <p className="text-slate-500 font-sans text-sm uppercase tracking-widest">
                {MESSAGES.PROTOCOL.FOOTER_P1}<br/>
                {MESSAGES.PROTOCOL.FOOTER_P2}
              </p>

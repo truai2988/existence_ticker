@@ -110,7 +110,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
           {/* Header */}
           <div className={`p-6 sm:p-8 pb-4 flex justify-between items-start border-b border-slate-800/50 ${diagnosis.bg.replace('/30', '/10')}`}>
             <div>
-              <div className="flex items-center gap-2 text-slate-400 mb-1 uppercase tracking-[0.2em] text-xs font-sans">
+              <div className="flex items-center gap-2 text-slate-400 mb-1 uppercase tracking-[0.2em] text-sm font-sans">
                 <Activity size={12} />
                 <span>{MESSAGES.DIAGNOSTICS.SAGE_TITLE}</span>
               </div>
@@ -133,7 +133,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               <div className="relative group">
                   <div className="absolute -top-4 -left-2 text-6xl text-slate-800 font-serif leading-none select-none">“</div>
                   <div className="relative z-10 pl-6 border-l border-slate-700">
-                    <p className="text-slate-400 font-serif text-base sm:text-3xl leading-relaxed italic whitespace-pre-wrap">
+                    <p className="text-slate-400 font-serif text-lg sm:text-3xl leading-relaxed italic whitespace-pre-wrap">
                         {content.voice}
                     </p>
                   </div>
@@ -142,19 +142,19 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               {/* Responsive Metrics Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-0.5 bg-slate-800/50 border border-slate-800 rounded-xl overflow-hidden">
                   <div className="bg-slate-900 p-4 text-center">
-                      <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">{MESSAGES.DIAGNOSTICS.LBL_SPEED}</div>
+                      <div className="text-sm text-slate-500 uppercase tracking-widest mb-1">{MESSAGES.DIAGNOSTICS.LBL_SPEED}</div>
                       <div className={`font-mono text-xl sm:text-2xl ${metabolism.rate >= 10 ? 'text-cyan-400' : 'text-slate-400'}`}>
                           {metabolism.rate}%
                       </div>
                   </div>
                   <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
-                      <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">{MESSAGES.DIAGNOSTICS.LBL_SAVINGS}</div>
-                      <div className="font-mono text-xl sm:text-2xl text-slate-400">
+                      <div className="text-sm text-slate-500 uppercase tracking-widest mb-1">{MESSAGES.DIAGNOSTICS.LBL_SAVINGS}</div>
+                        <div className="font-mono text-xl sm:text-2xl text-slate-400">
                           {avgBalance.toLocaleString()}
                       </div>
                   </div>
                   <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
-                       <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">{MESSAGES.DIAGNOSTICS.LBL_DECAY}</div>
+                       <div className="text-sm text-slate-500 uppercase tracking-widest mb-1">{MESSAGES.DIAGNOSTICS.LBL_DECAY}</div>
                        <div className="font-mono text-xl sm:text-2xl text-red-500/80">
                           -{metabolism.decay24h.toLocaleString()}
                        </div>
@@ -163,7 +163,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
 
               {/* Prescription Action Card */}
               <div className={`p-5 sm:p-6 rounded-xl border transition-colors ${diagnosis.bg}`}>
-                  <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2 opacity-80">
+                  <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2 opacity-80">
                       <Zap size={14} className="text-yellow-400 animate-pulse"/>
                       {MESSAGES.DIAGNOSTICS.LBL_PRESCRIPTION}
                   </h3>
@@ -175,7 +175,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
                           <p className="text-base text-slate-200 leading-relaxed mb-4 font-sans">
                               {content.actionDesc}
                           </p>
-                          <div className="inline-flex items-center gap-2 px-3 py-1 bg-black/40 border border-white/10 text-xs font-mono text-slate-400 rounded-full">
+                          <div className="inline-flex items-center gap-2 px-3 py-1 bg-black/40 border border-white/10 text-sm font-mono text-slate-500 rounded-full">
                               <Info size={10} />
                               {content.targetValue}
                           </div>
@@ -196,9 +196,11 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
           </div>
 
           {/* Footer */}
-              <span>{MESSAGES.DIAGNOSTICS.FOOTER_TICKER}</span>
-              <div className="hidden sm:block w-1 h-1 bg-slate-800 rounded-full" />
-              <span>{MESSAGES.DIAGNOSTICS.FOOTER_RULE}</span>
+          <div className="p-6 border-t border-slate-800/50 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm font-medium text-slate-500">
+              <span className="shrink-0">{MESSAGES.DIAGNOSTICS.FOOTER_TICKER}</span>
+              <div className="hidden sm:block w-1 h-1 bg-slate-700 rounded-full shrink-0" />
+              <span className="shrink-0">{MESSAGES.DIAGNOSTICS.FOOTER_RULE}</span>
+          </div>
         </motion.div>
       </div>
     </AnimatePresence>
