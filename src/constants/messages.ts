@@ -772,14 +772,14 @@ export const MESSAGES = {
 
     BTN_BACK: "戻る",
     BTN_NEXT: "次へ",
-    BTN_CLOSE: "閉じる"
+    BTN_CLOSE: "閉じる",
   },
-
   // 11. 儀式・演出 (RitualOverlay)
   RITUAL: {
-    BREATHING: "Processing...",
-    BLOOMING: "Complete",
-    SYNCING: "Synchronizing",
+    BREATHING: "処理中...",
+    BLOOMING: "完了",
+    SYNCING: "同期中",
+    SUBTEXT: "私は私である / ETの世界へ",
   },
 
   // 12. 利用規約と運営に関する表記 (TrustPage)

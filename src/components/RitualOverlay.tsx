@@ -96,7 +96,7 @@ export const RitualOverlay: React.FC<RitualOverlayProps> = ({ state, targetBalan
               animate={{ opacity: 0.3 }}
               className="mt-12 text-xs font-light tracking-widest text-slate-400 font-serif"
             >
-                 I am who I am / Into the World of ET
+                 {MESSAGES.RITUAL.SUBTEXT}
             </motion.div>
         </div>
       </motion.div>

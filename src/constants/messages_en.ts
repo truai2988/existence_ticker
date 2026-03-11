@@ -974,6 +974,7 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
     BREATHING: "Processing...",
     BLOOMING: "Complete",
     SYNCING: "Synchronizing",
+    SUBTEXT: "I am who I am / Into the World of ET",
   },
   PWA: {
     BANNER_DESC: "Add this app to your home screen for a better experience without browser UI.",
