@@ -5,8 +5,9 @@ import { db } from '../lib/firebase';
 import { NameResolver } from './NameResolver';
 import { collection, query, where, limit, getDocs, Timestamp } from 'firebase/firestore';
 import { AppViewMode } from '../types';
-import { Sun, Heart, Sparkles, CheckCircle2, Archive, Menu } from 'lucide-react';
 import { SideDrawer } from './SideDrawer';
+import { MESSAGES } from '../constants/messages';
+import { Sun, Heart, Sparkles, CheckCircle2, Archive, Menu } from 'lucide-react';
 
 // ... (comments omitted)
 
@@ -48,8 +49,8 @@ const formatDate = (date: Date): string => {
     yesterday.setDate(yesterday.getDate() - 1);
     const isYesterday = date.getDate() === yesterday.getDate() && date.getMonth() === yesterday.getMonth() && date.getFullYear() === yesterday.getFullYear();
 
-    if (isToday) return '今日';
-    if (isYesterday) return '昨日';
+    if (isToday) return MESSAGES.JOURNAL.TODAY;
+    if (isYesterday) return MESSAGES.JOURNAL.YESTERDAY;
     return `${date.getMonth() + 1}/${date.getDate()}`;
 };
 
@@ -124,7 +125,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
                     {/* Logo: ホームへ戻るボタン */}
                     <button
                         onClick={() => onTabChange?.('home')}
-                        aria-label="ホームへ戻る"
+                        aria-label={MESSAGES.LAYOUT.RETURN_HOME}
                         className="shrink-0 focus:outline-none active:scale-95 transition-transform"
                     >
                         <img
@@ -135,15 +136,15 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
                     </button>
                     {/* Text Group */}
                     <div className="flex flex-col min-w-0">
-                        <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>巡りの足跡</h2>
-                        <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate">あなたの歩みの記録</p>
+                        <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>{MESSAGES.JOURNAL.TITLE}</h2>
+                        <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate">{MESSAGES.JOURNAL.SUBTITLE}</p>
                     </div>
                 </div>
                 <div className="flex h-12 items-center gap-3 shrink-0">
                     <button
                       onClick={() => setIsDrawerOpen(true)}
                       className="p-3 -mr-3 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
-                      aria-label="メニューを開く"
+                      aria-label={MESSAGES.LAYOUT.OPEN_MENU}
                     >
                       <Menu size={24} strokeWidth={1.5} />
                     </button>
@@ -164,14 +165,14 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
                 <div className="absolute left-[27px] top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-slate-300/50 to-transparent"></div>
                 <div className="space-y-8 py-4 pl-4">
                     {isLoading ? (
-                         <div className="text-center py-10 text-slate-600 text-xs animate-pulse">読み込み中...</div>
+                         <div className="text-center py-10 text-slate-600 text-xs animate-pulse">{MESSAGES.JOURNAL.LOADING}</div>
                     ) : logs.length === 0 ? (
                         <div className="text-center py-20 px-4">
-                            <p className="text-sm text-slate-600 font-medium mb-2">白紙の物語</p>
+                            <p className="text-sm text-slate-600 font-medium mb-2">{MESSAGES.JOURNAL.EMPTY_TITLE}</p>
                             <p className="text-xs text-slate-400 leading-relaxed">
-                                これから、あなたの歩む道がここに刻まれます。<br/>
-                                誰かと光を分かち合ったその瞬間が、<br/>
-                                美しい足跡となって残るでしょう。
+                                {MESSAGES.JOURNAL.EMPTY_DESC_1}<br/>
+                                {MESSAGES.JOURNAL.EMPTY_DESC_2}<br/>
+                                {MESSAGES.JOURNAL.EMPTY_DESC_3}
                             </p>
                         </div>
                     ) : (
@@ -226,17 +227,17 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
                 <p className="text-sm text-slate-700 font-medium leading-relaxed">
                     {(() => {
                         const t = log.type;
-                        if (t === 'BIRTH') return "新規登録しました";
-                        if (t === 'REBIRTH') return "太陽の光で器が満たされました（リセット）";
-                        if (t === 'GIFT') return isSender ? <>{partnerName}さんに光を贈りました</> : <>{partnerName}さんから光を預かりました</>;
-                        if (t === 'WISH_CANCELLED') return log.wish_title ? `「${log.wish_title}」を取り下げました` : "願いを取り下げました";
-                        if (t === 'WISH_EXPIRED') return log.wish_title ? `「${log.wish_title}」が期限切れになりました` : "願いが期限切れになりました";
+                        if (t === 'BIRTH') return MESSAGES.JOURNAL.LOG_BIRTH;
+                        if (t === 'REBIRTH') return MESSAGES.JOURNAL.LOG_REBIRTH;
+                        if (t === 'GIFT') return isSender ? <>{partnerName}{MESSAGES.JOURNAL.LOG_GIFT_SENT}</> : <>{partnerName}{MESSAGES.JOURNAL.LOG_GIFT_RECV}</>;
+                        if (t === 'WISH_CANCELLED') return log.wish_title ? MESSAGES.JOURNAL.LOG_WISH_CANCEL_TITLE.replace('%s', log.wish_title) : MESSAGES.JOURNAL.LOG_WISH_CANCEL;
+                        if (t === 'WISH_EXPIRED') return log.wish_title ? MESSAGES.JOURNAL.LOG_WISH_EXPIRE_TITLE.replace('%s', log.wish_title) : MESSAGES.JOURNAL.LOG_WISH_EXPIRE;
                         if (t === 'COMPENSATION') {
-                            const isWithdrawal = log.description?.includes('退会');
-                            if (isSender) return isWithdrawal ? <>{partnerName}（退会）への感謝を刻みました</> : <>{partnerName}さんにお詫びのしるしを渡しました</>;
-                            return isWithdrawal ? <>{partnerName}さんの退会に伴う感謝を受け取りました</> : <>{partnerName}さんからお詫びのしるしを受け取りました</>;
+                            const isWithdrawal = log.description?.includes(MESSAGES.JOURNAL.KW_WITHDRAWAL);
+                            if (isSender) return isWithdrawal ? <>{partnerName}{MESSAGES.JOURNAL.LOG_COMP_SENDER_WITHDRAW}</> : <>{partnerName}{MESSAGES.JOURNAL.LOG_COMP_SENDER_NORMAL}</>;
+                            return isWithdrawal ? <>{partnerName}{MESSAGES.JOURNAL.LOG_COMP_RECV_WITHDRAW}</> : <>{partnerName}{MESSAGES.JOURNAL.LOG_COMP_RECV_NORMAL}</>;
                         }
-                        return isSender ? <>{partnerName}さんに感謝を伝えました</> : <>{partnerName}さんの願いを叶えました</>;
+                        return isSender ? <>{partnerName}{MESSAGES.JOURNAL.LOG_WISH_SENDER}</> : <>{partnerName}{MESSAGES.JOURNAL.LOG_WISH_RECV}</>;
                     })()}
                 </p>
                 {log.wish_title && log.type !== 'WISH_CANCELLED' && log.type !== 'WISH_EXPIRED' && (
@@ -250,19 +251,19 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
                             
                             // Legacy mapping for Compensation (The specific case in the user's image)
                             if (isComp) {
-                                if (d.includes('誠実のしるしをお渡ししました') || d.includes('しるしが発生しました')) {
-                                    return isSender ? "中断に伴い、誠実のしるしをお渡ししました" : "依頼主の中断に伴い、誠実のしるしが届きました";
+                                if (d.includes(MESSAGES.JOURNAL.KW_COMPENSATION_SENDER) || d.includes(MESSAGES.JOURNAL.KW_COMPENSATION_MAKER)) {
+                                    return isSender ? MESSAGES.JOURNAL.DESC_COMP_SENDER : MESSAGES.JOURNAL.DESC_COMP_RECV;
                                 }
                             }
 
                             // Cleanup legacy tags for Fulfillment
-                            if (d === "wish_fulfilled [Crystallized]") return isSender ? "願いを叶えてくれた感謝を、源気（Lm）に込めて贈りました" : "感謝が結晶（Lm）になって届きました";
-                            if (d === "wish_fulfilled (Bankruptcy Partial Payment) [Crystallized]") return isSender ? "感謝を贈りましたが、余力が足りず一部のみが結晶になりました" : "感謝が届きましたが、余力が足りず一部のみが結晶になりました";
+                            if (d === "wish_fulfilled [Crystallized]") return isSender ? MESSAGES.JOURNAL.DESC_WISH_SENDER : MESSAGES.JOURNAL.DESC_WISH_RECV;
+                            if (d === "wish_fulfilled (Bankruptcy Partial Payment) [Crystallized]") return isSender ? MESSAGES.JOURNAL.DESC_WISH_PARTIAL_SENDER : MESSAGES.JOURNAL.DESC_WISH_PARTIAL_RECV;
                             
-                            if (d === "system_expiration") return "期限を過ぎたため、自動的に整理されました";
-                            if (d === "user_cancellation") return "願いを取り下げました";
-                            if (d === "想いが巡りました（Priceless）") return d;
-                            if (d === "命が宿りました") return "源気が流れ込んできました";
+                            if (d === "system_expiration") return MESSAGES.JOURNAL.DESC_EXPIRED;
+                            if (d === "user_cancellation") return MESSAGES.JOURNAL.LOG_WISH_CANCEL;
+                            if (d === MESSAGES.JOURNAL.KW_PRICELESS) return MESSAGES.JOURNAL.DESC_PRICELESS;
+                            if (d === MESSAGES.JOURNAL.KW_BIRTH) return MESSAGES.JOURNAL.DESC_BIRTH;
                             return d;
                         })()}
                     </p>
@@ -270,7 +271,7 @@ const LogItem = ({ log, index, userId }: { log: TransactionLog, index: number, u
                 <div className="mt-2 flex items-center justify-end gap-1">
                     {log.amount === 0 ? (
                         <span className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-2">
-                           {log.type === 'WISH_EXPIRED' ? '期限切れ' : '記録済み'}
+                           {log.type === 'WISH_EXPIRED' ? MESSAGES.JOURNAL.TAG_EXPIRED : MESSAGES.JOURNAL.TAG_RECORDED}
                         </span>
                     ) : (
                         <><span className={`text-sm font-mono font-bold ${amountColor}`}>{!isExp ? '+' : '-'}{Math.floor(Math.abs(log.amount)).toLocaleString()}</span><span className="text-xs text-slate-400 ml-1">Lm</span></>

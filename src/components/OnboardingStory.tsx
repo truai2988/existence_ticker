@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronRight, ChevronLeft, Sun, Hourglass, HeartHandshake, Scale, Footprints } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Droplets, Wind, Sparkles, Scale, HeartHandshake, Footprints } from 'lucide-react';
+import { MESSAGES } from '../constants/messages';
 
 interface OnboardingStoryProps {
   isOpen: boolean;
@@ -14,93 +15,99 @@ interface OnboardingStoryProps {
 const getSlides = () => [
   {
     id: 'vessel',
-    title: '存在の価値',
+    title: MESSAGES.ONBOARDING.SLIDE1_TITLE,
     subtitle: '',
-    icon: <Sun size={32} className="text-amber-500" />,
+    icon: <Droplets size={32} className="text-amber-500" />,
     content: (
       <div className="text-center font-serif text-slate-700 leading-relaxed">
-        <p className="mb-3 text-base">
-          <span className="inline-block">あなたには、</span><span className="inline-block">10日（変動あり）ごとに</span><br />
-          <span className="text-3xl font-bold text-amber-600 mx-1">2,400 Lm</span> の<br />
-          <span className="inline-block">Lmが与えられます。</span>
+        <p className="text-lg text-slate-700 leading-9 tracking-wide font-serif mb-8">
+          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE1_P1}</span><span className="inline-block">{MESSAGES.ONBOARDING.SLIDE1_P2}</span><br />
+          <span className="text-3xl font-bold text-amber-600 mx-1">2,400 Lm</span> {MESSAGES.ONBOARDING.SLIDE1_P3}<br />
+          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE1_P4}</span>
         </p>
         <p className="text-base text-slate-600 font-medium">
-          これがあなたの源気の源です。
+          {MESSAGES.ONBOARDING.SLIDE1_P5}
         </p>
       </div>
     )
   },
   {
     id: 'decay',
-    title: 'Lmの儚さ',
+    title: MESSAGES.ONBOARDING.SLIDE2_TITLE,
     subtitle: '',
-    icon: <Hourglass size={32} className="text-blue-400" />,
+    icon: <Wind size={32} className="text-blue-400" />,
     content: (
       <div className="text-center font-serif text-slate-700 leading-relaxed">
-        <p className="mb-3 text-base">
-          <span className="inline-block">このLmは、</span><span className="inline-block">何もしなくても</span><br />
-          <span className="text-3xl font-bold text-blue-500 mx-1">徐々に</span> <br />
-          <span className="inline-block">空へと還っていきます。</span>
+        <p className="text-lg text-slate-700 leading-9 tracking-wide font-serif mb-8">
+          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE2_P1}</span><span className="inline-block">{MESSAGES.ONBOARDING.SLIDE2_P2}</span><br />
+          <span className="text-3xl font-bold text-slate-400 mx-1">{MESSAGES.ONBOARDING.SLIDE2_P3}</span><br />
+          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE2_P4}</span>
         </p>
         <p className="text-base text-slate-600 font-medium">
-          <span className="inline-block">留めておくことはできません。</span><br />
-          <span className="inline-block">だからこそ、今あるLmを大切に。</span>
+          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE2_P5}</span><br />
+          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE2_P6}</span>
         </p>
       </div>
     )
   },
   {
     id: 'connect',
-    title: 'Lmの循環',
+    title: MESSAGES.ONBOARDING.SLIDE3_TITLE,
     subtitle: '',
-    icon: <HeartHandshake size={32} className="text-rose-400" />,
+    icon: <Sparkles size={32} className="text-rose-400" />,
     content: (
       <div className="text-center font-serif text-slate-700 leading-relaxed">
-        <p className="mb-3 text-base">
-          <span className="inline-block">減っていくLmを、</span><br />
-          <span className="inline-block">誰かののために使いましょう。</span>
+        <p className="text-lg text-slate-700 leading-9 tracking-wide font-serif mb-8">
+          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE3_P1}</span><br />
+          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE3_P2}</span>
         </p>
         <div className="flex justify-center gap-8 mb-3 text-base font-bold opacity-80">
           <div className="flex flex-col items-center">
-            <span className="text-amber-600 mb-1">お願い</span>
+            <span className="text-amber-600 mb-1">{MESSAGES.ONBOARDING.SLIDE3_LBL_REQ}</span>
           </div>
           <div className="flex flex-col items-center">
-            <span className="text-indigo-600 mb-1">応える</span>
+            <span className="text-indigo-600 mb-1">{MESSAGES.ONBOARDING.SLIDE3_LBL_RES}</span>
           </div>
         </div>
         <p className="text-xs text-slate-600 font-medium">
-          <span className="inline-block">「ありがとう」と受け取ってもらえた時、</span><br />
-          <span className="inline-block">そのLmは永遠の輝きに変わります。</span>
+          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE3_P3}</span><br />
+          <span className="inline-block">{MESSAGES.ONBOARDING.SLIDE3_P4}</span>
         </p>
       </div>
     )
   },
   {
     id: 'standard',
-    title: 'お裾分けの目安',
+    title: MESSAGES.ONBOARDING.SLIDE4_TITLE,
     subtitle: '',
     icon: <Scale size={32} className="text-emerald-500" />,
     content: (
       <div className="space-y-3 w-full max-w-sm mx-auto">
         <div className="bg-white/60 p-3 rounded-xl border border-slate-100 flex items-center gap-3">
           <span className="font-mono font-bold text-[#B8860B] w-14 text-right shrink-0">1,000</span>
-          <div className="text-left">
-            <div className="text-base font-bold text-slate-800">人生の節目</div>
-            <div className="text-xs text-slate-600">大切な局面を、誰かの助けとともに越えていきたいとき</div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-bold text-slate-800 mb-1">{MESSAGES.ONBOARDING.SLIDE4_TIER1_TITLE}</h3>
+            <p className="text-xs text-slate-500 leading-relaxed text-left">
+              {MESSAGES.ONBOARDING.SLIDE4_TIER1_DESC}
+            </p>
           </div>
         </div>
         <div className="bg-white/60 p-3 rounded-xl border border-slate-100 flex items-center gap-3">
           <span className="font-mono font-bold text-amber-600 w-14 text-right shrink-0">500</span>
-          <div className="text-left">
-            <div className="text-base font-bold text-slate-700">日常の手助け</div>
-            <div className="text-xs text-slate-600">日々の暮らしのなかで、ふと誰かの手を借りたいとき</div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-bold text-slate-800 mb-1">{MESSAGES.ONBOARDING.SLIDE4_TIER2_TITLE}</h3>
+            <p className="text-xs text-slate-500 leading-relaxed text-left">
+              {MESSAGES.ONBOARDING.SLIDE4_TIER2_DESC}
+            </p>
           </div>
         </div>
         <div className="bg-white/60 p-3 rounded-xl border border-slate-100 flex items-center gap-3">
           <span className="font-mono font-bold text-pink-400 w-14 text-right shrink-0">0</span>
-          <div className="text-left">
-            <div className="text-base font-bold text-slate-800">魂の共鳴</div>
-            <div className="text-xs text-slate-600">対価や計算を超えて、ただ響き合うこと</div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-bold text-slate-800 mb-1">{MESSAGES.ONBOARDING.SLIDE4_TIER3_TITLE}</h3>
+            <p className="text-xs text-slate-500 leading-relaxed text-left">
+              {MESSAGES.ONBOARDING.SLIDE4_TIER3_DESC}
+            </p>
           </div>
         </div>
       </div>
@@ -108,7 +115,7 @@ const getSlides = () => [
   },
   {
     id: 'start',
-    title: '始まりの作法',
+    title: MESSAGES.ONBOARDING.SLIDE5_TITLE,
     subtitle: '',
     icon: <Footprints size={32} className="text-slate-600" />,
     content: (
@@ -117,16 +124,16 @@ const getSlides = () => [
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
             <p className="text-base font-bold flex flex-col gap-3 relative z-10 text-center w-full">
               <span className="tracking-wide">
-                <span className="text-slate-500 mr-1">実費（円）は</span>「お財布」から。
+                <span className="text-slate-500 mr-1">{MESSAGES.ONBOARDING.SLIDE5_P1_1}</span>{MESSAGES.ONBOARDING.SLIDE5_P1_2}
               </span>
               <span className="tracking-wide">
-                <span className="text-slate-500 mr-1">感謝（Lm）は</span>「心」から。
+                <span className="text-slate-500 mr-1">{MESSAGES.ONBOARDING.SLIDE5_P2_1}</span>{MESSAGES.ONBOARDING.SLIDE5_P2_2}
               </span>
             </p>
          </div>
         <div className="text-sm text-slate-600 font-medium w-full">
-          <p className="mb-2"><span className="inline-block">お金では伝えきれない</span><span className="inline-block">「ありがとう」を。</span></p>
-          <p className="text-base text-slate-700 font-bold"><span className="inline-block">さあ、新しい循環を</span><span className="inline-block">始めましょう。</span></p>
+          <p className="mb-2"><span className="inline-block">{MESSAGES.ONBOARDING.SLIDE5_P3_1}</span><span className="inline-block">{MESSAGES.ONBOARDING.SLIDE5_P3_2}</span></p>
+          <p className="text-base text-slate-700 font-bold"><span className="inline-block">{MESSAGES.ONBOARDING.SLIDE5_P4_1}</span><span className="inline-block">{MESSAGES.ONBOARDING.SLIDE5_P4_2}</span></p>
         </div>
       </div>
     )
@@ -214,9 +221,9 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
           <button 
             onClick={onClose}
             className="absolute top-6 right-6 z-50 p-3 rounded-full bg-white/50 hover:bg-white text-slate-400 hover:text-slate-600 transition-colors shadow-sm"
-            aria-label="閉じる"
+            aria-label={MESSAGES.SYSTEM.BTN_CLOSE}
           >
-            <X size={20} />
+            <HeartHandshake size={20} />
           </button>
 
           {/* Slide Content Area */}
@@ -277,7 +284,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
                   ${currentSlide === 0 ? 'opacity-0 pointer-events-none' : 'hover:bg-slate-100 active:scale-[0.98]'}`}
               >
                 <ChevronLeft size={18} />
-                戻る
+                {MESSAGES.ONBOARDING.BTN_BACK}
               </button>
 
               {/* Next / Finish Button */}
@@ -287,12 +294,12 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
               >
                 {isLastSlide ? (
                   <>
-                    閉じる
-                    <X size={20} className="text-slate-400" />
+                    {MESSAGES.ONBOARDING.BTN_CLOSE}
+                    <HeartHandshake size={20} className="text-slate-400" />
                   </>
                 ) : (
                   <>
-                    次へ
+                    {MESSAGES.ONBOARDING.BTN_NEXT}
                     <ChevronRight size={20} />
                   </>
                 )}

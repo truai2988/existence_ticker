@@ -4,6 +4,7 @@ import { WishCard } from './WishCard';
 import { Wish } from '../types';
 import { useEffect, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
+import { MESSAGES } from '../constants/messages';
 
 interface WishCardListProps {
     wishes: Wish[];
@@ -23,7 +24,7 @@ interface WishCardListProps {
 export const WishCardList: React.FC<WishCardListProps> = ({ 
     wishes, 
     currentUserId, 
-    emptyMessage = "見つかりません。",
+    emptyMessage = MESSAGES.WISH.EMPTY_DEFAULT,
     emptyIcon,
     subtitle,
     onLoadMore,
@@ -101,7 +102,7 @@ export const WishCardList: React.FC<WishCardListProps> = ({
                     {isFetchingMore ? (
                         <Loader2 className="w-5 h-5 text-slate-400 animate-spin" />
                     ) : (
-                        <span className="text-xs text-slate-400">さらに読み込む</span>
+                        <span className="text-xs text-slate-400">{MESSAGES.WISH.BTN_LOAD_MORE}</span>
                     )}
                 </div>
             )}

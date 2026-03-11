@@ -1,5 +1,6 @@
 import React from "react";
 import { Loader2, Heart, CheckCircle, X, Archive, Hourglass } from "lucide-react";
+import { MESSAGES } from "../../../constants/messages";
 import { WishCardState, WishCardHandlers } from "../types";
 import { calculateHistoricalValue } from "../../../logic/worldPhysics";
 import { UNIT_LABEL } from "../../../constants";
@@ -29,14 +30,14 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
                 }}
                 className="px-3 py-2 text-base font-bold text-slate-500 hover:bg-slate-100 rounded-lg"
               >
-                キャンセル
+                {MESSAGES.WISH_CARD.BTN_CANCEL}
               </button>
               <button
                 onClick={handleUpdate}
                 disabled={isLoading || !editContent.trim()}
                 className="px-3 py-2 text-base font-bold text-white bg-blue-500 hover:bg-blue-600 rounded-lg shadow-sm disabled:opacity-50"
               >
-                {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : "更新する"}
+                {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : MESSAGES.WISH_CARD.BTN_UPDATE}
               </button>
             </div>
           </div>
@@ -90,9 +91,9 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
                 }`}
               >
                 {wish.status === "fulfilled"
-                  ? initialCost === 0 ? "共鳴（Echo）" : "届けられた感謝 (最終値)"
+                  ? initialCost === 0 ? MESSAGES.WISH_CARD.LBL_RESONANCE : MESSAGES.WISH_CARD.LBL_DELIVERED_THANKS
                   : wish.status === "interrupted"
-                  ? "退会により終了"
+                  ? MESSAGES.WISH_CARD.LBL_END_BY_WITHDRAWAL
                   : wish.status === "cancelled"
                   ? (() => {
                       const isRequester = wish.requester_id === currentUserId;
@@ -100,20 +101,20 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
                       const isCompensatory = wish.cancel_reason === "compensatory_cancellation";
 
                       if (isHelperCancellation) {
-                        return isRequester ? `相手が辞退したため、予約分が手元に戻りました` : `私が辞退したため、願いから離れました`;
+                        return isRequester ? MESSAGES.WISH_CARD.RSN_HELPER_RESIGN_REQ : MESSAGES.WISH_CARD.RSN_HELPER_RESIGN_HELP;
                       } else if (isCompensatory) {
-                        return isRequester ? `私が中断したため、誠実のしるしをお渡ししました` : `相手が中断したため、誠実のしるしを受け取りました`;
+                        return isRequester ? MESSAGES.WISH_CARD.RSN_COMP_REQ : MESSAGES.WISH_CARD.RSN_COMP_HELP;
                       } else {
-                        return isRequester ? "取り下げ済み" : "中断済み";
+                        return isRequester ? MESSAGES.WISH_CARD.RSN_CANCELLED_REQ : MESSAGES.WISH_CARD.RSN_CANCELLED_HELP;
                       }
                     })()
-                  : "期限により自然消滅"}
+                  : MESSAGES.WISH_CARD.RSN_NATURAL_EXPIRY}
               </span>
             </div>
             <div className="text-3xl font-bold font-mono text-slate-900 tracking-tight">
               {wish.status === "fulfilled" ? (
                 initialCost === 0 ? (
-                  <span className="text-pink-500 font-bold tracking-[0.15em]">∞ 共鳴</span>
+                  <span className="text-pink-500 font-bold tracking-[0.15em]">{MESSAGES.WISH_CARD.TAG_ECHO}</span>
                 ) : (
                   <>
                     {Math.floor(wish.val_at_fulfillment || 0).toLocaleString()} <span className="text-xs text-slate-400 ml-0.5">Lm</span>
@@ -129,7 +130,7 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
                       <span className="text-xs ml-0.5 whitespace-nowrap">Lm</span>
                     </span>
                     <span className="text-xs text-red-300 font-bold uppercase tracking-wider">
-                      {wish.cancel_reason === "helper_cancellation" ? (wish.requester_id === currentUserId ? "受取済" : "送付済") : (wish.requester_id === currentUserId ? "送付済" : "受取済")}
+                      {wish.cancel_reason === "helper_cancellation" ? (wish.requester_id === currentUserId ? MESSAGES.WISH_CARD.LBL_RECV_DONE : MESSAGES.WISH_CARD.LBL_SENT_DONE) : (wish.requester_id === currentUserId ? MESSAGES.WISH_CARD.LBL_SENT_DONE : MESSAGES.WISH_CARD.LBL_RECV_DONE)}
                     </span>
                   </div>
                 ) : null
@@ -142,19 +143,19 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
               <div className="flex items-center gap-2 mb-1.5 opacity-80">
                 <Hourglass size={14} className={isMyWish ? "text-amber-500" : "text-orange-400"} />
                 <span className={`text-xs font-bold ${isMyWish ? "text-amber-600" : "text-slate-500"}`}>
-                  {isMyWish ? "お渡しする感謝" : "今わかちあえる感謝"}
+                  {isMyWish ? MESSAGES.WISH_CARD.LBL_GIVE_THANKS : MESSAGES.WISH_CARD.LBL_SHARE_THANKS}
                 </span>
               </div>
               {displayValue > 0 && (
                 <div className="text-xs text-red-400 font-semibold tracking-wide">
-                  ※時間が経つと減っていきます
+                  {MESSAGES.WISH_CARD.TXT_THANKS_DECAY_NOTE}
                 </div>
               )}
             </div>
             <div className={`text-xl font-mono ${initialCost === 0 ? "text-pink-400" : "text-slate-800"} font-bold tracking-tight`}>
               {initialCost === 0 ? "∞" : Math.floor(displayValue).toLocaleString()}{" "}
               <span className={`text-sm font-normal ${initialCost === 0 ? "text-pink-300" : "text-slate-500"} ml-0.5`}>
-                {initialCost === 0 ? "共鳴" : UNIT_LABEL}
+                {initialCost === 0 ? MESSAGES.WISH_CARD.LBL_ECHO : UNIT_LABEL}
               </span>
             </div>
           </div>

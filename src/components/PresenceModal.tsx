@@ -7,6 +7,7 @@ import { PREFECTURES } from "../data/prefectures";
 import { useLocationData } from "../hooks/useLocationData";
 import { useProfile } from "../hooks/useProfile";
 import { formatLocationCount } from "../utils/formatLocation";
+import { MESSAGES } from "../constants/messages";
 
 interface PresenceModalProps {
   onClose: () => void;
@@ -77,8 +78,8 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
   // Determine display text
   const getDisplayText = () => {
       // Logic moved to shared utility
-      if (loading) return "確認中...";
-      if (count === null) return "地域を選択してください";
+      if (loading) return MESSAGES.MODALS.PRESENCE_CHECKING;
+      if (count === null) return MESSAGES.MODALS.PRESENCE_PLEASE_SELECT;
       return formatLocationCount(count);
   };
 
@@ -108,7 +109,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
             <div>
                 <h2 className="text-3xl font-serif text-slate-800 tracking-widest flex items-center gap-2">
                     <MapPin className="w-5 h-5 text-slate-400" />
-                    <span>エリア別の登録状況</span>
+                    <span>{MESSAGES.MODALS.PRESENCE_TITLE}</span>
                 </h2>
             </div>
             <button 
@@ -167,7 +168,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
                     {loading ? (
                         <div className="flex flex-col items-center gap-2 text-slate-400">
                              <Loader2 className="w-5 h-5 animate-spin" />
-                              <span className="text-xs font-bold uppercase tracking-widest">確認中...</span>
+                              <span className="text-xs font-bold uppercase tracking-widest">{MESSAGES.MODALS.PRESENCE_CHECKING}</span>
                         </div>
                     ) : (
                         <motion.div
@@ -193,7 +194,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
                         onChange={(e) => handlePrefChange(e.target.value)}
                         className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-700 text-base font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-slate-200/50 shadow-sm transition-all"
                     >
-                        <option value="">都道府県を選択</option>
+                        <option value="">{MESSAGES.MODALS.PRESENCE_PREF_PLACEHOLDER}</option>
                         {PREFECTURES.map(pref => (
                             <option key={pref} value={pref}>{pref}</option>
                         ))}
@@ -210,7 +211,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
                         className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-700 text-base font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-slate-200/50 shadow-sm transition-all disabled:opacity-50 disabled:bg-slate-50"
                     >
                         <option value="">
-                            {loadingCities ? "読み込み中..." : "市区町村を選択"}
+                            {loadingCities ? MESSAGES.MODALS.PRESENCE_CITY_LOADING : MESSAGES.MODALS.PRESENCE_CITY_PLACEHOLDER}
                         </option>
                         {cities.map(city => (
                             <option key={city} value={city}>{city}</option>
@@ -221,7 +222,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
             </div>
 
             <p className="text-xs text-slate-400 text-center leading-relaxed">
-                ※プライバシー保護のため、5名未満は一律の表示となります
+                {MESSAGES.MODALS.PRESENCE_PRIVACY_NOTE}
             </p>
 
         </div>

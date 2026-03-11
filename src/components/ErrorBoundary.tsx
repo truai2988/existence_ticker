@@ -1,4 +1,5 @@
 import { Component, ErrorInfo, ReactNode } from "react";
+import { MESSAGES } from "../constants/messages";
 
 interface Props {
   children: ReactNode;
@@ -37,19 +38,17 @@ export class ErrorBoundary extends Component<Props, State> {
               <span className="text-rose-500 text-2xl">!</span>
             </div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">
-              エラーが発生しました
+              {MESSAGES.SYSTEM.ERROR_BOUNDARY_TITLE}
             </h2>
-            <p className="text-sm text-slate-500 mb-6 leading-relaxed">
-              申し訳ありません。予期せぬ問題により画面を表示できませんでした。
-              <br />
-              一度ページを再読み込み（リロード）してみてください。
+            <p className="text-sm text-slate-500 mb-6 leading-relaxed whitespace-pre-wrap">
+              {MESSAGES.SYSTEM.ERROR_BOUNDARY_DESC}
             </p>
 
             <button
               onClick={() => window.location.reload()}
               className="w-full bg-slate-900 text-white font-bold py-3.5 rounded-full hover:bg-slate-800 shadow-md transition-all"
             >
-              ページを再読み込みする
+              {MESSAGES.SYSTEM.ERROR_BOUNDARY_BTN}
             </button>
 
             <div className="mt-6 pt-6 border-t border-slate-100">

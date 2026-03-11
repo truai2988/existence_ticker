@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "../hooks/useAuthHook";
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../hooks/useAuthHook';
+import { useToast } from '../hooks/useToast';
+import { MESSAGES } from '../constants/messages';
 import {
   Eye,
   EyeOff,
-  ArrowRight,
-  Loader2,
-  AlertCircle,
+  User,
   Mail,
   Lock,
-  User,
   MapPin,
   Key,
   ChevronDown,
+  ArrowRight,
+  Loader2,
+  AlertCircle
 } from "lucide-react";
 import { PREFECTURES } from "../data/prefectures";
 import { useLocationData } from "../hooks/useLocationData";
@@ -23,42 +25,9 @@ interface AuthScreenProps {
   onSuccess: () => void;
 }
 
-// 日本語エラーメッセージへの変換 (Firebaseのエラー用)
-const translateError = (code: string): string => {
-  switch (code) {
-    case "auth/invalid-email":
-      return "メールアドレスの形式が正しくありません。";
-    case "auth/user-disabled":
-      return "このアカウントは無効化されています。";
-    case "auth/user-not-found":
-      return "メールアドレスまたはパスワードが正しくありません。";
-    case "auth/wrong-password":
-      return "メールアドレスまたはパスワードが正しくありません。";
-    case "auth/invalid-credential":
-      return "メールアドレスまたはパスワードが正しくありません。";
-    case "auth/email-already-in-use":
-      return "このメールアドレスは既に登録されています。";
-    case "auth/weak-password":
-      return "パスワードは6文字以上で入力してください。";
-    case "auth/operation-not-allowed":
-      return "認証エラーが発生しました。管理者にお問い合わせください。";
-    case "auth/too-many-requests":
-      return "アクセスが集中しています。しばらく待ってから再度お試しください。";
-    case "auth/network-request-failed":
-      return "回線が不安定です。ネットワーク接続を確認してください。";
-    case "auth/internal-error":
-      return "システムエラーが発生しました。";
-    case "auth/requires-recent-login":
-      return "再認証が必要です。一度ログアウトして再度ログインしてください。";
-    default:
-      // Firebaseのコード形式（auth/xxx）でない場合はそのまま返す
-      if (code.includes("/")) return "エラーが発生しました (" + code + ")";
-      return code;
-  }
-};
-
 export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
   const { signIn, signUp, resetPassword } = useAuth();
+  const { showToast } = useToast();
   const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -73,9 +42,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
     );
     if (feedbackNeeded === "true") {
       setMode("signup");
-      setError(
-        "前回のアカウントは正常に作成されていませんでした。お手数ですが、再度登録をお願いします。",
-      );
+      setError(MESSAGES.AUTH.GHOST_PURGE_FEEDBACK);
       sessionStorage.removeItem("ghost_pured_feedback_needed");
     }
   }, []);
@@ -120,33 +87,34 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
 
     try {
       if (mode === "login") {
-        if (!email) throw new Error("メールアドレスを入力してください。");
+        if (!email) throw new Error(MESSAGES.AUTH.EMAIL_REQUIRED);
         if (!validateEmail(email))
-          throw new Error("メールアドレスの形式が正しくありません。");
-        if (!password) throw new Error("パスワードを入力してください。");
+          throw new Error(MESSAGES.AUTH.EMAIL_INVALID);
+        if (!password) throw new Error(MESSAGES.AUTH.PASSWORD_REQUIRED);
 
         await signIn(email, password);
         setShowWelcome(true);
         setTimeout(() => onSuccess(), 4000);
       } else if (mode === "signup") {
         // バリデーション
-        if (!name.trim()) throw new Error("名前を入力してください。");
-        if (!gender) throw new Error("性別を選択してください。");
-        if (!ageGroup) throw new Error("年代を選択してください。");
-        if (!prefecture) throw new Error("都道府県を選択してください。");
-        if (!city) throw new Error("市区町村を選択してください。");
+        if (!name.trim()) throw new Error(MESSAGES.AUTH.NAME_REQUIRED);
+        if (!gender) throw new Error(MESSAGES.AUTH.GENDER_REQUIRED);
+        if (!ageGroup) throw new Error(MESSAGES.AUTH.AGE_GROUP_REQUIRED);
+        if (!prefecture) throw new Error(MESSAGES.AUTH.PREFECTURE_REQUIRED);
+        if (!city) throw new Error(MESSAGES.AUTH.CITY_REQUIRED);
 
-        if (!email) throw new Error("メールアドレスを入力してください。");
+        if (!email) throw new Error(MESSAGES.AUTH.EMAIL_REQUIRED);
         if (!validateEmail(email))
-          throw new Error("メールアドレスの形式が正しくありません。");
+          throw new Error(MESSAGES.AUTH.EMAIL_INVALID);
 
-        if (!password) throw new Error("パスワードを入力してください。");
+        if (!password) throw new Error(MESSAGES.AUTH.PASSWORD_REQUIRED);
         if (password.length < 6)
-          throw new Error("パスワードは6文字以上で入力してください。");
+          throw new Error(MESSAGES.AUTH.PASSWORD_WEAK);
 
-        if (!invitationCode.trim())
-          throw new Error("招待コードを入力してください。");
-
+        if (!invitationCode.trim()) {
+            showToast(MESSAGES.AUTH.INVITE_REQUEST, 'error');
+            return;
+        }
         await signUp(
           email,
           password,
@@ -159,19 +127,20 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
         setShowWelcome(true);
         setTimeout(() => onSuccess(), 4000);
       } else if (mode === "forgot") {
-        if (!email) throw new Error("メールアドレスを入力してください。");
+        if (!email) throw new Error(MESSAGES.AUTH.EMAIL_REQUIRED);
         await resetPassword(email);
+        showToast(MESSAGES.AUTH.PW_RESET_SENT, 'success');
         setIsSuccess(true);
         setIsLoading(false);
         return;
       }
     } catch (err: unknown) {
       console.error(err);
-      // エラーオブジェクトから最適なメッセージを抽出
-      const errorObj = err as { code?: string; message?: string };
-      const message = errorObj.code
-        ? translateError(errorObj.code)
-        : errorObj.message || "予期せぬエラーが発生しました。";
+      const error = err as { code?: string; message?: string };
+      const message = error.code
+        ? MESSAGES.AUTH.FIREBASE_ERRORS[error.code as keyof typeof MESSAGES.AUTH.FIREBASE_ERRORS] || MESSAGES.SYSTEM.ERROR_GENERIC
+        : error.message || MESSAGES.SYSTEM.ERROR_GENERIC;
+      showToast(message, 'error');
       setError(message);
     } finally {
       if (mode !== "forgot") setIsLoading(false);
@@ -191,9 +160,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
             className="text-2xl font-serif font-bold text-slate-800 tracking-widest mb-2"
             style={{ fontFamily: "Inter, Noto Sans JP" }}
           >
-            {mode === "login" && "ET Existence-Ticker"}
-            {mode === "signup" && "ET Existence-Ticker"}
-            {mode === "forgot" && "灯火の再点火"}
+            {mode === "login" && MESSAGES.AUTH.APP_TITLE}
+            {mode === "signup" && MESSAGES.AUTH.APP_TITLE}
+            {mode === "forgot" && MESSAGES.AUTH.REIGNITE_TITLE}
           </h1>
           <div className="h-1 w-12 bg-slate-300 rounded-full" />
         </div>
@@ -210,7 +179,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                   className="flex flex-col gap-1.5"
                 >
                   <label className="text-sm font-bold text-slate-600 ml-1">
-                    お名前 <span className="text-red-500">*</span>
+                    {MESSAGES.AUTH.NAME_LABEL} <span className="text-red-500">*</span>
                   </label>
                   <div className="relative group">
                     <User
@@ -219,7 +188,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                     />
                     <input
                       type="text"
-                      placeholder="山田 太郎"
+                      placeholder={MESSAGES.AUTH.NAME_PLACEHOLDER}
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-500 text-base"
@@ -231,7 +200,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
 
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-bold text-slate-600 ml-1">
-                メールアドレス <span className="text-red-500">*</span>
+                {MESSAGES.AUTH.EMAIL_LABEL} <span className="text-red-500">*</span>
               </label>
               <div className="relative group">
                 <Mail
@@ -240,7 +209,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                 />
                 <input
                   type="email"
-                  placeholder="mail@example.com"
+                  placeholder={MESSAGES.AUTH.EMAIL_PLACEHOLDER}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-500 text-base"
@@ -251,7 +220,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
             {mode !== "forgot" && (
               <div className="flex flex-col gap-1.5">
                 <label className="text-sm font-bold text-slate-600 ml-1">
-                  パスワード <span className="text-red-500">*</span>
+                  {MESSAGES.AUTH.PASSWORD_LABEL} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative group">
                   <Lock
@@ -260,7 +229,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                   />
                   <input
                     type={showPassword ? "text" : "password"}
-                    placeholder="••••••"
+                    placeholder={MESSAGES.AUTH.PASSWORD_PLACEHOLDER}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-500 text-base"
@@ -286,7 +255,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                 >
                   <div className="flex flex-col gap-1.5">
                     <label className="text-sm font-bold text-slate-600 ml-1">
-                      居住地 <span className="text-red-500">*</span>
+                      {MESSAGES.AUTH.RESIDENCE_LABEL} <span className="text-red-500">*</span>
                     </label>
                     <div className="grid grid-cols-2 gap-2">
                       <div className="relative group">
@@ -303,7 +272,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all appearance-none text-base"
                         >
                           <option value="" disabled>
-                            都道府県
+                            {MESSAGES.AUTH.PREFECTURE_PLACEHOLDER}
                           </option>
                           {PREFECTURES.map((pref) => (
                             <option key={pref} value={pref}>
@@ -324,7 +293,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                           disabled={!prefecture || loadingCities}
                         >
                           <option value="" disabled>
-                            {loadingCities ? "..." : "市区町村"}
+                            {loadingCities ? "..." : MESSAGES.AUTH.CITY_PLACEHOLDER}
                           </option>
                           {cities.map((cityName) => (
                             <option key={cityName} value={cityName}>
@@ -339,14 +308,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                       </div>
                     </div>
                     <p className="text-xs text-slate-500 ml-1 mt-1 leading-tight font-medium">
-                      ※番地やマンション名の入力は不要です。
+                      {MESSAGES.AUTH.RESIDENCE_HELP}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
                     <div className="flex flex-col gap-1.5">
                       <label className="text-sm font-bold text-slate-600 ml-1">
-                        年代 <span className="text-red-500">*</span>
+                        {MESSAGES.AUTH.AGE_GROUP_LABEL} <span className="text-red-500">*</span>
                       </label>
                       <div className="relative group">
                         <select
@@ -355,16 +324,16 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-base appearance-none"
                         >
                           <option value="" disabled>
-                            年代
+                            {MESSAGES.AUTH.AGE_GROUP_PLACEHOLDER}
                           </option>
-                          <option value="20歳未満">20歳未満</option>
-                          <option value="20代">20代</option>
-                          <option value="30代">30代</option>
-                          <option value="40代">40代</option>
-                          <option value="50代">50代</option>
-                          <option value="60代">60代</option>
-                          <option value="70代">70代</option>
-                          <option value="80代以上">80代以上</option>
+                          <option value="20歳未満">{MESSAGES.AUTH.AGE_GROUP_UNDER_20}</option>
+                          <option value="20代">{MESSAGES.AUTH.AGE_GROUP_20S}</option>
+                          <option value="30代">{MESSAGES.AUTH.AGE_GROUP_30S}</option>
+                          <option value="40代">{MESSAGES.AUTH.AGE_GROUP_40S}</option>
+                          <option value="50代">{MESSAGES.AUTH.AGE_GROUP_50S}</option>
+                          <option value="60代">{MESSAGES.AUTH.AGE_GROUP_60S}</option>
+                          <option value="70代">{MESSAGES.AUTH.AGE_GROUP_70S}</option>
+                          <option value="80代以上">{MESSAGES.AUTH.AGE_GROUP_OVER_80}</option>
                         </select>
                         <ChevronDown
                           className="absolute right-3 top-3 text-slate-400 pointer-events-none"
@@ -374,7 +343,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <label className="text-sm font-bold text-slate-600 ml-1">
-                        性別 <span className="text-red-500">*</span>
+                        {MESSAGES.AUTH.GENDER_LABEL} <span className="text-red-500">*</span>
                       </label>
                       <div className="relative group">
                         <select
@@ -387,11 +356,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-base appearance-none"
                         >
                           <option value="" disabled>
-                            性別
+                            {MESSAGES.AUTH.GENDER_PLACEHOLDER}
                           </option>
-                          <option value="male">男性</option>
-                          <option value="female">女性</option>
-                          <option value="other">その他</option>
+                          <option value="male">{MESSAGES.AUTH.GENDER_MALE}</option>
+                          <option value="female">{MESSAGES.AUTH.GENDER_FEMALE}</option>
+                          <option value="other">{MESSAGES.AUTH.GENDER_OTHER}</option>
                         </select>
                         <ChevronDown
                           className="absolute right-3 top-3 text-slate-400 pointer-events-none"
@@ -403,7 +372,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
 
                   <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-100 mt-2">
                     <label className="text-sm font-bold text-slate-600 ml-1">
-                      招待の鍵をお持ちですか？{" "}
+                      {MESSAGES.AUTH.INVITE_LABEL}{" "}
                       <span className="text-red-500">*</span>
                     </label>
                     <div className="relative group">
@@ -413,14 +382,14 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                       />
                       <input
                         type="text"
-                        placeholder="ALPHA-XXXX"
+                        placeholder={MESSAGES.AUTH.INVITE_PLACEHOLDER}
                         value={invitationCode}
                         onChange={(e) => setInvitationCode(e.target.value)}
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all font-mono text-base"
                       />
                     </div>
                     <p className="text-xs text-slate-500 ml-1 mt-1 leading-tight font-medium">
-                      このインフラは現在、静かな招待制です。お手元の鍵（コード）を入力してください。
+                      {MESSAGES.AUTH.INVITE_HELP}
                     </p>
                   </div>
                 </motion.div>
@@ -459,10 +428,10 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                 </motion.div>
                 <div className="flex flex-col gap-1">
                   <span className="font-bold">
-                    パスワード再設定メールを送信しました
+                    {MESSAGES.AUTH.PW_RESET_SENT}
                   </span>
                   <p className="text-xs text-emerald-600/80 leading-relaxed">
-                    メールが届かない場合は、迷惑メールフォルダもご確認ください。
+                    {MESSAGES.AUTH.PW_RESET_HELP}
                   </p>
                 </div>
               </motion.div>
@@ -479,9 +448,9 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
             ) : (
               <>
                 <span>
-                  {mode === "login" && "ログイン"}
-                  {mode === "signup" && "新規登録"}
-                  {mode === "forgot" && "再点火する"}
+                  {mode === "login" && MESSAGES.AUTH.LOGIN_BUTTON}
+                  {mode === "signup" && MESSAGES.AUTH.SIGNUP_BUTTON}
+                  {mode === "forgot" && MESSAGES.AUTH.REIGNITE_BUTTON}
                 </span>
                 {mode !== "forgot" && <ArrowRight size={18} />}
               </>
@@ -499,7 +468,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                   }}
                   className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300"
                 >
-                  新規登録はこちら
+                  {MESSAGES.AUTH.TO_SIGNUP}
                 </button>
                 <button
                   type="button"
@@ -509,7 +478,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                   }}
                   className="text-xs hover:text-slate-800"
                 >
-                  パスワードをお忘れの方
+                  {MESSAGES.AUTH.TO_FORGOT}
                 </button>
               </>
             )}

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { X } from 'lucide-react';
+import { MESSAGES } from '../constants/messages';
 
 export const TrustPage = () => {
     useEffect(() => {
@@ -27,10 +28,10 @@ export const TrustPage = () => {
                     className="flex items-center gap-2 text-xs tracking-widest text-[#777777] hover:text-[#2D2D2D] transition-colors group font-sans"
                 >
                     <X size={16} className="group-hover:rotate-90 transition-transform duration-300" />
-                    閉じる
+                    {MESSAGES.TRUST.NAV_CLOSE}
                 </button>
                 <span className="text-xs tracking-[0.3em] uppercase text-[#AAAAAA] hidden md:inline font-sans">
-                    Existence Ticker
+                    {MESSAGES.TRUST.NAV_TITLE}
                 </span>
             </nav>
 
@@ -44,10 +45,10 @@ export const TrustPage = () => {
                         transition={{ duration: 1.2 }}
                     >
                         <p className="text-xs tracking-[0.5em] text-[#AAAAAA] uppercase mb-6 font-sans">
-                            The Covenant
+                            {MESSAGES.TRUST.HEADER_SUB}
                         </p>
                         <h1 className="text-2xl md:text-3xl font-light tracking-[0.2em] text-[#1A1A1A] mb-8">
-                            約束と庭師について
+                            {MESSAGES.TRUST.HEADER_TITLE}
                         </h1>
                         <div className="h-[1px] w-16 bg-[#8B6B50]/20 mx-auto" />
                     </motion.div>
@@ -66,29 +67,28 @@ export const TrustPage = () => {
                     >
                         <div className="mb-8">
                             <span className="text-[10px] tracking-[0.5em] text-[#BBBBBB] uppercase block mb-3 font-sans">
-                                I. The Gardener
+                                {MESSAGES.TRUST.SEC1_SUB}
                             </span>
                             <h2 className="text-lg font-medium tracking-[0.15em] text-[#2D2D2D]">
-                                庭師について
+                                {MESSAGES.TRUST.SEC1_TITLE}
                             </h2>
                             <div className="h-[1px] w-8 bg-[#DED9D0] mt-4" />
                         </div>
                         <article className="space-y-6 text-base leading-[2.4] text-[#444444] tracking-wide">
                             <p className="text-justify">
-                                このインフラは、現在{' '}
+                                {MESSAGES.TRUST.SEC1_P1_1}{' '}
                                 <a
                                     href="https://yori-somaru.com/"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-[#8B6B50] underline underline-offset-4 decoration-[#8B6B50]/30 hover:decoration-[#8B6B50] transition-all duration-300"
                                 >
-                                    玉置士朗 / 合同会社カイシュウ
+                                    {MESSAGES.TRUST.SEC1_P1_2}
                                 </a>{' '}
-                                が庭師として、サーバーの維持とコードの剪定を行っています。
+                                {MESSAGES.TRUST.SEC1_P1_3}
                             </p>
-                            <p className="text-justify">
-                                お問い合わせ、あるいは庭師への手紙は、下記のアドレスまでお寄せください。
-                                静かに、しかし必ず、お読みします。
+                            <p className="text-justify whitespace-pre-wrap">
+                                {MESSAGES.TRUST.SEC1_P2}
                             </p>
                             <p>
                                 <a
@@ -118,24 +118,19 @@ export const TrustPage = () => {
                     >
                         <div className="mb-8">
                             <span className="text-[10px] tracking-[0.5em] text-[#BBBBBB] uppercase block mb-3 font-sans">
-                                II. The Covenant
+                                {MESSAGES.TRUST.SEC2_SUB}
                             </span>
                             <h2 className="text-lg font-medium tracking-[0.15em] text-[#2D2D2D]">
-                                このインフラの約束
+                                {MESSAGES.TRUST.SEC2_TITLE}
                             </h2>
                             <div className="h-[1px] w-8 bg-[#DED9D0] mt-4" />
                         </div>
                         <article className="space-y-6 text-base leading-[2.4] text-[#444444] tracking-wide">
-                            <p className="text-justify">
-                                ここは静寂を保つための聖域です。
-                                重機の論理——スパムや営業目的の利用——を持ち込む行為は、
-                                この庭の空気を濁らせます。どうかご遠慮ください。
+                            <p className="text-justify whitespace-pre-wrap">
+                                {MESSAGES.TRUST.SEC2_P1}
                             </p>
-                            <p className="text-justify">
-                                また、現在は創世記（アルファ版）の実験段階にあるため、
-                                やむを得ずデータが初期化される可能性があります。
-                                庭師は慎重に剪定を続けますが、芽吹いたばかりの庭であることを、
-                                あらかじめご了承いただけますと幸いです。
+                            <p className="text-justify whitespace-pre-wrap">
+                                {MESSAGES.TRUST.SEC2_P2}
                             </p>
                         </article>
                     </motion.section>
@@ -157,22 +152,19 @@ export const TrustPage = () => {
                     >
                         <div className="mb-8">
                             <span className="text-[10px] tracking-[0.5em] text-[#BBBBBB] uppercase block mb-3 font-sans">
-                                III. Privacy &amp; Silence
+                                {MESSAGES.TRUST.SEC3_SUB}
                             </span>
                             <h2 className="text-lg font-medium tracking-[0.15em] text-[#2D2D2D]">
-                                お預かりする情報について
+                                {MESSAGES.TRUST.SEC3_TITLE}
                             </h2>
                             <div className="h-[1px] w-8 bg-[#DED9D0] mt-4" />
                         </div>
                         <article className="space-y-6 text-base leading-[2.4] text-[#444444] tracking-wide">
-                            <p className="text-justify">
-                                あなたの存在の痕跡——登録されたメールアドレスや、
-                                ここに芽吹かせた願いのデータ——を、
-                                外部の広告企業等に販売したり、譲渡したりすることは決してありません。
+                            <p className="text-justify whitespace-pre-wrap">
+                                {MESSAGES.TRUST.SEC3_P1}
                             </p>
-                            <p className="text-justify">
-                                この庭の中だけで、静かに、大切に守ります。
-                                あなたの言葉は、あなたのものです。
+                            <p className="text-justify whitespace-pre-wrap">
+                                {MESSAGES.TRUST.SEC3_P2}
                             </p>
                         </article>
                     </motion.section>
@@ -182,16 +174,16 @@ export const TrustPage = () => {
                 {/* Footer */}
                 <footer className="mt-40 pt-16 border-t border-[#E5E0D5] text-center">
                     <p className="text-xs tracking-[0.2em] text-[#AAAAAA] mb-10 font-sans">
-                        ET: Infrastructure for the Soul
+                        {MESSAGES.TRUST.FOOTER_SUB}
                     </p>
                     <button
                         onClick={() => window.close()}
                         className="inline-block px-12 py-5 bg-[#2D2D2D] text-white rounded-xl shadow-xl hover:bg-[#111111] transition-all tracking-[0.3em] font-medium text-sm font-sans"
                     >
-                        閉じる
+                        {MESSAGES.TRUST.FOOTER_BTN}
                     </button>
                     <p className="mt-16 text-xs tracking-[0.3em] text-[#CCCCCC] uppercase font-serif">
-                        © 2026 Existence Ticker.
+                        {MESSAGES.TRUST.FOOTER_COPY}
                     </p>
                 </footer>
             </main>

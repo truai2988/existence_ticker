@@ -2,6 +2,7 @@
 export interface Notice {
   id: string;
   userId: string;
+  fromId: string; // 送信元（聖域の防衛用）
   message: string;
   type:
     | "application_received" // 誰かが応募してきた

@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, X, Trash2, BellOff } from "lucide-react";
+import { Bell, X, BellOff } from "lucide-react";
 import { useNoticeContext } from "../hooks/useNoticeContext";
 import { Notice } from "../types/notice";
+import { MESSAGES } from "../constants/messages";
 
 /** 通知の type に応じた色クラス */
 const typeColorMap: Record<Notice["type"], string> = {
@@ -20,9 +21,9 @@ const formatTime = (ms: number) => {
   const d = new Date(ms);
   const now = Date.now();
   const diff = now - ms;
-  if (diff < 60_000) return "たった今";
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}分前`;
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}時間前`;
+  if (diff < 60_000) return MESSAGES.NOTICE.TIME_JUST_NOW;
+  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}${MESSAGES.NOTICE.TIME_MINUTES_AGO}`;
+  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}${MESSAGES.NOTICE.TIME_HOURS_AGO}`;
   return d.toLocaleDateString("ja-JP", {
     month: "short",
     day: "numeric",
@@ -52,18 +53,20 @@ export const NoticePanel: React.FC = () => {
       {/* ベルアイコン + バッジ */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-3 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-all active:scale-95"
-        aria-label="お知らせ"
+        className={`relative p-3 rounded-full transition-all active:scale-95 ${
+          unreadCount > 0 
+            ? "text-amber-500 bg-amber-50/50" 
+            : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+        }`}
+        aria-label={MESSAGES.NOTICE.TITLE}
       >
-        <Bell size={24} strokeWidth={1.5} />
+        <Bell size={24} strokeWidth={1.5} className={unreadCount > 0 ? "animate-pulse" : ""} />
         {unreadCount > 0 && (
           <motion.span
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="absolute -top-0.5 -right-0.5 flex items-center justify-center w-5 h-5 text-[10px] font-bold text-white bg-red-500 rounded-full ring-2 ring-white shadow-sm"
-          >
-            {unreadCount > 9 ? "9+" : unreadCount}
-          </motion.span>
+            className="absolute top-2 right-2 w-2.5 h-2.5 bg-amber-400 rounded-full ring-2 ring-white shadow-[0_0_8px_rgba(251,191,36,0.5)]"
+          />
         )}
       </button>
 
@@ -78,25 +81,24 @@ export const NoticePanel: React.FC = () => {
             className="fixed left-4 right-4 top-[70px] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 max-h-[70vh] bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col z-50"
           >
             {/* ヘッダー */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50/50">
-              <h3 className="text-sm font-bold text-slate-700 tracking-wide">
-                お知らせ
+            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-50 bg-white">
+              <h3 className="text-base font-serif font-medium text-slate-800 tracking-widest">
+                {MESSAGES.NOTICE.TITLE}
               </h3>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-3">
                 {notices.length > 0 && (
                   <button
                     onClick={dismissAll}
-                    className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                    title="すべて畳む"
+                    className="text-xs text-slate-400 hover:text-amber-600 transition-colors tracking-tighter"
                   >
-                    <Trash2 size={14} />
+                    {MESSAGES.NOTICE.TOOLTIP_DISMISS_ALL}
                   </button>
                 )}
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-2.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                  className="p-1 text-slate-300 hover:text-slate-500 transition-colors"
                 >
-                  <X size={14} />
+                  <X size={18} strokeWidth={1.5} />
                 </button>
               </div>
             </div>
@@ -111,10 +113,10 @@ export const NoticePanel: React.FC = () => {
                     strokeWidth={1.5}
                   />
                   <p className="text-sm text-slate-400 font-medium">
-                    お知らせはありません
+                    {MESSAGES.NOTICE.EMPTY_TITLE}
                   </p>
                   <p className="text-xs text-slate-300 mt-1">
-                    新しい動きがあるとここに届きます
+                    {MESSAGES.NOTICE.EMPTY_DESC}
                   </p>
                 </div>
               ) : (
@@ -123,31 +125,29 @@ export const NoticePanel: React.FC = () => {
                     <motion.div
                       key={notice.id}
                       layout
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20, height: 0 }}
-                      className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50/50 transition-colors group"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="flex items-start gap-4 px-6 py-5 hover:bg-slate-50/30 transition-colors group relative"
                     >
-                      {/* ドットインジケーター */}
+                      {/* ドットインジケーター (より淡く) */}
                       <span
-                        className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${typeColorMap[notice.type] || "bg-slate-300"}`}
+                        className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 opacity-60 ${typeColorMap[notice.type] || "bg-slate-300"}`}
                       />
 
                       {/* メッセージ */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-slate-700 leading-relaxed font-medium">
+                        <p className="text-[13px] text-slate-600 leading-relaxed font-light tracking-wide">
                           {notice.message}
                         </p>
-                        <span className="text-xs text-slate-400 mt-0.5 block">
+                        <span className="text-[10px] text-slate-300 mt-1.5 block font-sans tracking-tight">
                           {formatTime(notice.createdAt)}
                         </span>
-                      </div>
 
                       {/* 削除ボタン */}
                       <button
                         onClick={() => dismissNotice(notice.id)}
                         className="p-2.5 text-slate-300 hover:text-slate-500 hover:bg-slate-100 rounded-md transition-colors opacity-0 group-hover:opacity-100 shrink-0 mt-0.5"
-                        title="お知らせを畳む"
+                        title={MESSAGES.NOTICE.TOOLTIP_DISMISS}
                       >
                         <X size={14} />
                       </button>

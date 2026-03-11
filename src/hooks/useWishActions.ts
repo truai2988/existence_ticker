@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Wish, CreateWishInput, UserProfile } from "../types";
+import { Notice } from "../types/notice";
 import { useAuth } from "./useAuthHook";
 import { useWishesContext } from "../contexts/WishesContext";
 import { useWallet } from "./useWallet";
@@ -27,6 +28,26 @@ export const useWishActions = () => {
   const { addOptimisticWish, updateOptimisticWish } = useWishesContext();
   const { setOptimisticBalanceOffset, setOptimisticCommittedOffset } = useWallet();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 通知を静かに送るユーティリティ
+  const sendNoticeSilently = async (noticeData: { 
+    userId: string; 
+    message: string; 
+    type: Notice["type"]; 
+    fromId?: string;
+  }) => {
+    try {
+      await addNotice({
+        userId: noticeData.userId,
+        fromId: noticeData.fromId || user?.uid || "system",
+        message: noticeData.message,
+        type: noticeData.type,
+        createdAt: Date.now(),
+      });
+    } catch (error) {
+      console.error("Notice failed to send, but action proceeded:", error);
+    }
+  };
 
   // Calculate costs matches logic in UI/Types
   // Calculate costs matches logic in UI/Types
@@ -192,11 +213,10 @@ export const useWishActions = () => {
       if (!wishDocSnap.empty) {
         const wishData = wishDocSnap.docs[0].data();
         const applicantName = user.displayName || "奏者";
-        addNotice({
+        sendNoticeSilently({
           userId: wishData.requester_id,
-          message: `「${wishData.content?.slice(0, 20)}…」に ${applicantName} さんが手を挙げました`,
+          message: `「${wishData.content?.slice(0, 20)}…」に ${applicantName} さんが寄り添おうとしています。`,
           type: "application_received",
-          createdAt: Date.now(),
         });
       }
 
@@ -241,6 +261,13 @@ export const useWishActions = () => {
           });
       });
 
+      // 通知: 助け手に「承諾されました」を送る
+      sendNoticeSilently({
+        userId: applicantId,
+        message: "あなたの願いが、静かに聞き届けられました。",
+        type: "wish_approved",
+      });
+
       return true;
     } catch (e) {
       console.error(e);
@@ -266,6 +293,17 @@ export const useWishActions = () => {
             updated_at: serverTimestamp()
           });
       });
+
+      // 通知: 依頼主に「完了報告」を送る
+      const wishSnap = await getDocs(query(collection(db, 'wishes'), where('__name__', '==', wishId)));
+      if (!wishSnap.empty) {
+        sendNoticeSilently({
+          userId: wishSnap.docs[0].data().requester_id,
+          message: "願いが叶い、感謝の言葉を待っています。",
+          type: "wish_fulfilled", // Review pending通知として流用
+        });
+      }
+
       return true;
     } catch (e) {
       console.error(e);
@@ -355,11 +393,10 @@ export const useWishActions = () => {
             });
 
             // 永続通知: ヘルパーへ
-            addNotice({
+            sendNoticeSilently({
               userId: wishData.helper_id,
               message: notificationMsg,
               type: "wish_cancelled",
-              createdAt: Date.now(),
             });
 
             if (!txCheck.exists()) {
@@ -407,11 +444,10 @@ export const useWishActions = () => {
             });
 
             // 永続通知: リクエスターへ
-            addNotice({
+            sendNoticeSilently({
               userId: wishData.requester_id,
-              message: "助け手様が辞退されたため、願いが再び募集に戻りました。Lmは安全に守られています。",
+              message: "担当者が離れ、願いは再び世界へと還りました。",
               type: "helper_resigned",
-              createdAt: Date.now(),
             });
             
             transaction.update(wishRef, {
@@ -500,11 +536,10 @@ export const useWishActions = () => {
         });
 
         // 永続通知: リクエスターへ
-        addNotice({
+        sendNoticeSilently({
           userId: wishData.requester_id,
-          message: "助け手様が辞退されたため、願いが再び募集に戻りました。Lmは安全に守られています。",
+          message: "担当者が離れ、願いは再び世界へと還りました。",
           type: "helper_resigned",
-          createdAt: Date.now(),
         });
 
         // 3. Reset Wish Status
@@ -733,6 +768,14 @@ export const useWishActions = () => {
       });
 
       setOptimisticBalanceOffset(0);
+
+      // 通知: 助け手に「源気が届けられました」を送る
+      sendNoticeSilently({
+        userId: fulfillerId,
+        message: "感謝と共に、源気が届けられました。",
+        type: "wish_fulfilled",
+      });
+
       return true;
     } catch (e) {
       console.error("Fulfillment failed:", e);

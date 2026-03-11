@@ -1,5 +1,6 @@
 import React from "react";
 import { User, CheckCircle, Loader2 } from "lucide-react";
+import { MESSAGES } from "../../constants/messages";
 import { getTrustRank } from "../../logic/worldPhysics";
 import { useOtherProfile } from "../../hooks/useOtherProfile";
 
@@ -13,7 +14,7 @@ export const ApplicantItem: React.FC<{
   const { profile } = useOtherProfile(applicant.id);
 
   // MASKING LOGIC
-  const displayName = isMasked ? "匿名" : profile?.name || applicant.name;
+  const displayName = isMasked ? MESSAGES.WISH_CARD.LBL_ANONYMOUS : profile?.name || applicant.name;
   const avatarUrl = isMasked ? null : profile?.avatarUrl;
   const trustScore = applicant.trust_score || 0;
   const rank = getTrustRank(profile, trustScore);
@@ -21,8 +22,8 @@ export const ApplicantItem: React.FC<{
   const genderLabel =
     profile?.gender && profile.gender !== "other"
       ? profile.gender === "male"
-        ? "男性"
-        : "女性"
+        ? MESSAGES.WISH_CARD.LBL_MALE
+        : MESSAGES.WISH_CARD.LBL_FEMALE
       : "";
 
   const metadata = isMasked
@@ -101,7 +102,7 @@ export const ApplicantItem: React.FC<{
         ) : (
           <CheckCircle className="w-3 h-3" />
         )}
-        <span>この人にお願いする</span>
+        <span>{MESSAGES.WISH_CARD.BTN_CHOOSE}</span>
       </button>
     </div>
   );

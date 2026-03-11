@@ -26,6 +26,7 @@ import { formatLocationCount } from "../utils/formatLocation";
 import { ProfileEditScreen } from "./ProfileEditScreen";
 import { SideDrawer } from "./SideDrawer";
 import { PresenceModal } from "./PresenceModal";
+import { MESSAGES } from "../constants/messages";
 
 interface ProfileViewProps {
   userId?: string;
@@ -107,7 +108,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const [showPresenceModal, setShowPresenceModal] = useState(false);
 
   const isAnonymous = user?.isAnonymous ?? false;
-  const currentName = profile?.name || "名もなき旅人";
+  const currentName = profile?.name || MESSAGES.PROFILE.FALLBACK_NAME;
   const helpfulCount = profile?.completed_contracts || 0;
   const requestCount = profile?.completed_requests || 0;
   const rank = getTrustRank(profile);
@@ -118,7 +119,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     setIsLoading(true);
     try {
       await linkEmail(emailInput, passInput);
-      setSuccessMsg("本登録が完了しました");
+      setSuccessMsg(MESSAGES.PROFILE.LINK_SUCCESS);
       setTimeout(() => setShowLinkModal(false), 1500);
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : String(e));
@@ -131,13 +132,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     e.preventDefault();
     setErrorMsg("");
     if (newPass !== confirmNewPass) {
-      setErrorMsg("パスワードが一致しません");
+      setErrorMsg(MESSAGES.PROFILE.PW_MISMATCH);
       return;
     }
     setIsLoading(true);
     try {
       await updateUserPassword(newPass);
-      setSuccessMsg("変更しました");
+      setSuccessMsg(MESSAGES.PROFILE.PW_CHANGE_SUCCESS);
       setTimeout(() => setShowPassModal(false), 1500);
     } catch (e: unknown) {
       setErrorMsg(e instanceof Error ? e.message : String(e));
@@ -159,7 +160,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
          // This state should be handled by the UI showing the input first,
          // but as a safety check:
          setShowReauth(true);
-         setErrorMsg("本人確認のためパスワードを入力してください。");
+         setErrorMsg(MESSAGES.PROFILE.AUTH_REQUIRE);
          setIsLoading(false);
          return;
       }
@@ -171,18 +172,18 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
       // NOW we can safely delete database and auth account
       await deleteAccount();
-      alert("退会しました。またいつか、時の流れでお会いしましょう。");
+      alert(MESSAGES.PROFILE.MSG_FAREWELL);
       window.location.href = "/"; // Force refresh to clean state
     } catch (e: unknown) {
       console.error("Delete failed", e);
       const firebaseError = e as { code?: string; message?: string };
       if (firebaseError.code === 'auth/requires-recent-login' || firebaseError.message?.includes('requires-recent-login')) {
         setShowReauth(true);
-        setErrorMsg("認証が必要です。パスワードを入力してください。");
+        setErrorMsg(MESSAGES.PROFILE.PW_REQUIRED);
       } else if (firebaseError.code === 'auth/wrong-password') {
-        setErrorMsg("パスワードが正しくありません。");
+        setErrorMsg(MESSAGES.PROFILE.PW_INCORRECT);
       } else {
-        setErrorMsg("エラー: " + (e instanceof Error ? e.message : String(e)));
+        setErrorMsg(MESSAGES.PROFILE.ERROR_PREFIX + (e instanceof Error ? e.message : String(e)));
       }
     } finally {
       setIsLoading(false);
@@ -213,7 +214,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                    {/* Logo: ホームへ戻るボタン */}
                    <button
                        onClick={() => onTabChange?.('home')}
-                       aria-label="ホームへ戻る"
+                       aria-label={MESSAGES.LAYOUT.RETURN_HOME}
                        className="shrink-0 focus:outline-none active:scale-95 transition-transform"
                    >
                        <img
@@ -224,8 +225,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                    </button>
                    {/* Text Group */}
                    <div className="flex flex-col min-w-0">
-                                <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>プロフィール</h2>
-                       <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate">あなたの記録</p>
+                                <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>{MESSAGES.PROFILE.TITLE}</h2>
+                       <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate">{MESSAGES.PROFILE.SUBTITLE}</p>
                    </div>
               </div>
               <div className="flex h-12 items-center gap-3 shrink-0">
@@ -234,7 +235,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     <button
                       onClick={() => onTabChange?.("admin")}
                       className="p-3 text-red-400 hover:text-red-600 transition-colors active:scale-95"
-                      aria-label="管理コンソール"
+                      aria-label={MESSAGES.PROFILE.ARIA_ADMIN}
                     >
                       <Shield size={22} strokeWidth={1.5} />
                     </button>
@@ -244,7 +245,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     <button
                       onClick={() => setIsEditingProfile(true)}
                       className="p-3 text-slate-400 hover:text-slate-600 transition-colors active:scale-95"
-                      aria-label="プロフィール編集"
+                      aria-label={MESSAGES.PROFILE.ARIA_EDIT}
                     >
                       <Edit2 size={22} strokeWidth={1.5} />
                     </button>
@@ -253,7 +254,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   <button
                     onClick={() => setIsDrawerOpen(true)}
                     className="p-3 -mr-3 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
-                    aria-label="メニューを開く"
+                    aria-label={MESSAGES.LAYOUT.OPEN_MENU}
                   >
                     <Menu size={24} strokeWidth={1.5} />
                   </button>
@@ -310,7 +311,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   onClick={() => setIsEditingProfile(true)}
                   className="mt-1 text-base text-blue-500 font-bold hover:text-blue-600 hover:underline transition-colors animate-pulse font-sans"
                 >
-                  自己紹介を入力して信頼を高めましょう
+                  {MESSAGES.PROFILE.PROMPT_BIO}
                 </button>
               )}
 
@@ -326,13 +327,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 user?.uid === profile.id && (
                   <div className="mt-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg max-w-[200px]">
                     <p className="text-xs text-slate-500 text-center leading-snug font-sans">
-                      信頼の器がすこし傷ついています。
+                      {MESSAGES.PROFILE.TRUST_RECOVERY_1}
                       <br />
-                      あと{" "}
+                      {MESSAGES.PROFILE.TXT_LEFT_DAYS}{" "}
                       <span className="font-bold text-slate-700">
                         {2 - (profile.consecutive_completions || 0)}
                       </span>{" "}
-                      回、お願いに最後まで応えると元通りになります。
+                      {MESSAGES.PROFILE.TRUST_RECOVERY_2}
                     </p>
                   </div>
                 )}
@@ -353,7 +354,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   <div className="flex items-center px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50 text-slate-500">
                     <span className="whitespace-nowrap">
                         {profile.age_group}
-                        {profile.gender && profile.gender !== 'other' && ` / ${profile.gender === 'male' ? '男性' : '女性'}`}
+                        {profile.gender && profile.gender !== 'other' && ` / ${profile.gender === 'male' ? MESSAGES.WISH_CARD.LBL_MALE : MESSAGES.WISH_CARD.LBL_FEMALE}`}
                     </span>
                   </div>
                 )}
@@ -423,21 +424,21 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             />
             <div>
                <div className="text-sm font-bold text-slate-500 ml-2 mb-2 font-sans">
-                アクティビティ・実績
+                {MESSAGES.PROFILE.TTL_ACTIVITY}
               </div>
               <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm">
                 <ListItem
                   icon={Handshake}
-                  label="手伝った回数"
-                  value={`${helpfulCount}回`}
+                  label={MESSAGES.PROFILE.ACT_HELPED}
+                  value={`${helpfulCount}${MESSAGES.PROFILE.TXT_TIMES}`}
                   hasArrow={false}
                   iconColor="text-blue-500"
                   iconBg="bg-blue-50"
                 />
                 <ListItem
                   icon={Megaphone}
-                  label="依頼実績 (完了済)"
-                  value={`${requestCount}回`}
+                  label={MESSAGES.PROFILE.ACT_REQUESTED}
+                  value={`${requestCount}${MESSAGES.PROFILE.TXT_TIMES}`}
                   hasArrow={false}
                   iconColor="text-slate-500"
                   iconBg="bg-slate-100"
@@ -449,21 +450,21 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               {isAnonymous ? (
                 <ListItem
                   icon={Sun}
-                  label="アカウント本登録"
-                  value="未設定"
+                  label={MESSAGES.PROFILE.MENU_LINK_ACCOUNT}
+                  value={MESSAGES.PROFILE.TXT_NOT_SET}
                   onClick={() => setShowLinkModal(true)}
                 />
               ) : (
                 <ListItem
                   icon={KeyRound}
-                  label="パスワード変更"
+                  label={MESSAGES.PROFILE.MENU_CHANGE_PASS}
                   onClick={() => setShowPassModal(true)}
                 />
               )}
 
               <ListItem
                 icon={LogOut}
-                label="ログアウト"
+                label={MESSAGES.PROFILE.MENU_LOGOUT}
                 onClick={() => setConfirmMode("logout")}
               />
 
@@ -472,7 +473,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 profile?.role !== "admin" && (
                   <ListItem
                     icon={Trash2}
-                    label="退会する"
+                    label={MESSAGES.PROFILE.MENU_DELETE}
                     isDestructive
                     onClick={() => {
                       setConfirmMode("delete");
@@ -503,11 +504,11 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             {confirmMode === "logout" && (
               <div className="bg-white p-6 rounded-2xl w-full max-w-xs text-center shadow-xl">
                  <h3 className="font-bold text-slate-800 mb-2 text-base font-sans">
-                   ログアウトしますか？
+                   {MESSAGES.PROFILE.LOGOUT_CONFIRM}
                  </h3>
                 {isAnonymous && (
                    <p className="text-xs text-red-500 mb-4 bg-red-50 p-2 rounded font-sans">
-                     ゲストアカウントのため、データが消失します。
+                     {MESSAGES.PROFILE.LOGOUT_GUEST_WARN}
                    </p>
                 )}
                  <div className="flex gap-3">
@@ -515,13 +516,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                      onClick={() => setConfirmMode(null)}
                      className="flex-1 py-2.5 bg-slate-100 rounded-lg text-base font-bold text-slate-600 font-sans"
                    >
-                     キャンセル
+                     {MESSAGES.PROFILE.BTN_CANCEL}
                    </button>
                    <button
                      onClick={handleLogout}
                      className="flex-1 py-2.5 bg-red-500 rounded-lg text-base font-bold text-white font-sans"
                    >
-                     ログアウト
+                     {MESSAGES.PROFILE.MENU_LOGOUT}
                    </button>
                  </div>
               </div>
@@ -531,41 +532,40 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               <div className="bg-white p-6 rounded-2xl w-full max-w-xs text-center shadow-xl">
                 {deleteStep === 1 ? (
                   <>
-                    <h3 className="font-bold text-red-600 mb-2 text-base font-sans">退会手続き</h3>
+                    <h3 className="font-bold text-red-600 mb-2 text-base font-sans">{MESSAGES.PROFILE.DELETE_TITLE_1}</h3>
                     <p className="text-xs text-slate-600 mb-4 text-left font-sans">
-                      全てのデータ（XP、温もり、履歴）が完全に消去されます。この操作は取り消せません。
+                      {MESSAGES.PROFILE.DELETE_DESC_1}
                     </p>
                      <div className="flex gap-3">
                        <button
                          onClick={() => setConfirmMode(null)}
                          className="flex-1 py-2.5 bg-slate-100 rounded-lg text-base font-bold text-slate-600 font-sans"
                        >
-                         キャンセル
+                         {MESSAGES.PROFILE.BTN_CANCEL}
                        </button>
                        <button
                          onClick={() => setDeleteStep(2)}
                          className="flex-1 py-2.5 bg-red-100 text-red-600 rounded-lg text-base font-bold font-sans"
                        >
-                         進む
+                         {MESSAGES.PROFILE.BTN_PROCEED}
                        </button>
                      </div>
                   </>
                 ) : (
                   <>
-                     <h3 className="font-bold text-red-600 mb-2 text-base font-sans">最終確認</h3>
+                     <h3 className="font-bold text-red-600 mb-2 text-base font-sans">{MESSAGES.PROFILE.DELETE_TITLE_2}</h3>
                      <p className="text-base text-red-500 mb-4 font-bold leading-relaxed px-2 font-sans">
-                       すべての記録と LM
-                       は時の流れに還り、元に戻すことはできません。よろしいですか？
+                       {MESSAGES.PROFILE.DELETE_DESC_2}
                      </p>
 
                     {showReauth && (
                       <div className="mb-4 space-y-2 text-left">
-                        <p className="text-xs text-red-600 font-bold">パスワードを確認します</p>
+                        <p className="text-xs text-red-600 font-bold">{MESSAGES.PROFILE.PW_VERIFY}</p>
                         <input
                           type="password"
                           value={reauthPassword}
                           onChange={(e) => setReauthPassword(e.target.value)}
-                          placeholder="パスワードを入力"
+                          placeholder={MESSAGES.PROFILE.PW_INPUT}
                           className="w-full px-3 py-2 text-base border border-red-200 rounded-lg focus:outline-none focus:border-red-400 font-sans"
                         />
                       </div>
@@ -585,14 +585,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                          }}
                          className="flex-1 py-2.5 bg-slate-100 rounded-lg text-base font-bold text-slate-600 font-sans"
                        >
-                         やめる
+                         {MESSAGES.PROFILE.BTN_QUIT}
                        </button>
                        <button
                          onClick={handleDelete}
                          disabled={isLoading}
                          className="flex-1 py-2.5 bg-red-600 text-white rounded-lg text-base font-bold shadow-md disabled:opacity-50 font-sans"
                        >
-                         {isLoading ? "処理中..." : (showReauth ? "認証して退会" : "はい、還ります")}
+                         {isLoading ? MESSAGES.PROFILE.PROC_LOADING : (showReauth ? MESSAGES.PROFILE.BTN_AUTH_LEAVE : MESSAGES.PROFILE.BTN_LEAVE)}
                        </button>
                      </div>
                   </>
@@ -603,12 +603,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             {showLinkModal && (
               <div className="bg-white p-6 rounded-2xl w-full max-w-xs shadow-xl">
                 <h3 className="font-bold text-slate-800 mb-4 text-center">
-                  アカウント本登録
+                  {MESSAGES.PROFILE.TTL_ACCOUNT_REG}
                 </h3>
                 <form onSubmit={handleLinkAccount} className="space-y-3">
                   <input
                     type="email"
-                    placeholder="メールアドレス"
+                    placeholder={MESSAGES.PROFILE.PH_EMAIL}
                     required
                     className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm"
                     value={emailInput}
@@ -616,7 +616,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   />
                   <input
                     type="password"
-                    placeholder="パスワード"
+                    placeholder={MESSAGES.PROFILE.PH_PASSWORD}
                     required
                     className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm"
                     value={passInput}
@@ -635,14 +635,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       onClick={() => setShowLinkModal(false)}
                       className="flex-1 py-3 bg-slate-100 rounded-lg text-base font-bold text-slate-600"
                     >
-                      閉じる
+                      {MESSAGES.PROFILE.BTN_CLOSE}
                     </button>
                     <button
                       type="submit"
                       disabled={isLoading}
                       className="flex-1 py-3 bg-blue-600 text-white rounded-lg text-base font-bold"
                     >
-                      登録
+                      {MESSAGES.PROFILE.BTN_REGISTER}
                     </button>
                   </div>
                 </form>
@@ -652,12 +652,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             {showPassModal && (
               <div className="bg-white p-6 rounded-2xl w-full max-w-xs shadow-xl">
                 <h3 className="font-bold text-slate-800 mb-4 text-center">
-                  パスワード変更
+                  {MESSAGES.PROFILE.TTL_PW_CHANGE}
                 </h3>
                 <form onSubmit={handleChangePassword} className="space-y-3">
                   <input
                     type="password"
-                    placeholder="新しいパスワード"
+                    placeholder={MESSAGES.PROFILE.PH_NEW_PASSWORD}
                     required
                     className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm"
                     value={newPass}
@@ -665,7 +665,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   />
                   <input
                     type="password"
-                    placeholder="確認用"
+                    placeholder={MESSAGES.PROFILE.PH_CONFIRM}
                     required
                     className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm"
                     value={confirmNewPass}
@@ -684,14 +684,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                       onClick={() => setShowPassModal(false)}
                       className="flex-1 py-3 bg-slate-100 rounded-lg text-base font-bold text-slate-600"
                     >
-                      閉じる
+                      {MESSAGES.PROFILE.BTN_CLOSE}
                     </button>
                     <button
                       type="submit"
                       disabled={isLoading}
                       className="flex-1 py-3 bg-slate-800 text-white rounded-lg text-base font-bold"
                     >
-                      変更
+                      {MESSAGES.PROFILE.BTN_CHANGE}
                     </button>
                   </div>
                 </form>
@@ -721,15 +721,14 @@ const AreaInfoCard: React.FC<{
   );
 
   const locationText = profile?.location
-    ? `${profile.location.prefecture}${profile.location.city}`
-    : "エリア未設定";
+    ? `${profile.location.prefecture} ${profile.location.city}` : MESSAGES.PROFILE.TXT_AREA_NOT_SET;
 
-  const userCountText = statsCount === null ? "確認中..." : formatLocationCount(statsCount);
+  const userCountText = statsCount === null ? MESSAGES.PROFILE.TXT_CHECKING : formatLocationCount(statsCount);
 
   return (
     <div className="group">
       <div className="text-xs font-bold text-slate-400 ml-2 mb-2 font-sans group-hover:text-slate-500 transition-colors">
-        エリア情報
+        {MESSAGES.PROFILE.TTL_AREA_INFO}
       </div>
       <button 
         onClick={onClick}

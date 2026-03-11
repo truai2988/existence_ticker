@@ -1,5 +1,6 @@
 import { DashboardStats } from "./useStats";
 import { UserProfile } from "../types";
+import { MESSAGES } from "../constants/messages";
 
 export type WorldPhase = 'STARVATION' | 'SATURATION' | 'STAGNATION' | 'HEALTHY';
 export type Severity = 'critical' | 'warning' | 'info';
@@ -18,7 +19,7 @@ export const useDiagnostics = (stats: DashboardStats | null): DiagnosticsResult 
     if (!stats) return {
         currentPhase: 'HEALTHY',
         severity: 'info',
-        shortDescription: '診断を読み込み中...',
+        shortDescription: MESSAGES.DIAGNOSTICS.STATUS_LOADING,
         bg: 'bg-slate-800',
         text: 'text-slate-400',
         isMicro: false
@@ -41,7 +42,7 @@ export const useDiagnostics = (stats: DashboardStats | null): DiagnosticsResult 
     const richRatio = totalPop > 0 ? distribution.full / totalPop : 0;
     
     const isMicro = totalPop < 5;
-    const prefix = isMicro ? '【Micro】' : '';
+    const prefix = isMicro ? MESSAGES.DIAGNOSTICS.MICRO_PREFIX : '';
 
     // --- LOGIC TREE ---
 
@@ -50,8 +51,8 @@ export const useDiagnostics = (stats: DashboardStats | null): DiagnosticsResult 
         return {
             currentPhase: 'STARVATION',
             severity: 'critical',
-            shortDescription: `${prefix}渇きの連鎖`,
-            longDescription: '循環が消滅の重力に抗えず、社会全体が枯渇しています。生存の危機。',
+            shortDescription: `${prefix}${MESSAGES.DIAGNOSTICS.PHASE_STARVATION_SHORT}`,
+            longDescription: MESSAGES.DIAGNOSTICS.PHASE_STARVATION_LONG,
             bg: 'bg-cyan-900/30 border-cyan-500',
             text: 'text-cyan-200',
             isMicro
@@ -63,8 +64,8 @@ export const useDiagnostics = (stats: DashboardStats | null): DiagnosticsResult 
         return {
             currentPhase: 'SATURATION',
             severity: 'warning',
-            shortDescription: `${prefix}贅沢な微睡み`,
-            longDescription: '資産は十分にありますが、魂のつながり（循環）が失われています。静かなる死。',
+            shortDescription: `${prefix}${MESSAGES.DIAGNOSTICS.PHASE_SATURATION_SHORT}`,
+            longDescription: MESSAGES.DIAGNOSTICS.PHASE_SATURATION_LONG,
             bg: 'bg-yellow-900/30 border-yellow-500',
             text: 'text-yellow-200',
             isMicro
@@ -76,8 +77,8 @@ export const useDiagnostics = (stats: DashboardStats | null): DiagnosticsResult 
          return {
             currentPhase: 'STAGNATION',
             severity: 'critical',
-            shortDescription: `${prefix}静止した世界`,
-            longDescription: '経済活動が完全に停止しています。信頼の動脈硬化状態。',
+            shortDescription: `${prefix}${MESSAGES.DIAGNOSTICS.PHASE_STAGNATION_SHORT}`,
+            longDescription: MESSAGES.DIAGNOSTICS.PHASE_STAGNATION_LONG,
             bg: 'bg-red-900/30 border-red-500',
             text: 'text-red-200',
             isMicro
@@ -88,7 +89,7 @@ export const useDiagnostics = (stats: DashboardStats | null): DiagnosticsResult 
     return {
         currentPhase: 'HEALTHY',
         severity: 'info',
-        shortDescription: `${prefix}システムは安定稼働中です`,
+        shortDescription: `${prefix}${MESSAGES.DIAGNOSTICS.PHASE_HEALTHY_SHORT}`,
         bg: 'bg-green-900/30 border-green-500',
         text: 'text-green-200',
         isMicro
@@ -110,7 +111,7 @@ export const checkUserAnomaly = (user: UserProfile): UserAnomaly | null => {
     if (user.balance < 0) {
         return {
             userId: user.id || 'unknown',
-            description: `残高がマイナスです (${user.balance})。器の破損（システム異常）を検知しました。`,
+            description: `${MESSAGES.DIAGNOSTICS.ANOMALY_NEGATIVE_BALANCE} (${user.balance})`,
             severity: 'critical',
             detectedAt: Date.now()
         };
@@ -120,7 +121,7 @@ export const checkUserAnomaly = (user: UserProfile): UserAnomaly | null => {
     if ((user.warmth || 0) < 0 || (user.xp || 0) < 0) {
         return {
             userId: user.id || 'unknown',
-            description: `熱量または経験値が破損しています。負の値が検出されました。`,
+            description: MESSAGES.DIAGNOSTICS.ANOMALY_DATA_CORRUPTION,
             severity: 'warning',
             detectedAt: Date.now()
         };

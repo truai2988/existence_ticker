@@ -4,6 +4,7 @@ import { usePWAInstall } from '../hooks/usePWAInstall';
 import { X, Share, PlusSquare } from 'lucide-react';
 import { setGlobalTriggerPWAInstall } from '../utils/pwaEvent';
 import { useToast } from '../hooks/useToast';
+import { MESSAGES } from '../constants/messages';
 
 export const PWAInstallBanner: React.FC = () => {
   const { showBanner, isIOS, triggerPrompt, dismissBanner, installPWA } = usePWAInstall();
@@ -16,7 +17,7 @@ export const PWAInstallBanner: React.FC = () => {
 
   React.useEffect(() => {
     const handleInstalled = () => {
-      showToast("アプリのインストールが完了しました。ホーム画面から起動してください。", 'success');
+      showToast(MESSAGES.PWA.INSTALL_SUCCESS, 'success');
       dismissBanner();
     };
 
@@ -36,12 +37,12 @@ export const PWAInstallBanner: React.FC = () => {
         >
           <div className="flex justify-between items-start mb-3 gap-4">
             <p className="font-serif leading-relaxed text-sm">
-              ホーム画面やデスクトップに、このアプリを置きませんか？ ブラウザの枠やボタンが消えて画面が広くなり、本物のアプリと同じように、いつでも静かに使い始めることができます。
+              {MESSAGES.PWA.BANNER_DESC}
             </p>
             <button
               onClick={dismissBanner}
               className="flex-shrink-0 p-1.5 rounded-full hover:bg-black/5 transition-colors text-[#2D2D2D]/40 hover:text-[#2D2D2D]"
-              aria-label="今はしない"
+              aria-label={MESSAGES.PWA.BTN_LATER}
             >
               <X size={18} />
             </button>
@@ -53,7 +54,7 @@ export const PWAInstallBanner: React.FC = () => {
                 onClick={installPWA}
                 className="w-full py-3 rounded-xl bg-[#2D2D2D] text-[#F9F8F4] font-bold text-sm tracking-widest shadow-md hover:bg-black active:scale-[0.98] transition-all"
               >
-                アプリとして追加
+                {MESSAGES.PWA.BTN_INSTALL}
               </button>
             )}
 
@@ -63,22 +64,23 @@ export const PWAInstallBanner: React.FC = () => {
                   <div className="w-8 h-8 rounded flex items-center justify-center bg-black/5 text-[#2D2D2D]">
                     <Share size={16} />
                   </div>
-                  <span>画面下部の「共有ボタン」をタップ</span>
+                  <span>{MESSAGES.PWA.IOS_STEP_1}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded flex items-center justify-center bg-black/5 text-[#2D2D2D]">
                     <PlusSquare size={16} />
                   </div>
-                  <span>「ホーム画面に追加」を選択</span>
+                  <span>{MESSAGES.PWA.IOS_STEP_2}</span>
                 </div>
                 {hasPromptedIOS && (
                   <motion.div 
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
-                    className="mt-2 p-2 bg-orange-50/50 rounded-lg text-orange-800/80 leading-relaxed"
-                  >
-                    追加が完了したら、<strong>このタブを閉じて</strong>ホーム画面のアイコンから起動してください。
-                  </motion.div>
+                    className="mt-2 p-2 bg-orange-50/50 rounded-lg text-orange-800/80 leading-relaxed text-xs"
+                    dangerouslySetInnerHTML={{
+                      __html: MESSAGES.PWA.IOS_COMPLETED_NOTE
+                    }}
+                  />
                 )}
               </div>
             )}
@@ -88,7 +90,7 @@ export const PWAInstallBanner: React.FC = () => {
                 onClick={() => setHasPromptedIOS(true)}
                 className="w-full py-2.5 text-xs font-bold tracking-widest text-slate-500 hover:text-[#2D2D2D] transition-colors"
                 >
-                追加手順を確認しました
+                {MESSAGES.PWA.BTN_CHECKED}
               </button>
             ) : null}
 
@@ -96,7 +98,7 @@ export const PWAInstallBanner: React.FC = () => {
               onClick={dismissBanner}
               className={`w-full py-2.5 text-xs font-bold tracking-widest transition-colors ${isIOS && hasPromptedIOS ? 'text-[#2D2D2D]/80 hover:text-[#2D2D2D]' : 'text-[#2D2D2D]/50 hover:text-[#2D2D2D]'}`}
             >
-              {isIOS && hasPromptedIOS ? '閉じる' : '今はしない'}
+              {isIOS && hasPromptedIOS ? MESSAGES.PWA.BTN_CLOSE : MESSAGES.PWA.BTN_LATER}
             </button>
           </div>
         </motion.div>

@@ -6,6 +6,7 @@ import { calculateDecayedValue, getMillis, toMilli, fromMilli } from '../logic/w
 import { WishCardList } from './WishCardList';
 import { AppViewMode } from '../types';
 import { SideDrawer } from './SideDrawer';
+import { MESSAGES } from '../constants/messages';
 
 interface FlowViewProps {
     currentUserId: string;
@@ -80,7 +81,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         {/* Logo: ホームへ戻るボタン */}
                         <button
                             onClick={() => onTabChange?.('home')}
-                            aria-label="ホームへ戻る"
+                            aria-label={MESSAGES.LAYOUT.RETURN_HOME}
                             className="shrink-0 focus:outline-none active:scale-95 transition-transform"
                         >
                             <img
@@ -91,15 +92,15 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         </button>
                         {/* Text Group */}
                         <div className="flex flex-col min-w-0">
-                            <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>応える</h2>
-                            <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate">想いに応える</p>
+                            <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>{MESSAGES.FLOW.TITLE}</h2>
+                            <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate">{MESSAGES.FLOW.SUBTITLE}</p>
                         </div>
                     </div>
                     <div className="flex h-12 items-center gap-3 shrink-0">
                         <button
                           onClick={() => setIsDrawerOpen(true)}
                           className="p-3 -mr-3 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
-                          aria-label="メニューを開く"
+                          aria-label={MESSAGES.LAYOUT.OPEN_MENU}
                         >
                           <Menu size={24} strokeWidth={1.5} />
                         </button>
@@ -126,7 +127,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                                 : exploreWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
                         }`}
                     >
-                        <span>募集中 ({exploreWishes.length})</span>
+                        <span>{MESSAGES.FLOW.TAB_EXPLORE} ({exploreWishes.length})</span>
                         {activeTab === 'explore' && (
                             <motion.div 
                                 layoutId="flow-tab-underline"
@@ -143,7 +144,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                                 : pendingWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
                         }`}
                     >
-                        返事待ち ({pendingWishes.length})
+                        {MESSAGES.FLOW.TAB_PENDING} ({pendingWishes.length})
                         {activeTab === 'pending' && (
                             <motion.div 
                                 layoutId="flow-tab-underline"
@@ -160,7 +161,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                                 : activeWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
                         }`}
                     >
-                        進行中 ({activeWishes.length})
+                        {MESSAGES.FLOW.TAB_ACTIVE} ({activeWishes.length})
                         {activeTab === 'active' && (
                             <motion.div 
                                 layoutId="flow-tab-underline"
@@ -181,7 +182,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                             wishes={exploreWishes} 
                             currentUserId={currentUserId}
                             viewType="flow"
-                            emptyMessage="条件に合う募集中の依頼はありません"
+                            emptyMessage={MESSAGES.FLOW.EMPTY_EXPLORE}
                             emptyIcon={<ClipboardList size={48} className="text-slate-500 mb-2" />}
                             onOpenProfile={onOpenProfile}
                             onActionComplete={handleActionComplete}
@@ -194,7 +195,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                             wishes={pendingWishes} 
                             currentUserId={currentUserId}
                             viewType="flow"
-                            emptyMessage="返事待ちの依頼はありません"
+                            emptyMessage={MESSAGES.FLOW.EMPTY_PENDING}
                             emptyIcon={<Timer size={48} className="text-slate-500 mb-2" />}
                             onOpenProfile={onOpenProfile}
                             onActionComplete={handleActionComplete}
@@ -207,7 +208,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                             wishes={activeWishes} 
                             currentUserId={currentUserId}
                             viewType="flow"
-                            emptyMessage="進行中の依頼はありません"
+                            emptyMessage={MESSAGES.FLOW.EMPTY_ACTIVE}
                             emptyIcon={<PlayCircle size={48} className="text-slate-500 mb-2" />}
                             onOpenProfile={onOpenProfile}
                             onActionComplete={handleActionComplete}

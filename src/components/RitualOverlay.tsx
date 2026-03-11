@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
+import { MESSAGES } from '../constants/messages';
 
 interface RitualOverlayProps {
   state: 'idle' | 'breathing' | 'blooming' | 'syncing';
@@ -51,9 +52,9 @@ export const RitualOverlay: React.FC<RitualOverlayProps> = ({ state, targetBalan
               animate={{ opacity: 0.4, y: 0 }}
               className="text-xs font-light tracking-[0.5em] text-slate-400 uppercase mb-12"
             >
-                {state === 'breathing' && "Breathing / 呼吸"}
-                {state === 'blooming' && "Blooming / 開花"}
-                {state === 'syncing' && "Syncing / 同調"}
+                {state === 'breathing' && MESSAGES.RITUAL.BREATHING}
+                {state === 'blooming' && MESSAGES.RITUAL.BLOOMING}
+                {state === 'syncing' && MESSAGES.RITUAL.SYNCING}
             </motion.div>
 
             {/* Main Number Display */}

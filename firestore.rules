@@ -112,5 +112,19 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // --- Notifications ---
+    match /notices/{noticeId} {
+      // 自分の通知のみ閲覧・削除・既読更新が可能
+      allow read, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      
+      // 作成時のバリデーション:
+      // 1. 認証済みであること
+      // 2. 送信元(fromId)が自分自身であること
+      // 3. 自分自身には送れない
+      allow create: if isSignedIn() 
+                    && request.resource.data.fromId == request.auth.uid
+                    && request.resource.data.userId != request.auth.uid;
+    }
+
   }
 }

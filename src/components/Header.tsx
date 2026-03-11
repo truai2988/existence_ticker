@@ -6,6 +6,7 @@ import { getMillis } from "../logic/worldPhysics";
 import { AppViewMode } from "../types";
 import { SideDrawer } from "./SideDrawer";
 import { NoticePanel } from "./NoticePanel";
+import { MESSAGES } from "../constants/messages";
 
 interface HeaderProps {
   viewMode?: AppViewMode;
@@ -62,10 +63,10 @@ export const Header: React.FC<HeaderProps> = ({
                     {(!viewMode || viewMode === "home") && (
                       <div className="flex items-center gap-1 text-slate-500">
                         <span className="text-xs font-bold tracking-widest uppercase whitespace-nowrap">
-                          手持ち：{Math.floor(balance).toLocaleString()}
+                          {MESSAGES.LAYOUT.HEADER_BALANCE}{Math.floor(balance).toLocaleString()}
                         </span>
                         <span className="text-xs text-slate-400 font-medium whitespace-nowrap">
-                          (あと{daysLeft}日)
+                          {MESSAGES.LAYOUT.HEADER_DAYS_LEFT_PREFIX}{daysLeft}{MESSAGES.LAYOUT.HEADER_DAYS_LEFT_SUFFIX}
                         </span>
                       </div>
                     )}
@@ -81,7 +82,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <button
                     onClick={() => setIsDrawerOpen(true)}
                     className="p-3 -mr-3 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
-                    aria-label="メニューを開く"
+                    aria-label={MESSAGES.LAYOUT.OPEN_MENU}
                   >
                     <Menu size={24} strokeWidth={1.5} />
                   </button>

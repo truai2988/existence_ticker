@@ -7,6 +7,7 @@ import { GratitudeTier, SeedPlaceholder } from '../types';
 import { db } from '../lib/firebase';
 import { WISH_COST, UNIT_LABEL } from '../constants';
 import { useToast } from '../hooks/useToast';
+import { MESSAGES } from '../constants/messages';
 
 type TierOption = {
   id: GratitudeTier;
@@ -18,20 +19,20 @@ type TierOption = {
 const TIERS: TierOption[] = [
   {
     id: "heavy",
-    label: "人生の節目",
-    subLabel: "大切な局面を、共に歩んでほしいとき",
+    label: MESSAGES.CREATE_WISH.TIER_HEAVY_LABEL,
+    subLabel: MESSAGES.CREATE_WISH.TIER_HEAVY_SUB,
     cost: WISH_COST.BONFIRE,
   },
   {
     id: "medium",
-    label: "日常の手助け",
-    subLabel: "暮らしのなかの、ささやかな支え合いに",
+    label: MESSAGES.CREATE_WISH.TIER_MEDIUM_LABEL,
+    subLabel: MESSAGES.CREATE_WISH.TIER_MEDIUM_SUB,
     cost: WISH_COST.CANDLE,
   },
   {
     id: "light",
-    label: "魂の共鳴",
-    subLabel: "損得を超えた、純粋な繋がりを求めて",
+    label: MESSAGES.CREATE_WISH.TIER_LIGHT_LABEL,
+    subLabel: MESSAGES.CREATE_WISH.TIER_LIGHT_SUB,
     cost: WISH_COST.SPARK,
   },
 ];
@@ -41,7 +42,7 @@ const TIER_MAP: Record<GratitudeTier, 1000 | 500 | 0> = {
   light: 0
 };
 
-const FALLBACK_PLACEHOLDER = "あなたの今の願いを、静かに綴ってください";
+const FALLBACK_PLACEHOLDER = MESSAGES.CREATE_WISH.PLACEHOLDER_FALLBACK;
 
 // Session-level cache for seeds
 let cachedSeeds: SeedPlaceholder[] | null = null;
@@ -57,7 +58,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
     
     const [newWishContent, setNewWishContent] = useState('');
     const [selectedTier, setSelectedTier] = useState<GratitudeTier>('heavy');
-    const [currentPlaceholder, setCurrentPlaceholder] = useState(FALLBACK_PLACEHOLDER);
+    const [currentPlaceholder, setCurrentPlaceholder] = useState<string>(FALLBACK_PLACEHOLDER);
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [showGuide, setShowGuide] = useState(false);
 
@@ -88,7 +89,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
         const tierSeeds = seedsList.filter(s => s.tier === numericTier);
         if (tierSeeds.length > 0) {
             const random = tierSeeds[Math.floor(Math.random() * tierSeeds.length)];
-            setCurrentPlaceholder(`例えば：\n${random.content}`);
+            setCurrentPlaceholder(`${MESSAGES.CREATE_WISH.PLACEHOLDER_PREFIX}${random.content}`);
         } else {
             setCurrentPlaceholder(FALLBACK_PLACEHOLDER);
         }
@@ -116,7 +117,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
         });
 
         if (result) {
-            showToast("願いをシェアしました", "success");
+            showToast(MESSAGES.CREATE_WISH.TOAST_SUCCESS, "success");
             import('../utils/pwaEvent').then(({ globalTriggerPWAInstall }) => {
                 globalTriggerPWAInstall();
             });
@@ -133,18 +134,18 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-1">
                        <div className="flex items-baseline flex-wrap gap-x-3 gap-y-1">
                            <label className="text-xs uppercase tracking-widest font-bold text-slate-500 shrink-0">
-                               お裾分けする Lm <span className="text-xs font-normal text-slate-500 ml-0.5">(源気)</span>
+                               {MESSAGES.CREATE_WISH.LBL_MIGHT} <span className="text-xs font-normal text-slate-500 ml-0.5">{MESSAGES.CREATE_WISH.LBL_UNIT}</span>
                            </label>
                            <button 
                              type="button"
                              onClick={() => setShowGuide(true)}
                              className="text-xs text-slate-500 font-medium hover:text-indigo-600 underline underline-offset-4 transition-colors whitespace-nowrap"
                            >
-                             お裾分けの目安とお作法
+                             {MESSAGES.CREATE_WISH.LINK_GUIDE}
                            </button>
                        </div>
                        <span className="self-start sm:self-center text-xs font-bold text-amber-600 bg-amber-50/50 px-3 py-1 rounded-full border border-amber-100/50 tracking-wider">
-                           感謝としてお贈りします
+                           {MESSAGES.CREATE_WISH.TAG_GIFT}
                        </span>
                    </div>
                     
@@ -152,13 +153,13 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                     
                    {/* Available Info */}
                    <p className="text-xs text-slate-500 mb-2">
-                       現在分かち合えるのは <span className="font-mono font-bold text-amber-600">{Math.floor(availableLm).toLocaleString()} {UNIT_LABEL}</span> までです
+                       {MESSAGES.CREATE_WISH.LBL_AVAILABLE_1} <span className="font-mono font-bold text-amber-600">{Math.floor(availableLm).toLocaleString()} {UNIT_LABEL}</span> {MESSAGES.CREATE_WISH.LBL_AVAILABLE_2}
                    </p>
 
                    {/* Warning if exceeds */}
                    {exceedsAvailable && (
                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-xs text-orange-800 leading-relaxed">
-                           分かち合える分（ゆとり）がありません。今の約束（募集中の願い）を整理してください
+                           {MESSAGES.CREATE_WISH.WARN_EXCEED}
                        </div>
                    )}
                     
@@ -194,7 +195,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                                  <span className={`text-3xl font-mono font-bold tracking-tighter ${selectedTier === tier.id 
                                    ? tier.cost === 1000 ? "text-[#B8860B]" : tier.cost === 500 ? "text-amber-700" : "text-pink-400" 
                                    : "text-slate-200"}`}>
-                                   {tier.cost === 0 ? "∞" : tier.cost.toLocaleString()} <span className="text-xs font-sans font-bold opacity-60 uppercase">{tier.cost === 0 ? "共鳴" : UNIT_LABEL}</span>
+                                   {tier.cost === 0 ? "∞" : tier.cost.toLocaleString()} <span className="text-xs font-sans font-bold opacity-60 uppercase">{tier.cost === 0 ? MESSAGES.CREATE_WISH.TIER_0 : UNIT_LABEL}</span>
                                  </span>
                              </div>
                              
@@ -210,7 +211,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                {/* Input Section */}
                <div className="space-y-4">
                   <label className="block text-xs uppercase tracking-widest font-bold text-slate-500 font-sans">
-                      内容を入力
+                      {MESSAGES.CREATE_WISH.LBL_CONTENT}
                   </label>
                   <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 focus-within:ring-2 focus-within:ring-orange-200/30 transition-all duration-500">
                       <textarea
@@ -245,10 +246,10 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                        </div>
                        <div className="flex-1">
                            <span className={`text-base font-bold transition-colors ${isAnonymous ? "text-slate-800" : "text-slate-500"}`}>
-                               匿名でお願いする
+                               {MESSAGES.CREATE_WISH.CHK_ANONYMOUS}
                            </span>
                            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                               ※相談がまとまる（進行中になる）まで、お互いの名前やアイコンは表示されません
+                               {MESSAGES.CREATE_WISH.NOTE_ANONYMOUS}
                            </p>
                        </div>
                    </label>
@@ -264,12 +265,12 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                         {isSubmitting ? (
                             <>
                                 <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
-                                <span className="tracking-widest">送信中...</span>
+                                <span className="tracking-widest">{MESSAGES.CREATE_WISH.BTN_SENDING}</span>
                             </>
                         ) : (
                             <>
                                 <Send size={18} />
-                                <span className="tracking-widest">みんなに想いを届ける</span>
+                                <span className="tracking-widest">{MESSAGES.CREATE_WISH.BTN_SUBMIT}</span>
                             </>
                         )}
                     </button>

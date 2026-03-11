@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { MESSAGES } from "../constants/messages";
 import { X, Handshake, Megaphone, MapPin, Link as LinkIcon, Camera, ShieldCheck } from 'lucide-react';
 import { useOtherProfile } from '../hooks/useOtherProfile';
 import { getTrustRank } from '../utils/trustRank';
@@ -40,7 +41,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
         : '';
 
     // Masking Logic overrides
-    const displayName = isMasked ? "匿名" : profile.name;
+    const displayName = isMasked ? MESSAGES.WISH_CARD.LBL_ANONYMOUS : profile.name;
     const displayAvatar = isMasked ? null : profile.avatarUrl;
     const displayBio = isMasked ? null : profile.bio;
 
@@ -111,7 +112,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                             {age_group && (
                                 <span className="text-xs text-slate-500 font-bold px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50 whitespace-nowrap">
                                     {age_group}
-                                    {profile.gender && profile.gender !== 'other' && ` / ${profile.gender === 'male' ? '男性' : '女性'}`}
+                                    {profile.gender && profile.gender !== 'other' && ` / ${profile.gender === 'male' ? MESSAGES.WISH_CARD.LBL_MALE : MESSAGES.WISH_CARD.LBL_FEMALE}`}
                                 </span>
                             )}
                             
@@ -119,7 +120,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                                 <span className="text-xs text-slate-500 flex items-center gap-1 px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50 whitespace-nowrap">
                                     <MapPin size={10} className="shrink-0 text-slate-400" />
                                     {locationText}
-                                    {isMasked && profile.gender && profile.gender !== 'other' && ` / ${profile.gender === 'male' ? '男性' : '女性'}`}
+                                    {isMasked && profile.gender && profile.gender !== 'other' && ` / ${profile.gender === 'male' ? MESSAGES.WISH_CARD.LBL_MALE : MESSAGES.WISH_CARD.LBL_FEMALE}`}
                                 </span>
                             )}
                         </div>
@@ -172,24 +173,24 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                         {/* Stats - Subtle & Dignified */}
                         <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
                             <div className="flex flex-col items-center p-3 rounded-xl hover:bg-slate-50/50 transition-colors">
-                                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">手伝った回数</div>
+                                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{MESSAGES.PROFILE.LBL_HELPED_COUNT}</div>
                                 <div className="flex items-baseline gap-1">
                                     <Handshake size={14} className="text-blue-400" />
                                     <span className="text-xl font-medium text-slate-700 tabular-nums">
                                         {helpCount}
                                     </span>
-                                    <span className="text-xs text-slate-400 font-normal">回</span>
+                                    <span className="text-xs text-slate-400 font-normal">{MESSAGES.PROFILE.TXT_TIMES}</span>
                                 </div>
                             </div>
                             
                             <div className="flex flex-col items-center p-3 rounded-xl hover:bg-slate-50/50 transition-colors">
-                                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">依頼実績</div>
+                                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{MESSAGES.PROFILE.LBL_REQUEST_COUNT}</div>
                                 <div className="flex items-baseline gap-1">
                                     <Megaphone size={14} className="text-slate-400" />
                                     <span className="text-xl font-medium text-slate-700 tabular-nums">
                                         {reqCount}
                                     </span>
-                                    <span className="text-xs text-slate-400 font-normal">回</span>
+                                    <span className="text-xs text-slate-400 font-normal">{MESSAGES.PROFILE.TXT_TIMES}</span>
                                 </div>
                             </div>
                         </div>

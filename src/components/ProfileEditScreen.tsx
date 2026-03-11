@@ -6,6 +6,7 @@ import { useLocationData } from '../hooks/useLocationData';
 import { useAuth } from '../hooks/useAuthHook';
 import { PREFECTURES } from '../data/prefectures';
 import { UserProfile } from '../types';
+import { MESSAGES } from '../constants/messages';
 
 interface ProfileEditScreenProps {
     onClose: () => void;
@@ -108,7 +109,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                 reader.readAsDataURL(compressedFile);
             } catch (error) {
                 console.error("Image optimization failed:", error);
-                alert("画像の最適化に失敗しました。別の画像をお試しください。");
+                alert(MESSAGES.PROFILE.PHOTO_ERROR);
             } finally {
                 setIsOptimizing(false);
             }
@@ -123,12 +124,12 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
         
         try {
             if (!newEmail || !emailPassword) {
-                setEmailError('メールアドレスとパスワードを入力してください');
+                setEmailError(MESSAGES.PROFILE.EMAIL_REQ_BOTH);
                 return;
             }
             
             await updateUserEmail(newEmail, emailPassword);
-            setEmailSuccess('メールアドレスを変更しました');
+            setEmailSuccess(MESSAGES.PROFILE.EMAIL_CHANGE_SUCCESS);
             setNewEmail('');
             setEmailPassword('');
             setTimeout(() => {
@@ -139,13 +140,13 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
             console.error('Email update error:', error);
             const firebaseError = error as { code?: string };
             if (firebaseError.code === 'auth/wrong-password') {
-                setEmailError('パスワードが正しくありません');
+                setEmailError(MESSAGES.PROFILE.PW_INCORRECT);
             } else if (firebaseError.code === 'auth/email-already-in-use') {
-                setEmailError('このメールアドレスは既に使用されています');
+                setEmailError(MESSAGES.PROFILE.EMAIL_IN_USE);
             } else if (firebaseError.code === 'auth/invalid-email') {
-                setEmailError('無効なメールアドレスです');
+                setEmailError(MESSAGES.PROFILE.EMAIL_INVALID);
             } else {
-                setEmailError('メールアドレスの変更に失敗しました');
+                setEmailError(MESSAGES.PROFILE.EMAIL_CHANGE_FAIL);
             }
         } finally {
             setIsLoading(false);
@@ -178,12 +179,12 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
             if (result && result.success) {
                 onBack(); 
             } else {
-                const errorMsg = result?.error ? String(result.error) : "不明なエラー";
-                alert(`保存に失敗しました: ${errorMsg}`);
+                const errorMsg = result?.error ? String(result.error) : MESSAGES.SYSTEM.ERROR_UNKNOWN;
+                alert(`${MESSAGES.PROFILE.SAVE_ERROR_PREFIX}${errorMsg}`);
             }
         } catch (error) {
             console.error("Failed to update profile", error);
-            alert(`システムエラーが発生しました: ${error}`);
+            alert(`${MESSAGES.SYSTEM.ERROR_GENERIC}: ${error}`);
         } finally {
             setIsLoading(false);
         }
@@ -198,7 +199,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                         <div className="flex items-center gap-3 min-w-0">
                             <button
                                 onClick={onBack}
-                                aria-label="閉じる"
+                                aria-label={MESSAGES.SYSTEM.BTN_CLOSE}
                                 className="p-2 -ml-2 text-slate-400 hover:text-slate-600 transition-colors active:scale-95"
                             >
                                 <X size={24} strokeWidth={1.5} />
@@ -206,10 +207,10 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                             {/* Text Group */}
                             <div className="flex flex-col min-w-0">
                                 <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>
-                                    プロフィール編集
+                                    {MESSAGES.PROFILE.EDIT_TITLE}
                                 </h2>
                                 <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate mt-0.5">
-                                    基本情報の更新
+                                    {MESSAGES.PROFILE.EDIT_SUBTITLE}
                                 </p>
                             </div>
                         </div>
@@ -220,7 +221,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-full text-sm font-bold hover:bg-slate-800 disabled:opacity-50 transition-all shadow-md"
                             >
                                 {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                                <span>保存</span>
+                                <span>{MESSAGES.PROFILE.SAVE_BUTTON}</span>
                             </button>
                         </div>
                     </div>
@@ -269,10 +270,10 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                            {isOptimizing ? (
                                <div className="flex items-center gap-1.5 text-blue-600 animate-pulse">
                                    <Sparkles size={12} />
-                                   <span className="text-xs font-bold tracking-wider">画像を最適化しています...</span>
+                                   <span className="text-xs font-bold tracking-wider">{MESSAGES.PROFILE.PHOTO_OPTIMIZING}</span>
                                </div>
                            ) : (
-                               <p className="text-xs text-slate-400 font-medium">写真を変更</p>
+                               <p className="text-xs text-slate-400 font-medium">{MESSAGES.PROFILE.PHOTO_CHANGE}</p>
                            )}
                         </div>
                     </div>
@@ -281,10 +282,10 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                 <div className="bg-gradient-to-br from-blue-50 to-slate-50 p-5 rounded-2xl border border-blue-100 shadow-sm">
                     <div className="flex items-center gap-2 mb-3">
                         <ShieldCheck size={18} className="text-blue-500" strokeWidth={2.5} />
-                        <h3 className="text-sm font-bold text-slate-800">信頼の証までの道のり</h3>
+                        <h3 className="text-sm font-bold text-slate-800">{MESSAGES.PROFILE.SHIELD_TITLE}</h3>
                     </div>
                     <p className="text-sm text-slate-600 mb-4 leading-relaxed">
-                        すべて整えると、プロフィールに<span className="font-bold text-blue-600">信頼の証</span>が灯ります。あなたの誠実さが隣人に伝わり、安心して助け合える関係がここから広がっていきます。
+                        {MESSAGES.PROFILE.SHIELD_DESC}
                     </p>
                     <div className="space-y-3">
                         {/* Avatar Check */}
@@ -295,7 +296,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 <XCircle size={18} className="text-slate-400 shrink-0" strokeWidth={2.5} />
                             )}
                             <span className={`text-sm ${previewUrl ? 'text-slate-700 font-medium' : 'text-slate-500'}`}>
-                                プロフィール画像を登録
+                                {MESSAGES.PROFILE.REQ_AVATAR}
                             </span>
                         </div>
                         {/* Bio Check */}
@@ -306,7 +307,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 <XCircle size={18} className="text-slate-400 shrink-0" strokeWidth={2.5} />
                             )}
                             <span className={`text-sm ${bio.length >= 30 ? 'text-slate-700 font-medium' : 'text-slate-500'}`}>
-                                自己紹介を30文字以上入力 <span className="font-mono text-sm ml-1">({bio.length}/30)</span>
+                                {MESSAGES.PROFILE.REQ_BIO} <span className="font-mono text-sm ml-1">({bio.length}/30)</span>
                             </span>
                         </div>
                         {/* Links Check */}
@@ -317,7 +318,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 <XCircle size={18} className="text-slate-400 shrink-0" strokeWidth={2.5} />
                             )}
                             <span className={`text-sm ${(links.x || links.instagram || links.website) ? 'text-slate-700 font-medium' : 'text-slate-500'}`}>
-                                SNSを1つ以上連携する
+                                {MESSAGES.PROFILE.REQ_SNS}
                             </span>
                         </div>
                     </div>
@@ -325,35 +326,30 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
 
                     {/* Basic Info Group */}
                     <div className="space-y-4">
-                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">基本情報</h3>
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">{MESSAGES.PROFILE.BASIC_INFO}</h3>
                         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1.5">表示名</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.NAME_LABEL}</label>
                                 <input 
                                     type="text" 
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)] text-base"
-                                    placeholder="名前を入力"
+                                    placeholder={MESSAGES.PROFILE.NAME_PLACEHOLDER}
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1.5">年代</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.AGE_LABEL}</label>
                                 <div className="relative">
                                     <select 
                                         value={age_group}
                                         onChange={(e) => setAgeGroup(e.target.value)}
                                         className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)] text-base"
                                     >
-                                        <option value="">未選択</option>
-                                        <option value="20歳未満">20歳未満</option>
-                                        <option value="20代">20代</option>
-                                        <option value="30代">30代</option>
-                                        <option value="40代">40代</option>
-                                        <option value="50代">50代</option>
-                                        <option value="60代">60代</option>
-                                        <option value="70代">70代</option>
-                                        <option value="80代以上">80代以上</option>
+                                        <option value="">{MESSAGES.PROFILE.AGE_UNSELECTED}</option>
+                                        {MESSAGES.PROFILE.AGE_OPTIONS.map(age => (
+                                            <option key={age} value={age}>{age}</option>
+                                        ))}
                                     </select>
                                     <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
                                         <ChevronLeft size={16} className="-rotate-90" />
@@ -361,12 +357,12 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1.5">性別</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.GENDER_LABEL}</label>
                                 <div className="grid grid-cols-3 gap-2">
                                     {[
-                                        { value: 'male', label: '男性' },
-                                        { value: 'female', label: '女性' },
-                                        { value: 'other', label: '回答しない' }
+                                        { value: 'male', label: MESSAGES.AUTH.GENDER_MALE },
+                                        { value: 'female', label: MESSAGES.AUTH.GENDER_FEMALE },
+                                        { value: 'other', label: MESSAGES.AUTH.GENDER_OTHER }
                                     ].map((opt) => (
                                         <button
                                             key={opt.value}
@@ -384,17 +380,17 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 </div>
                                 {gender === 'other' && (
                                     <p className="text-xs text-slate-400 mt-1.5 ml-1">
-                                        ※「その他・回答しない」を選択した場合、外部には非表示となります。
+                                        {MESSAGES.PROFILE.GENDER_NOTE}
                                     </p>
                                 )}
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1.5">自己紹介</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.BIO_LABEL}</label>
                                 <textarea 
                                     value={bio}
                                     onChange={(e) => setBio(e.target.value)}
                                     className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-base focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all resize-none h-24 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
-                                    placeholder="自己紹介文を入力してください (最大160文字)"
+                                    placeholder={MESSAGES.PROFILE.BIO_PLACEHOLDER}
                                     maxLength={160}
                                 />
                                 <div className="text-right text-xs text-slate-400 mt-1">{bio.length}/160</div>
@@ -406,19 +402,19 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                     <div className="space-y-4">
                         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 flex items-center gap-1">
                             <MapPin size={12} />
-                            居住地・拠点
+                            {MESSAGES.PROFILE.LOCATION_TITLE}
                         </h3>
                         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 mb-1.5">都道府県</label>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.LOCATION_PREF_LABEL}</label>
                                     <div className="relative">
                                         <select 
                                             value={location.prefecture}
                                             onChange={(e) => setLocation(prev => ({ ...prev, prefecture: e.target.value }))}
                                             className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-base font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
                                         >
-                                            <option value="">未選択</option>
+                                            <option value="">{MESSAGES.PROFILE.AGE_UNSELECTED}</option>
                                             {PREFECTURES.map(pref => (
                                                 <option key={pref} value={pref}>{pref}</option>
                                             ))}
@@ -429,7 +425,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 mb-1.5">市区町村</label>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.LOCATION_CITY_LABEL}</label>
                                     <div className="relative">
                                         <select 
                                             value={location.city}
@@ -437,7 +433,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                             className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-800 text-base font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-blue-100 disabled:opacity-50 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
                                             disabled={!location.prefecture || loadingCities}
                                         >
-                                            <option value="">{loadingCities ? '読み込み中...' : '市区町村を選択'}</option>
+                                            <option value="">{loadingCities ? MESSAGES.PROFILE.LOCATION_LOADING : MESSAGES.PROFILE.LOCATION_CITY_SELECT}</option>
                                             {cities.map(city => (
                                                 <option key={city} value={city}>{city}</option>
                                             ))}
@@ -455,7 +451,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                     <div className="space-y-4">
                         <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 flex items-center gap-1">
                             <LinkIcon size={12} />
-                            ソーシャルリンク
+                            {MESSAGES.PROFILE.SNS_TITLE}
                         </h3>
                         <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-4">
                             <div className="flex items-center gap-3">
@@ -465,7 +461,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     value={links.x}
                                     onChange={(e) => setLinks(prev => ({ ...prev, x: e.target.value }))}
                                     className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
-                                    placeholder="@ユーザー名 または URL"
+                                    placeholder={MESSAGES.PROFILE.SNS_PLACEHOLDER_USER}
                                 />
                             </div>
                             <div className="flex items-center gap-3">
@@ -477,7 +473,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     value={links.instagram}
                                     onChange={(e) => setLinks(prev => ({ ...prev, instagram: e.target.value }))}
                                     className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
-                                    placeholder="@ユーザー名 または URL"
+                                    placeholder={MESSAGES.PROFILE.SNS_PLACEHOLDER_USER}
                                 />
                             </div>
                             <div className="flex items-center gap-3">
@@ -489,7 +485,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     value={links.website}
                                     onChange={(e) => setLinks(prev => ({ ...prev, website: e.target.value }))}
                                     className="flex-1 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 placeholder:text-slate-400 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
-                                    placeholder="https://などで始まるURL"
+                                    placeholder={MESSAGES.PROFILE.SNS_PLACEHOLDER_WEB}
                                 />
                             </div>
                         </div>
@@ -500,17 +496,17 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                         <div className="space-y-4">
                             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1 flex items-center gap-1">
                                 <Mail size={12} />
-                                アカウント
+                                {MESSAGES.PROFILE.ACCOUNT_TITLE}
                             </h3>
                             <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 mb-1.5">登録メールアドレス</label>
+                                    <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.EMAIL_LABEL}</label>
                                     <div className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-mono shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]">
                                         {user.email}
                                     </div>
                                     <p className="text-xs text-slate-400 mt-1.5 ml-1 flex items-center gap-1">
                                         <AlertCircle size={10} />
-                                        プライバシー保護のため、マッチング成立時のお相手以外には公開されません
+                                        {MESSAGES.PROFILE.EMAIL_NOTE}
                                     </p>
                                 </div>
                                 <button
@@ -519,7 +515,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors flex items-center justify-center gap-2"
                             >
                                     <Mail size={16} />
-                                    メールアドレスを変更する
+                                    {MESSAGES.PROFILE.EMAIL_CHANGE_BTN}
                                 </button>
                             </div>
                         </div>
@@ -532,10 +528,10 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
             {showEmailModal && (
                 <div className="fixed inset-0 z-[80] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
                     <div className="bg-white p-6 rounded-2xl w-full max-w-sm shadow-xl">
-                        <h3 className="font-bold text-slate-800 mb-4 text-center">メールアドレスの変更</h3>
+                        <h3 className="font-bold text-slate-800 mb-4 text-center">{MESSAGES.PROFILE.EMAIL_MODAL_TITLE}</h3>
                         <form onSubmit={handleEmailChange} className="space-y-3">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1.5">新しいメールアドレス</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.EMAIL_NEW_LABEL}</label>
                                 <input 
                                     type="email" 
                                     value={newEmail}
@@ -546,12 +542,12 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1.5">現在のパスワード（確認用）</label>
+                                <label className="block text-xs font-bold text-slate-500 mb-1.5">{MESSAGES.PROFILE.EMAIL_PW_LABEL}</label>
                                 <input 
                                     type="password" 
                                     value={emailPassword}
                                     onChange={(e) => setEmailPassword(e.target.value)}
-                                    placeholder="パスワード" 
+                                    placeholder={MESSAGES.PROFILE.PH_PASSWORD} 
                                     required 
                                     className="w-full p-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
                                 />
@@ -570,14 +566,14 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     }}
                                     className="flex-1 py-2.5 bg-slate-100 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-200 transition-colors"
                                 >
-                                    キャンセル
+                                    {MESSAGES.PROFILE.BTN_CANCEL}
                                 </button>
                                 <button 
                                     type="submit" 
                                     disabled={isLoading}
                                     className="flex-1 py-2.5 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800 disabled:opacity-50 transition-colors"
                                 >
-                                    {isLoading ? '変更中...' : '変更する'}
+                                    {isLoading ? MESSAGES.PROFILE.BTN_CHANGING : MESSAGES.PROFILE.BTN_CHANGE}
                                 </button>
                             </div>
                         </form>

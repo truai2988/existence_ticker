@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuthHook';
 import { X, LogOut, Trash2, AlertTriangle, Loader2 } from 'lucide-react';
+import { MESSAGES } from '../constants/messages';
 
 /* Typography Rule: font-serif/font-sans, 3sizes (text-3xl, text-base, text-xs) */
 
@@ -41,11 +42,11 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
             // Handle "Requires Recent Login"
             if (e.code === 'auth/requires-recent-login' || e.message?.includes('requires-recent-login')) {
                 setShowReauth(true);
-                setError("セキュリティ保護のため、パスワードの再入力が必要です。");
+                setError(MESSAGES.ACCOUNT_MODAL.ERR_REAUTH);
             } else if (e.code === 'auth/wrong-password') {
-                setError("パスワードが間違っています。");
+                setError(MESSAGES.ACCOUNT_MODAL.ERR_WRONG_PW);
             } else {
-                setError("退会処理に失敗しました。時間をおいて再試行してください。");
+                setError(MESSAGES.ACCOUNT_MODAL.ERR_FAIL);
             }
         }
     };
@@ -61,7 +62,7 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                 {/* Modal Content */}
                 <div className="p-6">
                     <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-base font-bold text-slate-800 font-sans">アカウント設定</h2>
+                        <h2 className="text-base font-bold text-slate-800 font-sans">{MESSAGES.ACCOUNT_MODAL.TITLE}</h2>
                         <button 
                             onClick={onClose} 
                             disabled={isDeleting}
@@ -79,7 +80,7 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                             className="w-full flex items-center gap-3 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors text-slate-600 font-bold disabled:opacity-50 text-base font-sans"
                         >
                             <LogOut size={20} />
-                            ログアウト
+                            {MESSAGES.ACCOUNT_MODAL.BTN_LOGOUT}
                         </button>
                         )}
                         
@@ -90,7 +91,7 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                                 className="w-full flex items-center gap-3 p-4 rounded-xl bg-red-50 hover:bg-red-100 transition-colors text-red-600 font-bold disabled:opacity-50 text-base font-sans"
                             >
                                 <Trash2 size={20} />
-                                退会する
+                                {MESSAGES.ACCOUNT_MODAL.BTN_DELETE}
                             </button>
                         ) : (
                             <motion.div 
@@ -101,19 +102,19 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                                 <div className="flex items-start gap-3 mb-4">
                                      <AlertTriangle size={24} className="text-red-500 shrink-0" />
                                     <p className="text-xs text-red-800 font-bold leading-relaxed font-sans">
-                                        すべての記録と LM は時の流れに還り、元に戻すことはできません。よろしいですか？
+                                        {MESSAGES.ACCOUNT_MODAL.DELETE_WARNING}
                                     </p>
                                 </div>
 
                                 {showReauth && (
                                     <div className="mb-4 space-y-2">
-                                        <p className="text-xs text-red-600 font-bold font-sans">パスワードを確認します</p>
+                                        <p className="text-xs text-red-600 font-bold font-sans">{MESSAGES.ACCOUNT_MODAL.PW_CONFIRM_TITLE}</p>
                                         <input 
                                             type="password"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             disabled={isDeleting}
-                                            placeholder="パスワードを入力"
+                                            placeholder={MESSAGES.ACCOUNT_MODAL.PW_PLACEHOLDER}
                                             className="w-full px-3 py-2 text-base border border-red-200 rounded-lg focus:outline-none focus:border-red-400 disabled:bg-red-50/50 font-sans"
                                         />
                                     </div>
@@ -134,7 +135,7 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                                         disabled={isDeleting}
                                         className="flex-1 py-3 rounded-lg bg-white text-slate-600 font-bold shadow-sm border border-slate-100 disabled:opacity-50 text-base font-sans"
                                     >
-                                        キャンセル
+                                        {MESSAGES.ACCOUNT_MODAL.BTN_CANCEL}
                                     </button>
                                      <button 
                                         onClick={handleDelete}
@@ -144,10 +145,10 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                                         {isDeleting ? (
                                             <>
                                                 <Loader2 size={18} className="animate-spin" />
-                                                処理中
+                                                {MESSAGES.ACCOUNT_MODAL.BTN_DELETING}
                                             </>
                                         ) : (
-                                            showReauth ? "認証して退会" : "退会を実行"
+                                            showReauth ? MESSAGES.ACCOUNT_MODAL.BTN_AUTH_DELETE : MESSAGES.ACCOUNT_MODAL.BTN_EXEC_DELETE
                                         )}
                                     </button>
                                 </div>
@@ -166,11 +167,8 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                             className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-10"
                         >
                              <Loader2 size={40} className="text-red-500 animate-spin mb-4" />
-                            <h3 className="text-base font-bold text-slate-800 mb-2 font-sans">退会処理を行っています</h3>
-                            <p className="text-xs text-slate-500 leading-relaxed font-sans">
-                                完了までしばらくお待ちください。<br />
-                                画面を閉じず、そのままお待ちください。
-                            </p>
+                            <h3 className="text-base font-bold text-slate-800 mb-2 font-sans">{MESSAGES.ACCOUNT_MODAL.LOADING_TITLE}</h3>
+                            <p className="text-xs text-slate-500 leading-relaxed font-sans" dangerouslySetInnerHTML={{ __html: MESSAGES.ACCOUNT_MODAL.LOADING_DESC.replace('\n', '<br />') }} />
                         </motion.div>
                     )}
                 </AnimatePresence>

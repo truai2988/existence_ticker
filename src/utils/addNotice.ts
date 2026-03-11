@@ -16,6 +16,7 @@ export async function addNotice(input: CreateNoticeInput): Promise<void> {
 
     await setDoc(noticeDoc, {
       userId: input.userId,
+      fromId: input.fromId, // 追加
       message: input.message,
       type: input.type,
       createdAt: Date.now(),

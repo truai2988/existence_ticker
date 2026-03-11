@@ -5,6 +5,7 @@ import { useWallet } from "../hooks/useWallet";
 import { useProfile } from "../hooks/useProfile";
 import { AppMode } from "../hooks/useStartupMachine";
 import { LUNAR_CONSTANTS } from "../constants";
+import { MESSAGES } from "../constants/messages";
 
 interface HomeViewProps {
   onOpenFlow: () => void;
@@ -114,7 +115,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
   // Move randomized message logic outside of the conditional button render to follow Hooks rules
   const ritualMessage = React.useMemo(
-    () => (Math.random() > 0.5 ? "私は、私。" : "ETの世界へ"),
+    () => (Math.random() > 0.5 ? MESSAGES.HOME.MONOTONE_MSG_1 : MESSAGES.HOME.MONOTONE_MSG_2),
     [],
   );
 
@@ -331,8 +332,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     {ritualMessage}
                   </span>
                   <span className="text-xs font-medium tracking-[0.3em] text-slate-500 pl-[0.3em] uppercase font-sans">
-                    I am who I am /{" "}
-                    <span className="text-slate-600">世界に加わる</span>
+                    {MESSAGES.HOME.MONOTONE_SUB_1}{" "}
+                    <span className="text-slate-600">{MESSAGES.HOME.MONOTONE_SUB_2}</span>
                   </span>
                 </div>
               </div>
@@ -359,7 +360,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       className="opacity-60 group-hover:opacity-100 transition-opacity duration-500 drop-shadow-sm"
                     />
                     <span className="absolute bottom-[100%] mb-3 text-lg font-serif font-bold tracking-[0.3em] text-amber-950/80 drop-shadow-sm whitespace-nowrap ml-[0.3em]">
-                      応える
+                      {MESSAGES.HOME.BTN_RESPOND}
                     </span>
                   </div>
                 </motion.button>
@@ -382,7 +383,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                       className="opacity-60 group-hover:opacity-100 transition-opacity duration-500 drop-shadow-sm"
                     />
                     <span className="absolute top-[100%] mt-3 text-lg font-serif font-bold tracking-[0.3em] text-indigo-950/80 drop-shadow-sm whitespace-nowrap ml-[0.3em]">
-                      お願い
+                      {MESSAGES.HOME.BTN_REQUEST}
                     </span>
                   </div>
                 </motion.button>
@@ -411,7 +412,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 onClick={clearNotification}
                 className="w-full py-3 bg-amber-400 hover:bg-amber-500 text-white rounded-xl text-base font-bold tracking-widest transition-colors shadow-sm active:scale-[0.98] font-sans"
               >
-                了解しました
+                {MESSAGES.HOME.BTN_UNDERSTOOD}
               </button>
             </div>
           </motion.div>

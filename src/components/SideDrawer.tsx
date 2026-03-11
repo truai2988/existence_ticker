@@ -11,6 +11,7 @@ import {
 import { AppViewMode } from "../types";
 import { usePWAInstall } from "../hooks/usePWAInstall";
 import { globalTriggerPWAInstall } from "../utils/pwaEvent";
+import { MESSAGES } from "../constants/messages";
 
 interface SideDrawerProps {
   isOpen: boolean;
@@ -43,22 +44,22 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
   const menuItems = [
     {
       id: "home",
-      label: "ホーム",
+      label: MESSAGES.LAYOUT.TAB_HOME,
       icon: Home,
     },
     {
       id: "history",
-      label: "巡りの足跡",
+      label: MESSAGES.JOURNAL.TITLE,
       icon: HistoryIcon,
     },
     {
       id: "profile",
-      label: "自分",
+      label: MESSAGES.LAYOUT.TAB_PROFILE,
       icon: User,
     },
     {
       id: "onboarding",
-      label: "このインフラについて",
+      label: MESSAGES.LAYOUT.SIDEDRAWER_ONBOARDING,
       icon: Sprout,
     },
   ] as const;
@@ -102,7 +103,7 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
               <button
                 onClick={onClose}
                 className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200/30 rounded-full transition-colors"
-                aria-label="閉じる"
+                aria-label={MESSAGES.MODALS.BTN_CLOSE}
               >
                 <X size={20} strokeWidth={1.5} />
               </button>
@@ -120,12 +121,12 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
                     onClose();
                   }}
                   className="w-full px-5 py-4 text-left flex items-center gap-4 rounded-xl transition-all duration-200 bg-sky-50 hover:bg-sky-100 text-sky-700 shadow-sm border border-sky-100/50"
-                  aria-label="アプリをインストール"
+                  aria-label={MESSAGES.LAYOUT.SIDEDRAWER_INSTALL}
                 >
                   <Download size={20} strokeWidth={2} />
                   <div className="flex flex-col">
                     <span className="text-base font-bold tracking-wide">
-                      アプリとして追加
+                      {MESSAGES.LAYOUT.SIDEDRAWER_INSTALL}
                     </span>
                   </div>
                 </button>
@@ -184,10 +185,10 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
                 }}
                 className="text-xs font-serif text-slate-400 tracking-[0.15em] hover:text-slate-600 transition-colors duration-200"
               >
-                約束と庭師について
+                {MESSAGES.LAYOUT.SIDEDRAWER_TRUST}
               </button>
               <div className="text-[10px] text-slate-300 tracking-[0.2em] uppercase font-mono">
-                万年筆の引き出し
+                {MESSAGES.LAYOUT.SIDEDRAWER_FOOTER_NOTE}
               </div>
             </div>
           </motion.aside>

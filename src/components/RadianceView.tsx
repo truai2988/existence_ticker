@@ -6,6 +6,7 @@ import { CreateWishModal } from './CreateWishModal';
 import { AppViewMode } from '../types';
 import { Menu } from 'lucide-react';
 import { SideDrawer } from './SideDrawer';
+import { MESSAGES } from '../constants/messages';
 
 interface RadianceViewProps {
     currentUserId: string;
@@ -63,7 +64,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         {/* Logo: ホームへ戻るボタン */}
                         <button
                             onClick={() => onTabChange?.('home')}
-                            aria-label="ホームへ戻る"
+                            aria-label={MESSAGES.HOME.ARIA_BACK_HOME}
                             className="shrink-0 focus:outline-none active:scale-95 transition-transform"
                         >
                             <img
@@ -74,15 +75,15 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         </button>
                         {/* Text Group */}
                         <div className="flex flex-col min-w-0">
-                            <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>お願い</h2>
-                            <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate">お裾分け</p>
+                            <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>{MESSAGES.HOME.LBL_WISH}</h2>
+                            <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate">{MESSAGES.HOME.LBL_SHARE}</p>
                         </div>
                     </div>
                     <div className="flex h-12 items-center gap-3 shrink-0">
                         <button
                           onClick={() => setIsDrawerOpen(true)}
                           className="p-3 -mr-3 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
-                          aria-label="メニューを開く"
+                          aria-label={MESSAGES.HOME.ARIA_OPEN_MENU}
                         >
                           <Menu size={24} strokeWidth={1.5} />
                         </button>
@@ -109,7 +110,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                                 : 'text-slate-400 hover:text-slate-500'
                         }`}
                     >
-                        <span>新規作成</span>
+                        <span>{MESSAGES.HOME.BTN_NEW_WISH}</span>
                         {modalState === 'create_wish' && (
                             <motion.div 
                                 layoutId="radiance-tab-underline"
@@ -126,7 +127,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                                 : myActiveWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
                         }`}
                     >
-                        募集中 ({myActiveWishes.length})
+                        {MESSAGES.HOME.TAB_SEARCHING} ({myActiveWishes.length})
                         {activeTab === 'active' && modalState !== 'create_wish' && (
                             <motion.div 
                                 layoutId="radiance-tab-underline"
@@ -143,7 +144,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                                 : myOutboundWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
                         }`}
                     >
-                        進行中 ({myOutboundWishes.length})
+                        {MESSAGES.HOME.TAB_IN_PROGRESS} ({myOutboundWishes.length})
                         {activeTab === 'outbound' && modalState !== 'create_wish' && (
                             <motion.div 
                                 layoutId="radiance-tab-underline"
@@ -165,7 +166,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                                 wishes={activeTab === 'active' ? myActiveWishes : myOutboundWishes} 
                                 currentUserId={currentUserId} 
                                 viewType="radiance"
-                                emptyMessage="活動記録はありません。"
+                                emptyMessage={MESSAGES.HOME.TXT_NO_HISTORY}
                                 onActionComplete={handleActionComplete}
                                 onTabChange={onTabChange}
                              />

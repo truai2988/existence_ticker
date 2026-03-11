@@ -1,6 +1,7 @@
 import React from 'react';
 import { Home, History, User } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { MESSAGES } from '../constants/messages';
 
 type Tab = 'home' | 'history' | 'profile';
 
@@ -18,7 +19,7 @@ export const Footer: React.FC<FooterProps> = ({ currentTab, onTabChange }) => {
                     className={`flex flex-col items-center justify-center p-2 transition-colors relative ${currentTab === 'home' ? 'text-slate-900' : 'text-slate-400'}`}
                 >
                     <Home size={24} strokeWidth={currentTab === 'home' ? 2.5 : 2} />
-                    <span className="text-xs font-bold mt-1">ホーム</span>
+                    <span className="text-xs font-bold mt-1">{MESSAGES.LAYOUT.TAB_HOME}</span>
                     {currentTab === 'home' && (
                         <motion.div layoutId="activeTab" className="absolute top-0 w-8 h-0.5 bg-slate-900 rounded-full" />
                     )}
@@ -28,7 +29,7 @@ export const Footer: React.FC<FooterProps> = ({ currentTab, onTabChange }) => {
                     className={`flex flex-col items-center justify-center p-2 transition-colors relative ${currentTab === 'history' ? 'text-slate-900' : 'text-slate-400'}`}
                 >
                     <History size={24} strokeWidth={currentTab === 'history' ? 2.5 : 2} />
-                    <span className="text-xs font-bold mt-1">履歴</span>
+                    <span className="text-xs font-bold mt-1">{MESSAGES.LAYOUT.TAB_HISTORY}</span>
                     {currentTab === 'history' && (
                         <motion.div layoutId="activeTab" className="absolute top-0 w-8 h-0.5 bg-slate-900 rounded-full" />
                     )}
@@ -38,7 +39,7 @@ export const Footer: React.FC<FooterProps> = ({ currentTab, onTabChange }) => {
                     className={`flex flex-col items-center justify-center p-2 transition-colors relative ${currentTab === 'profile' ? 'text-slate-900' : 'text-slate-400'}`}
                 >
                     <User size={24} strokeWidth={currentTab === 'profile' ? 2.5 : 2} />
-                    <span className="text-xs font-bold mt-1">自分</span>
+                    <span className="text-xs font-bold mt-1">{MESSAGES.LAYOUT.TAB_PROFILE}</span>
                     {currentTab === 'profile' && (
                         <motion.div layoutId="activeTab" className="absolute top-0 w-8 h-0.5 bg-slate-900 rounded-full" />
                     )}

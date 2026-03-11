@@ -1,5 +1,6 @@
 import React from "react";
 import { User, ShieldCheck, Megaphone, Clock, Pencil, Trash2, AlertTriangle } from "lucide-react";
+import { MESSAGES } from "../../../constants/messages";
 import { WishCardState, WishCardHandlers } from "../types";
 import { useUserView } from "../../../contexts/UserViewContext";
 
@@ -12,22 +13,27 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
   const { setIsEditing, handleCancel, formatDate } = handlers;
   const { openUserProfile } = useUserView();
 
+  let contextLabel = "";
+  if (viewType === "radiance") {
+      if (isMyWish) {
+          contextLabel = MESSAGES.WISH_CARD.HDR_MY_WISH;
+      } else if (wish.helper_id === state.currentUserId) {
+          contextLabel = MESSAGES.WISH_CARD.HDR_MY_HELP;
+      }
+  } else if (viewType === "flow") {
+      contextLabel = MESSAGES.WISH_CARD.HDR_OTHER_WISH;
+  }
+
   return (
     <>
       <div className="flex items-center gap-2 mb-3">
-        {viewType === "radiance" ? (
-          isMyWish ? (
-            <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100/50 uppercase tracking-tighter font-sans">
-              [ 自分が願ったこと ]
-            </span>
-          ) : wish.helper_id === state.currentUserId ? (
-            <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 border border-blue-100/50 uppercase tracking-tighter font-sans">
-              [ あなたが応えていること ]
-            </span>
-          ) : null
-        ) : (
-          <span className="text-xs font-bold px-2 py-0.5 rounded-md bg-slate-50 text-slate-400 border border-slate-100 uppercase tracking-tighter font-sans">
-            [ 誰かの願い ]
+        {contextLabel && (
+          <span className={`text-xs font-bold px-2 py-0.5 rounded-md uppercase tracking-tighter font-sans ${
+            isMyWish ? "bg-amber-50 text-amber-600 border border-amber-100/50" :
+            wish.helper_id === state.currentUserId ? "bg-blue-50 text-blue-600 border border-blue-100/50" :
+            "bg-slate-50 text-slate-400 border border-slate-100"
+          }`}>
+            {contextLabel}
           </span>
         )}
       </div>
@@ -53,13 +59,20 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                       }}
                       className={`text-base font-bold tracking-wide text-left transition-colors whitespace-nowrap font-sans ${isHelperMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:text-blue-600 hover:underline"}`}
                     >
-                      {helperProfile?.name || wish.helper_name || wish.applicants?.find((a: { id: string }) => a.id === wish.helper_id)?.name || wish.helper_id?.slice(0, 8) || "隣人"}
+                      {helperProfile?.name || wish.helper_name || wish.applicants?.find((a: { id: string }) => a.id === wish.helper_id)?.name || wish.helper_id?.slice(0, 8) || MESSAGES.WISH_CARD.HDR_DEFAULT_HELPER}
                     </button>
-                    <span className="text-xs uppercase font-bold text-slate-400 tracking-wider whitespace-nowrap font-sans">
-                      {wish.status === "fulfilled" || wish.status === "completed"
-                        ? "さんに感謝を届けました"
-                        : wish.status === "interrupted" ? "さんの事情により終了しました" : wish.status === "cancelled" ? "さんとの願いを中断しました" : "さんが応えてくれます"}
-                    </span>
+                    {wish.status !== "open" && wish.status !== "expired" && (
+                      <div className="flex flex-wrap items-center gap-1 text-slate-500 font-sans">
+                        <span className="font-bold text-slate-700">
+                          {helperProfile?.name || wish.helper_name || wish.applicants?.find((a: { id: string }) => a.id === wish.helper_id)?.name || wish.helper_id?.slice(0, 8) || MESSAGES.WISH_CARD.HDR_DEFAULT_HELPER}
+                        </span>
+                        <span>
+                          {wish.status === "fulfilled" || wish.status === "completed"
+                            ? MESSAGES.WISH_CARD.HDR_SENDER_DONE
+                            : wish.status === "interrupted" ? MESSAGES.WISH_CARD.HDR_INTERRUPTED : wish.status === "cancelled" ? MESSAGES.WISH_CARD.HDR_CANCELLED : MESSAGES.WISH_CARD.HDR_IN_PROGRESS}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </>
@@ -70,7 +83,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                     <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 shrink-0">
                       <User className="w-5 h-5 text-slate-500" />
                     </div>
-                    <div className="text-xs text-slate-600 font-bold font-sans">未成立</div>
+                    <div className="text-xs text-slate-600 font-bold font-sans">{MESSAGES.WISH_CARD.HDR_UNFULFILLED}</div>
                   </div>
                 )}
               </div>
@@ -87,7 +100,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                 )}
               </div>
               <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <div className="flex items-center gap-2 max-w-full">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -95,19 +108,25 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                     }}
                     className={`block text-base font-bold tracking-wide text-left truncate max-w-full transition-colors font-sans ${isMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:underline"}`}
                   >
-                    {isMyWish ? "あなたの想い" : viewType === "flow" ? `${displayRequesterName} さんの願いに応える` : `${displayRequesterName} さんの願ったこと`}
-                  </button>
-                  {trust.isVerified && <ShieldCheck size={14} className="text-blue-400 fill-blue-50 shrink-0" strokeWidth={2.5} />}
-                  <div className="flex items-center gap-2 text-xs shrink-0">
-                    <div title={`感謝を届けた回数: ${wish.requester_trust_score || 0}`} className={`flex items-center gap-0.5 ${trust.color}`}>
-                      {trust.icon}
-                      <span className="font-sans font-medium">({wish.requester_trust_score || 0})</span>
-                    </div>
-                    <span className="text-slate-500">|</span>
-                    <span title="過去に完了/お礼を行った回数" className="text-slate-500 font-bold flex items-center gap-1">
-                      <Megaphone className="w-3 h-3" /> <span className="font-bold">依頼実績: {wish.requester_completed_requests || 0}</span>
+                    <span className="font-bold text-slate-800 text-base md:text-lg truncate">
+                      {isMyWish ? MESSAGES.WISH_CARD.HDR_TITLE_MY : viewType === "flow" ? `${displayRequesterName}${MESSAGES.WISH_CARD.HDR_TITLE_HELP}` : `${displayRequesterName}${MESSAGES.WISH_CARD.HDR_TITLE_OTHER}`}
                     </span>
-                  </div>
+                  </button>
+                  {!isMyWish && (
+                    <>
+                      {trust.isVerified && <ShieldCheck size={14} className="text-blue-400 fill-blue-50 shrink-0" strokeWidth={2.5} />}
+                      <div className="flex items-center gap-2 text-xs shrink-0">
+                        <div title={`${MESSAGES.WISH_CARD.TTL_THANKS_DELIVERED} ${wish.requester_trust_score || 0}`} className={`flex items-center gap-0.5 ${trust.color}`}>
+                          {trust.icon} <span className="text-xs font-bold leading-none translate-y-px">{trust.label}</span>
+                        </div>
+                        {(wish.requester_completed_requests || 0) > 0 && (
+                          <span title={MESSAGES.WISH_CARD.HDR_REQ_COUNT + (wish.requester_completed_requests || 0)} className="text-slate-500 font-bold flex items-center gap-1">
+                            <Megaphone className="w-3 h-3" /> <span className="font-bold">{MESSAGES.WISH_CARD.HDR_REQ_COUNT}{wish.requester_completed_requests || 0}</span>
+                          </span>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
                 {!isMasked && requesterProfile?.bio && (
                   <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed font-sans">
@@ -131,7 +150,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                   onClick={() => setIsEditing(!isEditing)}
                   disabled={isLoading}
                   className="p-3 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
-                  title="編集"
+                  title={MESSAGES.WISH_CARD.BTN_EDIT}
                 >
                   <Pencil size={16} />
                 </button>
@@ -139,7 +158,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                   onClick={handleCancel}
                   disabled={isLoading}
                   className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                  title="取り下げ"
+                  title={MESSAGES.WISH_CARD.BTN_WITHDRAW}
                 >
                   <Trash2 size={16} />
                 </button>
@@ -150,7 +169,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                 onClick={handleCancel}
                 disabled={isLoading}
                 className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-                title="中断 (誠実のしるしを渡す)"
+                title={MESSAGES.WISH_CARD.BTN_INTERRUPT}
               >
                 <AlertTriangle size={16} />
               </button>

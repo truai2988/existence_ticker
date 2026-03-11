@@ -3,6 +3,7 @@ import { X, Activity, Sun, Zap, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DiagnosticsResult } from "../hooks/useDiagnostics";
 import { DashboardStats } from "../hooks/useStats";
+import { MESSAGES } from "../constants/messages";
 
 interface DiagnosticModalProps {
   isOpen: boolean;
@@ -46,32 +47,32 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
           switch (diagnosis.currentPhase) {
               case 'STARVATION':
                   return {
-                      voice: `世界は渇きに喘いでいます。平均残高は ${avgBalance.toLocaleString()} Lm まで落ち込み、魂たちは明日への恐怖に震えています。今すぐ世界の回転を早め、乾いた大地に慈悲の雨を降らせてください。`,
-                      actionTitle: "慈悲の降雨 (Spring Shift)",
-                      actionDesc: "サイクル期間を短縮（5～7日）し、給付の頻度を高めることで、生存の不安を解消してください。",
-                      targetValue: "目標: 5日 (加速)"
+                      voice: MESSAGES.DIAGNOSTICS.STARVATION_VOICE.replace('%s', avgBalance.toLocaleString()),
+                      actionTitle: MESSAGES.DIAGNOSTICS.STARVATION_TITLE,
+                      actionDesc: MESSAGES.DIAGNOSTICS.STARVATION_DESC,
+                      targetValue: MESSAGES.DIAGNOSTICS.STARVATION_TARGET
                   };
               case 'SATURATION':
                   return {
-                      voice: `世界は贅沢な微睡みに沈んでいます。${richPercentage}% の魂が満たされ、欲求（Wish）が枯れています。Lmの重みを思い出させるために、少し長い冬が必要です。`,
-                      actionTitle: "静寂の冬 (Winter Shift)",
-                      actionDesc: "サイクル期間を延長（15～20日）し、次の給付を遠ざけてください。枯渇への健全な危機感が、死蔵された富の放出を促します。",
-                      targetValue: "目標: 20日 (減速)"
+                      voice: MESSAGES.DIAGNOSTICS.SATURATION_VOICE.replace('%s', richPercentage),
+                      actionTitle: MESSAGES.DIAGNOSTICS.SATURATION_TITLE,
+                      actionDesc: MESSAGES.DIAGNOSTICS.SATURATION_DESC,
+                      targetValue: MESSAGES.DIAGNOSTICS.SATURATION_TARGET
                   };
               case 'STAGNATION':
                   return {
-                      voice: "深刻な機能不全です。動脈硬化のように、流れが完全に止まっています。これは数値の問題ではなく、信頼（Trust）の欠如です。神が動かなければ、人も動きません。",
-                      actionTitle: "心臓マッサージ (God's Hand)",
-                      actionDesc: "システムの外から、あなた自身が「最初の依頼」あるいは「最初の贈与」を行い、凍りついた時間に楔を打ち込んでください。",
-                      targetValue: "操作: 直接取引・贈与"
+                      voice: MESSAGES.DIAGNOSTICS.STAGNATION_VOICE,
+                      actionTitle: MESSAGES.DIAGNOSTICS.STAGNATION_TITLE,
+                      actionDesc: MESSAGES.DIAGNOSTICS.STAGNATION_DESC,
+                      targetValue: MESSAGES.DIAGNOSTICS.STAGNATION_TARGET
                   };
               case 'HEALTHY':
               default:
                   return {
-                      voice: "世界は穏やかな呼吸を繰り返しています。循環と蓄積のバランスは黄金比に近く、理想的な状態です。この美しい均衡を見守ることこそ、最も難しい神の仕事です。",
-                      actionTitle: "静観 (Observation)",
-                      actionDesc: "不必要な介入は波紋を広げるだけです。今はただ、この命の脈動を信じて見守りましょう。",
-                      targetValue: "操作: 現状維持"
+                      voice: MESSAGES.DIAGNOSTICS.HEALTHY_VOICE,
+                      actionTitle: MESSAGES.DIAGNOSTICS.HEALTHY_TITLE,
+                      actionDesc: MESSAGES.DIAGNOSTICS.HEALTHY_DESC,
+                      targetValue: MESSAGES.DIAGNOSTICS.HEALTHY_TARGET
                   };
           }
       };
@@ -81,8 +82,8 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
       if (diagnosis.isMicro) {
           return {
               ...base,
-              voice: `【黎明期の調べ】\n${base.voice}\n今はまだ僅かな魂たちの世界。あなたの一挙手一投足が、創世の歴史に刻まれます。`,
-              actionDesc: `(Micro構成) ${base.actionDesc} 小規模なコミュニティでは、小さな調整が劇的な変化を生むことを忘れないでください。`
+              voice: MESSAGES.DIAGNOSTICS.MICRO_VOICE.replace('%s', base.voice),
+              actionDesc: MESSAGES.DIAGNOSTICS.MICRO_DESC.replace('%s', base.actionDesc)
           };
       }
 
@@ -111,7 +112,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
             <div>
               <div className="flex items-center gap-2 text-slate-400 mb-1 uppercase tracking-[0.2em] text-xs font-sans">
                 <Activity size={12} />
-                <span>管理者の診断 (賢者の診断)</span>
+                <span>{MESSAGES.DIAGNOSTICS.SAGE_TITLE}</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-serif text-white leading-tight">
                  {diagnosis.shortDescription.split('】')[1] || diagnosis.shortDescription}
@@ -141,19 +142,19 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               {/* Responsive Metrics Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-0.5 bg-slate-800/50 border border-slate-800 rounded-xl overflow-hidden">
                   <div className="bg-slate-900 p-4 text-center">
-                      <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">流通速度</div>
+                      <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">{MESSAGES.DIAGNOSTICS.LBL_SPEED}</div>
                       <div className={`font-mono text-xl sm:text-2xl ${metabolism.rate >= 10 ? 'text-cyan-400' : 'text-slate-400'}`}>
                           {metabolism.rate}%
                       </div>
                   </div>
                   <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
-                      <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">平均残高</div>
+                      <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">{MESSAGES.DIAGNOSTICS.LBL_SAVINGS}</div>
                       <div className="font-mono text-xl sm:text-2xl text-slate-400">
                           {avgBalance.toLocaleString()}
                       </div>
                   </div>
                   <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
-                       <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">エントロピー損失</div>
+                       <div className="text-xs text-slate-400 uppercase tracking-widest mb-1">{MESSAGES.DIAGNOSTICS.LBL_DECAY}</div>
                        <div className="font-mono text-xl sm:text-2xl text-red-500/80">
                           -{metabolism.decay24h.toLocaleString()}
                        </div>
@@ -164,7 +165,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               <div className={`p-5 sm:p-6 rounded-xl border transition-colors ${diagnosis.bg}`}>
                   <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-4 flex items-center gap-2 opacity-80">
                       <Zap size={14} className="text-yellow-400 animate-pulse"/>
-                      処方箋
+                      {MESSAGES.DIAGNOSTICS.LBL_PRESCRIPTION}
                   </h3>
                   <div className="flex flex-col sm:flex-row justify-between items-start gap-6">
                       <div className="flex-1">
@@ -188,16 +189,16 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
                          className="w-full sm:w-auto shrink-0 px-6 py-4 bg-white text-slate-900 rounded-xl font-bold text-base flex items-center justify-center gap-2 hover:bg-cyan-50 transition-all active:scale-95 shadow-lg shadow-white/5 active:shadow-none translate-y-0 hover:-translate-y-1"
                       >
                           <Sun size={18} />
-                          {diagnosis.currentPhase === 'HEALTHY' ? 'パラメータ調整' : '調整を実行'}
+                          {diagnosis.currentPhase === 'HEALTHY' ? MESSAGES.DIAGNOSTICS.BTN_ADJUST : MESSAGES.DIAGNOSTICS.BTN_EXECUTE}
                       </button>
                   </div>
               </div>
           </div>
 
           {/* Footer */}
-              <span>存在ルーメン (Existence Ticker)</span>
+              <span>{MESSAGES.DIAGNOSTICS.FOOTER_TICKER}</span>
               <div className="hidden sm:block w-1 h-1 bg-slate-800 rounded-full" />
-              <span>白い器の規約</span>
+              <span>{MESSAGES.DIAGNOSTICS.FOOTER_RULE}</span>
         </motion.div>
       </div>
     </AnimatePresence>

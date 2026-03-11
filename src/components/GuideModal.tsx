@@ -2,6 +2,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, X } from 'lucide-react';
+import { MESSAGES } from '../constants/messages';
 
 interface GuideModalProps {
   isOpen: boolean;
@@ -54,18 +55,18 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                     <Sparkles size={20} className="text-amber-400" />
                 </div>
                 <h2 className="text-3xl font-serif font-medium text-slate-800 tracking-[0.2em] mb-4">
-                    お裾分けの目安とお作法
+                    {MESSAGES.MODALS.GUIDE_TITLE}
                 </h2>
                 <p className="text-xs md:text-sm text-slate-500 font-serif tracking-widest opacity-80">
-                    ガイドライン
+                    {MESSAGES.MODALS.GUIDE_SUBTITLE}
                 </p>
                 </div>
 
                 {/* Introduction */}
                 <section className="mb-20 text-center font-serif leading-loose text-slate-600">
                 <p className="mb-8 text-base tracking-wide">
-                    <span className="inline-block">Lm（ルーメン）は、</span><span className="inline-block">あなたの「源気」のしるし。</span><br className="hidden md:block" />
-                    <span className="inline-block">感謝の気持ちを光に乗せて、</span><span className="inline-block">誰かに手渡してみましょう。</span>
+                    <span className="inline-block">{MESSAGES.MODALS.GUIDE_INTRO_1}</span><br className="hidden md:block" />
+                    <span className="inline-block">{MESSAGES.MODALS.GUIDE_INTRO_2}</span>
                 </p>
                 <div className="w-12 h-[1px] bg-slate-200 mx-auto my-8"></div>
                 </section>
@@ -76,16 +77,13 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 <div className="py-6 md:py-8 first:pt-0 last:pb-0 md:grid md:grid-cols-12 md:gap-8 items-center cursor-default">
                     <div className="md:col-span-4 mb-3 md:mb-0 text-center md:text-left">
                     <span className="inline-block text-3xl font-mono font-bold text-[#B8860B] mb-1">1,000 <span className="text-xs font-normal text-slate-500">Lm</span></span>
-                    <h3 className="text-3xl font-serif font-bold text-slate-800">人生の節目</h3>
-                    <p className="text-xs text-slate-500 tracking-widest uppercase mt-1">敬意</p>
+                    <h3 className="text-3xl font-serif font-bold text-slate-800">{MESSAGES.MODALS.GUIDE_HEAVY_TITLE}</h3>
+                    <p className="text-xs text-slate-500 tracking-widest uppercase mt-1">{MESSAGES.MODALS.GUIDE_HEAVY_SUB}</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
                     <div className="md:pl-8 text-center md:text-left">
-                        <p className="text-slate-700 leading-relaxed text-base">
-                        <span className="inline-block">大切な局面を、</span><span className="inline-block">誰かの助けとともに</span><span className="inline-block">越えていきたいとき。</span><br/>
-                        <span className="inline-block">この源気（Lm）は、</span><span className="inline-block">相手に寄せる最大の信頼と</span><span className="inline-block">敬意を託すしるしです。</span>
-                        </p>
+                        <p className="text-slate-700 leading-relaxed text-base" dangerouslySetInnerHTML={{ __html: MESSAGES.MODALS.GUIDE_HEAVY_DESC.replace('\n', '<br/>') }} />
                     </div>
                 </div>
                 </div>
@@ -94,16 +92,13 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 <div className="py-6 md:py-8 first:pt-0 last:pb-0 md:grid md:grid-cols-12 md:gap-8 items-center cursor-default">
                     <div className="md:col-span-4 mb-3 md:mb-0 text-center md:text-left">
                     <span className="inline-block text-3xl font-mono font-bold text-amber-600 mb-1">500 <span className="text-xs font-normal text-slate-500">Lm</span></span>
-                    <h3 className="text-3xl font-serif font-bold text-slate-800">日常の手助け</h3>
-                    <p className="text-xs text-slate-500 tracking-widest uppercase mt-1">感謝</p>
+                    <h3 className="text-3xl font-serif font-bold text-slate-800">{MESSAGES.MODALS.GUIDE_MEDIUM_TITLE}</h3>
+                    <p className="text-xs text-slate-500 tracking-widest uppercase mt-1">{MESSAGES.MODALS.GUIDE_MEDIUM_SUB}</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
                     <div className="md:pl-8 text-center md:text-left">
-                        <p className="text-slate-700 leading-relaxed text-base">
-                        <span className="inline-block">日々の暮らしのなかで、</span><span className="inline-block">ふと誰かの手を</span><span className="inline-block">借りたいとき。</span><br/>
-                        <span className="inline-block">この源気（Lm）は、</span><span className="inline-block">差し出された温もりへの</span><span className="inline-block">素直な感謝を伝えます。</span>
-                        </p>
+                        <p className="text-slate-700 leading-relaxed text-base" dangerouslySetInnerHTML={{ __html: MESSAGES.MODALS.GUIDE_MEDIUM_DESC.replace('\n', '<br/>') }} />
                     </div>
                 </div>
                 </div>
@@ -112,16 +107,13 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 <div className="py-6 md:py-8 first:pt-0 last:pb-0 md:grid md:grid-cols-12 md:gap-8 items-center cursor-default">
                     <div className="md:col-span-4 mb-3 md:mb-0 text-center md:text-left">
                     <span className="inline-block text-3xl font-mono font-bold text-pink-400 mb-1">0 <span className="text-xs font-normal text-slate-500">Lm</span></span>
-                    <h3 className="text-3xl font-serif font-bold text-slate-800">魂の共鳴</h3>
-                    <p className="text-xs text-slate-500 tracking-widest uppercase mt-1">共鳴 / ∞</p>
+                    <h3 className="text-3xl font-serif font-bold text-slate-800">{MESSAGES.MODALS.GUIDE_LIGHT_TITLE}</h3>
+                    <p className="text-xs text-slate-500 tracking-widest uppercase mt-1">{MESSAGES.MODALS.GUIDE_LIGHT_SUB}</p>
                     </div>
                     <div className="md:col-span-8 relative">
                     <div className="hidden md:block absolute left-0 top-0 bottom-0 w-[1px] bg-slate-100"></div>
                     <div className="md:pl-8 text-center md:text-left">
-                        <p className="text-slate-700 leading-relaxed text-base">
-                        <span className="inline-block">対価や計算を超えて、</span><span className="inline-block">ただ響き合うこと。</span><br/>
-                        <span className="inline-block">この0（∞）は、</span><span className="inline-block">共にこの瞬間を生きていること</span><span className="inline-block">そのものを祝う、</span><span className="inline-block">純粋なギフトです。</span>
-                        </p>
+                        <p className="text-slate-700 leading-relaxed text-base" dangerouslySetInnerHTML={{ __html: MESSAGES.MODALS.GUIDE_LIGHT_DESC.replace('\n', '<br/>') }} />
                     </div>
                 </div>
                 </div>
@@ -133,18 +125,12 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                 <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-100/20 rounded-full blur-3xl pointer-events-none"></div>
                 
                 <h4 className="text-base font-serif font-bold text-amber-800 mb-4 md:mb-6 tracking-widest relative z-10">
-                    ハイブリッドな使い方のススメ
+                    {MESSAGES.MODALS.GUIDE_HYBRID_TITLE}
                 </h4>
                 <div className="inline-block bg-white px-5 py-3 md:px-6 md:py-4 rounded-xl border border-amber-100 shadow-sm mb-4 md:mb-6 relative z-10 w-full md:w-auto">
-                    <p className="text-base font-bold text-slate-800">
-                        実費（材料費や交通費）は『円』で。<br/>
-                        手間や感謝は『Lm』で。
-                    </p>
+                    <p className="text-base font-bold text-slate-800" dangerouslySetInnerHTML={{ __html: MESSAGES.MODALS.GUIDE_HYBRID_1.replace('\n', '<br/>') }} />
                 </div>
-                <p className="text-xs text-slate-500 tracking-widest opacity-80 leading-relaxed relative z-10">
-                    実費の清算が終わったあとに、そっとLm（源気）を添える。<br/>
-                    そんな優しい循環を、ここから始めましょう。
-                </p>
+                <p className="text-xs text-slate-500 tracking-widest opacity-80 leading-relaxed relative z-10" dangerouslySetInnerHTML={{ __html: MESSAGES.MODALS.GUIDE_HYBRID_2.replace('\n', '<br/>') }} />
                 </section>
                 
                 <div className="mt-12 text-center">
@@ -152,7 +138,7 @@ export const GuideModal: React.FC<GuideModalProps> = ({ isOpen, onClose }) => {
                         onClick={onClose}
                         className="px-8 py-3 rounded-full bg-slate-200 text-slate-600 text-base font-bold hover:bg-slate-300 transition-colors tracking-widest"
                     >
-                        閉じる
+                        {MESSAGES.MODALS.BTN_CLOSE}
                     </button>
                 </div>
             </div>

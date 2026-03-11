@@ -1,8 +1,10 @@
+import { MESSAGES } from "../constants/messages";
+
 export const formatLocationCount = (count: number | string | null | undefined): string => {
-  if (count === null || count === undefined) return "確認中...";
+  if (count === null || count === undefined) return MESSAGES.SYSTEM.LOCATION_FORMAT_CHECKING;
   const numCount = Number(count);
-  if (isNaN(numCount)) return "エラー";
-  if (numCount === 0) return "登録者はまだいません";
-  if (numCount < 5) return "5名未満";
-  return `${numCount}名`;
+  if (isNaN(numCount)) return MESSAGES.SYSTEM.LOCATION_FORMAT_ERROR;
+  if (numCount === 0) return MESSAGES.SYSTEM.LOCATION_FORMAT_EMPTY;
+  if (numCount < 5) return MESSAGES.SYSTEM.LOCATION_FORMAT_FEW;
+  return `${numCount}${MESSAGES.SYSTEM.LOCATION_FORMAT_COUNT}`;
 };

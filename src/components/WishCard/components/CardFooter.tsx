@@ -6,6 +6,7 @@ import {
   Loader2,
   Archive,
 } from "lucide-react";
+import { MESSAGES } from "../../../constants/messages";
 import { WishCardState, WishCardHandlers } from "../types";
 import { useWishActions } from "../../../hooks/useWishActions";
 import { useToast } from "../../../hooks/useToast";
@@ -39,13 +40,28 @@ export const CardFooter: React.FC<{
   const { showToast } = useToast();
   const applicants = wish.applicants || [];
 
+  const handleFulfill = async () => {
+    setIsLoading(true);
+    const success = await fulfillWish(wish.id, wish.helper_id!);
+    if (success) {
+      showToast(MESSAGES.WISH_CARD.TOAST_THANKED, "success");
+      import("../../../utils/pwaEvent").then(
+        ({ globalTriggerPWAInstall }) => {
+          globalTriggerPWAInstall();
+        },
+      );
+      if (state.onTabChange) state.onTabChange("history");
+    }
+    setIsLoading(false);
+  };
+
   return (
     <div className="relative pt-4 border-t border-slate-100 min-h-[50px] flex items-center justify-between gap-4 flex-wrap">
       <div className="flex flex-col gap-1 items-start">
         <div className="">
           {wish.status === "in_progress" && (
             <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 whitespace-nowrap shrink-0">
-              進行中
+              {MESSAGES.WISH_CARD.FTR_IN_PROGRESS}
             </span>
           )}
           {wish.status === "cancelled" && (
@@ -60,35 +76,35 @@ export const CardFooter: React.FC<{
               {wish.cancel_reason === "helper_cancellation" ||
               wish.cancel_reason === "compensatory_cancellation"
                 ? wish.requester_id === currentUserId
-                  ? "お詫び受領"
-                  : "お詫び送付"
-                : "キャンセル済み"}
+                  ? MESSAGES.WISH_CARD.FTR_COMP_RECV
+                  : MESSAGES.WISH_CARD.FTR_COMP_SENT
+                : MESSAGES.WISH_CARD.FTR_CANCELLED}
             </span>
           )}
           {wish.status === "review_pending" && (
             <span className="text-xs font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full border border-purple-100 animate-pulse whitespace-nowrap shrink-0">
-              確認待ち
+              {MESSAGES.WISH_CARD.FTR_WAIT_CONFIRM}
             </span>
           )}
           {(wish.status === "fulfilled" || wish.status === "completed") && (
             <span className="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100 whitespace-nowrap shrink-0">
-              感謝済み
+              {MESSAGES.WISH_CARD.FTR_THANKED}
             </span>
           )}
           {wish.status === "expired" && (
             <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
-              整理済み（期限切れ）
+              {MESSAGES.WISH_CARD.FTR_EXPIRED_SETTLED}
             </span>
           )}
           {wish.status === "open" &&
             (isExpired ? (
               <span className="flex items-center gap-1 text-xs font-bold text-red-500 bg-red-50 px-3 py-1 rounded-full border border-red-100 whitespace-nowrap shrink-0">
                 <AlertTriangle size={12} />
-                期限切れ
+                {MESSAGES.WISH_CARD.FTR_EXPIRED}
               </span>
             ) : (
               <span className="text-xs font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
-                募集中
+                {MESSAGES.WISH_CARD.FTR_RECRUITING}
               </span>
             ))}
         </div>
@@ -101,7 +117,7 @@ export const CardFooter: React.FC<{
             </span>
             {wish.isAnonymous && (
               <span className="text-xs font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-100 uppercase tracking-tight">
-                匿名
+                {MESSAGES.WISH_CARD.FTR_ANON}
               </span>
             )}
           </div>
@@ -120,7 +136,8 @@ export const CardFooter: React.FC<{
                       className="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-white rounded-full text-base font-bold shadow-md shadow-yellow-200 hover:bg-yellow-500 transition-all active:scale-95"
                     >
                       <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
-                      {applicants.length}人が手を挙げています
+                      {applicants.length}
+                      {MESSAGES.WISH_CARD.FTR_APPLICANTS}
                     </button>
                   </div>
                 )}
@@ -133,44 +150,21 @@ export const CardFooter: React.FC<{
                 wish.status === "in_progress") && (
                 <div className="flex flex-col items-end gap-2">
                   <p className="text-xs font-bold text-slate-700">
-                    実費（材料費など）の清算が済んでいることを確認し、感謝の Lm
-                    を贈ります。
+                    {MESSAGES.WISH_CARD.FTR_THANK_CONFIRM_1}
+                    <br />
+                    {MESSAGES.WISH_CARD.FTR_THANK_CONFIRM_2}
                   </p>
                   <button
                     onClick={() => {
-                      if (
-                        confirm(
-                          "本当にお礼をしてよろしいですか？Lumenが送られます。",
-                        )
-                      ) {
-                        if (wish.helper_id) {
-                          const run = async () => {
-                            setIsLoading(true);
-                            const success = await fulfillWish(
-                              wish.id,
-                              wish.helper_id!,
-                            );
-                            if (success) {
-                              showToast("感謝を届けました", "success");
-                              import("../../../utils/pwaEvent").then(
-                                ({ globalTriggerPWAInstall }) => {
-                                  globalTriggerPWAInstall();
-                                },
-                              );
-                              if (state.onTabChange)
-                                state.onTabChange("history");
-                            }
-                            setIsLoading(false);
-                          };
-                          run();
-                        }
+                      if (window.confirm(MESSAGES.WISH_CARD.FTR_THANK_ALERT)) {
+                        handleFulfill();
                       }
                     }}
                     disabled={isLoading}
                     className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold shadow-lg shadow-pink-200 hover:scale-105 active:scale-95 transition-all"
                   >
                     <Handshake className="w-4 h-4 text-white" />
-                    <span>お礼をする (完了)</span>
+                    <span>{MESSAGES.WISH_CARD.BTN_GIVE_THANKS_DONE}</span>
                   </button>
                 </div>
               )}
@@ -185,16 +179,16 @@ export const CardFooter: React.FC<{
                   <div className="flex items-center gap-2">
                     <span className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-500 rounded-full text-xs font-bold border border-slate-200 whitespace-nowrap shrink-0">
                       <Clock size={14} />
-                      返事を待っています
+                      {MESSAGES.WISH_CARD.TXT_WAITING_REPLY}
                     </span>
                     <button
                       onClick={async () => {
-                        if (confirm("本当に立候補を取り消しますか？")) {
+                        if (confirm(MESSAGES.WISH_CARD.MSG_CONFIRM_CANCEL)) {
                           setIsLoading(true);
                           const success = await withdrawApplication(wish.id);
                           setIsLoading(false);
                           if (success) {
-                            showToast("とりやめました", "success");
+                            showToast(MESSAGES.WISH_CARD.MSG_CANCEL_SUCCESS, "success");
                             if (state.onActionComplete)
                               state.onActionComplete("withdrawn");
                           }
@@ -203,7 +197,7 @@ export const CardFooter: React.FC<{
                       disabled={isLoading}
                       className="px-3 py-2 text-base font-bold text-slate-400 border border-slate-200 rounded-full hover:bg-slate-50 hover:text-slate-600 hover:border-slate-300 transition-all"
                     >
-                      取り消す
+                      {MESSAGES.WISH_CARD.BTN_CANCEL_APPLY}
                     </button>
                   </div>
                 ) : (
@@ -217,7 +211,7 @@ export const CardFooter: React.FC<{
                     ) : (
                       <Handshake className="w-4 h-4" />
                     )}
-                    <span>応える</span>
+                    <span>{MESSAGES.WISH_CARD.BTN_RESPOND}</span>
                   </button>
                 )}
               </div>
@@ -233,7 +227,7 @@ export const CardFooter: React.FC<{
                     disabled={isLoading}
                     className="text-slate-600 hover:text-red-500 text-base font-bold transition-all underline decoration-slate-300 hover:decoration-red-200 underline-offset-4"
                   >
-                    辞退する
+                    {MESSAGES.WISH_CARD.BTN_DECLINE}
                   </button>
                 </div>
               )}
@@ -251,7 +245,7 @@ export const CardFooter: React.FC<{
             ) : (
               <Archive size={14} />
             )}
-            <span>この記録を整理する</span>
+            <span>{MESSAGES.WISH_CARD.BTN_CLEANUP_RECORD}</span>
           </button>
         )}
       </div>
