@@ -1,37 +1,27 @@
 import React, { useState, useCallback } from "react";
 import { QueryDocumentSnapshot } from "firebase/firestore";
-import { motion } from "framer-motion";
 import {
   X,
-  Shield,
-  Search,
-  Book,
   Activity,
   Users,
-  Moon,
-  AlertTriangle,
-  Sun,
   Key,
-  Plus,
-  Copy,
-  Check,
   Sprout,
-  Trash2,
-  RefreshCw,
+  Book,
 } from "lucide-react";
 import { ProtocolManual } from "./ProtocolManual";
-import { useStats, MetabolismStatus } from "../hooks/useStats";
+import { useStats } from "../hooks/useStats";
 import { useDiagnostics } from "../hooks/useDiagnostics";
 import { DiagnosticModal } from "./DiagnosticModal";
 import { db } from "../lib/firebase";
 import { UserProfile, SeedPlaceholder } from "../types";
 import {
   getMillis,
-  calculateDecayedValue,
-  toMilli,
-  fromMilli,
-  WORLD_CONSTANTS
 } from "../logic/worldPhysics";
+
+import { AdminMonitor } from "./admin/AdminMonitor";
+import { AdminCitizens } from "./admin/AdminCitizens";
+import { AdminInvitations } from "./admin/AdminInvitations";
+import { AdminSeeds } from "./admin/AdminSeeds";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -50,9 +40,8 @@ interface InviteCode {
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
-  const { stats, error } = useStats(); // updateCapacity removed
+  const { stats, error } = useStats();
   const diagnostics = useDiagnostics(stats);
-  const [cycleDays, setCycleDays] = useState(10);
   const [showManual, setShowManual] = useState(false);
   const [showDiagnosisModal, setShowDiagnosisModal] = useState(false);
 
@@ -71,11 +60,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   // Seed Library State
   const [seeds, setSeeds] = useState<SeedPlaceholder[]>([]);
   const [isAddingSeed, setIsAddingSeed] = useState(false);
-  const [newSeedTier, setNewSeedTier] = useState<1000 | 500 | 0>(1000);
-  const [newSeedContent, setNewSeedContent] = useState("");
   const [isLoadingSeeds, setIsLoadingSeeds] = useState(false);
 
-  const INITIAL_SEEDS = [
+  const fetchSeeds = useCallback(async () => {
+    setIsLoadingSeeds(true);
+    try {
+      if (!db) return;
+      const { collection, getDocs, query, orderBy } = await import("firebase/firestore");
+      const q = query(collection(db, "seed_placeholders"), orderBy("createdAt", "desc"));
+      const snap = await getDocs(q);
+      const fetchedSeeds = snap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as SeedPlaceholder[];
+      setSeeds(fetchedSeeds);
+    } catch (e) {
+      console.error("Failed to fetch seeds", e);
+    } finally {
+      setIsLoadingSeeds(false);
+    }
+  }, []);
+
+  const INITIAL_SEEDS = React.useMemo(() => [
     { tier: 1000, content: "止まったままのチェロに、もう一度光を当ててほしいのです。・・・" },
     { tier: 1000, content: "私のとりとめのない人生の断片を、一通の手紙に編み直してくれませんか。・・・" },
     { tier: 1000, content: "実家の古い書庫にある、傷んだ古文書を一緒に紐解いてほしい。・・・" },
@@ -86,9 +92,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     { tier: 0, content: "今夜、あなたが住む場所から見える一番綺麗な月を教えて。・・・" },
     { tier: 0, content: "あなたが人生の最期に見たい景色は、どこですか？・・・" },
     { tier: 0, content: "深夜2時、宇宙の広さについて語り合いませんか。・・・" },
-  ];
+  ], []);
 
-  const seedLibrary = async () => {
+  const seedLibrary = useCallback(async () => {
     if (!window.confirm("初期の種を一括で蒔きますか？")) return;
     setIsLoadingSeeds(true);
     try {
@@ -108,34 +114,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     } finally {
       setIsLoadingSeeds(false);
     }
-  };
-
-  // Safety: Ensure activeTab is always valid (prevents empty screen after tab removal)
-  React.useEffect(() => {
-    const validTabs = ["monitor", "citizens", "invitations", "seeds"];
-    if (!validTabs.includes(activeTab)) {
-      setActiveTab("monitor");
-    }
-  }, [activeTab]);
-
-  React.useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        if (!db) return;
-        const { doc, getDoc } = await import("firebase/firestore");
-
-        const settingsRef = doc(db, "system_settings", "global");
-        const snap = await getDoc(settingsRef);
-        if (snap.exists()) {
-          const data = snap.data();
-          if (data.cycleDays) setCycleDays(data.cycleDays);
-        }
-      } catch (e) {
-        console.error("Failed to fetch cycle config", e);
-      }
-    };
-    fetchConfig();
-  }, []);
+  }, [fetchSeeds, INITIAL_SEEDS]);
 
   const fetchUsers = useCallback(async (isLoadMore = false) => {
     setIsLoadingUsers(true);
@@ -156,14 +135,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         q = query(
           usersRef,
           orderBy("last_updated", "desc"),
-          startAfter(lastVisibleDoc),
+          startAfter(lastVisibleDoc as QueryDocumentSnapshot),
           limit(50)
         );
       }
 
       const snapshot = await getDocs(q);
       const newLastDoc = snapshot.docs[snapshot.docs.length - 1];
-      setLastVisibleDoc(newLastDoc);
+      setLastVisibleDoc(newLastDoc || null);
       
       if (snapshot.docs.length < 50) {
         setHasMoreUsers(false);
@@ -207,7 +186,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     }
   }, []);
 
-  const generateInviteCode = async () => {
+  const generateInviteCode = useCallback(async () => {
     try {
       if (!db) return;
       const { doc, setDoc, serverTimestamp } =
@@ -234,10 +213,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       const msg = err instanceof Error ? err.message : String(err);
       alert(`コードの生成に失敗しました: ${msg}`);
     }
-  };
+  }, [fetchInviteCodes]);
 
-
-  const toggleAdmin = async (u: UserProfile) => {
+  const toggleAdmin = useCallback(async (u: UserProfile) => {
     if (u.role === "admin") {
       const otherAdmins = userList.filter((user) => 
         user.id !== u.id && user.role === "admin"
@@ -268,9 +246,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       console.error(e);
       alert("変更に失敗しました");
     }
-  };
+  }, [userList, fetchUsers]);
 
-  const handleCopyInvitation = async (codeId: string) => {
+  const handleCopyInvitation = useCallback(async (codeId: string) => {
     const template = `重機を降りて、存在を祝うインフラへ。
 あなたを『Existence Ticker』の共同創設者として招待します。
 
@@ -296,9 +274,9 @@ https://www.existenceticker.com/?code=${codeId}
       console.error("Failed to copy invitation:", err);
       alert("コピーに失敗しました");
     }
-  };
+  }, []);
 
-  const updateInviteMemo = async (codeId: string, newMemo: string) => {
+  const updateInviteMemo = useCallback(async (codeId: string, newMemo: string) => {
     try {
       if (!db) return;
       const { doc, updateDoc } = await import("firebase/firestore");
@@ -309,53 +287,18 @@ https://www.existenceticker.com/?code=${codeId}
     } catch (err) {
       console.error("Failed to update memo:", err);
     }
-  };
+  }, [fetchInviteCodes]);
 
-  // Data Fetching Logic: Only trigger when switching TO the tab
-  React.useEffect(() => {
-    if (activeTab === "citizens" && userList.length === 0) {
-      fetchUsers();
-    }
-    if (activeTab === "invitations") {
-      fetchInviteCodes();
-    }
-    if (activeTab === "seeds") {
-      fetchSeeds();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab]);
-
-  const fetchSeeds = useCallback(async () => {
-    setIsLoadingSeeds(true);
-    try {
-      if (!db) return;
-      const { collection, getDocs, query, orderBy } = await import("firebase/firestore");
-      const q = query(collection(db, "seed_placeholders"), orderBy("createdAt", "desc"));
-      const snap = await getDocs(q);
-      const fetchedSeeds = snap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as SeedPlaceholder[];
-      setSeeds(fetchedSeeds);
-    } catch (e) {
-      console.error("Failed to fetch seeds", e);
-    } finally {
-      setIsLoadingSeeds(false);
-    }
-  }, []);
-
-  const addSeed = async () => {
-    if (!newSeedContent.trim()) return;
+  const addSeed = useCallback(async (tier: 1000 | 500 | 0, content: string) => {
     setIsAddingSeed(true);
     try {
       if (!db) return;
       const { collection, addDoc, serverTimestamp } = await import("firebase/firestore");
       await addDoc(collection(db, "seed_placeholders"), {
-        tier: newSeedTier,
-        content: newSeedContent.trim(),
+        tier,
+        content,
         createdAt: serverTimestamp()
       });
-      setNewSeedContent("");
       fetchSeeds();
     } catch (e) {
       console.error("Failed to add seed", e);
@@ -363,9 +306,9 @@ https://www.existenceticker.com/?code=${codeId}
     } finally {
       setIsAddingSeed(false);
     }
-  };
+  }, [fetchSeeds]);
 
-  const deleteSeed = async (id: string) => {
+  const deleteSeed = useCallback(async (id: string) => {
     if (!window.confirm("この種を削除しますか？")) return;
     try {
       if (!db) return;
@@ -376,13 +319,14 @@ https://www.existenceticker.com/?code=${codeId}
       console.error("Failed to delete seed", e);
       alert("種の削除に失敗しました");
     }
-  };
+  }, [fetchSeeds]);
 
-  const filteredUsers = userList.filter(
-    (u) =>
-      u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      u.id?.includes(searchQuery),
-  );
+  // Data Fetching Logic: Only trigger when switching TO the tab
+  React.useEffect(() => {
+    if (activeTab === "citizens" && userList.length === 0) fetchUsers();
+    if (activeTab === "invitations" && inviteCodes.length === 0) fetchInviteCodes();
+    if (activeTab === "seeds" && seeds.length === 0) fetchSeeds();
+  }, [activeTab, userList.length, inviteCodes.length, seeds.length, fetchUsers, fetchInviteCodes, fetchSeeds]);
 
   // Lock body scroll when dashboard is open
   React.useEffect(() => {
@@ -412,22 +356,6 @@ https://www.existenceticker.com/?code=${codeId}
       </div>
     );
   }
-
-  const { cycle, metabolism, distribution } = stats;
-
-  const getMetaColor = (s: MetabolismStatus) => {
-    if (s === "Active") return "text-green-400";
-    if (s === "Stable") return "text-yellow-400";
-    return "text-red-500";
-  };
-
-  const totalPop = distribution.full + distribution.quarter + distribution.new;
-
-  const distRatio = {
-    full: distribution.full / (totalPop || 1), // Avoid DBZ
-    quarter: distribution.quarter / (totalPop || 1),
-    new: distribution.new / (totalPop || 1),
-  };
 
   return (
     <div
@@ -514,921 +442,63 @@ https://www.existenceticker.com/?code=${codeId}
 
         {/* Content Stack */}
         <div className="flex flex-col gap-6">
-          {activeTab === "seeds" && (
-            <div className="animate-in fade-in duration-300 space-y-6">
-                <div className="flex justify-between items-center mb-2">
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-200 flex items-center gap-2">
-                       <Sprout className="text-emerald-400" />
-                       種子の書庫
-                     </h3>
-                    <p className="text-xs text-slate-500 font-serif italic mt-1">
-                      この世界に蒔かれる「願いの種」を管理します
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={seedLibrary}
-                      className="text-[10px] text-emerald-500/70 border border-emerald-500/30 hover:bg-emerald-500/10 px-2 py-1 rounded transition-colors"
-                    >
-                      初期の種を蒔く
-                    </button>
-                    <button
-                      type="button"
-                      onClick={fetchSeeds}
-                      className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
-                      title="種子を更新"
-                    >
-                      <RefreshCw size={18} className={isLoadingSeeds ? "animate-spin" : ""} />
-                    </button>
-                  </div>
-                </div>
-
-              {/* Add Seed Form */}
-              <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6 space-y-4">
-                <h4 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">
-                  <Plus size={14} /> 新しい種を蒔く
-                </h4>
-                <div className="flex flex-col gap-4">
-                  <div className="flex gap-2">
-                    {[1000, 500, 0].map((t) => (
-                      <button
-                        key={t}
-                        type="button"
-                        onClick={() => setNewSeedTier(t as 1000 | 500 | 0)}
-                        className={`flex-1 py-3 rounded-xl border text-sm font-bold tracking-tight transition-all active:scale-[0.98] ${
-                          newSeedTier === t
-                            ? t === 1000 ? "bg-amber-500/10 border-amber-500 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.1)]" :
-                              t === 500 ? "bg-orange-500/10 border-orange-500 text-orange-500" :
-                              "bg-pink-500/10 border-pink-500 text-pink-500"
-                            : "bg-slate-800/50 border-slate-700 text-slate-500 hover:border-slate-500"
-                        }`}
-                      >
-                        {t === 1000 ? "人生の節目" : t === 500 ? "日常の手助け" : "魂の共鳴"}
-                        <span className="block text-[10px] opacity-70 font-mono mt-0.5">{t} Lm</span>
-                      </button>
-                    ))}
-                  </div>
-                  <div className="relative">
-                    <textarea
-                      value={newSeedContent}
-                      onChange={(e) => setNewSeedContent(e.target.value)}
-                      placeholder="「例えば：...」静かな願いの種を綴ってください"
-                      className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-4 text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50 transition-all min-h-[100px] font-serif"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={addSeed}
-                    disabled={isAddingSeed || !newSeedContent.trim()}
-                    className="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold tracking-widest text-sm transition-all shadow-lg shadow-emerald-600/20 active:scale-[0.98] disabled:opacity-30 disabled:grayscale"
-                  >
-                    {isAddingSeed ? "種を蒔いています..." : "生命のインフラに種を蒔く"}
-                  </button>
-                </div>
-              </div>
-
-              {/* Seeds List */}
-              <div className="space-y-4">
-                {[1000, 500, 0].map((t) => {
-                  const tierSeeds = seeds.filter((s) => s.tier === t);
-                  if (tierSeeds.length === 0) return null;
-                  return (
-                    <div key={t} className="space-y-3">
-                      <div className="flex items-center gap-4">
-                        <div className={`h-[1px] flex-1 ${t === 1000 ? "bg-amber-500/30" : t === 500 ? "bg-orange-500/30" : "bg-pink-500/30"}`} />
-                        <h5 className={`text-[10px] font-bold uppercase tracking-widest ${t === 1000 ? "text-amber-500" : t === 500 ? "text-orange-500" : "text-pink-500"}`}>
-                          {t === 1000 ? "人生の節目" : t === 500 ? "日常の手助け" : "魂の共鳴"}
-                        </h5>
-                        <div className={`h-[1px] flex-1 ${t === 1000 ? "bg-amber-500/30" : t === 500 ? "bg-orange-500/30" : "bg-pink-500/30"}`} />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        {tierSeeds.map((seed) => (
-                          <div
-                            key={seed.id}
-                            className="group bg-slate-900/30 border border-slate-800 hover:border-slate-700 p-4 rounded-xl flex justify-between items-start gap-4 transition-all"
-                          >
-                            <div className="flex-1">
-                              <p className="text-slate-400 font-serif leading-relaxed text-sm">
-                                {seed.content}
-                              </p>
-                              <div className="mt-2 text-[9px] text-slate-600 font-mono uppercase tracking-tighter">
-                                蒔かれた日時: {
-                                  seed.createdAt?.toDate 
-                                    ? seed.createdAt.toDate().toLocaleString() 
-                                    : seed.createdAt 
-                                      ? new Date(seed.createdAt.seconds * 1000).toLocaleString() 
-                                      : "悠久の刻"
-                                }
-                              </div>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => deleteSeed(seed.id)}
-                              className="p-2 text-slate-700 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all active:scale-90"
-                              title="種子を削除"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {seeds.length === 0 && !isLoadingSeeds && (
-                <div className="p-12 text-center text-slate-600 border border-dashed border-slate-800 rounded-2xl">
-                  <Sprout size={24} className="mx-auto mb-2 opacity-30" />
-                  <p className="text-sm">まだ「種」がありません。最初の種を蒔いてください。</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          {activeTab === "invitations" && (
-            <div className="animate-in fade-in duration-300 space-y-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-bold text-slate-200">
-                  招待コード管理
-                </h3>
-                <button
-                  type="button"
-                  onClick={generateInviteCode}
-                  className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-yellow-500/20"
-                >
-                  <Plus size={18} /> コードを生成
-                </button>
-              </div>
-
-              <div className="bg-slate-900/50 rounded-xl border border-slate-700 overflow-hidden">
-                <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
-                  {inviteCodes.length === 0 ? (
-                    <div className="p-12 text-center text-slate-500 flex flex-col items-center gap-2">
-                      <Key size={24} className="opacity-20" />
-                      <p>まだ招待コードは発行されていません</p>
-                    </div>
-                  ) : (
-                    <div className="divide-y divide-slate-800">
-                      {inviteCodes
-                        .slice()
-                        .sort((a, b) => {
-                          const aTime = a.created_at?.toMillis
-                            ? a.created_at.toMillis()
-                            : a.created_at || 0;
-                          const bTime = b.created_at?.toMillis
-                            ? b.created_at.toMillis()
-                            : b.created_at || 0;
-                          return bTime - aTime;
-                        })
-                        .map((code) => (
-                          <div
-                            key={code.id}
-                            className="p-4 flex justify-between items-center hover:bg-slate-800/30 transition-colors font-mono"
-                          >
-                            <div className="flex items-center gap-4">
-                              <div className="p-2 bg-slate-800 rounded border border-slate-700">
-                                <Key size={14} className="text-yellow-500/70" />
-                              </div>
-                              <div>
-                                <div className="text-lg font-bold text-slate-100 tracking-wider font-mono">
-                                  {code.id}
-                                </div>
-                                <div className="text-[10px] text-slate-500">
-                                  生成日時:{" "}
-                                  {code.created_at?.toDate
-                                    ? code.created_at.toDate().toLocaleString()
-                                    : new Date(
-                                        code.created_at,
-                                      ).toLocaleString()}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                              {code.is_used ? (
-                                <div className="flex flex-col items-end">
-                                  <span className="bg-slate-800 text-slate-400 px-3 py-1 rounded-full text-[10px] font-bold ring-1 ring-slate-700">
-                                    使用済み
-                                  </span>
-                                  {code.used_by && (
-                                    <div
-                                      className="text-[10px] text-slate-600 mt-1 select-all"
-                                      title={code.used_by}
-                                    >
-                                      使用者 {code.used_by.substring(0, 8)}...
-                                    </div>
-                                  )}
-                                </div>
-                              ) : (
-                                <div className="flex items-center gap-3">
-                                  <div className="relative">
-                                    <input
-                                      type="text"
-                                      placeholder="メモ (誰に渡したか...)"
-                                      defaultValue={code.memo || ""}
-                                      onBlur={(e) => {
-                                        if (e.target.value !== code.memo) {
-                                          updateInviteMemo(code.id, e.target.value);
-                                        }
-                                      }}
-                                      className="bg-slate-800/80 border border-slate-700/50 rounded flex-1 px-3 py-1 text-[11px] text-slate-400 focus:outline-none focus:border-slate-500 placeholder:text-slate-400 transition-colors w-40"
-                                    />
-                                  </div>
-                                  <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-[10px] font-bold ring-1 ring-emerald-500/20 shadow-[0_0_10px_rgba(52,211,153,0.1)]">
-                                    有効
-                                  </span>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleCopyInvitation(code.id)}
-                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all duration-300 text-[10px] font-bold tracking-widest uppercase active:scale-95 ${
-                                      copiedCodeId === code.id
-                                        ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
-                                        : "bg-slate-800/50 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500"
-                                    }`}
-                                  >
-                                    {copiedCodeId === code.id ? (
-                                      <>
-                                        <Check size={12} />
-                                        <span>招待状をコピーしました</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Copy size={12} />
-                                        <span>招待状をコピー</span>
-                                      </>
-                                    )}
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-              <p className="text-[10px] text-slate-500 italic px-2">
-                ※
-                招待コードは「ALPHA-XXXX」の形式で自動生成されます。Firestoreの
-                `invitation_codes` コレクションに保存されます。
-              </p>
-            </div>
+          {activeTab === "monitor" && stats && (
+            <AdminMonitor 
+              stats={stats} 
+              onOpenDiagnostics={() => setShowDiagnosisModal(true)} 
+            />
           )}
 
           {activeTab === "citizens" && (
-            <div className="animate-in fade-in duration-300">
-              <div className="bg-slate-900/50 rounded-xl border border-slate-700 overflow-hidden">
-                <div className="p-4 border-b border-slate-700 flex flex-col md:flex-row gap-4 justify-between items-center">
-                  <div className="relative w-full md:w-64">
-                    <Search
-                      className="absolute left-3 top-2.5 text-slate-500"
-                      size={16}
-                    />
-                    <input
-                      type="text"
-                      placeholder="名前またはIDで検索..."
-                      className="w-full bg-slate-800 border border-slate-600 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-yellow-500 placeholder-slate-500"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-xs text-slate-500 font-mono">
-                      {filteredUsers.length} 名のユーザーを読み込み済
-                    </span>
-                  </div>
-                </div>
-
-                <div className="max-h-[60vh] overflow-y-auto">
-                  {isLoadingUsers ? (
-                    <div className="p-8 text-center text-slate-500">
-                      バイオ信号をスキャン中...
-                    </div>
-                  ) : (
-                    <div className="w-full text-slate-400">
-                      {/* Responsive Header - Hidden on Mobile */}
-                      <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-3 bg-slate-800/50 text-xs uppercase font-mono text-slate-500 sticky top-0 z-10 backdrop-blur-sm border-b border-slate-700">
-                        <div className="col-span-5">ユーザー</div>
-                        <div className="col-span-3">ステータス</div>
-                        <div className="col-span-2">権限</div>
-                        <div className="col-span-2 text-right">操作</div>
-                      </div>
-
-                      {/* Responsive Body */}
-                      <div className="divide-y divide-slate-800">
-                        {filteredUsers.map((u) => (
-                          <div
-                            key={u.id}
-                            className="p-4 md:px-6 md:py-4 hover:bg-slate-800/30 transition-colors flex flex-col md:grid md:grid-cols-12 md:gap-4 items-start md:items-center"
-                          >
-                            {/* User Info Col (Mobile: Row 1) */}
-                            <div className="col-span-5 flex items-center gap-3 w-full mb-3 md:mb-0">
-                              <div className="w-8 h-8 rounded-full bg-slate-700 flex-shrink-0 flex items-center justify-center text-xs font-bold text-slate-400">
-                                {u.name?.charAt(0) || "?"}
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <div className="font-bold text-slate-200 truncate">
-                                  {u.name || "Unknown"}
-                                </div>
-                                <div className="flex flex-col">
-                                  <div className="font-mono text-xs text-slate-600 truncate">
-                                    {u.id}
-                                  </div>
-                                  {u.email && (
-                                    <div className="font-mono text-xs text-blue-400/70 truncate">
-                                      {u.email}
-                                    </div>
-                                  )}
-                                  {!u.email && (
-                                    <div className="text-xs text-red-500/70 italic">
-                                      メール未設定
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Status Col (Mobile: Row 2) */}
-                            <div className="col-span-3 mb-2 md:mb-0 w-full md:w-auto flex items-center md:block text-xs">
-                              <span className="md:hidden text-slate-500 w-16 flex-shrink-0">
-                                ステータス:
-                              </span>
-                              <div className="flex flex-col gap-0.5">
-                                <span>熱量: {u.warmth?.toLocaleString()}</span>
-                                {(() => {
-                                  const cycleStart = getMillis(u.cycle_started_at, 0);
-                                  if (cycleStart === 0) return null;
-                                  const elapsedSec = ((Date.now() - cycleStart) / 1000) | 0;
-                                  const decayedVesselMilli = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), elapsedSec);
-                                  const currentBalanceMilli = Math.max(0, decayedVesselMilli - toMilli(u.spent_lm || 0));
-                                  return (
-                                    <span className="font-mono text-cyan-400">
-                                      {Math.floor(fromMilli(currentBalanceMilli)).toLocaleString()} Lm
-                                    </span>
-                                  );
-                                })()}
-                              </div>
-                            </div>
-
-                            {/* Role Col (Mobile: Row 3) */}
-                            <div className="col-span-2 mb-4 md:mb-0 w-full md:w-auto flex items-center md:block text-xs">
-                              <span className="md:hidden text-slate-500 w-16 flex-shrink-0">
-                                権限:
-                              </span>
-                              <div className="inline-flex flex-col items-start gap-1">
-                                {u.role === "admin" ? (
-                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900/30 text-red-400 border border-red-900/50 whitespace-nowrap">
-                                    <Shield size={10} />
-                                    管理者
-                                  </span>
-                                ) : (
-                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-500 whitespace-nowrap">
-                                    一般ユーザー
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Action Col (Mobile: Row 4) */}
-                            <div className="col-span-2 w-full md:w-auto flex justify-end gap-2">
-                              <button
-                                type="button"
-                                onClick={() => toggleAdmin(u)}
-                                className={`p-2 rounded-lg transition-colors border ${
-                                  u.role === "admin"
-                                    ? "bg-red-900/10 border-red-900/30 text-red-400 hover:bg-red-900/30"
-                                    : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500"
-                                }`}
-                                title={
-                                  u.role === "admin"
-                                    ? "一般ユーザーに降格"
-                                    : "管理者に昇格"
-                                }
-                              >
-                                <Shield size={16} />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                        {hasMoreUsers && (
-                          <div className="p-8 flex justify-center border-t border-slate-800">
-                            <button
-                              type="button"
-                              onClick={() => fetchUsers(true)}
-                              disabled={isLoadingUsers}
-                              className="px-6 py-2 rounded-full border border-slate-700 text-slate-400 hover:text-white hover:border-slate-500 transition-colors disabled:opacity-50 flex items-center gap-2"
-                            >
-                              {isLoadingUsers ? (
-                                <>
-                                  <Activity size={14} className="animate-spin" />
-                                  読み込み中...
-                                </>
-                              ) : (
-                                "さらに読み込む"
-                              )}
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  {!isLoadingUsers && filteredUsers.length === 0 && (
-                    <div className="p-12 text-center text-slate-600 flex flex-col items-center gap-2">
-                      <Search size={24} className="opacity-50" />
-                      <p>"{searchQuery}" に一致するユーザーは見つかりませんでした</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            <AdminCitizens 
+              userList={userList}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              onToggleAdmin={toggleAdmin}
+              onLoadMore={() => fetchUsers(true)}
+              hasMore={hasMoreUsers}
+              isLoading={isLoadingUsers}
+            />
           )}
 
-          {activeTab === "monitor" && (
-            <>
-              {/* WORLD HEALTH DIAGNOSIS BANNER */}
-              <motion.button
-                type="button"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                onClick={() => setShowDiagnosisModal(true)}
-                className={`w-full p-4 rounded-2xl border ${diagnostics.bg} ${diagnostics.text} mb-6 flex items-center justify-between group transition-all hover:scale-[1.01] active:scale-[0.99]`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-full bg-white/10">
-                    <Activity size={20} className="animate-pulse" />
-                  </div>
-                  <div className="text-left">
-                    <div className="text-xs uppercase tracking-widest opacity-70 mb-0.5">
-                      現在の生態系診断
-                    </div>
-                    <div className="text-lg font-serif font-bold tracking-wide">
-                      {diagnostics.shortDescription}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-mono opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span>分析を表示</span>
-                  <Book size={14} />
-                </div>
-              </motion.button>
+          {activeTab === "invitations" && (
+            <AdminInvitations 
+              inviteCodes={inviteCodes}
+              onGenerateCode={generateInviteCode}
+              onCopyInvitation={handleCopyInvitation}
+              onUpdateMemo={updateInviteMemo}
+              copiedCodeId={copiedCodeId}
+            />
+          )}
 
-              {/* SECTION A: ACTIVE CYCLES */}
-              <div
-                className={`p-6 rounded-2xl border border-slate-700 bg-slate-900/20 relative overflow-hidden group`}
-              >
-                <div className="absolute top-0 right-0 p-4 opacity-10">
-                  <Moon size={100} />
-                </div>
-                <h2 className="text-xs font-mono uppercase tracking-widest opacity-70 mb-4">
-                  現在の暦
-                </h2>
-
-                <div className="flex flex-col gap-4">
-                  <div>
-                    <span className="text-3xl font-bold text-slate-200">
-                      第 {cycle.day} 周期
-                    </span>
-                    <span className="text-xs text-slate-400 ml-2">
-                      現在のサイクル日数
-                    </span>
-                    <span className="text-xs text-slate-500 ml-2">
-                       (第 {cycle.season === 'Spring' ? '春' : cycle.season === 'Winter' ? '冬' : '分点'} フェーズ)
-                    </span>
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-mono text-cyan-300">
-                        {cycle.rebornToday}
-                      </span>
-                      <div className="flex flex-col">
-                        <span className="text-sm text-slate-400">
-                          本日再生された魂
-                        </span>
-                        <span className="text-xs text-slate-500">
-                          本日の再生数
-                        </span>
-                      </div>
-                    </div>
-
-                    {(() => {
-                      const rate = (cycle.rebornToday / (totalPop || 1)) * 100;
-                      const barWidth = Math.min(100, (rate / 20) * 100);
-                      const isWarning = rate >= 20;
-                      return (
-                        <div className="mt-1">
-                          <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
-                            <div
-                              className={`h-full transition-all duration-1000 ${isWarning ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" : "bg-cyan-500/50"} animate-pulse`}
-                              style={{ width: `${barWidth}%` }}
-                            />
-                          </div>
-                          <div className="flex justify-between mt-1 px-0.5">
-                            <span className="text-xs text-slate-600 font-mono">
-                              0%
-                            </span>
-                            <span className="text-xs text-cyan-500 font-bold font-mono">
-                              10% (理想)
-                            </span>
-                            <span className="text-xs text-slate-600 font-mono">
-                              20%+
-                            </span>
-                          </div>
-                          <p className="text-xs text-slate-400 mt-1 leading-tight border-t border-slate-800/50 pt-1">
-                            日次代謝率:
-                            10%が理想状態。中央より右なら過剰、左なら停滞を意味します。
-                          </p>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </div>
-              </div>
-
-              {/* SECTION B: METABOLISM */}
-              <div className="p-6 rounded-2xl border border-slate-800 bg-slate-900/20 relative">
-                <h2 className="text-xs font-mono text-slate-500 uppercase tracking-widest mb-4">
-                  代謝・循環
-                </h2>
-
-                <div className="flex justify-between items-end mb-6">
-                  <div>
-                    <div className="text-sm text-slate-400 mb-1">
-                      24時間流通量
-                      <span className="text-xs text-slate-600 ml-2">
-                        24時間の総循環量
-                      </span>
-                    </div>
-                    <div className="text-3xl font-mono text-slate-200">
-                      {metabolism.volume24h.toLocaleString()}{" "}
-                      <span className="text-sm font-sans">Lm</span>
-                    </div>
-                  </div>
-                  <div
-                    className={`text-right ${getMetaColor(metabolism.status)}`}
-                  >
-                    <div className="text-3xl font-bold">{metabolism.rate}%</div>
-                    <div className="text-xs uppercase tracking-wider">
-                      {metabolism.status === "Stagnant" ? "停滞" : metabolism.status === "Active" ? "活性" : "正常"}
-                    </div>
-                    <div className="text-xs opacity-70">循環効率</div>
-                  </div>
-                </div>
-
-                {/* Visual Meter */}
-                <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full ${metabolism.status === "Stagnant" ? "bg-red-500" : metabolism.status === "Active" ? "bg-green-500" : "bg-yellow-500"}`}
-                    style={{
-                      width: `${Math.min(100, metabolism.rate * 10)}%`,
-                    }} // Scale approx for visual
-                  />
-                </div>
-
-                {/* 代謝構成分析 (Tri-State) */}
-                {(() => {
-                  const m = metabolism;
-                  const total = m.totalSupply;
-
-                  // 1. Circulation (Flow)
-                  const circulation = m.volume24h;
-
-                  // 2. Gravity (Decay Loss) - approximated naturally lost
-                  const decay = m.decay24h;
-
-                  const flowRatio = Math.min(100, (circulation / total) * 100);
-                  const decayRatio = Math.min(100, (decay / total) * 100);
-                  const overflowLoss = m.overflowLoss || 0;
-                  const overflowRatio = Math.min(
-                    100,
-                    (overflowLoss / total) * 100,
-                  );
-
-                  const totalEntropyLoss = decay + overflowLoss;
-                  const entropyRatio = decayRatio + overflowRatio;
-
-                  const staticRatio = Math.max(0, 100 - flowRatio);
-
-                  return (
-                    <div className="mt-6 border-t border-slate-800/50 pt-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-slate-400 font-mono">
-                          代謝構成分析
-                        </span>
-                        <span className="text-sm text-slate-500 font-medium">
-                          対総資産比率
-                        </span>
-                      </div>
-
-                      {/* 1. Main Bar: Flow vs Static */}
-                      <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden flex relative">
-                        {/* Flow */}
-                        <div
-                          className="h-full bg-gradient-to-r from-green-500 to-emerald-400 shadow-[0_0_10px_rgba(34,197,94,0.4)]"
-                          style={{ width: `${flowRatio}%` }}
-                        />
-                        {/* Static */}
-                        <div
-                          className="h-full bg-slate-700"
-                          style={{ width: `${staticRatio}%` }}
-                        />
-                      </div>
-
-                      <div className="flex justify-between text-sm mt-3 font-mono font-medium">
-                        <div className="text-green-400">
-                          <span>⚡ 循環</span>
-                          <span className="ml-2 opacity-70">
-                            {flowRatio.toFixed(1)}%
-                          </span>
-                        </div>
-                        <div className="text-slate-500">
-                          <span>❄️ 停滞</span>
-                          <span className="ml-2 opacity-70">
-                            {staticRatio.toFixed(1)}%
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Entropy Loss Indicator (Decay + Overflow) */}
-                      <div className="mt-4 flex flex-col gap-1">
-                        <div className="flex justify-between text-sm items-center">
-                          <span className="text-red-400 font-mono">
-                            🔥 エントロピー損失 24h
-                          </span>
-                          <span className="text-red-300 font-mono">
-                            -{totalEntropyLoss.toLocaleString()} Lm{" "}
-                            <span className="opacity-50">
-                              ({entropyRatio.toFixed(1)}%)
-                            </span>
-                          </span>
-                        </div>
-                        <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden flex">
-                          {/* Decay (Natural) */}
-                          <div
-                            className="h-full bg-red-900/50"
-                            style={{
-                              width: `${(decay / (totalEntropyLoss || 1)) * 100}%`,
-                            }}
-                          />
-                          {/* Overflow (Waste) */}
-                          <div
-                            className="h-full bg-red-500"
-                            style={{
-                              width: `${(overflowLoss / (totalEntropyLoss || 1)) * 100}%`,
-                            }}
-                          />
-                        </div>
-                        <div className="flex justify-between text-xs text-slate-600 px-0.5">
-                          <span>重力: {decay.toLocaleString()}</span>
-                          <span>溢れ: {overflowLoss.toLocaleString()}</span>
-                        </div>
-                      </div>
-
-                      <p className="text-xs text-slate-500 mt-2 leading-tight">
-                        ※
-                        赤色の損失（Overflow含む）が緑色の循環を上回る場合、経済圏は縮小（死滅）に向かいます。
-                        <br />
-                        現在のバランス:{" "}
-                        {flowRatio > entropyRatio ? (
-                          <span className="text-green-400 font-bold">
-                            成長中
-                          </span>
-                        ) : (
-                          <span className="text-red-400 font-bold">
-                            縮小中
-                          </span>
-                        )}
-                      </p>
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* SECTION C: MOON DISTRIBUTION */}
-              <div className="p-6 rounded-2xl border border-slate-800 bg-slate-900/20 md:col-span-2 lg:col-span-1">
-                <h2 className="text-xs font-mono text-slate-500 uppercase tracking-widest mb-6">
-                  資産分布
-                </h2>
-
-                <div className="space-y-4">
-                  {/* Full */}
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-yellow-200">
-                        🌕 潤沢 (&gt;1500){" "}
-                        <span className="text-xs text-slate-500 ml-1">
-                          (飽和)
-                        </span>
-                      </span>
-                      <span className="font-mono text-slate-400">
-                        {distribution.full}{" "}
-                        <span className="text-xs opacity-70">
-                          ({(distRatio.full * 100).toFixed(1)}%)
-                        </span>
-                      </span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-800/50 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.4)]"
-                        style={{ width: `${distRatio.full * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  {/* Quarter */}
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-slate-400">
-                        🌓 安定{" "}
-                        <span className="text-xs text-slate-500 ml-1">
-                          安定した魂
-                        </span>
-                      </span>
-                      <span className="font-mono text-slate-400">
-                        {distribution.quarter}{" "}
-                        <span className="text-xs opacity-70">
-                          ({(distRatio.quarter * 100).toFixed(1)}%)
-                        </span>
-                      </span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-800/50 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-slate-400 shadow-[0_0_8px_rgba(148,163,184,0.3)]"
-                        style={{ width: `${distRatio.quarter * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  {/* New */}
-                  <div>
-                    <div className="flex justify-between text-xs mb-1">
-                      <span className="text-slate-400">
-                        🌑 枯渇 (&lt;500){" "}
-                        <span className="text-xs text-slate-500 ml-1">
-                          新生した魂
-                        </span>
-                      </span>
-                      <span className="font-mono text-slate-400">
-                        {distribution.new}{" "}
-                        <span className="text-xs opacity-70">
-                          ({(distRatio.new * 100).toFixed(1)}%)
-                        </span>
-                      </span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-800/50 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-cyan-600 shadow-[0_0_8px_rgba(8,145,178,0.3)]"
-                        style={{ width: `${distRatio.new * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Alert Logic */}
-                {cycle.season === "Winter" &&
-                  distribution.full > totalPop * 0.3 && (
-                    <div className="mt-6 p-3 border border-red-500/30 bg-red-900/10 rounded flex items-center gap-3 text-red-400 text-xs">
-                      <AlertTriangle size={16} />
-                      <span>
-                        警告: 冬季の過剰な蓄積を検知しました。
-                      </span>
-                    </div>
-                  )}
-              </div>
-
-              {/* SECTION D: TIME CONTROL (Previously Sun Control) */}
-              <div
-                id="time-control-section"
-                className="p-6 rounded-2xl border border-yellow-900/30 bg-yellow-900/5 md:col-span-2 lg:col-span-1 relative overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 p-4 opacity-10 text-yellow-500">
-                  <Sun size={80} />
-                </div>
-                <h2 className="text-xs font-mono text-yellow-600 uppercase tracking-widest mb-4">
-                  時空調整
-                </h2>
-
-                <div className="mb-8 text-center">
-                  <div className="text-xs text-yellow-600/70 mb-2">
-                    再生サイクル期間
-                    <div className="text-xs">次回リセットまでの日数</div>
-                  </div>
-                  <div className="text-5xl font-bold text-yellow-500 font-mono tracking-tighter">
-                    {cycleDays} <span className="text-lg">日</span>
-                  </div>
-                  <div className="mt-2 text-sm font-bold">
-                    {cycleDays < 10 && (
-                      <span className="text-green-500">
-                        春 (豊穣 - 循環加速)
-                      </span>
-                    )}
-                    {cycleDays === 10 && (
-                      <span className="text-yellow-500">
-                        分点 (調和 - 標準)
-                      </span>
-                    )}
-                    {cycleDays > 10 && (
-                      <span className="text-slate-400">
-                        冬 (試練 - 選別)
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="relative mb-6">
-                  <input
-                    type="range"
-                    min="5"
-                    max="20"
-                    step="1"
-                    value={cycleDays}
-                    onChange={(e) => setCycleDays(Number(e.target.value))}
-                    className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-yellow-500"
-                  />
-                  <div className="flex justify-between text-xs text-slate-500 font-mono mt-2">
-                    <span>5日 (加速)</span>
-                    <span>10日 (標準)</span>
-                    <span>20日 (減速)</span>
-                  </div>
-                </div>
-
-                <button
-                  onClick={async () => {
-                    if (
-                      window.confirm(
-                        `法の公布: 再生サイクル = ${cycleDays} 日に設定します。\n\nこの変更は、各ユーザーが「次回再生されるタイミング」で適用されます。\n\n短縮 = 2400 Lm の給付が頻繁になります。\n延長 = 資源が乏しくなります。\n\nよろしいですか？`,
-                      )
-                    ) {
-                      try {
-                        // Use top-level db import
-                        const { doc, setDoc, serverTimestamp } =
-                          await import("firebase/firestore");
-
-                        if (!db) throw new Error("Database not initialized");
-
-                        // Update Global Config (cycleDays)
-                        const settingsRef = doc(
-                          db,
-                          "system_settings",
-                          "global",
-                        );
-                        await setDoc(
-                          settingsRef,
-                          {
-                            cycleDays: cycleDays,
-                            updated_at: serverTimestamp(),
-                          },
-                          { merge: true },
-                        );
-
-                        alert(
-                          `法改正完了: サイクルを ${cycleDays} 日に変更しました。\n世界のリズムが変わります。`,
-                        );
-                        // No need to update local stats derived state immediately, handled by next reload or logic
-                      } catch (e: unknown) {
-                        console.error(e);
-                        alert(`法令の発布に失敗しました: ${e}`);
-                      }
-                    }
-                  }}
-                  className="w-full py-4 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 hover:border-yellow-500/50 text-yellow-500 font-bold uppercase tracking-widest text-xs transition-colors"
-                >
-                  法を公布・改定する
-                </button>
-                <p className="text-center text-xs text-slate-500 mt-2">
-                  生命贈与額 (Fixed):{" "}
-                  <span className="text-slate-400">2,400 Lm</span> (不変の理)
-                </p>
-              </div>
-            </>
+          {activeTab === "seeds" && (
+            <AdminSeeds 
+              seeds={seeds}
+              onFetchSeeds={fetchSeeds}
+              onSeedLibrary={seedLibrary}
+              onAddSeed={addSeed}
+              onDeleteSeed={deleteSeed}
+              isLoading={isLoadingSeeds}
+              isAdding={isAddingSeed}
+            />
           )}
         </div>
       </div>
 
-      {/* === DIAGNOSTIC MODAL OVERLAY === */}
-      <DiagnosticModal
-        isOpen={showDiagnosisModal}
-        onClose={() => setShowDiagnosisModal(false)}
-        diagnosis={diagnostics}
-        stats={stats}
-        onScrollToSupply={() => {
-          const el = document.getElementById("time-control-section");
-          const container = document.getElementById("admin-scroll-container");
-          if (el && container) {
-            const rect = el.getBoundingClientRect();
-            const containerRect = container.getBoundingClientRect();
-            const scrollTop = container.scrollTop;
-            // offset 80px for the sticky header
-            const targetPosition =
-              rect.top - containerRect.top + scrollTop - 80;
-
-            container.scrollTo({
-              top: targetPosition,
-              behavior: "smooth",
-            });
-          }
-        }}
-      />
+      {showDiagnosisModal && stats && (
+        <DiagnosticModal 
+          isOpen={showDiagnosisModal} 
+          onClose={() => setShowDiagnosisModal(false)}
+          stats={stats}
+          diagnosis={diagnostics}
+          onScrollToSupply={() => {
+            const container = document.getElementById("admin-scroll-container");
+            if (container) {
+              container.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          }}
+        />
+      )}
     </div>
   );
 };
