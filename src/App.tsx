@@ -254,7 +254,6 @@ const AdminDashboard = lazy(() =>
 );
 
 // Import components
-import { GuideModal } from "./components/GuideModal";
 import { ReloadPrompt } from "./components/ReloadPrompt";
 import { PWAInstallBanner } from "./components/PWAInstallBanner";
 
@@ -311,7 +310,6 @@ function App() {
   const [guideMode, setGuideMode] = useState<"onboarding" | "reference">(
     "reference",
   );
-  const [showLegacyGuide, setShowLegacyGuide] = useState(false); // Legacy Text Guide
 
   const { stats } = useStats(); // Global Stats
 
@@ -490,15 +488,6 @@ function App() {
                     onClose={() => setShowStoryGuide(false)}
                     onComplete={handleOnboardingComplete}
                   />
-
-                  <AnimatePresence>
-                    {showLegacyGuide && (
-                      <GuideModal
-                        isOpen={showLegacyGuide}
-                        onClose={() => setShowLegacyGuide(false)}
-                      />
-                    )}
-                  </AnimatePresence>
 
                   {showAdmin && (
                     <Suspense fallback={null}>

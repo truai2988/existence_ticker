@@ -97,7 +97,7 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
                 <div className="text-3xl font-light tracking-tighter text-slate-800 leading-none font-['Inter']">
                   ET
                 </div>
-                <div className="text-[10px] text-slate-400 font-light tracking-[0.35em] uppercase mt-1">
+                <div className="text-xs text-slate-400 font-light tracking-[0.35em] uppercase mt-1">
                   Existence Ticker
                 </div>
               </button>
@@ -178,7 +178,7 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
             </nav>
 
             {/* Footer */}
-            <div className="px-7 pb-10 pt-4 border-t border-slate-200/50 flex flex-col items-center gap-3">
+            <div className="px-7 pb-10 pt-6 border-t border-slate-200/50 flex flex-col items-center">
               <button
                 onClick={() => {
                   window.open('/trust', '_blank');
@@ -188,9 +188,6 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
               >
                 {MESSAGES.LAYOUT.SIDEDRAWER_TRUST}
               </button>
-              <div className="text-[10px] text-slate-300 tracking-[0.2em] uppercase font-mono">
-                {MESSAGES.LAYOUT.SIDEDRAWER_FOOTER_NOTE}
-              </div>
             </div>
           </motion.aside>
         </>

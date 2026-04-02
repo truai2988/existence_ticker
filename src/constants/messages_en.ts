@@ -612,7 +612,7 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
     LINK_GUIDE: "Guidelines for Gifting Source",
     TAG_GIFT: "Gift",
     LBL_AVAILABLE_1: "Your current maximum enclosure is ",
-    LBL_AVAILABLE_2: " Lm",
+    LBL_AVAILABLE_2: "",
     WARN_EXCEED: "Insufficient Source. To cast a new wish, please withdraw an active one.",
     TIER_0: "Priceless",
     LBL_CONTENT: "Wish Details",

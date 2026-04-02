@@ -92,9 +92,8 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                             />
                         </button>
                         {/* Text Group */}
-                        <div className="flex flex-col min-w-0">
-                            <h2 className="text-sm sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>{MESSAGES.FLOW.TITLE}</h2>
-                            <p className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase truncate">{MESSAGES.FLOW.SUBTITLE}</p>
+                        <div className="flex flex-col min-w-0 justify-center">
+                            <h2 className="text-base sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>{MESSAGES.FLOW.TITLE}</h2>
                         </div>
                     </div>
                     <div className="flex h-12 items-center gap-3 shrink-0">

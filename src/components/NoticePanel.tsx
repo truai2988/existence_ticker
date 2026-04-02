@@ -165,7 +165,7 @@ export const NoticePanel: React.FC = () => {
                         <p className="text-[13px] text-slate-600 leading-relaxed font-light tracking-wide">
                           {resolveMessage(notice, wishActions)}
                         </p>
-                        <span className="text-[10px] text-slate-300 mt-1.5 block font-sans tracking-tight">
+                        <span className="text-xs text-slate-300 mt-1.5 block font-sans tracking-tight">
                           {formatTime(
                             notice.createdAt,
                             t.NOTICE.TIME_JUST_NOW,

@@ -110,7 +110,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
           {/* Header */}
           <div className={`p-4 sm:p-6 pb-3 flex justify-between items-start border-b border-slate-800/50 ${diagnosis.bg.replace('/30', '/10')}`}>
             <div>
-              <div className="flex items-center gap-2 text-slate-400 mb-0.5 uppercase tracking-[0.2em] text-[10px] font-sans">
+              <div className="flex items-center gap-2 text-slate-400 mb-0.5 uppercase tracking-[0.2em] text-xs font-sans">
                 <Activity size={10} />
                 <span>{MESSAGES.DIAGNOSTICS.SAGE_TITLE}</span>
               </div>
@@ -142,19 +142,19 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               {/* Responsive Metrics Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-0.5 bg-slate-800/50 border border-slate-800 rounded-xl overflow-hidden">
                   <div className="bg-slate-900 p-3 text-center">
-                      <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_SPEED}</div>
+                      <div className="text-xs text-slate-500 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_SPEED}</div>
                       <div className={`font-mono text-lg sm:text-xl ${metabolism.rate >= 10 ? 'text-cyan-400' : 'text-slate-400'}`}>
                           {metabolism.rate}%
                       </div>
                   </div>
                   <div className="bg-slate-800/50 p-2.5 rounded-lg border border-slate-700/50">
-                      <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_SAVINGS}</div>
+                      <div className="text-xs text-slate-500 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_SAVINGS}</div>
                         <div className="font-mono text-lg sm:text-xl text-slate-400">
                           {avgBalance.toLocaleString()}
                       </div>
                   </div>
                   <div className="bg-slate-800/50 p-2.5 rounded-lg border border-slate-700/50">
-                       <div className="text-[10px] text-slate-500 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_DECAY}</div>
+                       <div className="text-xs text-slate-500 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_DECAY}</div>
                        <div className="font-mono text-lg sm:text-xl text-red-500/80">
                           -{metabolism.decay24h.toLocaleString()}
                        </div>
@@ -163,7 +163,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
 
               {/* Prescription Action Card */}
               <div className={`p-4 sm:p-5 rounded-xl border transition-colors ${diagnosis.bg}`}>
-                  <h3 className="text-[10px] font-bold text-white uppercase tracking-widest mb-3 flex items-center gap-2 opacity-80">
+                  <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-3 flex items-center gap-2 opacity-80">
                       <Zap size={12} className="text-yellow-400 animate-pulse"/>
                       {MESSAGES.DIAGNOSTICS.LBL_PRESCRIPTION}
                   </h3>
@@ -175,7 +175,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
                           <p className="text-xs sm:text-sm text-slate-200 leading-relaxed mb-3 font-sans">
                               {content.actionDesc}
                           </p>
-                          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-black/40 border border-white/10 text-[10px] font-mono text-slate-500 rounded-full">
+                          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-black/40 border border-white/10 text-xs font-mono text-slate-500 rounded-full">
                               <Info size={10} />
                               {content.targetValue}
                           </div>

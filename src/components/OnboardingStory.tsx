@@ -20,13 +20,18 @@ const getSlides = (t: typeof MESSAGES) => [
     subtitle: '',
     icon: <Droplets size={32} className="text-amber-500" />,
     content: (
-      <div className="text-center font-serif text-slate-700 leading-relaxed">
-        <p className="text-lg text-slate-700 leading-9 tracking-wide font-serif mb-8">
-          <span className="inline-block">{t.ONBOARDING.SLIDE1_P1}</span><span className="inline-block">{t.ONBOARDING.SLIDE1_P2}</span><br />
-          <span className="text-3xl font-bold text-amber-600 mx-1">2,400 Lm</span> {t.ONBOARDING.SLIDE1_P3}<br />
-          <span className="inline-block">{t.ONBOARDING.SLIDE1_P4}</span>
+      <div className="text-center font-serif text-slate-700 leading-relaxed px-2">
+        <p className="text-base sm:text-lg text-slate-700 leading-8 sm:leading-9 tracking-wide mb-6">
+          {t.ONBOARDING.SLIDE1_P1}{t.ONBOARDING.SLIDE1_P2}
         </p>
-        <p className="text-base text-slate-600 font-medium">
+        <p className="mb-6">
+          <span className="text-xl sm:text-2xl font-bold text-amber-600 mr-2">2,400 Lm</span>
+          <span className="text-base sm:text-lg text-slate-700 leading-8 sm:leading-9 tracking-wide">{t.ONBOARDING.SLIDE1_P3}</span>
+        </p>
+        <p className="text-base sm:text-lg text-slate-700 leading-8 sm:leading-9 tracking-wide mb-6">
+          {t.ONBOARDING.SLIDE1_P4}
+        </p>
+        <p className="text-sm sm:text-base text-slate-500 font-medium tracking-wide">
           {t.ONBOARDING.SLIDE1_P5}
         </p>
       </div>
@@ -38,15 +43,18 @@ const getSlides = (t: typeof MESSAGES) => [
     subtitle: '',
     icon: <Wind size={32} className="text-blue-400" />,
     content: (
-      <div className="text-center font-serif text-slate-700 leading-relaxed">
-        <p className="text-lg text-slate-700 leading-9 tracking-wide font-serif mb-8">
-          <span className="inline-block">{t.ONBOARDING.SLIDE2_P1}</span><span className="inline-block">{t.ONBOARDING.SLIDE2_P2}</span><br />
-          <span className="text-3xl font-bold text-slate-400 mx-1">{t.ONBOARDING.SLIDE2_P3}</span><br />
-          <span className="inline-block">{t.ONBOARDING.SLIDE2_P4}</span>
+      <div className="text-center font-serif text-slate-700 leading-relaxed px-2">
+        <p className="text-base sm:text-lg text-slate-700 leading-8 sm:leading-9 tracking-wide mb-6">
+          {t.ONBOARDING.SLIDE2_P1}{t.ONBOARDING.SLIDE2_P2}
         </p>
-        <p className="text-base text-slate-600 font-medium">
-          <span className="inline-block">{t.ONBOARDING.SLIDE2_P5}</span><br />
-          <span className="inline-block">{t.ONBOARDING.SLIDE2_P6}</span>
+        <p className="text-lg sm:text-xl font-bold text-blue-500/80 tracking-widest mb-6">
+          {t.ONBOARDING.SLIDE2_P3}
+        </p>
+        <p className="text-base sm:text-lg text-slate-700 leading-8 sm:leading-9 tracking-wide mb-8">
+          {t.ONBOARDING.SLIDE2_P4}
+        </p>
+        <p className="text-sm sm:text-base text-slate-500 font-medium tracking-wide">
+          {t.ONBOARDING.SLIDE2_P5}{t.ONBOARDING.SLIDE2_P6}
         </p>
       </div>
     )
@@ -57,22 +65,13 @@ const getSlides = (t: typeof MESSAGES) => [
     subtitle: '',
     icon: <Sparkles size={32} className="text-rose-400" />,
     content: (
-      <div className="text-center font-serif text-slate-700 leading-relaxed">
-        <p className="text-lg text-slate-700 leading-9 tracking-wide font-serif mb-8">
-          <span className="inline-block">{t.ONBOARDING.SLIDE3_P1}</span><br />
-          <span className="inline-block">{t.ONBOARDING.SLIDE3_P2}</span>
+      <div className="text-center font-serif text-slate-700 leading-relaxed px-2">
+        <p className="text-base sm:text-lg text-slate-700 leading-8 sm:leading-9 tracking-wide mb-8">
+          {t.ONBOARDING.SLIDE3_P1}{t.ONBOARDING.SLIDE3_P2}
         </p>
-        <div className="flex justify-center gap-8 mb-3 text-base font-bold opacity-80">
-          <div className="flex flex-col items-center">
-            <span className="text-amber-600 mb-1">{t.ONBOARDING.SLIDE3_LBL_REQ}</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span className="text-indigo-600 mb-1">{t.ONBOARDING.SLIDE3_LBL_RES}</span>
-          </div>
-        </div>
-        <p className="text-xs text-slate-600 font-medium">
-          <span className="inline-block">{t.ONBOARDING.SLIDE3_P3}</span><br />
-          <span className="inline-block">{t.ONBOARDING.SLIDE3_P4}</span>
+        
+        <p className="text-sm sm:text-base text-slate-500 font-medium tracking-wide">
+          {t.ONBOARDING.SLIDE3_P3}{t.ONBOARDING.SLIDE3_P4}
         </p>
       </div>
     )
@@ -120,21 +119,22 @@ const getSlides = (t: typeof MESSAGES) => [
     subtitle: '',
     icon: <Footprints size={32} className="text-slate-600" />,
     content: (
-      <div className="text-center font-serif text-slate-700 leading-relaxed flex flex-col items-center">
-         <div className="py-1 mb-4 relative w-full">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-amber-500/5 rounded-full blur-2xl pointer-events-none"></div>
-            <p className="text-base font-bold flex flex-col gap-3 relative z-10 text-center w-full">
-              <span className="tracking-wide">
-                <span className="text-slate-500 mr-1">{t.ONBOARDING.SLIDE5_P1_1}</span>{t.ONBOARDING.SLIDE5_P1_2}
-              </span>
-              <span className="tracking-wide">
-                <span className="text-slate-500 mr-1">{t.ONBOARDING.SLIDE5_P2_1}</span>{t.ONBOARDING.SLIDE5_P2_2}
-              </span>
-            </p>
-         </div>
-        <div className="text-sm text-slate-600 font-medium w-full">
-          <p className="mb-2"><span className="inline-block">{t.ONBOARDING.SLIDE5_P3_1}</span><span className="inline-block">{t.ONBOARDING.SLIDE5_P3_2}</span></p>
-          <p className="text-base text-slate-700 font-bold"><span className="inline-block">{t.ONBOARDING.SLIDE5_P4_1}</span><span className="inline-block">{t.ONBOARDING.SLIDE5_P4_2}</span></p>
+      <div className="text-center font-serif text-slate-700 leading-relaxed px-2 flex flex-col items-center">
+        <div className="py-2 mb-6 relative w-full">
+          <p className="text-base sm:text-lg text-slate-700 leading-8 sm:leading-9 tracking-wide mb-2">
+            <span className="text-slate-500 mr-1">{t.ONBOARDING.SLIDE5_P1_1}</span>{t.ONBOARDING.SLIDE5_P1_2}
+          </p>
+          <p className="text-base sm:text-lg text-slate-700 leading-8 sm:leading-9 tracking-wide">
+            <span className="text-slate-500 mr-1">{t.ONBOARDING.SLIDE5_P2_1}</span>{t.ONBOARDING.SLIDE5_P2_2}
+          </p>
+        </div>
+        <div className="text-sm sm:text-base text-slate-500 font-medium tracking-wide w-full px-2">
+          <p className="text-base sm:text-lg font-bold text-amber-700/80 leading-8 sm:leading-9 tracking-wide mb-6">
+            {t.ONBOARDING.SLIDE5_P3_1}{t.ONBOARDING.SLIDE5_P3_2}
+          </p>
+          <p className="text-slate-700 font-bold">
+            {t.ONBOARDING.SLIDE5_P4_1}{t.ONBOARDING.SLIDE5_P4_2}
+          </p>
         </div>
       </div>
     )
@@ -282,7 +282,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
               <button
                 onClick={handleBack}
                 disabled={currentSlide === 0}
-                className={`flex-1 py-3 rounded-xl font-bold text-slate-500 transition-all flex items-center justify-center gap-2
+                className={`flex-1 py-3 rounded-xl font-bold text-slate-500 transition-all flex items-center justify-center gap-2 outline-none select-none
                   ${currentSlide === 0 ? 'opacity-0 pointer-events-none' : 'hover:bg-slate-100 active:scale-[0.98]'}`}
               >
                 <ChevronLeft size={18} />
@@ -292,7 +292,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
               {/* Next / Finish Button */}
               <button
                 onClick={handleNext}
-                className="flex-[2] py-3 rounded-xl bg-white text-slate-800 font-bold shadow-[0_4px_0_0_rgba(203,213,225,0.5)] hover:shadow-[0_2px_0_0_rgba(203,213,225,0.5)] hover:translate-y-[2px] active:translate-y-[4px] active:shadow-none transition-all flex items-center justify-center gap-2 border border-slate-100"
+                className="flex-[2] py-3 rounded-xl bg-white text-slate-800 font-bold shadow-[0_4px_0_0_rgba(203,213,225,0.5)] hover:shadow-[0_2px_0_0_rgba(203,213,225,0.5)] hover:translate-y-[2px] active:translate-y-[4px] active:shadow-none transition-all flex items-center justify-center gap-2 border border-slate-100 outline-none select-none"
               >
                 {isLastSlide ? (
                   <>

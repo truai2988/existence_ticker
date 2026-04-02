@@ -67,7 +67,7 @@ export const TrustPage = () => {
                         transition={{ duration: 1, delay: 0.1 }}
                     >
                         <div className="mb-8">
-                            <span className="text-[10px] tracking-[0.5em] text-[#BBBBBB] uppercase block mb-3 font-sans">
+                            <span className="text-xs tracking-[0.5em] text-[#BBBBBB] uppercase block mb-3 font-sans">
                                 {MESSAGES.TRUST.SEC1_SUB}
                             </span>
                             <h2 className="text-lg font-medium tracking-[0.15em] text-[#2D2D2D]">
@@ -118,7 +118,7 @@ export const TrustPage = () => {
                         transition={{ duration: 1, delay: 0.1 }}
                     >
                         <div className="mb-8">
-                            <span className="text-[10px] tracking-[0.5em] text-[#BBBBBB] uppercase block mb-3 font-sans">
+                            <span className="text-xs tracking-[0.5em] text-[#BBBBBB] uppercase block mb-3 font-sans">
                                 {MESSAGES.TRUST.SEC2_SUB}
                             </span>
                             <h2 className="text-lg font-medium tracking-[0.15em] text-[#2D2D2D]">
@@ -152,7 +152,7 @@ export const TrustPage = () => {
                         transition={{ duration: 1, delay: 0.1 }}
                     >
                         <div className="mb-8">
-                            <span className="text-[10px] tracking-[0.5em] text-[#BBBBBB] uppercase block mb-3 font-sans">
+                            <span className="text-xs tracking-[0.5em] text-[#BBBBBB] uppercase block mb-3 font-sans">
                                 {MESSAGES.TRUST.SEC3_SUB}
                             </span>
                             <h2 className="text-lg font-medium tracking-[0.15em] text-[#2D2D2D]">

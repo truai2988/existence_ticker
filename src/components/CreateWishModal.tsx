@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Loader2, Send } from 'lucide-react';
-import { GuideModal } from './GuideModal';
 import { useWishActions } from '../hooks/useWishActions';
 import { useWallet } from '../hooks/useWallet';
 import { GratitudeTier, SeedPlaceholder } from '../types';
@@ -55,7 +54,6 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
     const [selectedTier, setSelectedTier] = useState<GratitudeTier>('heavy');
     const [currentPlaceholder, setCurrentPlaceholder] = useState<string>(FALLBACK_PLACEHOLDER);
     const [isAnonymous, setIsAnonymous] = useState(false);
-    const [showGuide, setShowGuide] = useState(false);
 
     const updatePlaceholder = React.useCallback((tier: GratitudeTier, seedsList: SeedPlaceholder[]) => {
         const numericTier = TIER_MAP[tier];
@@ -131,20 +129,11 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                            <label className="text-xs uppercase tracking-widest font-bold text-slate-500 shrink-0">
                                {MESSAGES.CREATE_WISH.LBL_MIGHT} <span className="text-xs font-normal text-slate-500 ml-0.5">{MESSAGES.CREATE_WISH.LBL_UNIT}</span>
                            </label>
-                           <button 
-                             type="button"
-                             onClick={() => setShowGuide(true)}
-                             className="text-xs text-slate-500 font-medium hover:text-indigo-600 underline underline-offset-4 transition-colors whitespace-nowrap"
-                           >
-                             {MESSAGES.CREATE_WISH.LINK_GUIDE}
-                           </button>
                        </div>
                        <span className="self-start sm:self-center text-xs font-bold text-amber-600 bg-amber-50/50 px-3 py-1 rounded-full border border-amber-100/50 tracking-wider">
                            {MESSAGES.CREATE_WISH.TAG_GIFT}
                        </span>
                    </div>
-                    
-                   <GuideModal isOpen={showGuide} onClose={() => setShowGuide(false)} />
                     
                    {/* Available Info */}
                    <p className="text-xs text-slate-500 mb-2">
@@ -187,10 +176,10 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                              </div>
 
                              <div className="flex items-center gap-4">
-                                 <span className={`text-3xl font-mono font-bold tracking-tighter ${selectedTier === tier.id 
+                                 <span className={`text-xl sm:text-2xl font-mono font-bold tracking-tighter ${selectedTier === tier.id 
                                    ? tier.cost === 1000 ? "text-[#B8860B]" : tier.cost === 500 ? "text-amber-700" : "text-pink-400" 
-                                   : "text-slate-200"}`}>
-                                   {tier.cost === 0 ? "∞" : `-${tier.cost.toLocaleString()}`} <span className="text-xs font-sans font-bold opacity-60 uppercase">{tier.cost === 0 ? MESSAGES.CREATE_WISH.TIER_0 : UNIT_LABEL}</span>
+                                   : "text-slate-300"}`}>
+                                   {tier.cost === 0 ? "∞" : `-${tier.cost.toLocaleString()}`} <span className="text-sm font-sans font-bold opacity-60 uppercase">{tier.cost === 0 ? MESSAGES.CREATE_WISH.TIER_0 : UNIT_LABEL}</span>
                                  </span>
                              </div>
                              

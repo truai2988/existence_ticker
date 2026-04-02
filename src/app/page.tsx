@@ -137,7 +137,7 @@ export const LandingPage = () => {
                 .getElementById("entrance")
                 ?.scrollIntoView({ behavior: "smooth" });
             }}
-            className="text-[10px] md:text-sm tracking-[0.1em] md:tracking-[0.5em] text-white/40 hover:text-white transition-all uppercase text-left whitespace-nowrap"
+            className="text-xs md:text-sm tracking-[0.1em] md:tracking-[0.5em] text-white/40 hover:text-white transition-all uppercase text-left whitespace-nowrap"
           >
             <span className="hidden md:inline">{m.NAV.INVITE_LINK}</span>
             <span className="md:hidden">{m.NAV.INVITE_LINK_SHORT}</span>
@@ -159,7 +159,7 @@ export const LandingPage = () => {
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -10, opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="text-[9px] md:text-xs tracking-[0.2em] font-bold uppercase"
+                  className="text-xs tracking-[0.2em] font-bold uppercase"
                 >
                   {lang === 'ja' ? 'JP' : 'EN'}
                 </motion.span>
@@ -365,13 +365,13 @@ export const LandingPage = () => {
         <Section className="py-24 md:py-32 flex flex-col items-center bg-[#F9F8F4]">
           <div className="max-w-4xl mx-auto px-6">
             <div className="text-center mb-20 md:mb-32">
-              <span className="text-[10px] md:text-sm tracking-[0.5em] text-[#AAAAAA] uppercase mb-8 block font-sans">
+              <span className="text-xs md:text-sm tracking-[0.5em] text-[#AAAAAA] uppercase mb-8 block font-sans">
                 {m.MANIFESTO.SECTION_TITLE}
               </span>
               <h3 className="text-3xl md:text-5xl font-light tracking-[0.1em] md:tracking-[0.2em] text-[#2D2D2D] font-serif mb-6 px-4 leading-[1.4] md:leading-[1.6]">
                 {m.MANIFESTO.TITLE}
               </h3>
-              <p className="text-[10px] md:text-xs tracking-[0.2em] md:tracking-[0.4em] text-[#AAAAAA] uppercase font-serif mb-16 px-4 break-words leading-loose">
+              <p className="text-xs tracking-[0.2em] md:tracking-[0.4em] text-[#AAAAAA] uppercase font-serif mb-16 px-4 break-words leading-loose">
                 {m.MANIFESTO.SUBTITLE}
               </p>
               <div className="max-w-2xl mx-auto space-y-12">
@@ -392,7 +392,7 @@ export const LandingPage = () => {
                       setShowToast(true);
                       setTimeout(() => setShowToast(false), 3500);
                     }}
-                    className="group relative px-8 md:px-16 py-5 border border-[#CCCCCC] text-[#999999] transition-all duration-700 tracking-[0.3em] md:tracking-[0.5em] text-[10px] md:text-xs uppercase font-serif overflow-hidden cursor-default"
+                    className="group relative px-8 md:px-16 py-5 border border-[#CCCCCC] text-[#999999] transition-all duration-700 tracking-[0.3em] md:tracking-[0.5em] text-xs uppercase font-serif overflow-hidden cursor-default"
                   >
                     <span className="relative z-10 whitespace-pre-line">
                       {m.MANIFESTO.BTN_PENDING}
@@ -473,13 +473,13 @@ export const LandingPage = () => {
             </button>
           </div>
           <div className="absolute bottom-8 left-0 right-0 text-center space-y-2">
-            <p className="text-[10px] md:text-xs text-[#AAAAAA] tracking-[0.3em] uppercase font-serif">
+            <p className="text-xs text-[#AAAAAA] tracking-[0.3em] uppercase font-serif">
               {m.FOOTER.COPYRIGHT}
             </p>
-            <p className="text-[10px] md:text-xs text-[#BBBBBB] tracking-[0.15em] font-serif">
+            <p className="text-xs text-[#BBBBBB] tracking-[0.15em] font-serif">
               {m.FOOTER.AUTHOR}
             </p>
-            <p className="text-[10px] md:text-xs text-[#BBBBBB] tracking-[0.15em] font-serif">
+            <p className="text-xs text-[#BBBBBB] tracking-[0.15em] font-serif">
               {m.FOOTER.URL}{" "}
               <a
                 href="https://yori-somaru.com/"
@@ -490,7 +490,7 @@ export const LandingPage = () => {
                 https://yori-somaru.com/
               </a>
             </p>
-            <p className="text-[10px] md:text-xs text-[#BBBBBB] tracking-[0.15em] font-serif">
+            <p className="text-xs text-[#BBBBBB] tracking-[0.15em] font-serif">
               {m.FOOTER.CONTACT}
             </p>
           </div>

@@ -193,14 +193,14 @@ export const MESSAGES = {
   // 3. メインビュー関連 (Home / Flow / Journal)
   HOME: {
     MONOTONE_MSG_1: "タップしてください",
-    BTN_RESPOND: "応答",
-    BTN_REQUEST: "リクエスト",
+    BTN_RESPOND: "お返事",
+    BTN_REQUEST: "お願い",
     BTN_UNDERSTOOD: "確認",
     DECAY_LABEL: "源気(Lm)",
     TICKER_BUTTON: "刻む",
     BTN_NEW_WISH: "新規作成",
-    LBL_WISH: "リクエスト",
-    LBL_SHARE: "送金",
+    LBL_WISH: "お願い",
+    LBL_SHARE: "お願い",
     TAB_SEARCHING: "アクティブ",
     TAB_IN_PROGRESS: "進行中",
     TXT_NO_HISTORY: "活動記録はありません。",
@@ -241,8 +241,8 @@ export const MESSAGES = {
   },
 
   FLOW: {
-    TITLE: "願いのゆくえ", 
-    SUBTITLE: "願いの管理と一覧",           // 「管理」という言葉をあえて戻し、機能を示す
+    TITLE: "お返事", 
+    SUBTITLE: "",
     TAB_EXPLORE: "新しい願い",            // 「漂う」を「新しい」に変更（直感性重視）
     TAB_PENDING: "承諾待ち",             // 「応え待ち」を「承諾（Agree）待ち」へ
     TAB_ACTIVE: "進行中の願い",           // 「寄り添い中」という言葉の後に「進行中」を添える
@@ -253,8 +253,8 @@ export const MESSAGES = {
   },
 
   JOURNAL: {
-    TITLE: "軌跡",
-    SUBTITLE: "源気の動きと活動の記録",     // 「アカウント活動」を「活動」へ。事実を伝える
+    TITLE: "足あと",
+    SUBTITLE: "",
     LOADING: "読み込み中...",            // 詩的表現より「今何をしているか」を優先
     EMPTY_TITLE: "記録がありません",       // 「静けさ」を削り、事実を伝える
     EMPTY_DESC_1: "まだここには何の軌跡もありません。",
@@ -458,8 +458,8 @@ export const MESSAGES = {
   PROFILE: {
     LANG_TITLE: "言語設定",
     LANG_HELP: "表示言語を切り替えます",
-    TITLE: "アカウント設定",
-    SUBTITLE: "ユーザー情報",
+    TITLE: "ユーザー設定",
+    SUBTITLE: "",
     EDIT_TITLE: "プロフィール編集",
     EDIT_SUBTITLE: "基本情報の更新",
     SAVE_BUTTON: "保存",
@@ -611,7 +611,7 @@ export const MESSAGES = {
   },
 
   ACCOUNT_MODAL: {
-    TITLE: "アカウント設定",
+    TITLE: "ユーザー設定",
     BTN_LOGOUT: "ログアウト",
     BTN_DELETE: "この場所から離れる",
     DELETE_WARNING: "すべての軌跡と源気は消え、元に戻すことはできません。本当によろしいですか？",
@@ -637,7 +637,7 @@ export const MESSAGES = {
     LINK_GUIDE: "源気を贈るガイドライン",
     TAG_GIFT: "贈与",
     LBL_AVAILABLE_1: "現在、あなたが贈ることのできる最大源気は",
-    LBL_AVAILABLE_2: "Lmまでです",
+    LBL_AVAILABLE_2: "までです",
     WARN_EXCEED: "源気が不足しています。新しい願いを公開するには、進行中の願いを一度取り下げてください。",
     TIER_0: "無償",
     LBL_CONTENT: "願いの詳細",
@@ -697,7 +697,7 @@ export const MESSAGES = {
   LAYOUT: {
     TAB_HOME: "ホーム",
     TAB_HISTORY: "軌跡",            // 「履歴」という無機質な言葉を排除
-    TAB_PROFILE: "あなた",          // 「アカウント」というシステム用語を排除
+    TAB_PROFILE: "ユーザー設定",          // 「アカウント」というシステム用語を排除
     RETURN_HOME: "ホームへ戻る",
     OPEN_MENU: "メニューを開く",
     SIDEDRAWER_ONBOARDING: "この場所について", // 「システム概要」を排除

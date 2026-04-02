@@ -81,11 +81,11 @@ export const AdminCitizens = React.memo<AdminCitizensProps>(({
                   </td>
                   <td className="px-2 sm:px-4 py-3">
                     {u.role === "admin" ? (
-                      <span className="bg-yellow-500/10 text-yellow-500 px-1.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold ring-1 ring-yellow-500/20 whitespace-nowrap">
+                      <span className="bg-yellow-500/10 text-yellow-500 px-1.5 py-0.5 rounded-full text-xs font-bold ring-1 ring-yellow-500/20 whitespace-nowrap">
                         管理者
                       </span>
                     ) : (
-                      <span className="bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded-full text-[10px] sm:text-xs font-bold ring-1 ring-slate-700 whitespace-nowrap">
+                      <span className="bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded-full text-xs font-bold ring-1 ring-slate-700 whitespace-nowrap">
                         一般
                       </span>
                     )}
