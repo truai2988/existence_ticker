@@ -7,7 +7,7 @@ import {
   animate,
   AnimatePresence,
 } from "framer-motion";
-import { ArrowDown, Sparkles, Send, Languages } from "lucide-react";
+import { ArrowDown, Languages } from "lucide-react";
 import { useAuth } from "../hooks/useAuthHook";
 import { GoyenShimmer } from "../components/GoyenShimmer";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -421,84 +421,7 @@ export const LandingPage = () => {
             </div>
           </div>
         </Section>
-        <Section className="py-20 md:py-32 pb-32 md:pb-32 flex flex-col items-center text-center px-6 bg-gradient-to-b from-transparent to-[#EBE9E4]/40">
-          <div className="bg-white p-6 rounded-full mb-8 shadow-[0_8px_30px_rgba(0,0,0,0.02)] mx-auto w-fit">
-            <Sparkles size={24} className="text-[#C5A065] stroke-[1px]" />
-          </div>
 
-          <h3 className="text-2xl md:text-3xl font-bold md:font-light tracking-[0.1em] md:tracking-[0.2em] text-[#111111] md:text-[#444444] mb-12 font-serif">
-            {m.RECRUIT.TITLE}
-          </h3>
-
-          <div className="text-[#333333] md:text-[#555555] mb-16 font-medium md:font-normal tracking-wide text-base leading-relaxed max-w-2xl mx-auto font-serif space-y-6">
-            <p>{m.RECRUIT.P1}</p>
-            <p>{m.RECRUIT.P2}</p>
-            <p>
-              {m.RECRUIT.P3.split('\n').map((line, i) => (
-                <React.Fragment key={i}>
-                  {line}
-                  {i === 0 && <br className="hidden md:block" />}
-                </React.Fragment>
-              ))}
-            </p>
-          </div>
-
-          <div className="mb-12 max-w-lg mx-auto text-center">
-            <p className="text-xs tracking-[0.4em] text-[#AAAAAA] uppercase mb-6 italic font-serif">
-              {m.RECRUIT.FILTER_LABEL}
-            </p>
-            <div className="text-left bg-black/[0.01] p-6 md:p-8 rounded-2xl border border-black/[0.03] backdrop-blur-[2px]">
-              <p className="text-sm font-semibold tracking-widest text-[#8B6B50] mb-4">
-                {m.RECRUIT.CONDITION_TITLE}
-              </p>
-              <ul className="text-xs md:text-sm text-[#666666] font-serif leading-loose tracking-widest space-y-3">
-                <li className="flex gap-2 items-start">
-                  <span className="text-[#8B6B50] mt-0.5">・</span>
-                  <span>{m.RECRUIT.C1}</span>
-                </li>
-                <li className="flex gap-2 items-start">
-                  <span className="text-[#8B6B50] mt-0.5">・</span>
-                  <span>{m.RECRUIT.C2}</span>
-                </li>
-                <li className="flex gap-2 items-start">
-                  <span className="text-[#8B6B50] mt-0.5">・</span>
-                  <span>{m.RECRUIT.C3}</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <form
-            className="w-full max-w-2xl mx-auto group/form relative"
-            onSubmit={(e) => e.preventDefault()}
-          >
-            <div className="relative flex flex-col sm:flex-row items-stretch bg-[#FDFDFB] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.04),0_1px_4px_rgba(0,0,0,0.02)] p-2.5 transition-all duration-700 hover:shadow-[0_40px_80px_rgba(0,0,0,0.06),0_1px_6px_rgba(0,0,0,0.03)] border border-[#E5E0D5]">
-              {/* Washi texture for form */}
-              <div
-                className="absolute inset-0 opacity-[0.03] pointer-events-none rounded-2xl overflow-hidden"
-                style={{
-                  backgroundImage:
-                    'url("https://www.transparenttextures.com/patterns/handmade-paper.png")',
-                }}
-              ></div>
-
-              <input
-                type="email"
-                placeholder="your@email.com"
-                className="flex-1 bg-transparent z-10 px-8 py-6 md:py-5 text-[#2D2D2D] placeholder:text-[#888888] outline-none text-base tracking-[0.1em] font-serif"
-              />
-              <button className="group relative z-10 px-10 py-6 md:py-5 rounded-xl bg-[#2D2D2D] text-white text-base md:text-xs font-medium tracking-[0.25em] overflow-hidden transition-all hover:bg-[#111111] shadow-lg shadow-black/5 active:scale-[0.98] font-sans">
-                <span className="relative z-10 flex items-center justify-center gap-4">
-                  {m.RECRUIT.BTN_SUBMIT}{" "}
-                  <Send className="w-[18px] h-[18px] md:w-[15px] md:h-[15px] group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform stroke-[1.5px]" />
-                </span>
-
-                {/* Elegant Shine */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out"></div>
-              </button>
-            </div>
-          </form>
-        </Section>
 
         {/* --- Entrance Section --- */}
         <Section

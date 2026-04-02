@@ -158,7 +158,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
       >
         <div className="flex flex-col items-center mb-8">
           <h1
-            className="text-2xl font-serif font-bold text-slate-800 tracking-widest mb-2"
+            className="text-lg sm:text-xl md:text-2xl font-serif font-bold text-slate-800 tracking-wider md:tracking-widest mb-2 whitespace-nowrap"
             style={{ fontFamily: "Inter, Noto Sans JP" }}
           >
             {mode === "login" && MESSAGES.AUTH.APP_TITLE}

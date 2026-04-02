@@ -418,10 +418,7 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
   },
 
   HOME: {
-    MONOTONE_MSG_1: "Authenticating",
-    MONOTONE_MSG_2: "Connecting to system",
-    MONOTONE_SUB_1: "Verifying /",
-    MONOTONE_SUB_2: "Login executing",
+    MONOTONE_MSG_1: "TAP TO ENTER",
     BTN_RESPOND: "Respond",
     BTN_REQUEST: "Request",
     BTN_UNDERSTOOD: "Acknowledge",

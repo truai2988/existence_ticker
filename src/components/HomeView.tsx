@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Inbox, Megaphone, Sparkles, AlertCircle } from "lucide-react";
+import { Inbox, Megaphone, AlertCircle } from "lucide-react";
 import { useWallet } from "../hooks/useWallet";
 import { useProfile } from "../hooks/useProfile";
 import { AppMode } from "../hooks/useStartupMachine";
@@ -36,7 +36,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const committedHeight = Math.min(100, (committedLm / maxCapacity) * 100);
   const availableHeight = Math.min(100, (availableLm / maxCapacity) * 100);
 
-  // Hover states for organic button interaction
+  const ritualMessage = MESSAGES.HOME.MONOTONE_MSG_1;
   const [isHoveringHelp, setIsHoveringHelp] = React.useState(false);
   const [isHoveringWish, setIsHoveringWish] = React.useState(false);
 
@@ -114,9 +114,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
     }
   };
 
-  // Move randomized message logic outside of the conditional button render to follow Hooks rules
-  const isMsg1 = React.useMemo(() => Math.random() > 0.5, []);
-  const ritualMessage = isMsg1 ? MESSAGES.HOME.MONOTONE_MSG_1 : MESSAGES.HOME.MONOTONE_MSG_2;
+
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center w-full relative pt-safe pt-20 md:pt-24">
@@ -178,15 +176,22 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
         <motion.div
           className="absolute inset-0 rounded-full shadow-2xl shadow-slate-200/50 border-[1.5px] border-white overflow-hidden bg-white text-slate-900"
-          // Breathing animation only when waiting for ritual
           animate={
             isRitualReady
-              ? { opacity: [0.7, 1, 0.7], scale: [0.98, 1, 0.98] }
-              : { opacity: 1, scale: 1 }
+              ? { 
+                  opacity: [0.6, 1, 0.6], 
+                  scale: [0.98, 1.04, 0.98],
+                  filter: [
+                    "drop-shadow(0px 0px 0px rgba(226,232,240,0)) brightness(0.95)", 
+                    "drop-shadow(0px 10px 30px rgba(226,232,240,0.8)) brightness(1.05)", 
+                    "drop-shadow(0px 0px 0px rgba(226,232,240,0)) brightness(0.95)"
+                  ]
+                }
+              : { opacity: 1, scale: 1, filter: "none" }
           }
           transition={
             isRitualReady
-              ? { duration: 6, repeat: Infinity, ease: "easeInOut" }
+              ? { duration: 4, repeat: Infinity, ease: "easeInOut" }
               : {}
           }
         >
@@ -312,7 +317,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             <motion.button
               key="btn-ritual"
               onClick={handleRitual}
-              className="absolute inset-0 flex flex-col items-center justify-center z-30 outline-none text-slate-500 hover:text-slate-600 transition-colors"
+              className="absolute inset-0 flex flex-col items-center justify-center z-30 outline-none text-slate-500 hover:text-slate-600 transition-colors group"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -320,21 +325,23 @@ export const HomeView: React.FC<HomeViewProps> = ({
               whileTap={{ scale: 0.98 }}
             >
               <div className="flex flex-col items-center relative">
-                <div className="absolute inset-0 bg-white/60 blur-xl rounded-full scale-150 transform -z-10" />
-                <Sparkles
-                  size={24}
-                  strokeWidth={1}
-                  className="mb-4 opacity-30 animate-pulse text-slate-400"
+                {/* Subtle breathing glow */}
+                <motion.div 
+                  className="absolute inset-0 bg-white/40 blur-2xl rounded-full scale-[2] transform -z-10 group-hover:bg-white/60 transition-colors duration-700"
+                  animate={{ opacity: [0.1, 0.6, 0.1] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 />
-                <div className="flex flex-col items-center">
-                  <span className="text-3xl font-light tracking-[0.2em] text-slate-600 mb-1 drop-shadow-sm pl-[0.8em] font-serif">
+                
+                {/* Modest, sophisticated text */}
+                <motion.div 
+                  className="flex items-center justify-center cursor-pointer px-12 py-8"
+                  animate={{ opacity: [0.6, 1, 0.6], scale: [0.98, 1.02, 0.98] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <span className="text-xs sm:text-sm font-serif font-light tracking-[0.4em] sm:tracking-[0.6em] text-slate-500 group-hover:text-slate-800 transition-colors duration-700 uppercase drop-shadow-sm ml-[0.4em] sm:ml-[0.6em]">
                     {ritualMessage}
                   </span>
-                  <span className="text-sm font-medium tracking-[0.3em] text-slate-600 pl-[0.3em] uppercase font-sans">
-                    {MESSAGES.HOME.MONOTONE_SUB_1}{" "}
-                    <span className="text-slate-700">{MESSAGES.HOME.MONOTONE_SUB_2}</span>
-                  </span>
-                </div>
+                </motion.div>
               </div>
             </motion.button>
           ) : (

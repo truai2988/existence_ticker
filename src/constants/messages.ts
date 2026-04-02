@@ -118,7 +118,7 @@ export const MESSAGES = {
 
   // 2. 認証・オンボーディング関連 (AuthScreen / OnboardingStory)
     AUTH: {
-    APP_TITLE: "ログインポータル",
+    APP_TITLE: "イグジスタンス・ティッカー",
     REIGNITE_TITLE: "アカウント復旧",
     NAME_LABEL: "氏名",
     EMAIL_LABEL: "メールアドレス",
@@ -192,10 +192,7 @@ export const MESSAGES = {
 
   // 3. メインビュー関連 (Home / Flow / Journal)
   HOME: {
-    MONOTONE_MSG_1: "認証確認",
-    MONOTONE_MSG_2: "システムにログイン中",
-    MONOTONE_SUB_1: "Authenticating /",
-    MONOTONE_SUB_2: "ログイン実行",
+    MONOTONE_MSG_1: "タップしてください",
     BTN_RESPOND: "応答",
     BTN_REQUEST: "リクエスト",
     BTN_UNDERSTOOD: "確認",
