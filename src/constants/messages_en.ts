@@ -673,8 +673,8 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
   },
   LAYOUT: {
     TAB_HOME: "Home",
-    TAB_HISTORY: "Traces",
-    TAB_PROFILE: "You",
+    TAB_HISTORY: "Footprints",
+    TAB_PROFILE: "User Settings",
     RETURN_HOME: "Return to Home",
     OPEN_MENU: "Open Menu",
     SIDEDRAWER_ONBOARDING: "About This Place",
@@ -726,7 +726,7 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
     BTN_CANCEL: "Cancel"
   },
   PROFILE: {
-    TITLE: "Account Settings",
+    TITLE: "User Settings",
     SUBTITLE: "User Info",
     LANG_TITLE: "Language",
     LANG_HELP: "Change the display language",
@@ -831,7 +831,7 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
     FALLBACK_NAME: "—",
   },
   JOURNAL: {
-    TITLE: "Traces",
+    TITLE: "Footprints",
     SUBTITLE: "Record of Source and activity",
     LOADING: "Loading...",
     EMPTY_TITLE: "No records found",
