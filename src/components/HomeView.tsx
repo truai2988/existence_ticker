@@ -136,7 +136,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 className="flex flex-col items-center gap-2 pointer-events-none"
               >
                 <div className="text-xs font-serif font-medium tracking-[0.15em] text-slate-500 mr-[0.15em]">
-                  つかえる Lm
+                  {MESSAGES.HOME.AVAILABLE_LM}
                 </div>
                 <div className="text-4xl md:text-5xl font-serif font-extralight tracking-[-0.02em] tabular-nums leading-none text-slate-500 transition-all duration-1000">
                   {Math.floor(availableLm).toLocaleString()}

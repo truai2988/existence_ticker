@@ -423,6 +423,7 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
     BTN_REQUEST: "Request",
     BTN_UNDERSTOOD: "Acknowledge",
     DECAY_LABEL: "Source(Lm)",
+    AVAILABLE_LM: "Available Lm",
     TICKER_BUTTON: "Engrave",
     BTN_NEW_WISH: "New Wish",
     LBL_WISH: "Requests",

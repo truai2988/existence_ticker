@@ -197,6 +197,7 @@ export const MESSAGES = {
     BTN_REQUEST: "お願い",
     BTN_UNDERSTOOD: "確認",
     DECAY_LABEL: "Lm",
+    AVAILABLE_LM: "つかえる Lm",
     TICKER_BUTTON: "刻む",
     BTN_NEW_WISH: "新規作成",
     LBL_WISH: "お願い",
@@ -723,6 +724,7 @@ export const MESSAGES = {
     IOS_INSTRUCTIONS_STEP1: "Safari下部（iPadは上部）の共有アイコンをタップします。",
     IOS_INSTRUCTIONS_STEP2: "メニューから「ホーム画面に追加」を選択します。",
     IOS_INSTRUCTIONS_STEP3: "画面右上の「追加」をタップします。",
+    INSTALL_SUCCESS: "インストールが完了しました",
   },
 
   // 10. オンボーディング (OnboardingStory)
