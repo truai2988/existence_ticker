@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@200;300;400;500;700&family=Inter:wght@200;300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,24 +7,32 @@
 /* 
   --- TYPOGRAPHY RULES ---
   1. Font Families: 
-     - font-serif: Philosophy, Story, Important headings.
-     - font-sans: Functional UI, standard body text.
-  2. Font Sizes:
-     - Large (text-3xl / 30px): Headlines, hero text, major numbers.
-     - Regular (text-base / 16px): Body text, descriptions, story content.
-     - Small (text-xs / 12px): Captions, labels, secondary info.
-  * Display Sizes (text-6xl~9xl) are allowed for Hero numbers (Balance).
-  * Bold/Medium weights are allowed for hierarchy.
+     - font-serif: Noto Serif JP (Philosophy, Story, Important headings).
+     - font-sans: Inter (Functional UI, standard body text).
+  2. Colors:
+     - Background: #F9F8F4 (Warm White / Washi)
+     - Primary: #FCD34D (Amber)
+     - Secondary: #A5B4FC (Indigo)
   -------------------------
 */
 
 :root {
   color-scheme: light;
+  --color-amber-primary: #FCD34D;
+  --color-indigo-secondary: #A5B4FC;
+}
+
+@layer base {
+  .font-serif {
+    font-family: "Noto Serif JP", serif;
+  }
+  .font-sans {
+    font-family: "Inter", sans-serif;
+  }
 }
 
 body {
-  @apply bg-slate-50 text-slate-900;
-  font-family: "Inter", "Noto Sans JP", system-ui, sans-serif;
+  @apply bg-[#F9F8F4] text-slate-800 font-sans;
   /* スマホ: Regular で視認性重視 */
   font-weight: 400;
   letter-spacing: 0.05em;

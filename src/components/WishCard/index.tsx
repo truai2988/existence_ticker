@@ -16,7 +16,7 @@ export const WishCard: React.FC<WishCardProps> = (props) => {
   }
 
   return (
-    <div className="relative bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow group overflow-hidden">
+    <div className="relative bg-white/40 backdrop-blur-3xl border border-white/60 rounded-[2rem] p-6 transition-all group overflow-hidden">
       <CardHeader state={state} handlers={handlers} />
       <CardContent state={state} handlers={handlers} />
       <CardContact state={state} handlers={handlers} />

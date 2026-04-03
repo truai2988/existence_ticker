@@ -76,7 +76,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
     return (
         <div className="flex-1 flex flex-col w-full h-full animate-fade-in group/flow">
             {/* Header */}
-            <div className="border-b border-slate-100/50 pt-safe">
+            <div className="pt-safe">
                 <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between">
                      <div className="flex items-center gap-3 min-w-0">
                         {/* Logo: ホームへ戻るボタン */}
@@ -88,12 +88,12 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                             <img
                                 src="/logo.png"
                                 alt="Existence Ticker"
-                                className="w-10 h-10 rounded-lg shadow-sm border border-slate-200/50 object-cover hover:opacity-80 transition-opacity"
+                                className="w-10 h-10 rounded-lg shadow-sm border border-slate-200/40 object-cover hover:opacity-80 transition-opacity"
                             />
                         </button>
                         {/* Text Group */}
                         <div className="flex flex-col min-w-0 justify-center">
-                            <h2 className="text-base sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>{MESSAGES.FLOW.TITLE}</h2>
+                            <h2 className="text-xl sm:text-2xl font-light tracking-[0.2em] sm:tracking-[0.4em] text-slate-800 truncate leading-tight uppercase" style={{fontFamily: "'Noto Serif JP', serif"}}>{MESSAGES.FLOW.TITLE}</h2>
                         </div>
                     </div>
                     <div className="flex h-12 items-center gap-3 shrink-0">
@@ -116,56 +116,56 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
               onOpenOnboarding={onOpenOnboarding || (() => {})}
             />
 
-            {/* Sub-Tabs (Subtle Flat Design) */}
-            <div className="bg-amber-50/20">
-                <div className="max-w-2xl mx-auto px-6 flex items-center gap-6 overflow-x-auto no-scrollbar relative min-h-[52px]">
+            {/* Sub-Tabs (Premium Glassmorphism) */}
+            <div className="bg-white/40 backdrop-blur-2xl border-b border-white/20 sticky top-0 z-30">
+                <div className="max-w-2xl mx-auto px-6 flex items-center gap-8 overflow-x-auto no-scrollbar relative min-h-[52px]">
                     <button 
                         onClick={() => setActiveTab('explore')}
-                        className={`relative py-3 text-base font-bold transition-all shrink-0 focus:outline-none ${
+                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             activeTab === 'explore' 
-                                ? 'text-amber-800' 
-                                : exploreWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
+                                ? 'text-amber-700' 
+                                : exploreWishes.length === 0 ? 'text-slate-300' : 'text-slate-400 hover:text-slate-500'
                         }`}
                     >
-                        <span>{MESSAGES.FLOW.TAB_EXPLORE} ({exploreWishes.length})</span>
+                        <span>{MESSAGES.FLOW.TAB_EXPLORE} <span className="text-[10px] opacity-60 ml-1">({exploreWishes.length})</span></span>
                         {activeTab === 'explore' && (
                             <motion.div 
                                 layoutId="flow-tab-underline"
-                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500 rounded-full"
+                                className="absolute bottom-0 left-0 right-0 h-[3px] bg-amber-400 rounded-full"
                             />
                         )}
                     </button>
 
                     <button
                         onClick={() => setActiveTab('pending')}
-                        className={`relative py-3 text-base font-bold transition-all shrink-0 focus:outline-none ${
+                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             activeTab === 'pending' 
-                                ? 'text-amber-700' 
-                                : pendingWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
+                                ? 'text-indigo-800' 
+                                : pendingWishes.length === 0 ? 'text-slate-300' : 'text-slate-400 hover:text-slate-500'
                         }`}
                     >
-                        {MESSAGES.FLOW.TAB_PENDING} ({pendingWishes.length})
+                        {MESSAGES.FLOW.TAB_PENDING} <span className="text-[10px] opacity-60 ml-1">({pendingWishes.length})</span>
                         {activeTab === 'pending' && (
                             <motion.div 
                                 layoutId="flow-tab-underline"
-                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-400 rounded-full"
+                                className="absolute bottom-0 left-0 right-0 h-[3px] bg-indigo-400 rounded-full"
                             />
                         )}
                     </button>
 
                     <button
                         onClick={() => setActiveTab('active')}
-                        className={`relative py-3 text-base font-bold transition-all shrink-0 focus:outline-none ${
+                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             activeTab === 'active' 
                                 ? 'text-emerald-700' 
-                                : activeWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
+                                : activeWishes.length === 0 ? 'text-slate-300' : 'text-slate-400 hover:text-slate-500'
                         }`}
                     >
-                        {MESSAGES.FLOW.TAB_ACTIVE} ({activeWishes.length})
+                        {MESSAGES.FLOW.TAB_ACTIVE} <span className="text-[10px] opacity-60 ml-1">({activeWishes.length})</span>
                         {activeTab === 'active' && (
                             <motion.div 
                                 layoutId="flow-tab-underline"
-                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500 rounded-full"
+                                className="absolute bottom-0 left-0 right-0 h-[3px] bg-emerald-400 rounded-full"
                             />
                         )}
                     </button>
@@ -174,8 +174,8 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
             </div>
             
             {/* Content Container */}
-            <div className="flex-1 overflow-y-auto no-scrollbar bg-amber-50/20 w-full transition-colors duration-500">
-                <div className="max-w-2xl mx-auto w-full px-6 py-4 pb-24 relative">
+            <div className="flex-1 overflow-y-auto no-scrollbar w-full transition-colors duration-500">
+                <div className="max-w-2xl mx-auto w-full px-6 py-6 pb-24 relative space-y-4">
                     
                     {activeTab === 'explore' && (
                         <WishCardList 

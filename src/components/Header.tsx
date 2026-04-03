@@ -55,18 +55,19 @@ export const Header: React.FC<HeaderProps> = ({
                   {/* Text Group */}
                   <div className="flex flex-col min-w-0">
                     <h1
-                      className="text-sm sm:text-xl font-semibold tracking-[0.08em] sm:tracking-[0.15em] text-slate-800 uppercase leading-tight whitespace-nowrap"
-                      style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                      className="text-sm sm:text-xl font-light tracking-[0.2em] sm:tracking-[0.3em] text-slate-800 uppercase leading-tight whitespace-nowrap"
+                      style={{ fontFamily: "'Noto Serif JP', serif" }}
                     >
                       Existence Ticker
                     </h1>
                     {/* Supplemental: Balance info */}
                     {(!viewMode || viewMode === "home") && (
-                      <div className="flex items-center gap-1 text-slate-500">
-                        <span className="text-xs font-bold tracking-widest uppercase whitespace-nowrap">
+                      <div className="flex items-center gap-2 text-slate-400">
+                        <span className="text-[10px] font-bold tracking-[0.2em] uppercase whitespace-nowrap">
                           {MESSAGES.LAYOUT.HEADER_BALANCE}{Math.floor(balance).toLocaleString()}
                         </span>
-                        <span className="text-xs text-slate-400 font-medium whitespace-nowrap">
+                        <div className="w-[1px] h-2 bg-slate-200" />
+                        <span className="text-[10px] font-medium tracking-widest whitespace-nowrap">
                           {MESSAGES.LAYOUT.HEADER_DAYS_LEFT_PREFIX}{daysLeft}{MESSAGES.LAYOUT.HEADER_DAYS_LEFT_SUFFIX}
                         </span>
                       </div>

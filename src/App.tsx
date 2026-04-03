@@ -293,6 +293,18 @@ function App() {
   // THE MACHINE (Single Source of Truth)
   const { view, appMode, data } = useStartupMachine();
 
+
+  // Branding Synchronization (Runtime Override for Cache/Service Worker)
+  useEffect(() => {
+    document.title = "Existence Ticker | Celestial Archive";
+    
+    // Cleanup of any legacy meta tags if they exist
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute("content", "Existence Ticker — A new infrastructure for celebrating existence and circulating gratitude.");
+    }
+  }, []);
+
   // Need performRebirthReset for the Blessing Trigger
   const { performRebirthReset } = useWallet();
 
@@ -406,7 +418,7 @@ function App() {
 
           case "GATE":
             return (
-              <div className="bg-white min-h-[100dvh] font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
+              <div className="bg-[#F9F8F4] min-h-[100dvh] font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
                 <GoyenShimmer />
                 <div
                   className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply z-0"
@@ -427,7 +439,7 @@ function App() {
 
             return (
               <NoticeProvider>
-                <div className="bg-white h-[100dvh] font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
+                <div className="bg-[#F9F8F4] h-[100dvh] font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
                   <GoyenShimmer />
                   <div
                     className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply z-0"

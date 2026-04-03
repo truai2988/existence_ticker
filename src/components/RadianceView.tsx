@@ -59,7 +59,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
     return (
         <div className="flex-1 flex flex-col w-full h-full relative">
             {/* Header */}
-            <div className="border-b border-slate-100/50 pt-safe">
+            <div className="pt-safe">
                 <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between">
                      <div className="flex items-center gap-3 min-w-0">
                         {/* Logo: ホームへ戻るボタン */}
@@ -71,12 +71,12 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                             <img
                                 src="/logo.png"
                                 alt="Existence Ticker"
-                                className="w-10 h-10 rounded-lg shadow-sm border border-slate-200/50 object-cover hover:opacity-80 transition-opacity"
+                                className="w-10 h-10 rounded-lg shadow-sm border border-slate-200/40 object-cover hover:opacity-80 transition-opacity"
                             />
                         </button>
                         {/* Text Group */}
                         <div className="flex flex-col min-w-0 justify-center">
-                            <h2 className="text-base sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>{MESSAGES.HOME.LBL_WISH}</h2>
+                            <h2 className="text-xl sm:text-2xl font-light tracking-[0.2em] sm:tracking-[0.4em] text-slate-800 truncate leading-tight uppercase" style={{fontFamily: "'Noto Serif JP', serif"}}>{MESSAGES.HOME.LBL_WISH}</h2>
                         </div>
                     </div>
                     <div className="flex h-12 items-center gap-3 shrink-0">
@@ -99,14 +99,14 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
               onOpenOnboarding={onOpenOnboarding || (() => {})}
             />
 
-            {/* Tab Navigation (Subtle Flat Design) */}
-            <div className="bg-blue-50/20">
-                <div className="max-w-2xl mx-auto px-6 flex items-center gap-6 overflow-x-auto no-scrollbar relative min-h-[52px]">
+            {/* Tab Navigation (Premium Glassmorphism) */}
+            <div className="bg-white/40 backdrop-blur-2xl border-b border-white/20 sticky top-0 z-30">
+                <div className="max-w-2xl mx-auto px-6 flex items-center gap-8 overflow-x-auto no-scrollbar relative min-h-[52px]">
                     <button 
                         onClick={() => setModalState(modalState === 'create_wish' ? 'none' : 'create_wish')}
-                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
+                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             modalState === 'create_wish'
-                                ? 'text-indigo-800' 
+                                ? 'text-amber-700' 
                                 : 'text-slate-400 hover:text-slate-500'
                         }`}
                     >
@@ -114,41 +114,41 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         {modalState === 'create_wish' && (
                             <motion.div 
                                 layoutId="radiance-tab-underline"
-                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-500 rounded-full"
+                                className="absolute bottom-0 left-0 right-0 h-[3px] bg-amber-400 rounded-full"
                             />
                         )}
                     </button>
 
                     <button
                         onClick={() => { setActiveTab('active'); setModalState('none'); }}
-                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
+                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             activeTab === 'active' && modalState !== 'create_wish'
-                                ? 'text-blue-800' 
-                                : myActiveWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
+                                ? 'text-indigo-800' 
+                                : myActiveWishes.length === 0 ? 'text-slate-300' : 'text-slate-400 hover:text-slate-500'
                         }`}
                     >
-                        {MESSAGES.HOME.TAB_SEARCHING} ({myActiveWishes.length})
+                        {MESSAGES.HOME.TAB_SEARCHING} <span className="text-[10px] opacity-60 ml-1">({myActiveWishes.length})</span>
                         {activeTab === 'active' && modalState !== 'create_wish' && (
                             <motion.div 
                                 layoutId="radiance-tab-underline"
-                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-full"
+                                className="absolute bottom-0 left-0 right-0 h-[3px] bg-indigo-400 rounded-full"
                             />
                         )}
                     </button>
 
                     <button
                         onClick={() => { setActiveTab('outbound'); setModalState('none'); }}
-                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none ${
+                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             activeTab === 'outbound' && modalState !== 'create_wish'
                                 ? 'text-emerald-800' 
-                                : myOutboundWishes.length === 0 ? 'text-slate-500 opacity-60' : 'text-slate-500 hover:text-slate-600'
+                                : myOutboundWishes.length === 0 ? 'text-slate-300' : 'text-slate-400 hover:text-slate-500'
                         }`}
                     >
-                        {MESSAGES.HOME.TAB_IN_PROGRESS} ({myOutboundWishes.length})
+                        {MESSAGES.HOME.TAB_IN_PROGRESS} <span className="text-[10px] opacity-60 ml-1">({myOutboundWishes.length})</span>
                         {activeTab === 'outbound' && modalState !== 'create_wish' && (
                             <motion.div 
                                 layoutId="radiance-tab-underline"
-                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-500 rounded-full"
+                                className="absolute bottom-0 left-0 right-0 h-[3px] bg-emerald-400 rounded-full"
                             />
                         )}
                     </button>
@@ -156,8 +156,8 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto no-scrollbar bg-blue-50/20 w-full transition-colors duration-500">
-                <div className="max-w-2xl mx-auto w-full px-6 py-4 pb-24 relative space-y-4">
+            <div className="flex-1 overflow-y-auto no-scrollbar w-full transition-colors duration-500">
+                <div className="max-w-2xl mx-auto w-full px-6 py-6 pb-24 relative space-y-4">
                      {modalState === 'create_wish' ? (
                          <CreateWishModal onClose={() => setModalState('none')} />
                      ) : (

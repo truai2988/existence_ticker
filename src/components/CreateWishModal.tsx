@@ -130,7 +130,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                                {MESSAGES.CREATE_WISH.LBL_MIGHT} <span className="text-xs font-normal text-slate-500 ml-0.5">{MESSAGES.CREATE_WISH.LBL_UNIT}</span>
                            </label>
                        </div>
-                       <span className="self-start sm:self-center text-xs font-bold text-amber-600 bg-amber-50/50 px-3 py-1 rounded-full border border-amber-100/50 tracking-wider">
+                       <span className="self-start sm:self-center text-[10px] uppercase font-bold text-amber-700 bg-amber-100/30 backdrop-blur-md px-3 py-1 rounded-full tracking-[0.2em]">
                            {MESSAGES.CREATE_WISH.TAG_GIFT}
                        </span>
                    </div>
@@ -153,33 +153,33 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                              key={tier.id}
                              onClick={() => handleTierChange(tier.id)}
                              className={`
-                                 relative flex items-center justify-between p-4 rounded-xl border transition-all duration-500
+                                 relative flex items-center justify-between p-5 rounded-2xl transition-all duration-700
                                  ${selectedTier === tier.id
                                      ? tier.cost === 1000
-                                       ? "border-[#B8860B] bg-white shadow-[0_10px_30px_-5px_rgba(184,134,11,0.2)] ring-1 ring-[#B8860B]/20"
+                                       ? "bg-amber-100/40 backdrop-blur-2xl border border-amber-400/50 shadow-[0_20px_40px_-10px_rgba(245,158,11,0.15)] ring-1 ring-amber-400/20"
                                        : tier.cost === 500
-                                         ? "border-[#8B4513] bg-gradient-to-r from-amber-50/50 to-white shadow-[0_8px_20px_-4px_rgba(139,69,19,0.15)] ring-1 ring-[#8B4513]/10"
-                                         : "border-pink-100 bg-white shadow-[0_4px_15px_-3px_rgba(244,114,182,0.1)] ring-1 ring-pink-50 animate-pulse-subtle"
-                                     : "border-slate-100 bg-white text-slate-500 hover:border-slate-200"
+                                         ? "bg-white/60 backdrop-blur-xl border border-amber-200/50 shadow-[0_10px_20px_-5px_rgba(251,191,36,0.1)]"
+                                         : "bg-white/30 backdrop-blur-lg border border-white/60 animate-pulse-subtle"
+                                     : "bg-white/10 border border-transparent text-slate-400 hover:bg-white/30 hover:text-slate-600"
                                  }
                              `}
                            >
                              <div className="flex flex-col items-start gap-1">
-                               <span className={`text-base font-bold tracking-wide ${selectedTier === tier.id 
-                                 ? tier.cost === 1000 ? "text-slate-900" : tier.cost === 500 ? "text-[#8B4513]" : "text-pink-900" 
-                                 : "text-slate-600"}`}>
+                               <span className={`text-base font-medium tracking-[0.1em] ${selectedTier === tier.id 
+                                 ? tier.cost === 1000 ? "text-amber-900" : tier.cost === 500 ? "text-amber-800" : "text-amber-700" 
+                                 : "text-slate-500"}`} style={{fontFamily: "'Noto Serif JP', serif"}}>
                                  {tier.label}
                                </span>
-                               <span className="text-xs text-slate-500 font-bold uppercase tracking-tighter opacity-70">
+                               <span className="text-[10px] text-slate-500/60 font-medium uppercase tracking-[0.2em]">
                                  {tier.subLabel}
                                </span>
                              </div>
 
                              <div className="flex items-center gap-4">
-                                 <span className={`text-xl sm:text-2xl font-mono font-bold tracking-tighter ${selectedTier === tier.id 
-                                   ? tier.cost === 1000 ? "text-[#B8860B]" : tier.cost === 500 ? "text-amber-700" : "text-pink-400" 
+                                 <span className={`text-xl sm:text-2xl font-mono font-light tracking-widest ${selectedTier === tier.id 
+                                   ? tier.cost === 1000 ? "text-amber-600" : tier.cost === 500 ? "text-amber-500" : "text-amber-400" 
                                    : "text-slate-300"}`}>
-                                   {tier.cost === 0 ? "∞" : `-${tier.cost.toLocaleString()}`} <span className="text-sm font-sans font-bold opacity-60 uppercase">{tier.cost === 0 ? MESSAGES.CREATE_WISH.TIER_0 : UNIT_LABEL}</span>
+                                   {tier.cost === 0 ? "∞" : `-${tier.cost.toLocaleString()}`} <span className="text-[10px] font-sans font-bold opacity-40 uppercase tracking-widest">{tier.cost === 0 ? MESSAGES.CREATE_WISH.TIER_0 : UNIT_LABEL}</span>
                                  </span>
                              </div>
                              
@@ -197,7 +197,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                   <label className="block text-xs uppercase tracking-widest font-bold text-slate-500 font-sans">
                       {MESSAGES.CREATE_WISH.LBL_CONTENT}
                   </label>
-                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 focus-within:ring-2 focus-within:ring-orange-200/30 transition-all duration-500">
+                   <div className="bg-white/40 backdrop-blur-3xl p-6 rounded-[2rem] border border-white/60 focus-within:bg-white/60 transition-all duration-700">
                       <textarea
                         value={newWishContent}
                         onChange={(e) => setNewWishContent(e.target.value)}
@@ -208,16 +208,16 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                </div>
 
                {/* Anonymous Option */}
-               <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-100">
+               <div className="bg-white/20 backdrop-blur-md rounded-2xl p-5 border border-white/40">
                    <label className="flex items-start gap-4 cursor-pointer group">
-                       <div className="relative flex items-center mt-0.5">
+                       <div className="relative flex items-center mt-1">
                            <input
                                type="checkbox"
                                className="peer sr-only"
                                checked={isAnonymous}
                                onChange={(e) => setIsAnonymous(e.target.checked)}
                            />
-                           <div className="w-5 h-5 border-2 border-slate-200 rounded transition-all peer-checked:bg-slate-800 peer-checked:border-slate-800 bg-white" />
+                           <div className="w-5 h-5 border border-white/60 rounded-lg transition-all peer-checked:bg-amber-700 peer-checked:border-amber-700 bg-white/40" />
                            <svg
                                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"
                                fill="none"
@@ -229,10 +229,10 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                            </svg>
                        </div>
                        <div className="flex-1">
-                           <span className={`text-base font-bold transition-colors ${isAnonymous ? "text-slate-800" : "text-slate-500"}`}>
+                           <span className={`text-sm font-bold uppercase tracking-widest transition-colors ${isAnonymous ? "text-amber-900" : "text-slate-500"}`}>
                                {MESSAGES.CREATE_WISH.CHK_ANONYMOUS}
                            </span>
-                           <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                           <p className="text-xs text-slate-500 mt-1 leading-relaxed opacity-80">
                                {MESSAGES.CREATE_WISH.NOTE_ANONYMOUS}
                            </p>
                        </div>
@@ -244,7 +244,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                     <button 
                         onClick={handlePostWish}
                         disabled={!newWishContent.trim() || isSubmitting || exceedsAvailable}
-                        className="w-full py-5 rounded-full bg-slate-900 text-white font-bold text-base shadow-lg hover:bg-slate-800 hover:shadow-xl active:scale-[0.98] transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                        className="w-full py-6 rounded-full bg-amber-900/90 backdrop-blur-md text-white font-bold text-base shadow-[0_20px_40px_-10px_rgba(69,26,3,0.3)] hover:bg-amber-900 hover:shadow-2xl active:scale-[0.98] transition-all disabled:opacity-20 disabled:cursor-not-allowed flex items-center justify-center gap-4 group"
                     >
                         {isSubmitting ? (
                             <>

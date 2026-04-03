@@ -59,28 +59,30 @@ const ListItem: React.FC<ListItemProps> = ({
   iconColor = "text-slate-500",
   iconBg = "bg-slate-100",
   children,
-}) => (
-  <div
-    className={`w-full flex items-center justify-between p-4 bg-white border-b border-slate-100 last:border-0 ${onClick ? "hover:bg-slate-50 cursor-pointer active:bg-slate-100 transition-colors" : ""} ${isDestructive ? "text-red-500" : "text-slate-700"}`}
-    onClick={onClick}
-  >
-    <div className="flex items-center gap-3">
-      <div className={`p-2 rounded-full ${iconBg}`}>
-        <Icon size={16} className={iconColor} />
+}) => {
+  return (
+    <div
+      className={`w-full flex items-center justify-between p-4 bg-white/20 backdrop-blur-md mb-2 rounded-2xl ${onClick ? "hover:bg-white/40 cursor-pointer active:scale-[0.98] transition-all" : ""} ${isDestructive ? "text-red-500" : "text-slate-700"}`}
+      onClick={onClick}
+    >
+      <div className="flex items-center gap-3">
+        <div className={`p-2 rounded-full ${iconBg}`}>
+          <Icon size={16} className={iconColor} />
+        </div>
+        <span className="text-base font-medium font-sans">{label}</span>
       </div>
-      <span className="text-base font-medium font-sans">{label}</span>
+      <div className="flex items-center gap-2">
+        {value && (
+          <span className="text-base font-bold text-slate-700 font-sans">{value}</span>
+        )}
+        {children}
+        {hasArrow && onClick && (
+          <ChevronRight size={16} className="text-slate-500" />
+        )}
+      </div>
     </div>
-    <div className="flex items-center gap-2">
-      {value && (
-        <span className="text-base font-bold text-slate-700 font-sans">{value}</span>
-      )}
-      {children}
-      {hasArrow && onClick && (
-        <ChevronRight size={16} className="text-slate-500" />
-      )}
-    </div>
-  </div>
-);
+  );
+};
 
 export const ProfileView: React.FC<ProfileViewProps> = ({
   initialEditMode = false,
@@ -213,7 +215,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   return (
     <div className="flex-1 flex flex-col w-full h-full">
       {/* Subtle Section Header */}
-      <div className="border-b border-slate-100/50 pt-safe">
+      <div className="pt-safe">
           <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between flex-wrap gap-y-4 gap-x-2">
               <div className="flex items-center gap-3 min-w-0">
                    {/* Logo: ホームへ戻るボタン */}
@@ -225,12 +227,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                        <img
                            src="/logo.png"
                            alt="Existence Ticker"
-                           className="w-10 h-10 rounded-lg shadow-sm border border-slate-200/50 object-cover hover:opacity-80 transition-opacity"
+                           className="w-10 h-10 rounded-lg shadow-sm border border-slate-200/40 object-cover hover:opacity-80 transition-opacity"
                        />
                    </button>
                    {/* Text Group */}
                    <div className="flex flex-col min-w-0 flex-1 justify-center">
-                                <h2 className="text-base sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>{MESSAGES.PROFILE.TITLE}</h2>
+                                <h2 className="text-xl sm:text-2xl font-light tracking-[0.2em] sm:tracking-[0.4em] text-slate-800 truncate leading-tight uppercase" style={{fontFamily: "'Noto Serif JP', serif"}}>{MESSAGES.PROFILE.TITLE}</h2>
                    </div>
               </div>
               <div className="flex h-12 items-center gap-3 shrink-0">
@@ -276,8 +278,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
       <div className="flex-1 overflow-y-auto no-scrollbar w-full">
         <div className="max-w-2xl mx-auto w-full px-6 pt-4 pb-32">
-          {/* 1. Header Profile Info */}
-          <div className="flex flex-col items-center py-8 bg-white mb-4 rounded-xl border border-slate-200 shadow-sm">
+          {/* 1. Header Profile Info (Glass Sanctuary) */}
+          <div className="flex flex-col items-center py-10 bg-white/40 backdrop-blur-3xl mb-6 rounded-[2.5rem] border border-white/60">
             <div className="relative mb-3">
               <div className="w-24 h-24 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
                 {profile?.avatarUrl ? (
@@ -313,7 +315,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               {(!profile?.bio || !profile?.avatarUrl) && (
                 <button
                   onClick={() => setIsEditingProfile(true)}
-                  className="mt-1 text-base text-blue-500 font-bold hover:text-blue-600 hover:underline transition-colors animate-pulse font-sans"
+                  className="mt-1 text-base text-amber-600 font-bold hover:text-amber-700 hover:underline transition-colors animate-pulse font-sans"
                 >
                   {MESSAGES.PROFILE.PROMPT_BIO}
                 </button>
@@ -424,30 +426,30 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               onClick={() => setShowPresenceModal(true)} 
             />
             <div>
-               <div className="text-sm font-bold text-slate-500 ml-2 mb-2 font-sans">
+               <div className="text-sm font-bold text-slate-500 ml-2 mb-2" style={{fontFamily: "'Noto Serif JP', serif"}}>
                 {MESSAGES.PROFILE.TTL_ACTIVITY}
               </div>
-              <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+               <div className="bg-transparent space-y-1">
                 <ListItem
                   icon={Handshake}
                   label={MESSAGES.PROFILE.ACT_HELPED}
                   value={`${helpfulCount}${MESSAGES.PROFILE.TXT_TIMES}`}
                   hasArrow={false}
-                  iconColor="text-blue-500"
-                  iconBg="bg-blue-50"
+                  iconColor="text-emerald-600"
+                  iconBg="bg-emerald-50/50"
                 />
                 <ListItem
                   icon={Megaphone}
                   label={MESSAGES.PROFILE.ACT_REQUESTED}
                   value={`${requestCount}${MESSAGES.PROFILE.TXT_TIMES}`}
                   hasArrow={false}
-                  iconColor="text-slate-500"
-                  iconBg="bg-slate-100"
+                  iconColor="text-amber-600"
+                  iconBg="bg-amber-50/50"
                 />
               </div>
             </div>
 
-            <div className="bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm">
+            <div className="bg-transparent space-y-1">
               {isAnonymous ? (
                 <ListItem
                   icon={Sun}
@@ -517,8 +519,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
 
 
-             <div className="text-center text-sm text-slate-500 py-4 font-sans focus:outline-none">
-               Existence Ticker v0.2.0
+             <div className="text-center text-[10px] uppercase tracking-[0.3em] text-slate-400 opacity-60 py-8 font-sans focus:outline-none">
+               Existence Ticker v0.2.0 Sanctuary Edition
              </div>
           </div>
         </div>
@@ -764,7 +766,7 @@ const AreaInfoCard: React.FC<{
       </div>
       <button 
         onClick={onClick}
-        className="w-full bg-white rounded-xl overflow-hidden border border-slate-200 shadow-sm transition-all hover:border-emerald-200 hover:shadow-md active:scale-[0.99] text-left"
+        className="w-full bg-white/40 backdrop-blur-xl rounded-2xl overflow-hidden border border-white/60 transition-all hover:bg-white/50 active:scale-[0.99] text-left"
       >
         <div className="p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">

@@ -104,9 +104,9 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
 
   return (
     <div className="flex-1 flex flex-col w-full h-full relative">
-        <div className="border-b border-slate-100/50 pt-safe">
-            <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between">
-                 <div className="flex items-center gap-3 min-w-0">
+        <div className="pt-safe">
+            <div className="max-w-2xl mx-auto px-6 py-4 md:py-8 flex items-center justify-between">
+                 <div className="flex items-center gap-4 min-w-0">
                     <button
                         onClick={() => onTabChange?.('home')}
                         aria-label={MESSAGES.LAYOUT.RETURN_HOME}
@@ -119,7 +119,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
                         />
                     </button>
                     <div className="flex flex-col min-w-0 justify-center">
-                        <h2 className="text-base sm:text-xl font-semibold tracking-normal sm:tracking-[0.15em] text-slate-900 truncate leading-tight" style={{fontFamily: "'Cormorant Garamond', serif"}}>{MESSAGES.JOURNAL.TITLE}</h2>
+                        <h2 className="text-xl sm:text-2xl font-light tracking-[0.2em] sm:tracking-[0.4em] text-slate-900 truncate leading-tight uppercase" style={{fontFamily: "'Noto Serif JP', serif"}}>{MESSAGES.JOURNAL.TITLE}</h2>
                     </div>
                 </div>
                 <div className="flex h-12 items-center gap-3 shrink-0">
@@ -144,8 +144,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
 
         <div className="w-full flex-grow overflow-y-auto no-scrollbar relative flex flex-col items-center">
              <div className="w-full max-w-2xl flex-grow p-6 pt-4 pb-24 relative">
-                <div className="absolute left-[27px] top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-slate-300/50 to-transparent"></div>
-                <div className="space-y-8 py-4 pl-4">
+                <div className="space-y-6 py-4">
                     {isLoading ? (
                          <div className="text-center py-10 text-slate-600 text-sm animate-pulse">{MESSAGES.JOURNAL.LOADING}</div>
                     ) : logs.length === 0 ? (
@@ -270,33 +269,40 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
     };
 
     return (
-        <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.05 }} className="flex items-start gap-3 relative group transition-all rounded-xl p-2 -ml-2">
-            <div className="w-14 pt-1 text-right shrink-0">
-                <span className="text-sm font-mono text-slate-500 block">{dateStr}</span>
-                <span className="text-sm font-mono text-slate-600 block">{date.getHours().toString().padStart(2, '0')}:{date.getMinutes().toString().padStart(2, '0')}</span>
-            </div>
-            <div className={`w-6 h-6 rounded-full border flex items-center justify-center shrink-0 z-10 box-content bg-white ${isExp ? 'border-rose-100 shadow-sm' : 'border-emerald-100 shadow-sm'}`}>
-                {getIcon()}
-            </div>
-            <div className="flex-1 pb-6 border-b border-slate-100 last:border-0">
-                <p className="text-sm text-slate-700 font-medium leading-relaxed">
-                    {getTitle()}
-                </p>
-                {log.wish_title && log.type !== 'WISH_CANCELLED' && log.type !== 'WISH_EXPIRED' && (
-                    <p className="text-sm text-slate-500 mt-1 pl-2 border-l-2 border-slate-100 line-clamp-1 italic">"{log.wish_title}"</p>
-                )}
-                <p className="text-sm text-slate-600 mt-1 line-clamp-2 leading-relaxed">
-                    {getDescription()}
-                </p>
-                <div className="mt-2 flex items-center justify-end gap-1">
-                    <span className={`text-base font-mono font-bold ${amountColor}`}>
+        <motion.div 
+            initial={{ opacity: 0, y: 10 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ delay: index * 0.05 }} 
+            className="flex flex-col gap-4 relative group transition-all rounded-[2rem] p-6 bg-white/40 backdrop-blur-3xl border border-white/60 shadow-sm"
+        >
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 bg-white/60 ${isExp ? 'border-rose-100' : 'border-emerald-100'}`}>
+                        {getIcon()}
+                    </div>
+                    <span className="text-xs font-serif tracking-widest text-slate-400 uppercase">{dateStr} — {date.getHours().toString().padStart(2, '0')}:{date.getMinutes().toString().padStart(2, '0')}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                    <span className={`text-lg font-mono font-light ${amountColor}`}>
                         {Math.floor(Math.abs(log.amount)) === 0 
                             ? '±0' 
                             : `${(!isSender || isGrant) ? '+' : '-'}${Math.floor(Math.abs(log.amount)).toLocaleString()}`
                         }
                     </span>
-                    <span className="text-sm text-slate-500 ml-1 font-sans">Lm</span>
+                    <span className="text-[10px] text-slate-400 font-sans tracking-tight">Lm</span>
                 </div>
+            </div>
+
+            <div className="space-y-2">
+                <p className="text-base text-slate-800 font-serif font-medium leading-relaxed tracking-wide">
+                    {getTitle()}
+                </p>
+                {log.wish_title && log.type !== 'WISH_CANCELLED' && log.type !== 'WISH_EXPIRED' && (
+                    <p className="text-sm text-slate-400 mt-2 pl-3 border-l border-slate-200/50 italic line-clamp-1">"{log.wish_title}"</p>
+                )}
+                <p className="text-sm text-slate-500 mt-2 line-clamp-2 leading-relaxed font-light">
+                    {getDescription()}
+                </p>
             </div>
         </motion.div>
     );

@@ -128,7 +128,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               animate={{ opacity: 1, y: 0 }}
               className="flex flex-col items-center gap-1"
             >
-              <div className="text-6xl font-serif font-medium tracking-tighter tabular-nums leading-none bg-gradient-to-b from-[#4A4A4A] via-[#6B5A4F] to-[#8B7E74] bg-clip-text text-transparent transform drop-shadow-sm pb-2">
+              <div className="text-6xl font-serif font-extralight tracking-[-0.05em] tabular-nums leading-none bg-gradient-to-b from-slate-700 via-slate-600 to-slate-500 bg-clip-text text-transparent transform drop-shadow-sm pb-2">
                 {Math.floor(availableLm).toLocaleString()}
               </div>
             </motion.div>
@@ -175,7 +175,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <div className="relative w-[80%] md:w-[70%] lg:w-[45%] max-w-[540px] lg:max-w-[480px] max-h-[70vh] aspect-square z-10">
 
         <motion.div
-          className="absolute inset-0 rounded-full shadow-2xl shadow-slate-200/50 border-[1.5px] border-white overflow-hidden bg-white text-slate-900"
+          className="absolute inset-0 rounded-full shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] backdrop-blur-3xl border-[0.5px] border-white/60 overflow-hidden bg-white/40 text-slate-900"
           animate={
             isRitualReady
               ? { 
@@ -208,13 +208,13 @@ export const HomeView: React.FC<HomeViewProps> = ({
               {/* Visual Assets */}
               {/* 陽: HELP (琥珀 - Amber) */}
               <linearGradient id="yangGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#FFFBEB" /> {/* Amber 50 */}
-                <stop offset="100%" stopColor="#FCD34D" /> {/* Amber 300 */}
+                <stop offset="0%" stopColor="#FFFBEB" />
+                <stop offset="100%" stopColor="#FCD34D" /> {/* Amber Sanctuary */}
               </linearGradient>
               {/* 陰: WISH (淡藍 - Pale Indigo) */}
               <linearGradient id="yinGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-                <stop offset="0%" stopColor="#EEF2FF" /> {/* Indigo 50 */}
-                <stop offset="100%" stopColor="#A5B4FC" /> {/* Indigo 300 */}
+                <stop offset="0%" stopColor="#EEF2FF" />
+                <stop offset="100%" stopColor="#A5B4FC" /> {/* Indigo Sanctuary */}
               </linearGradient>
 
               <linearGradient
@@ -362,10 +362,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <div className="relative flex justify-center items-center transition-opacity duration-700">
                     <Inbox
                       size={36}
-                      strokeWidth={1}
-                      className="opacity-60 group-hover:opacity-100 transition-opacity duration-500 drop-shadow-sm"
+                      strokeWidth={1.2}
+                      className="opacity-70 group-hover:opacity-100 transition-opacity duration-500 drop-shadow-sm"
                     />
-                    <span className="absolute bottom-[100%] mb-3 text-lg font-serif font-bold tracking-[0.3em] text-amber-950/80 drop-shadow-sm whitespace-nowrap ml-[0.3em]">
+                    <span className="absolute bottom-[100%] mb-4 text-sm font-serif font-medium tracking-[0.4em] text-amber-950/90 drop-shadow-sm whitespace-nowrap ml-[0.4em] uppercase">
                       {MESSAGES.HOME.BTN_RESPOND}
                     </span>
                   </div>
@@ -385,10 +385,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   <div className="relative flex justify-center items-center transition-opacity duration-700">
                     <Megaphone
                       size={36}
-                      strokeWidth={1}
-                      className="opacity-60 group-hover:opacity-100 transition-opacity duration-500 drop-shadow-sm"
+                      strokeWidth={1.2}
+                      className="opacity-70 group-hover:opacity-100 transition-opacity duration-500 drop-shadow-sm"
                     />
-                    <span className="absolute top-[100%] mt-3 text-lg font-serif font-bold tracking-[0.3em] text-indigo-950/80 drop-shadow-sm whitespace-nowrap ml-[0.3em]">
+                    <span className="absolute top-[100%] mt-4 text-sm font-serif font-medium tracking-[0.4em] text-indigo-950/90 drop-shadow-sm whitespace-nowrap ml-[0.4em] uppercase">
                       {MESSAGES.HOME.BTN_REQUEST}
                     </span>
                   </div>
