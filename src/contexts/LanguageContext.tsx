@@ -18,10 +18,12 @@ const LanguageContext = createContext<LanguageContextProps>({
 });
 
 // Recursive merge function to safeguard against missing definitions in English
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function deepMerge<T>(base: T, overlay: any): T {
   if (!overlay || typeof overlay !== 'object') return base;
   if (!base || typeof base !== 'object') return overlay;
   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result = { ...base } as any;
   for (const key in overlay) {
     if (overlay[key] !== undefined) {
@@ -70,4 +72,5 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useLanguage = () => useContext(LanguageContext);
