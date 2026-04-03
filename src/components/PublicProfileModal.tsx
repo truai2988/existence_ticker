@@ -81,7 +81,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                                     <img src={displayAvatar} alt={displayName} className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-                                        <span className="text-3xl font-bold text-slate-400">
+                                        <span className="text-3xl font-bold text-slate-500">
                                             {isMasked ? '?' : (profile.name?.charAt(0).toUpperCase() || '?')}
                                         </span>
                                     </div>
@@ -105,7 +105,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                             </span>
                             
                             {!isMasked && (
-                                <span className="text-xs text-slate-400 font-mono px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50">
+                                <span className="text-xs text-slate-500 font-mono px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50">
                                     ID: {profile.id.slice(0,6)}
                                 </span>
                             )}
@@ -119,7 +119,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                             
                             {locationText && (
                                 <span className="text-xs text-slate-500 flex items-center gap-1 px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50 whitespace-nowrap">
-                                    <MapPin size={10} className="shrink-0 text-slate-400" />
+                                    <MapPin size={10} className="shrink-0 text-slate-500" />
                                     {locationText}
                                     {isMasked && profile.gender && profile.gender !== 'other' && ` / ${profile.gender === 'male' ? MESSAGES.WISH_CARD.LBL_MALE : MESSAGES.WISH_CARD.LBL_FEMALE}`}
                                 </span>
@@ -174,24 +174,24 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                         {/* Stats - Subtle & Dignified */}
                         <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
                             <div className="flex flex-col items-center p-3 rounded-xl hover:bg-slate-50/50 transition-colors">
-                                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{MESSAGES.PROFILE.LBL_HELPED_COUNT}</div>
+                                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{MESSAGES.PROFILE.LBL_HELPED_COUNT}</div>
                                 <div className="flex items-baseline gap-1">
                                     <Handshake size={14} className="text-blue-400" />
                                     <span className="text-xl font-medium text-slate-700 tabular-nums">
                                         {helpCount}
                                     </span>
-                                    <span className="text-xs text-slate-400 font-normal">{MESSAGES.PROFILE.TXT_TIMES}</span>
+                                    <span className="text-xs text-slate-500 font-normal">{MESSAGES.PROFILE.TXT_TIMES}</span>
                                 </div>
                             </div>
                             
                             <div className="flex flex-col items-center p-3 rounded-xl hover:bg-slate-50/50 transition-colors">
-                                <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{MESSAGES.PROFILE.LBL_REQUEST_COUNT}</div>
+                                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{MESSAGES.PROFILE.LBL_REQUEST_COUNT}</div>
                                 <div className="flex items-baseline gap-1">
-                                    <Megaphone size={14} className="text-slate-400" />
+                                    <Megaphone size={14} className="text-slate-500" />
                                     <span className="text-xl font-medium text-slate-700 tabular-nums">
                                         {reqCount}
                                     </span>
-                                    <span className="text-xs text-slate-400 font-normal">{MESSAGES.PROFILE.TXT_TIMES}</span>
+                                    <span className="text-xs text-slate-500 font-normal">{MESSAGES.PROFILE.TXT_TIMES}</span>
                                 </div>
                             </div>
                         </div>

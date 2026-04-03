@@ -12,8 +12,6 @@ export interface WalletContextType {
     globalNow: number;
     optimisticBalanceOffset: number;
     setOptimisticBalanceOffset: (val: number | ((prev: number) => number)) => void;
-    optimisticCommittedOffset: number;
-    setOptimisticCommittedOffset: (val: number | ((prev: number) => number)) => void;
 }
 
 // Context

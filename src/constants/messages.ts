@@ -196,7 +196,7 @@ export const MESSAGES = {
     BTN_RESPOND: "お返事",
     BTN_REQUEST: "お願い",
     BTN_UNDERSTOOD: "確認",
-    DECAY_LABEL: "源気(Lm)",
+    DECAY_LABEL: "Lm",
     TICKER_BUTTON: "刻む",
     BTN_NEW_WISH: "新規作成",
     LBL_WISH: "お願い",
@@ -215,7 +215,7 @@ export const MESSAGES = {
     FALLBACK_APPLICANT: "奏者",
     PENDING_PROPAGATION: "伝搬中...",
     NOTICE_APPROVED: "あなたの願いが、静かに聞き届けられました。",
-    NOTICE_FULFILLED: "感謝と共に、源気が届けられました。",
+    NOTICE_FULFILLED: "感謝と共に、Lmが届けられました。",
     NOTICE_COMPLETION_PENDING: "願いが叶い、感謝の言葉を待っています。",
     NOTICE_HELPER_RESIGNED: "担当者が離れ、願いは再び世界へと還りました。",
     NOTICE_REQUESTER_CANCEL: "依頼主様のご都合により願いが中断されました。しるしとしてLmが補償されています。",
@@ -225,7 +225,7 @@ export const MESSAGES = {
     DESC_COMP_RECV: "依頼主の中断に伴い、誠実のしるしが届きました",
     DESC_CANCELLED: "願いを取り下げました",
     DESC_WISH_PRICELESS: "想いが巡りました（Priceless）",
-    DESC_WISH_FULFILL_SENDER: "願いを叶えてくれた感謝を、源気（Lm）に込めて贈りました",
+    DESC_WISH_FULFILL_SENDER: "願いを叶えてくれた感謝を、Lmに込めて贈りました",
     DESC_WISH_FULFILL_RECV: "感謝が結晶（Lm）になって届きました",
     DESC_WISH_BANKRUPT_SENDER: "感謝を贈りましたが、余力が足りず一部のみが結晶になりました",
     DESC_WISH_BANKRUPT_RECV: "感謝が届きましたが、余力が足りず一部のみが結晶になりました",
@@ -258,14 +258,14 @@ export const MESSAGES = {
     LOADING: "読み込み中...",            // 詩的表現より「今何をしているか」を優先
     EMPTY_TITLE: "記録がありません",       // 「静けさ」を削り、事実を伝える
     EMPTY_DESC_1: "まだここには何の軌跡もありません。",
-    EMPTY_DESC_2: "誰かに感謝を届けたり、源気が動いたとき、",
+    EMPTY_DESC_2: "誰かに感謝を届けたり、Lmが動いたとき、",
     EMPTY_DESC_3: "ここに静かな記憶として刻まれます。",
     TODAY: "今日",
     YESTERDAY: "昨日",
     LOG_BIRTH: "アカウントの作成", 
-    LOG_REBIRTH: "源気の巡り（リセット）",  // カッコ書きで機能を補足
-    LOG_GIFT_SENT: "源気を贈りました",
-    LOG_GIFT_RECV: "源気を受け取りました",
+    LOG_REBIRTH: "Lmの巡り（リセット）",  // カッコ書きで機能を補足
+    LOG_GIFT_SENT: "Lmを贈りました",
+    LOG_GIFT_RECV: "Lmを受け取りました",
     LOG_WISH_CANCEL_TITLE: "願い「%s」の取り下げ",
     LOG_WISH_CANCEL: "願いの取り下げ",
     LOG_WISH_EXPIRE_TITLE: "願い「%s」の期限切れ", // 「風に溶けた」を「期限切れ」に戻し、一目で把握させる
@@ -280,12 +280,12 @@ export const MESSAGES = {
     KW_COMPENSATION_SENDER: "中断のお礼",
     KW_COMPENSATION_MAKER: "中断のお礼",
     KW_PRICELESS: "無償の願い",
-    DESC_COMP_SENDER: "願いを取り下げたため、これまでのお礼として源気を贈りました",
-    DESC_COMP_RECV: "相手が願いを取り下げたため、お礼の源気を受け取りました",
-    DESC_WISH_SENDER: "願いが叶い、感謝と共に源気を贈りました",
-    DESC_WISH_RECV: "願いに寄り添い、感謝と共に源気を受け取りました",
-    DESC_WISH_PARTIAL_SENDER: "手元の源気が足りず、あるだけの源気を贈りました",
-    DESC_WISH_PARTIAL_RECV: "相手の源気が足りず、一部の源気を受け取りました",
+    DESC_COMP_SENDER: "願いを取り下げたため、これまでのお礼としてLmを贈りました",
+    DESC_COMP_RECV: "相手が願いを取り下げたため、お礼のLmを受け取りました",
+    DESC_WISH_SENDER: "願いが叶い、感謝と共にLmを贈りました",
+    DESC_WISH_RECV: "願いに寄り添い、感謝と共にLmを受け取りました",
+    DESC_WISH_PARTIAL_SENDER: "手元のLmが足りず、あるだけのLmを贈りました",
+    DESC_WISH_PARTIAL_RECV: "相手のLmが足りず、一部のLmを受け取りました",
     DESC_EXPIRED: "期限が経過したため、自動的に取り下げられました", // 「風に溶ける」を説明文へ
     DESC_PRICELESS: "無償の願いとして、記憶に留まりました",
     DESC_REBIRTH: "また新しく、灯火を授かりました",
@@ -294,7 +294,7 @@ export const MESSAGES = {
     TAG_RECORDED: "刻まれた",             // 「記録済」を排除
     
     // DB checks (保持しつつ表面の言葉を整える)
-    KW_BIRTH_ORIGINAL: "源気",
+    KW_BIRTH_ORIGINAL: "Lm",
     KW_REBIRTH_ORIGINAL: "魂",
     KEYWORD_WITHDRAWAL: "旅立ち",         // 「退会」を排除
     KEYWORD_COMP_SENDER: "お礼の贈与",     // 「補償金送信」を排除
@@ -316,13 +316,13 @@ export const MESSAGES = {
     TIER_LIGHT_SUB: "数分で終わる、簡単な頼みごとや共有",
     PLACEHOLDER_FALLBACK: "願いの詳細を入力してください",
     SHARE_SUCCESS: "願いを公開しました",
-    SHARE_LM_LABEL: "贈る源気",
+    SHARE_LM_LABEL: "贈るLm",
     SHARE_LM_UNIT: "(Lm)",
-    GUIDE_LINK: "源気を贈るガイドライン",
+    GUIDE_LINK: "Lmを贈るガイドライン",
     GIFT_BADGE: "贈与",
-    BALANCE_INFO_PREFIX: "現在、あなたが贈ることのできる最大源気は ",
+    BALANCE_INFO_PREFIX: "現在、あなたが贈ることのできる最大Lmは ",
     BALANCE_INFO_SUFFIX: " Lm です",
-    NO_BALANCE_WARN: "源気が不足しています。新しい願いを公開するには、進行中の願いを一度取り下げてください。",
+    NO_BALANCE_WARN: "Lmが不足しています。新しい願いを公開するには、進行中の願いを一度取り下げてください。",
     TIER_ZERO_LABEL: "[無償の願い]",
     CONTENT_LABEL: "願いの詳細",
     ANONYMOUS_LABEL: "匿名モード",
@@ -346,12 +346,12 @@ export const MESSAGES = {
     MODAL_CANCEL_WISH_Q: "この願いを取り下げますか？",
     MODAL_RESIGN_Q: "この願いから離れますか？", // 「辞退」という業務用語を排除
     MODAL_CANCEL_REQ_Q: "この願いを取り下げますか？",
-    MODAL_COMPENSATE_WARN_1: "ここで願いを取り下げる場合、添えられていた源気は",
+    MODAL_COMPENSATE_WARN_1: "ここで願いを取り下げる場合、添えられていたLmは",
     MODAL_COMPENSATE_WARN_2: "これまで寄り添ってくれた「お礼」として、相手に贈られます。", // 「ペナルティ」という罰則の概念を排除
     MODAL_RESIGN_WARN: "これまでの繋がりは、静かに解かれます。", // 「ステータスはリセット」を排除
-    MODAL_CANCEL_SAFE: "添えられていた源気は、あなたの手元に戻ります。",
+    MODAL_CANCEL_SAFE: "添えられていたLmは、あなたの手元に戻ります。",
     TOAST_CANCELLED: "取り下げました",
-    BTN_COMPENSATE: "源気を贈って、取り下げる", // 「ペナルティを支払う」を排除
+    BTN_COMPENSATE: "Lmを贈って、取り下げる", // 「ペナルティを支払う」を排除
     BTN_RESIGN: "離れる",
     BTN_CANCEL_REQ: "取り下げる",
     BTN_BACK: "戻る",
@@ -394,15 +394,15 @@ export const MESSAGES = {
     FTR_RECRUITING: "公開中", // 「募集中」という労働感を排除
     FTR_ANON: "匿名",
     FTR_APPLICANTS: "人が手を差し伸べています", // 「件の応募」を排除
-    FTR_THANK_CONFIRM_1: "願いが叶ったことを確認し、源気（Lm）と",
+    FTR_THANK_CONFIRM_1: "願いが叶ったことを確認し、Lmと",
     FTR_THANK_CONFIRM_2: "感謝の言葉を届けます。", // 「決済を実行」を排除
-    FTR_THANK_ALERT: "感謝を届けますか？ 源気（Lm）が手元から離れます。",
+    FTR_THANK_ALERT: "感謝を届けますか？ Lmが手元から離れます。",
 
     // OptimisticWishPhantom
     PH_ERROR_TITLE: "通信が不安定です: 願いが届きませんでした",
     PH_ERROR_REASON: "理由: ",
     PH_TRASH: "この内容を消去する",
-    PH_CAUTION: "※この願いに添えた源気は、すでに手元に戻っています", // 「予約解除」を排除
+    PH_CAUTION: "※この願いに添えたLmは、すでに手元に戻っています", // 「予約解除」を排除
     PH_SENDING: "送信中...",
 
     // CardHeader
@@ -422,20 +422,20 @@ export const MESSAGES = {
     // CardContent
     BTN_UPDATE: "更新",
     LBL_RESONANCE: "無償の願い", // 「無償取引(Echo)」を排除
-    LBL_DELIVERED_THANKS: "贈られた源気", // 「決済額(最終)」を排除
+    LBL_DELIVERED_THANKS: "贈られたLm", // 「決済額(最終)」を排除
     LBL_END_BY_WITHDRAWAL: "アカウント削除により終了",
-    RSN_HELPER_RESIGN_REQ: "相手が離れたため、添えられていた源気が戻りました", // 「予約残高が返却」を排除
+    RSN_HELPER_RESIGN_REQ: "相手が離れたため、添えられていたLmが戻りました", // 「予約残高が返却」を排除
     RSN_HELPER_RESIGN_HELP: "願いから離れました",
-    RSN_COMP_REQ: "願いを取り下げたため、これまでのお礼として源気を贈りました", // ペナルティの言い換え
-    RSN_COMP_HELP: "相手が願いを取り下げたため、お礼の源気を受け取りました", // ペナルティの言い換え
+    RSN_COMP_REQ: "願いを取り下げたため、これまでのお礼としてLmを贈りました", // ペナルティの言い換え
+    RSN_COMP_HELP: "相手が願いを取り下げたため、お礼のLmを受け取りました", // ペナルティの言い換え
     RSN_CANCELLED_REQ: "取り下げ完了",
     RSN_CANCELLED_HELP: "終了しました",
     RSN_NATURAL_EXPIRY: "期限切れによるシステムキャンセル",
     TAG_ECHO: "∞ 無償",
     LBL_RECV_DONE: "受取完了", // 「入金済」を排除
     LBL_SENT_DONE: "贈与完了", // 「送金済」を排除
-    LBL_GIVE_THANKS: "贈る源気", // 「支払額」を排除
-    LBL_SHARE_THANKS: "添えられた源気", // 「設定報酬額」を排除
+    LBL_GIVE_THANKS: "贈るLm", // 「支払額」を排除
+    LBL_SHARE_THANKS: "添えられたLm", // 「設定報酬額」を排除
     TXT_THANKS_DECAY_NOTE: "※時間経過と共に、静かに減少します",
     LBL_ECHO: "無償の願い", // 「無償処理」を排除
 
@@ -540,9 +540,9 @@ export const MESSAGES = {
     LOGOUT_CONFIRM: "ログアウトしますか？",
     LOGOUT_GUEST_WARN: "お試し利用のため、ログアウトするとこれまでの軌跡が消えます。",
     DELETE_TITLE_1: "この場所から離れる",
-    DELETE_DESC_1: "あなたの軌跡や源気はすべて消去されます。この操作は取り消せません。",
+    DELETE_DESC_1: "あなたの軌跡やLmはすべて消去されます。この操作は取り消せません。",
     DELETE_TITLE_2: "最終確認",
-    DELETE_DESC_2: "本当にこの場所から離れますか？消えた軌跡は復元できません。",
+    DELETE_DESC_2: "本当にこの場所から離れるか？消えた軌跡は復元できません。",
     DELETE_SUCCESS: "すべての繋がりが解かれました。",
     AUTH_REQUIRE: "本人確認のためパスワードを入力してください。",
     BTN_CANCEL: "キャンセル",
@@ -592,21 +592,21 @@ export const MESSAGES = {
     PRESENCE_PRIVACY_NOTE: "※プライバシー保護のため、5名未満の場合は一律表記となります",
     
     GUIDE_TITLE: "贈与の道標",
-    GUIDE_SUBTITLE: "添える源気の目安",
-    GUIDE_INTRO_1: "源気（Lm）は、感謝を形にして贈るためのものです。",
-    GUIDE_INTRO_2: "願いの大きさに応じて、無理のない源気を添えてください。",
+    GUIDE_SUBTITLE: "添えるLmの目安",
+    GUIDE_INTRO_1: "Lmは、感謝を形にして贈るためのものです。",
+    GUIDE_INTRO_2: "願いの大きさに応じて、無理のないLmを添えてください。",
     GUIDE_HEAVY_TITLE: "[大いなる願い]",
     GUIDE_HEAVY_SUB: "時間を要する願い",
-    GUIDE_HEAVY_DESC: "長時間の作業や専門的な知識を要する頼みごと。\n多めの源気を添えることをお勧めします。",
+    GUIDE_HEAVY_DESC: "長時間の作業や専門的な知識を要する頼みごと。\n多めのLmを添えることをお勧めします。",
     GUIDE_MEDIUM_TITLE: "[日常の願い]",
     GUIDE_MEDIUM_SUB: "日常の頼みごと",
-    GUIDE_MEDIUM_DESC: "日常的な作業や、数十分程度の時間を要する頼みごと。\n標準的な源気を添えることをお勧めします。",
+    GUIDE_MEDIUM_DESC: "日常的な作業や、数十分程度の時間を要する頼みごと。\n標準的なLmを添えることをお勧めします。",
     GUIDE_LIGHT_TITLE: "[ささやかな願い]",
     GUIDE_LIGHT_SUB: "簡易な願い / 無償",
-    GUIDE_LIGHT_DESC: "数分で完了する簡単な頼みごとや、挨拶程度のやりとり。\n源気を添えない（無償の願い）ことも可能です。",
+    GUIDE_LIGHT_DESC: "数分で完了する簡単な頼みごとや、挨拶程度のやりとり。\nLmを添えない（無償の願い）ことも可能です。",
     GUIDE_HYBRID_TITLE: "お金との境界線",
     GUIDE_HYBRID_1: "物品の購入費や交通費などは、直接現金や外部の決済手段でやりとりしてください。",
-    GUIDE_HYBRID_2: "源気（Lm）は、あくまで「感謝の気持ち」として贈られるべきものです。",
+    GUIDE_HYBRID_2: "Lmは、あくまで「感謝の気持ち」として贈られるべきものです。",
     BTN_CLOSE: "閉じる",
   },
 
@@ -614,7 +614,7 @@ export const MESSAGES = {
     TITLE: "ユーザー設定",
     BTN_LOGOUT: "ログアウト",
     BTN_DELETE: "この場所から離れる",
-    DELETE_WARNING: "すべての軌跡と源気は消え、元に戻すことはできません。本当によろしいですか？",
+    DELETE_WARNING: "すべての軌跡とLmは消え、元に戻すことはできません。本当によろしいですか？",
     PW_CONFIRM_TITLE: "パスワードを確認します",
     PW_PLACEHOLDER: "パスワードを入力",
     BTN_CANCEL: "キャンセル",
@@ -632,13 +632,13 @@ export const MESSAGES = {
     PLACEHOLDER_FALLBACK: "願いの詳細を入力してください",
     PLACEHOLDER_PREFIX: "例：\n",
     TOAST_SUCCESS: "願いを公開しました",
-    LBL_MIGHT: "贈る源気",
+    LBL_MIGHT: "贈るLm",
     LBL_UNIT: "(Lm)",
-    LINK_GUIDE: "源気を贈るガイドライン",
+    LINK_GUIDE: "Lmを贈るガイドライン",
     TAG_GIFT: "贈与",
-    LBL_AVAILABLE_1: "現在、あなたが贈ることのできる最大源気は",
+    LBL_AVAILABLE_1: "現在、あなたが贈ることのできる最大Lmは",
     LBL_AVAILABLE_2: "までです",
-    WARN_EXCEED: "源気が不足しています。新しい願いを公開するには、進行中の願いを一度取り下げてください。",
+    WARN_EXCEED: "Lmが不足しています。新しい願いを公開するには、進行中の願いを一度取り下げてください。",
     TIER_0: "無償",
     LBL_CONTENT: "願いの詳細",
     CHK_ANONYMOUS: "匿名で作成する",
@@ -656,7 +656,7 @@ export const MESSAGES = {
   
   TICKER: {
     TITLE: "鼓動",
-    DESC: "生存の証を刻み、新たな「源気」を生み出します",
+    DESC: "生存の証を刻み、新たな「Lm」を生み出します",
     BTN_SEND: "鼓動を刻む",
     STATUS_SUCCESS: "刻みました",
     STATUS_COOLDOWN: "静寂",
@@ -704,7 +704,7 @@ export const MESSAGES = {
     SIDEDRAWER_INSTALL: "ホーム画面に置く",
     SIDEDRAWER_TRUST: "約束ごと",    // 「利用規約」を排除
     SIDEDRAWER_FOOTER_NOTE: "設定と管理",
-    HEADER_BALANCE: "源気：",        // 「残高」を排除
+    HEADER_BALANCE: "Lm：",        // 「残高」を排除
     HEADER_DAYS_LEFT_PREFIX: "(満ちるまで ", // 「残り〇日」という焦燥感を排除
     HEADER_DAYS_LEFT_SUFFIX: "日)",
   },
@@ -719,7 +719,6 @@ export const MESSAGES = {
     IOS_STEP_1: "ブラウザ下部の「共有」アイコンをタップ",
     IOS_STEP_2: "「ホーム画面に追加」を選択",
     IOS_COMPLETED_NOTE: "追加後、ホーム画面のアイコンから起動してください。",
-    INSTALL_SUCCESS: "インストールが完了しました。ホーム画面から起動してください。",
     IOS_INSTRUCTIONS_TITLE: "インストール手順 (iOS)",
     IOS_INSTRUCTIONS_STEP1: "Safari下部（iPadは上部）の共有アイコンをタップします。",
     IOS_INSTRUCTIONS_STEP2: "メニューから「ホーム画面に追加」を選択します。",
@@ -731,15 +730,15 @@ export const MESSAGES = {
     ONBOARDING_FINISH: "はじめる",
     ONBOARDING_SKIP: "スキップ",
 
-    SLIDE1_TITLE: "源気（Lm）について",
+    SLIDE1_TITLE: "Lmについて",
     SLIDE1_P1: "あなたには、",
     SLIDE1_P2: "月の満ち欠けのようなサイクルで",
     SLIDE1_P3: "一定の",
-    SLIDE1_P4: "源気（Lm）が満ちていきます。",
+    SLIDE1_P4: "Lmが満ちていきます。",
     SLIDE1_P5: "これが、誰かに感謝を贈るための光です。",
 
     SLIDE2_TITLE: "静かな減価",
-    SLIDE2_P1: "手元にある源気は、",
+    SLIDE2_P1: "手元にあるLmは、",
     SLIDE2_P2: "時間経過に伴い",
     SLIDE2_P3: "静かに、そして自動的に",
     SLIDE2_P4: "減っていきます。",
@@ -747,14 +746,14 @@ export const MESSAGES = {
     SLIDE2_P6: "誰かのために、風に乗せて放ってください。",
 
     SLIDE3_TITLE: "願いと贈与",
-    SLIDE3_P1: "手元の源気を添えて、",
+    SLIDE3_P1: "手元のLmを添えて、",
     SLIDE3_P2: "世界に願いを公開することができます。",
     SLIDE3_LBL_REQ: "願いを放つ",
     SLIDE3_LBL_RES: "願いに寄り添う",
-    SLIDE3_P3: "願いが叶い、感謝と共に源気を贈ると、",
-    SLIDE3_P4: "その源気は減ることのない「軌跡」として残ります。",
+    SLIDE3_P3: "願いが叶い、感謝と共にLmを贈ると、",
+    SLIDE3_P4: "そのLmは減ることのない「軌跡」として残ります。",
 
-    SLIDE4_TITLE: "添える源気の目安",
+    SLIDE4_TITLE: "添えるLmの目安",
     SLIDE4_TIER1_TITLE: "[大いなる願い]",
     SLIDE4_TIER1_DESC: "時間を要する、大きな手助けや頼みごと",
     SLIDE4_TIER2_TITLE: "[日常の願い]",
@@ -765,9 +764,9 @@ export const MESSAGES = {
     SLIDE5_TITLE: "お金との境界線",
     SLIDE5_P1_1: "物品の購入費や交通費などの「現実の費用」は",
     SLIDE5_P1_2: "直接、当事者間でやりとりしてください。",
-    SLIDE5_P2_1: "ここで贈られる源気（Lm）は",
+    SLIDE5_P2_1: "ここで贈られるLmは",
     SLIDE5_P2_2: "あくまで感謝の気持ちを表すものです。",
-    SLIDE5_P3_1: "現実のお金と、感謝の源気を",
+    SLIDE5_P3_1: "現実のお金と、感謝のLmを",
     SLIDE5_P3_2: "明確に分けてお使いください。",
     SLIDE5_P4_1: "この約束をご理解いただいた上で",
     SLIDE5_P4_2: "静かな時間をお過ごしください。",
@@ -781,7 +780,7 @@ export const MESSAGES = {
     BREATHING: "処理中...",
     BLOOMING: "完了",
     SYNCING: "同期中",
-    SUBTEXT: "私は私である / ETの世界へ",
+    SUBTEXT: "私は私である / Existence Tickerの世界へ",
   },
 
   // 12. 利用規約と運営に関する表記 (TrustPage)

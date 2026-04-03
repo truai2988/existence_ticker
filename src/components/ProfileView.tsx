@@ -250,7 +250,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   {!initialEditMode && (
                     <button
                       onClick={() => setIsEditingProfile(true)}
-                      className="p-3 text-slate-400 hover:text-slate-600 transition-colors active:scale-95"
+                      className="p-3 text-slate-500 hover:text-slate-600 transition-colors active:scale-95"
                       aria-label={MESSAGES.PROFILE.ARIA_EDIT}
                     >
                       <Edit2 size={22} strokeWidth={1.5} />
@@ -290,7 +290,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   />
                 ) : (
                   <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-                    <span className="text-3xl font-bold text-slate-400">
+                    <span className="text-3xl font-bold text-slate-500">
                       {currentName?.charAt(0).toUpperCase() || "?"}
                     </span>
                   </div>
@@ -347,7 +347,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-slate-500 font-mono mt-1 px-4">
                 {(profile?.location?.prefecture || profile?.location?.city) && (
                   <div className="flex items-center gap-1 px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50 text-slate-500">
-                    <MapPin size={12} className="shrink-0 text-slate-400" />
+                    <MapPin size={12} className="shrink-0 text-slate-500" />
                     <span className="whitespace-nowrap">
                       {mapPrefecture(profile.location.prefecture)} {mapCity(profile.location.city)}
                     </span>
@@ -519,7 +519,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
 
 
-             <div className="text-center text-[10px] uppercase tracking-[0.3em] text-slate-400 opacity-60 py-8 font-sans focus:outline-none">
+             <div className="text-center text-xs uppercase tracking-[0.3em] text-slate-500 opacity-60 py-8 font-sans focus:outline-none">
                Existence Ticker v0.2.0 Sanctuary Edition
              </div>
           </div>
@@ -785,7 +785,7 @@ const AreaInfoCard: React.FC<{
               </div>
             </div>
           </div>
-          <ChevronRight size={16} className="text-slate-400 group-hover:text-slate-500 transition-colors" />
+          <ChevronRight size={16} className="text-slate-500 group-hover:text-slate-500 transition-colors" />
         </div>
       </button>
     </div>

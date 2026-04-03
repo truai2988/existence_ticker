@@ -69,7 +69,7 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                             disabled={isDeleting}
                             className={`p-3 rounded-full hover:bg-slate-100 ${isDeleting ? 'opacity-30 cursor-not-allowed' : ''}`}
                         >
-                            <X size={20} className="text-slate-400" />
+                            <X size={20} className="text-slate-500" />
                         </button>
                     </div>
 

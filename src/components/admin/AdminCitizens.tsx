@@ -85,13 +85,13 @@ export const AdminCitizens = React.memo<AdminCitizensProps>(({
                         管理者
                       </span>
                     ) : (
-                      <span className="bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded-full text-xs font-bold ring-1 ring-slate-700 whitespace-nowrap">
+                      <span className="bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded-full text-xs font-bold ring-1 ring-slate-700 whitespace-nowrap">
                         一般
                       </span>
                     )}
                   </td>
                   <td className="px-2 sm:px-4 py-3">
-                    <span className="text-slate-400 font-mono text-xs">
+                    <span className="text-slate-500 font-mono text-xs">
                       {Math.floor(u.balance || 0).toLocaleString()}
                     </span>
                   </td>

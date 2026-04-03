@@ -110,7 +110,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
           {/* Header */}
           <div className={`p-4 sm:p-6 pb-3 flex justify-between items-start border-b border-slate-800/50 ${diagnosis.bg.replace('/30', '/10')}`}>
             <div>
-              <div className="flex items-center gap-2 text-slate-400 mb-0.5 uppercase tracking-[0.2em] text-xs font-sans">
+              <div className="flex items-center gap-2 text-slate-500 mb-0.5 uppercase tracking-[0.2em] text-xs font-sans">
                 <Activity size={10} />
                 <span>{MESSAGES.DIAGNOSTICS.SAGE_TITLE}</span>
               </div>
@@ -133,7 +133,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               <div className="relative group">
                   <div className="absolute -top-3 -left-1 text-4xl text-slate-800 font-serif leading-none select-none">“</div>
                   <div className="relative z-10 pl-5 border-l border-slate-700">
-                    <p className="text-slate-400 font-serif text-sm sm:text-lg leading-relaxed italic whitespace-pre-wrap">
+                    <p className="text-slate-500 font-serif text-sm sm:text-lg leading-relaxed italic whitespace-pre-wrap">
                         {content.voice}
                     </p>
                   </div>
@@ -143,13 +143,13 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-0.5 bg-slate-800/50 border border-slate-800 rounded-xl overflow-hidden">
                   <div className="bg-slate-900 p-3 text-center">
                       <div className="text-xs text-slate-500 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_SPEED}</div>
-                      <div className={`font-mono text-lg sm:text-xl ${metabolism.rate >= 10 ? 'text-cyan-400' : 'text-slate-400'}`}>
+                      <div className={`font-mono text-lg sm:text-xl ${metabolism.rate >= 10 ? 'text-cyan-400' : 'text-slate-500'}`}>
                           {metabolism.rate}%
                       </div>
                   </div>
                   <div className="bg-slate-800/50 p-2.5 rounded-lg border border-slate-700/50">
                       <div className="text-xs text-slate-500 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_SAVINGS}</div>
-                        <div className="font-mono text-lg sm:text-xl text-slate-400">
+                        <div className="font-mono text-lg sm:text-xl text-slate-500">
                           {avgBalance.toLocaleString()}
                       </div>
                   </div>

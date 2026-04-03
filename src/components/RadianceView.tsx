@@ -107,7 +107,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             modalState === 'create_wish'
                                 ? 'text-amber-700' 
-                                : 'text-slate-400 hover:text-slate-500'
+                                : 'text-slate-500 hover:text-slate-500'
                         }`}
                     >
                         <span>{MESSAGES.HOME.BTN_NEW_WISH}</span>
@@ -124,10 +124,10 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             activeTab === 'active' && modalState !== 'create_wish'
                                 ? 'text-indigo-800' 
-                                : myActiveWishes.length === 0 ? 'text-slate-300' : 'text-slate-400 hover:text-slate-500'
+                                : myActiveWishes.length === 0 ? 'text-slate-500' : 'text-slate-500 hover:text-slate-500'
                         }`}
                     >
-                        {MESSAGES.HOME.TAB_SEARCHING} <span className="text-[10px] opacity-60 ml-1">({myActiveWishes.length})</span>
+                        {MESSAGES.HOME.TAB_SEARCHING} <span className="text-xs opacity-60 ml-1">({myActiveWishes.length})</span>
                         {activeTab === 'active' && modalState !== 'create_wish' && (
                             <motion.div 
                                 layoutId="radiance-tab-underline"
@@ -141,10 +141,10 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             activeTab === 'outbound' && modalState !== 'create_wish'
                                 ? 'text-emerald-800' 
-                                : myOutboundWishes.length === 0 ? 'text-slate-300' : 'text-slate-400 hover:text-slate-500'
+                                : myOutboundWishes.length === 0 ? 'text-slate-500' : 'text-slate-500 hover:text-slate-500'
                         }`}
                     >
-                        {MESSAGES.HOME.TAB_IN_PROGRESS} <span className="text-[10px] opacity-60 ml-1">({myOutboundWishes.length})</span>
+                        {MESSAGES.HOME.TAB_IN_PROGRESS} <span className="text-xs opacity-60 ml-1">({myOutboundWishes.length})</span>
                         {activeTab === 'outbound' && modalState !== 'create_wish' && (
                             <motion.div 
                                 layoutId="radiance-tab-underline"

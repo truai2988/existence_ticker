@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Wish, CreateWishInput } from "../../types";
 import { useAuth } from "../useAuthHook";
 import { useWishesContext } from "../../contexts/WishesContext";
-import { useWallet } from "../useWallet";
 import { db } from "../../lib/firebase";
 import { doc, runTransaction, serverTimestamp } from "firebase/firestore";
 import { MESSAGES } from "../../constants/messages";
@@ -10,7 +9,6 @@ import { MESSAGES } from "../../constants/messages";
 export const useCreateWish = () => {
   const { user } = useAuth();
   const { addOptimisticWish, updateOptimisticWish } = useWishesContext();
-  const { setOptimisticCommittedOffset } = useWallet();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const costMap: Record<string, number> = { light: 0, medium: 500, heavy: 1000 };
@@ -47,7 +45,6 @@ export const useCreateWish = () => {
     };
 
     addOptimisticWish(optimisticWish);
-    setOptimisticCommittedOffset((prev: number) => prev + bounty);
 
     try {
       await runTransaction(db, async (transaction) => {
@@ -90,7 +87,6 @@ export const useCreateWish = () => {
     } catch (e) {
       console.error("Failed to cast wish:", e);
       updateOptimisticWish(wishId, { error: e instanceof Error ? e.message : String(e) });
-      setOptimisticCommittedOffset((prev: number) => prev - bounty);
       alert(`${MESSAGES.WISH_ACTIONS.ALERT_CAST_FAILED} ${e instanceof Error ? e.message : String(e)}`);
       return false;
     } finally {

@@ -199,7 +199,7 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
       const t = log.type;
       if (t === 'REBIRTH' || t === 'BIRTH') return <Sun size={14} className="text-amber-500 fill-amber-100" />;
       if (t === 'GIFT') return isSender ? <Heart size={14} className="text-pink-500" /> : <Sparkles size={14} className="text-cyan-500" />;
-      if (t === 'WISH_CANCELLED' || t === 'WISH_EXPIRED') return <Archive size={14} className="text-slate-400" />;
+      if (t === 'WISH_CANCELLED' || t === 'WISH_EXPIRED') return <Archive size={14} className="text-slate-500" />;
       if (t === 'COMPENSATION') return isSender ? <CheckCircle2 size={14} className="text-rose-400" /> : <Sun size={14} className="text-amber-500" />;
       return <CheckCircle2 size={14} className={isExp ? "text-rose-500" : "text-emerald-500"} />;
     };
@@ -252,13 +252,13 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
 
       if (d === "wish_fulfilled [Crystallized]") return isSender ? MESSAGES.JOURNAL.DESC_WISH_SENDER : MESSAGES.JOURNAL.DESC_WISH_RECV;
       if (d === "wish_fulfilled (Bankruptcy Partial Payment) [Crystallized]") return isSender ? MESSAGES.JOURNAL.DESC_WISH_PARTIAL_SENDER : MESSAGES.JOURNAL.DESC_WISH_PARTIAL_RECV;
-      if (d === "願いを叶えてくれた感謝を、源気（Lm）に込めて贈りました") return MESSAGES.JOURNAL.DESC_WISH_SENDER;
-      if (d === "感謝が結晶（Lm）になって届きました") return MESSAGES.JOURNAL.DESC_WISH_RECV;
+      if (d === "願いを叶えてくれた感謝を、Lmに込めて贈りました") return MESSAGES.JOURNAL.DESC_WISH_SENDER;
+      if (d === "感謝がLmになって届きました") return MESSAGES.JOURNAL.DESC_WISH_RECV;
       if (d === "想いが巡りました（Priceless）") return MESSAGES.JOURNAL.DESC_PRICELESS;
       if (d === "感謝を贈りましたが、余力が足りず一部のみが結晶になりました") return MESSAGES.JOURNAL.DESC_WISH_PARTIAL_SENDER;
       if (d === "感謝が届きましたが、余力が足りず一部のみが結晶になりました") return MESSAGES.JOURNAL.DESC_WISH_PARTIAL_RECV;
       
-      if ([MESSAGES.JOURNAL.KW_BIRTH, MESSAGES.JOURNAL.DB_DESC_BIRTH, "源気が流れ込んできました", "命が宿りました", "誕生"].includes(d)) return MESSAGES.JOURNAL.DESC_BIRTH;
+      if ([MESSAGES.JOURNAL.KW_BIRTH, MESSAGES.JOURNAL.DB_DESC_BIRTH, "Lmが流れ込んできました", "命が宿りました", "誕生"].includes(d)) return MESSAGES.JOURNAL.DESC_BIRTH;
       if ([MESSAGES.JOURNAL.KW_REBIRTH, MESSAGES.JOURNAL.DB_DESC_REBIRTH, "魂が再生されました", "再生"].includes(d)) return MESSAGES.JOURNAL.DESC_REBIRTH;
       if (d === MESSAGES.JOURNAL.KW_BIRTH_ORIGINAL) return MESSAGES.JOURNAL.DESC_BIRTH;
       if (d === MESSAGES.JOURNAL.KW_PRICELESS || d === "無償の願い") return MESSAGES.JOURNAL.DESC_PRICELESS;
@@ -280,16 +280,16 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
                     <div className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 bg-white/60 ${isExp ? 'border-rose-100' : 'border-emerald-100'}`}>
                         {getIcon()}
                     </div>
-                    <span className="text-xs font-serif tracking-widest text-slate-400 uppercase">{dateStr} — {date.getHours().toString().padStart(2, '0')}:{date.getMinutes().toString().padStart(2, '0')}</span>
+                    <span className="text-xs font-serif tracking-widest text-slate-500 uppercase">{dateStr} — {date.getHours().toString().padStart(2, '0')}:{date.getMinutes().toString().padStart(2, '0')}</span>
                 </div>
-                <div className="flex items-center gap-1">
-                    <span className={`text-lg font-mono font-light ${amountColor}`}>
+                <div className="flex items-center gap-1 opacity-80">
+                    <span className={`text-base font-mono font-light ${amountColor}`}>
                         {Math.floor(Math.abs(log.amount)) === 0 
                             ? '±0' 
                             : `${(!isSender || isGrant) ? '+' : '-'}${Math.floor(Math.abs(log.amount)).toLocaleString()}`
                         }
                     </span>
-                    <span className="text-[10px] text-slate-400 font-sans tracking-tight">Lm</span>
+                    <span className="text-xs text-slate-500 font-sans tracking-tight">Lm</span>
                 </div>
             </div>
 
@@ -298,7 +298,7 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
                     {getTitle()}
                 </p>
                 {log.wish_title && log.type !== 'WISH_CANCELLED' && log.type !== 'WISH_EXPIRED' && (
-                    <p className="text-sm text-slate-400 mt-2 pl-3 border-l border-slate-200/50 italic line-clamp-1">"{log.wish_title}"</p>
+                    <p className="text-sm text-slate-500 mt-2 pl-3 border-l border-slate-200/50 italic line-clamp-1">"{log.wish_title}"</p>
                 )}
                 <p className="text-sm text-slate-500 mt-2 line-clamp-2 leading-relaxed font-light">
                     {getDescription()}

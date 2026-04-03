@@ -53,7 +53,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
           <button
             type="button"
             onClick={onFetchSeeds}
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-2 text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
             title="種子を更新"
           >
             <RefreshCw size={18} className={isLoading ? "animate-spin" : ""} />
@@ -63,7 +63,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
 
       {/* Add Seed Form */}
       <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6 space-y-4">
-        <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-400 flex items-center gap-2">
+        <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
           <Plus size={14} /> 新しい種を蒔く
         </h4>
         <div className="flex flex-col gap-4">
@@ -91,7 +91,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
               value={newSeedContent}
               onChange={(e) => setNewSeedContent(e.target.value)}
               placeholder="「例えば：...」静かな願いの種を綴ってください"
-              className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-4 text-base text-slate-200 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50 transition-all min-h-[100px] font-serif"
+              className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-4 text-base text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 transition-all min-h-[100px] font-serif"
             />
           </div>
           <button
@@ -126,7 +126,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
                     className="group bg-slate-900/30 border border-slate-800 hover:border-slate-700 p-4 rounded-xl flex justify-between items-start gap-4 transition-all"
                   >
                     <div className="flex-1">
-                      <p className="text-slate-400 font-serif leading-relaxed text-base">
+                      <p className="text-slate-500 font-serif leading-relaxed text-base">
                         {seed.content}
                       </p>
                       <div className="mt-2 text-xs text-slate-500 font-mono uppercase tracking-tighter">

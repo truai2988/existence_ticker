@@ -19,12 +19,10 @@ export const Header: React.FC<HeaderProps> = ({
   onTabChange,
   onOpenOnboarding,
 }) => {
-  const { availableLm, committedLm } = useWallet();
+  const { balance } = useWallet();
   const { profile } = useProfile();
   const { t: MESSAGES } = useLanguage();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
-  const balance = availableLm + committedLm;
 
   // Days left: Consistent with HomeView logic
   const cycleDays = profile?.scheduled_cycle_days || 10;
@@ -62,12 +60,12 @@ export const Header: React.FC<HeaderProps> = ({
                     </h1>
                     {/* Supplemental: Balance info */}
                     {(!viewMode || viewMode === "home") && (
-                      <div className="flex items-center gap-2 text-slate-400">
-                        <span className="text-[10px] font-bold tracking-[0.2em] uppercase whitespace-nowrap">
+                      <div className="flex items-center gap-2 text-slate-500 mt-0.5">
+                        <span className="text-xs font-medium tracking-wider uppercase whitespace-nowrap">
                           {MESSAGES.LAYOUT.HEADER_BALANCE}{Math.floor(balance).toLocaleString()}
                         </span>
-                        <div className="w-[1px] h-2 bg-slate-200" />
-                        <span className="text-[10px] font-medium tracking-widest whitespace-nowrap">
+                        <div className="w-[1px] h-3 bg-slate-300" />
+                        <span className="text-xs font-medium tracking-wider whitespace-nowrap">
                           {MESSAGES.LAYOUT.HEADER_DAYS_LEFT_PREFIX}{daysLeft}{MESSAGES.LAYOUT.HEADER_DAYS_LEFT_SUFFIX}
                         </span>
                       </div>

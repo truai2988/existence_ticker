@@ -35,7 +35,6 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   }, []);
   // 4. Optimistic Offsets (The Mirage)
   const [optimisticBalanceOffset, setOptimisticBalanceOffset] = useState(0);
-  const [optimisticCommittedOffset, setOptimisticCommittedOffset] = useState(0);
 
   // === 1. PHYSICAL TRUTH (Absolute Hierarchy) ===
 
@@ -65,7 +64,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const committedLm = useMemo(() => {
     // 【世界の理】願いの価値はそれそれが生まれた瞬間（created_at）からのみ計算される。
     let totalMilli = 0;
-    const costMap: Record<string, number> = { light: 100, medium: 500, heavy: 1000 };
+    const costMap: Record<string, number> = { light: 0, medium: 500, heavy: 1000 };
     
     userActiveWishes.forEach(wish => {
       const initialCost = wish.cost || costMap[wish.gratitude_preset || ''] || 0;
@@ -73,8 +72,8 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const elapsedSec = ((globalNow - createdAt) / 1000) | 0;
       totalMilli += calculateDecayedValue(toMilli(initialCost), elapsedSec);
     });
-    return fromMilli(totalMilli) + optimisticCommittedOffset;
-  }, [userActiveWishes, globalNow, optimisticCommittedOffset]);
+    return fromMilli(totalMilli);
+  }, [userActiveWishes, globalNow]);
 
   // Chain 3: Available Lm (The Result)
   const availableLm = useMemo(() => {
@@ -233,9 +232,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     globalNow,
     optimisticBalanceOffset,
     setOptimisticBalanceOffset,
-    optimisticCommittedOffset,
-    setOptimisticCommittedOffset,
-  }), [balance, committedLm, availableLm, status, performRebirthReset, profileLoading, wishesLoading, globalNow, optimisticBalanceOffset, optimisticCommittedOffset]);
+  }), [balance, committedLm, availableLm, status, performRebirthReset, profileLoading, wishesLoading, globalNow, optimisticBalanceOffset]);
 
   return <WalletContext.Provider value={contextValue}>{children}</WalletContext.Provider>;
 };

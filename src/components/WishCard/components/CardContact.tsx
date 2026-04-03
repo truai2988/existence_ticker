@@ -29,7 +29,7 @@ export const CardContact: React.FC<{ state: WishCardState; handlers: WishCardHan
                 </span>
                 <button
                   onClick={handleCopyEmail}
-                  className="p-2 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100"
+                  className="p-2 text-slate-500 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100"
                   title={MESSAGES.WISH_CARD.BTN_COPY}
                 >
                   {isCopied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}

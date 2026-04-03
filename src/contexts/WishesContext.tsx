@@ -4,7 +4,7 @@ import { Wish } from '../types';
 import { db } from '../lib/firebase';
 import { collection, query, orderBy, where, onSnapshot, limit } from 'firebase/firestore';
 import { useAuth } from '../hooks/useAuthHook';
-import { getMillis } from '../logic/worldPhysics';
+import { getMillis, calculateDecayedValue, toMilli } from '../logic/worldPhysics';
 
 
 interface WishesContextType {
@@ -90,8 +90,17 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                     cancelled_at: raw.cancelled_at ? getMillis(raw.cancelled_at) : undefined,
                 } as Wish;
             });
-            // Filter out 0 Lm (using normalized number)
-            const valid = data.filter(w => w.created_at + (w.cost || 0) * 3600 * 1000 > Date.now());
+            // Filter out expired wishes based on absolute universal physics (decay to 0).
+            const valid = data.filter(w => {
+                const effectiveCost = w.cost !== undefined ? w.cost : 0;
+                if (effectiveCost === 0) return true; // 0 Lm stays forever
+                
+                const elapsedSec = ((Date.now() - w.created_at) / 1000) | 0;
+                const currentMilli = calculateDecayedValue(toMilli(effectiveCost), elapsedSec);
+                
+                // Keep the wish visible only if there is still some Lm value remaining
+                return currentMilli > 0;
+            });
             setWishes(valid);
             setIsLoading(false);
         }, (err) => {

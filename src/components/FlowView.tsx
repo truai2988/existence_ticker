@@ -124,10 +124,10 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             activeTab === 'explore' 
                                 ? 'text-amber-700' 
-                                : exploreWishes.length === 0 ? 'text-slate-300' : 'text-slate-400 hover:text-slate-500'
+                                : exploreWishes.length === 0 ? 'text-slate-500' : 'text-slate-500 hover:text-slate-500'
                         }`}
                     >
-                        <span>{MESSAGES.FLOW.TAB_EXPLORE} <span className="text-[10px] opacity-60 ml-1">({exploreWishes.length})</span></span>
+                        <span>{MESSAGES.FLOW.TAB_EXPLORE} <span className="text-xs opacity-60 ml-1">({exploreWishes.length})</span></span>
                         {activeTab === 'explore' && (
                             <motion.div 
                                 layoutId="flow-tab-underline"
@@ -141,10 +141,10 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             activeTab === 'pending' 
                                 ? 'text-indigo-800' 
-                                : pendingWishes.length === 0 ? 'text-slate-300' : 'text-slate-400 hover:text-slate-500'
+                                : pendingWishes.length === 0 ? 'text-slate-500' : 'text-slate-500 hover:text-slate-500'
                         }`}
                     >
-                        {MESSAGES.FLOW.TAB_PENDING} <span className="text-[10px] opacity-60 ml-1">({pendingWishes.length})</span>
+                        {MESSAGES.FLOW.TAB_PENDING} <span className="text-xs opacity-60 ml-1">({pendingWishes.length})</span>
                         {activeTab === 'pending' && (
                             <motion.div 
                                 layoutId="flow-tab-underline"
@@ -158,10 +158,10 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             activeTab === 'active' 
                                 ? 'text-emerald-700' 
-                                : activeWishes.length === 0 ? 'text-slate-300' : 'text-slate-400 hover:text-slate-500'
+                                : activeWishes.length === 0 ? 'text-slate-500' : 'text-slate-500 hover:text-slate-500'
                         }`}
                     >
-                        {MESSAGES.FLOW.TAB_ACTIVE} <span className="text-[10px] opacity-60 ml-1">({activeWishes.length})</span>
+                        {MESSAGES.FLOW.TAB_ACTIVE} <span className="text-xs opacity-60 ml-1">({activeWishes.length})</span>
                         {activeTab === 'active' && (
                             <motion.div 
                                 layoutId="flow-tab-underline"

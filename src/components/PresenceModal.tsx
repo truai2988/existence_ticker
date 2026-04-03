@@ -109,13 +109,13 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
         <div className="p-6 pb-2 flex justify-between items-start">
             <div>
                 <h2 className="text-3xl font-serif text-slate-800 tracking-widest flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-slate-400" />
+                    <MapPin className="w-5 h-5 text-slate-500" />
                     <span>{MESSAGES.MODALS.PRESENCE_TITLE}</span>
                 </h2>
             </div>
             <button 
                 onClick={onClose}
-                className="p-2 rounded-full hover:bg-slate-100/80 transition-colors text-slate-400"
+                className="p-2 rounded-full hover:bg-slate-100/80 transition-colors text-slate-500"
             >
                 <X size={20} />
             </button>
@@ -167,7 +167,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
 
                 <div className="relative z-10 text-center">
                     {loading ? (
-                        <div className="flex flex-col items-center gap-2 text-slate-400">
+                        <div className="flex flex-col items-center gap-2 text-slate-500">
                              <Loader2 className="w-5 h-5 animate-spin" />
                               <span className="text-xs font-bold uppercase tracking-widest">{MESSAGES.MODALS.PRESENCE_CHECKING}</span>
                         </div>
@@ -200,7 +200,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
                             <option key={pref} value={pref}>{mapPrefecture(pref)}</option>
                         ))}
                     </select>
-                    <ChevronLeft size={16} className="absolute right-3 top-1/2 -translate-y-1/2 -rotate-90 text-slate-400 pointer-events-none" />
+                    <ChevronLeft size={16} className="absolute right-3 top-1/2 -translate-y-1/2 -rotate-90 text-slate-500 pointer-events-none" />
                  </div>
 
                  {/* City */}
@@ -218,11 +218,11 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
                             <option key={city} value={city}>{city}</option>
                         ))}
                     </select>
-                    <ChevronLeft size={16} className="absolute right-3 top-1/2 -translate-y-1/2 -rotate-90 text-slate-400 pointer-events-none" />
+                    <ChevronLeft size={16} className="absolute right-3 top-1/2 -translate-y-1/2 -rotate-90 text-slate-500 pointer-events-none" />
                  </div>
             </div>
 
-            <p className="text-xs text-slate-400 text-center leading-relaxed">
+            <p className="text-xs text-slate-500 text-center leading-relaxed">
                 {MESSAGES.MODALS.PRESENCE_PRIVACY_NOTE}
             </p>
 

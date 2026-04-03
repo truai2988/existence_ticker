@@ -114,14 +114,14 @@ export const NoticePanel: React.FC = () => {
                 {notices.length > 0 && (
                   <button
                     onClick={dismissAll}
-                    className="text-xs text-slate-400 hover:text-amber-600 transition-colors tracking-tighter"
+                    className="text-xs text-slate-500 hover:text-amber-600 transition-colors tracking-tighter"
                   >
                     {t.NOTICE.TOOLTIP_DISMISS_ALL}
                   </button>
                 )}
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-1 text-slate-300 hover:text-slate-500 transition-colors"
+                  className="p-1 text-slate-500 hover:text-slate-500 transition-colors"
                 >
                   <X size={18} strokeWidth={1.5} />
                 </button>
@@ -134,13 +134,13 @@ export const NoticePanel: React.FC = () => {
                 <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
                   <BellOff
                     size={28}
-                    className="text-slate-300 mb-3"
+                    className="text-slate-500 mb-3"
                     strokeWidth={1.5}
                   />
-                  <p className="text-sm text-slate-400 font-medium">
+                  <p className="text-sm text-slate-500 font-medium">
                     {t.NOTICE.EMPTY_TITLE}
                   </p>
-                  <p className="text-xs text-slate-300 mt-1">
+                  <p className="text-xs text-slate-500 mt-1">
                     {t.NOTICE.EMPTY_DESC}
                   </p>
                 </div>
@@ -165,7 +165,7 @@ export const NoticePanel: React.FC = () => {
                         <p className="text-[13px] text-slate-600 leading-relaxed font-light tracking-wide">
                           {resolveMessage(notice, wishActions)}
                         </p>
-                        <span className="text-xs text-slate-300 mt-1.5 block font-sans tracking-tight">
+                        <span className="text-xs text-slate-500 mt-1.5 block font-sans tracking-tight">
                           {formatTime(
                             notice.createdAt,
                             t.NOTICE.TIME_JUST_NOW,
@@ -178,7 +178,7 @@ export const NoticePanel: React.FC = () => {
                       {/* 削除ボタン */}
                       <button
                         onClick={() => dismissNotice(notice.id)}
-                        className="p-2.5 text-slate-300 hover:text-slate-500 hover:bg-slate-100 rounded-md transition-colors opacity-0 group-hover:opacity-100 shrink-0 mt-0.5"
+                        className="p-2.5 text-slate-500 hover:text-slate-500 hover:bg-slate-100 rounded-md transition-colors opacity-0 group-hover:opacity-100 shrink-0 mt-0.5"
                         title={t.NOTICE.TOOLTIP_DISMISS}
                       >
                         <X size={14} />

@@ -101,7 +101,7 @@ export const WishCardList: React.FC<WishCardListProps> = ({
                     className="w-full py-4 flex justify-center items-center"
                 >
                     {isFetchingMore ? (
-                        <Loader2 className="w-5 h-5 text-slate-400 animate-spin" />
+                        <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
                     ) : (
                         <span className="text-sm text-slate-500">{MESSAGES.WISH.BTN_LOAD_MORE}</span>
                     )}

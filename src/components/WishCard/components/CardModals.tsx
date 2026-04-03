@@ -42,7 +42,7 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
                   {MESSAGES.WISH_CARD.MODAL_HELPER_LIST} <span className="text-slate-500 font-normal ml-1">({applicants.length})</span>
                 </h4>
               </div>
-              <button onClick={() => setShowApplicants(false)} className="p-2.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
+              <button onClick={() => setShowApplicants(false)} className="p-2.5 text-slate-500 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>

@@ -280,7 +280,7 @@ const ScreenLoader = ({ message }: { message?: string }) => (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-slate-400 font-serif tracking-[0.2em] text-sm animate-pulse"
+          className="text-slate-500 font-serif tracking-[0.2em] text-sm animate-pulse"
         >
           {message}
         </motion.div>
@@ -296,12 +296,12 @@ function App() {
 
   // Branding Synchronization (Runtime Override for Cache/Service Worker)
   useEffect(() => {
-    document.title = "Existence Ticker | Celestial Archive";
+    document.title = "Existence Ticker | 天上の書庫";
     
     // Cleanup of any legacy meta tags if they exist
-    const metaDesc = document.querySelector('meta[name="description"]');
-    if (metaDesc) {
-      metaDesc.setAttribute("content", "Existence Ticker — A new infrastructure for celebrating existence and circulating gratitude.");
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute("content", "存在の安息地。Existence Tickerは、感謝と存在を巡らせるための静かなる場所です。");
     }
   }, []);
 

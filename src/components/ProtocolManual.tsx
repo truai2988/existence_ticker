@@ -23,7 +23,7 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
           </div>
           <button
             onClick={onClose}
-            className="p-3 hover:bg-slate-100 rounded-full text-slate-400 hover:text-slate-900 transition-colors"
+            className="p-3 hover:bg-slate-100 rounded-full text-slate-500 hover:text-slate-900 transition-colors"
           >
             <X size={24} />
           </button>
@@ -241,10 +241,10 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
                         <div className="font-bold text-green-800 mb-1">{MESSAGES.PROTOCOL.CH4_4_R1_TITLE}</div>
                         <div className="text-sm font-normal text-green-600 mb-3 font-mono">{MESSAGES.PROTOCOL.CH4_4_R1_COND}</div>
                         
-                        <div className="text-xs font-bold text-slate-400 uppercase mb-1">{MESSAGES.PROTOCOL.CH4_4_CAUSE_LBL}</div>
+                        <div className="text-xs font-bold text-slate-500 uppercase mb-1">{MESSAGES.PROTOCOL.CH4_4_CAUSE_LBL}</div>
                         <div className="text-sm text-slate-700 mb-3">{MESSAGES.PROTOCOL.CH4_4_R1_CAUSE}</div>
                         
-                        <div className="text-xs font-bold text-slate-400 uppercase mb-1">{MESSAGES.PROTOCOL.CH4_4_ACTION_LBL}</div>
+                        <div className="text-xs font-bold text-slate-500 uppercase mb-1">{MESSAGES.PROTOCOL.CH4_4_ACTION_LBL}</div>
                         <div className="text-sm">
                             <span className="block font-bold text-green-600">{MESSAGES.PROTOCOL.CH4_4_R1_ACTION}</span>
                             {MESSAGES.PROTOCOL.CH4_4_R1_DESC}
@@ -256,10 +256,10 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
                         <div className="font-bold text-slate-900 mb-1">{MESSAGES.PROTOCOL.CH4_4_R2_TITLE}</div>
                         <div className="text-sm font-normal text-slate-500 mb-3 font-mono">{MESSAGES.PROTOCOL.CH4_4_R2_COND}</div>
                         
-                        <div className="text-xs font-bold text-slate-400 uppercase mb-1">{MESSAGES.PROTOCOL.CH4_4_CAUSE_LBL}</div>
+                        <div className="text-xs font-bold text-slate-500 uppercase mb-1">{MESSAGES.PROTOCOL.CH4_4_CAUSE_LBL}</div>
                         <div className="text-sm text-slate-700 mb-3">{MESSAGES.PROTOCOL.CH4_4_R2_CAUSE}</div>
                         
-                        <div className="text-xs font-bold text-slate-400 uppercase mb-1">{MESSAGES.PROTOCOL.CH4_4_ACTION_LBL}</div>
+                        <div className="text-xs font-bold text-slate-500 uppercase mb-1">{MESSAGES.PROTOCOL.CH4_4_ACTION_LBL}</div>
                          <div className="text-sm">
                             <span className="block font-bold text-blue-600">{MESSAGES.PROTOCOL.CH4_4_R2_ACTION}</span>
                             {MESSAGES.PROTOCOL.CH4_4_R2_DESC_1}<br/>{MESSAGES.PROTOCOL.CH4_4_R2_DESC_2}
@@ -271,10 +271,10 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
                         <div className="font-bold text-slate-900 mb-1">{MESSAGES.PROTOCOL.CH4_4_R3_TITLE}</div>
                         <div className="text-sm font-normal text-slate-500 mb-3 font-mono">{MESSAGES.PROTOCOL.CH4_4_R3_COND}</div>
                         
-                        <div className="text-xs font-bold text-slate-400 uppercase mb-1">{MESSAGES.PROTOCOL.CH4_4_CAUSE_LBL}</div>
+                        <div className="text-xs font-bold text-slate-500 uppercase mb-1">{MESSAGES.PROTOCOL.CH4_4_CAUSE_LBL}</div>
                         <div className="text-sm text-slate-700 mb-3">{MESSAGES.PROTOCOL.CH4_4_R3_CAUSE}</div>
                         
-                        <div className="text-xs font-bold text-slate-400 uppercase mb-1">{MESSAGES.PROTOCOL.CH4_4_ACTION_LBL}</div>
+                        <div className="text-xs font-bold text-slate-500 uppercase mb-1">{MESSAGES.PROTOCOL.CH4_4_ACTION_LBL}</div>
                         <div className="text-sm">
                             <span className="block font-bold text-purple-600">{MESSAGES.PROTOCOL.CH4_4_R3_ACTION}</span>
                             {MESSAGES.PROTOCOL.CH4_4_R3_DESC_1}<br/>{MESSAGES.PROTOCOL.CH4_4_R3_DESC_2}
@@ -286,10 +286,10 @@ export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
                         <div className="font-bold text-slate-900 mb-1">{MESSAGES.PROTOCOL.CH4_4_R4_TITLE}</div>
                         <div className="text-sm font-mono font-bold text-red-500 mb-3">{MESSAGES.PROTOCOL.CH4_4_R4_COND}</div>
                         
-                        <div className="text-xs font-bold text-slate-400 uppercase mb-1">{MESSAGES.PROTOCOL.CH4_4_CAUSE_LBL}</div>
+                        <div className="text-xs font-bold text-slate-500 uppercase mb-1">{MESSAGES.PROTOCOL.CH4_4_CAUSE_LBL}</div>
                         <div className="text-sm text-slate-700 mb-3">{MESSAGES.PROTOCOL.CH4_4_R4_CAUSE}</div>
                         
-                        <div className="text-xs font-bold text-slate-400 uppercase mb-1">{MESSAGES.PROTOCOL.CH4_4_ACTION_LBL}</div>
+                        <div className="text-xs font-bold text-slate-500 uppercase mb-1">{MESSAGES.PROTOCOL.CH4_4_ACTION_LBL}</div>
                         <div className="text-sm">
                             <span className="block font-bold text-red-600">{MESSAGES.PROTOCOL.CH4_4_R4_ACTION}</span>
                             {MESSAGES.PROTOCOL.CH4_4_R4_DESC_1}<br/>{MESSAGES.PROTOCOL.CH4_4_R4_DESC_2}

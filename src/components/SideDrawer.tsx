@@ -97,13 +97,13 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
                 <div className="text-3xl font-light tracking-tighter text-slate-800 leading-none font-['Inter']">
                   ET
                 </div>
-                <div className="text-xs text-slate-400 font-light tracking-[0.35em] uppercase mt-1">
+                <div className="text-xs text-slate-500 font-light tracking-[0.35em] uppercase mt-1">
                   Existence Ticker
                 </div>
               </button>
               <button
                 onClick={onClose}
-                className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-200/30 rounded-full transition-colors"
+                className="p-2 text-slate-500 hover:text-slate-600 hover:bg-slate-200/30 rounded-full transition-colors"
                 aria-label={MESSAGES.MODALS.BTN_CLOSE}
               >
                 <X size={20} strokeWidth={1.5} />
@@ -184,7 +184,7 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
                   window.open('/trust', '_blank');
                   onClose();
                 }}
-                className="text-xs font-serif text-slate-400 tracking-[0.15em] hover:text-slate-600 transition-colors duration-200"
+                className="text-xs font-serif text-slate-500 tracking-[0.15em] hover:text-slate-600 transition-colors duration-200"
               >
                 {MESSAGES.LAYOUT.SIDEDRAWER_TRUST}
               </button>

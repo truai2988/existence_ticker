@@ -95,7 +95,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                 {!isMasked && requesterProfile?.avatarUrl ? (
                   <img src={requesterProfile.avatarUrl} alt={requesterProfile.name} className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-base font-bold text-slate-400">
+                  <span className="text-base font-bold text-slate-500">
                     {isMasked ? <User className="w-5 h-5 text-slate-500" /> : (requesterProfile?.name?.charAt(0).toUpperCase() || <User className="w-5 h-5 text-slate-500" />)}
                   </span>
                 )}
@@ -150,7 +150,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                 <button
                   onClick={() => setIsEditing(!isEditing)}
                   disabled={isLoading}
-                  className="p-3 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
+                  className="p-3 text-slate-500 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors"
                   title={MESSAGES.WISH_CARD.BTN_EDIT}
                 >
                   <Pencil size={16} />
@@ -158,7 +158,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                 <button
                   onClick={handleCancel}
                   disabled={isLoading}
-                  className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                  className="p-3 text-slate-500 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
                   title={MESSAGES.WISH_CARD.BTN_WITHDRAW}
                 >
                   <Trash2 size={16} />
@@ -169,7 +169,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
               <button
                 onClick={handleCancel}
                 disabled={isLoading}
-                className="p-3 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                className="p-3 text-slate-500 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
                 title={MESSAGES.WISH_CARD.BTN_INTERRUPT}
               >
                 <AlertTriangle size={16} />

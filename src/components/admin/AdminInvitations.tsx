@@ -112,7 +112,7 @@ export const AdminInvitations = React.memo<AdminInvitationsProps>(({
                                   onUpdateMemo(code.id, e.target.value);
                                 }
                               }}
-                              className="bg-slate-800/80 border border-slate-700/50 rounded flex-1 px-3 py-1 text-base text-slate-400 focus:outline-none focus:border-slate-500 placeholder:text-slate-400 transition-colors w-40"
+                              className="bg-slate-800/80 border border-slate-700/50 rounded flex-1 px-3 py-1 text-base text-slate-500 focus:outline-none focus:border-slate-500 placeholder:text-slate-500 transition-colors w-40"
                             />
                           </div>
                           <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-emerald-500/20 shadow-[0_0_10px_rgba(52,211,153,0.1)]">
@@ -124,7 +124,7 @@ export const AdminInvitations = React.memo<AdminInvitationsProps>(({
                             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all duration-300 text-xs font-bold tracking-widest uppercase active:scale-95 ${
                               copiedCodeId === code.id
                                 ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
-                                : "bg-slate-800/50 border-slate-700 text-slate-400 hover:text-white hover:border-slate-500"
+                                : "bg-slate-800/50 border-slate-700 text-slate-500 hover:text-white hover:border-slate-500"
                             }`}
                           >
                             {copiedCodeId === code.id ? (

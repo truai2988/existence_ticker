@@ -102,7 +102,7 @@ export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats, onOpenDiagno
             </p>
           </div>
         </div>
-        <div className="text-slate-600 group-hover:text-slate-400 transition-colors">
+        <div className="text-slate-600 group-hover:text-slate-500 transition-colors">
           →
         </div>
       </div>

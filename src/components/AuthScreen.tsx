@@ -184,7 +184,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                   </label>
                   <div className="relative group">
                     <User
-                      className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors"
+                      className="absolute left-3 top-3 text-slate-500 group-focus-within:text-slate-600 transition-colors"
                       size={18}
                     />
                     <input
@@ -205,7 +205,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
               </label>
               <div className="relative group">
                 <Mail
-                  className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors"
+                  className="absolute left-3 top-3 text-slate-500 group-focus-within:text-slate-600 transition-colors"
                   size={18}
                 />
                 <input
@@ -225,7 +225,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                 </label>
                 <div className="relative group">
                   <Lock
-                    className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors"
+                    className="absolute left-3 top-3 text-slate-500 group-focus-within:text-slate-600 transition-colors"
                     size={18}
                   />
                   <input
@@ -238,7 +238,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 transition-colors"
+                    className="absolute right-3 top-3 text-slate-500 hover:text-slate-600 transition-colors"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -261,7 +261,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                     <div className="grid grid-cols-2 gap-2">
                       <div className="relative group">
                         <MapPin
-                          className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors pointer-events-none"
+                          className="absolute left-3 top-3 text-slate-500 group-focus-within:text-slate-600 transition-colors pointer-events-none"
                           size={18}
                         />
                         <select
@@ -282,7 +282,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                           ))}
                         </select>
                         <ChevronDown
-                          className="absolute right-3 top-3 text-slate-400 pointer-events-none"
+                          className="absolute right-3 top-3 text-slate-500 pointer-events-none"
                           size={18}
                         />
                       </div>
@@ -303,7 +303,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                           ))}
                         </select>
                         <ChevronDown
-                          className="absolute right-3 top-3 text-slate-400 pointer-events-none"
+                          className="absolute right-3 top-3 text-slate-500 pointer-events-none"
                           size={18}
                         />
                       </div>
@@ -337,7 +337,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                           <option value="over_80">{MESSAGES.AUTH.AGE_GROUP_OVER_80}</option>
                         </select>
                         <ChevronDown
-                          className="absolute right-3 top-3 text-slate-400 pointer-events-none"
+                          className="absolute right-3 top-3 text-slate-500 pointer-events-none"
                           size={18}
                         />
                       </div>
@@ -364,7 +364,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                           <option value="other">{MESSAGES.AUTH.GENDER_OTHER}</option>
                         </select>
                         <ChevronDown
-                          className="absolute right-3 top-3 text-slate-400 pointer-events-none"
+                          className="absolute right-3 top-3 text-slate-500 pointer-events-none"
                           size={18}
                         />
                       </div>
@@ -378,7 +378,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                     </label>
                     <div className="relative group">
                       <Key
-                        className="absolute left-3 top-3 text-slate-400 group-focus-within:text-slate-600 transition-colors"
+                        className="absolute left-3 top-3 text-slate-500 group-focus-within:text-slate-600 transition-colors"
                         size={18}
                       />
                       <input

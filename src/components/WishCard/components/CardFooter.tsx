@@ -196,7 +196,7 @@ export const CardFooter: React.FC<{
                         }
                       }}
                       disabled={isLoading}
-                      className="px-3 py-2 text-base font-bold text-slate-400 border border-slate-200 rounded-full hover:bg-slate-50 hover:text-slate-600 hover:border-slate-300 transition-all"
+                      className="px-3 py-2 text-base font-bold text-slate-500 border border-slate-200 rounded-full hover:bg-slate-50 hover:text-slate-600 hover:border-slate-300 transition-all"
                     >
                       {MESSAGES.WISH_CARD.BTN_CANCEL_APPLY}
                     </button>

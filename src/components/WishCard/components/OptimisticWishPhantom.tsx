@@ -41,7 +41,7 @@ export const OptimisticWishPhantom: React.FC<{ wish: Wish }> = ({ wish }) => {
   return (
     <div className="relative bg-slate-50/50 border border-slate-200 rounded-2xl p-6 overflow-hidden">
       <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm z-10 rounded-xl">
-        <div className="flex flex-col items-center text-slate-300">
+        <div className="flex flex-col items-center text-slate-500">
           <Send className="w-6 h-6 animate-bounce mb-2" />
           <span className="text-sm font-bold tracking-wider font-sans">{MESSAGES.WISH_CARD.PH_SENDING}</span>
         </div>

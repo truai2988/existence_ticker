@@ -51,7 +51,7 @@ export const RitualOverlay: React.FC<RitualOverlayProps> = ({ state, targetBalan
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 0.4, y: 0 }}
-              className="text-xs font-light tracking-[0.5em] text-slate-400 uppercase mb-12"
+              className="text-xs font-light tracking-[0.5em] text-slate-500 uppercase mb-12"
             >
                 {state === 'breathing' && MESSAGES.RITUAL.BREATHING}
                 {state === 'blooming' && MESSAGES.RITUAL.BLOOMING}
@@ -94,7 +94,7 @@ export const RitualOverlay: React.FC<RitualOverlayProps> = ({ state, targetBalan
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.3 }}
-              className="mt-12 text-xs font-light tracking-widest text-slate-400 font-serif"
+              className="mt-12 text-xs font-light tracking-widest text-slate-500 font-serif"
             >
                  {MESSAGES.RITUAL.SUBTEXT}
             </motion.div>

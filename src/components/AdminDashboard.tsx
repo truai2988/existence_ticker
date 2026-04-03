@@ -387,7 +387,7 @@ https://www.existenceticker.com/?code=${codeId}
             <button
               type="button"
               onClick={() => setShowManual(true)}
-              className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-white"
+              className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-500 hover:text-white"
               title="プロトコル構想書"
             >
               <Book size={24} />
@@ -395,7 +395,7 @@ https://www.existenceticker.com/?code=${codeId}
             <button
               type="button"
               onClick={onClose}
-              className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-white"
+              className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-500 hover:text-white"
             >
               <X size={24} />
             </button>
@@ -415,7 +415,7 @@ https://www.existenceticker.com/?code=${codeId}
           <button
             type="button"
             onClick={() => setActiveTab("monitor")}
-            className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "monitor" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-400"}`}
+            className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "monitor" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-500"}`}
           >
             <Activity size={16} />
             監視
@@ -423,21 +423,21 @@ https://www.existenceticker.com/?code=${codeId}
           <button
             type="button"
             onClick={() => setActiveTab("citizens")}
-            className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "citizens" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-400"}`}
+            className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "citizens" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-500"}`}
           >
             <Users size={16} /> 住民
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("invitations")}
-            className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "invitations" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-400"}`}
+            className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "invitations" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-500"}`}
           >
             <Key size={16} /> 招待
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("seeds")}
-            className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "seeds" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-400"}`}
+            className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "seeds" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-500 hover:text-slate-500"}`}
           >
             <Sprout size={16} /> 種子の書庫
           </button>

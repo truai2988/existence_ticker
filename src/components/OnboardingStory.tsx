@@ -222,7 +222,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
           {/* Close Button */}
           <button 
             onClick={onClose}
-            className="absolute top-6 right-6 z-50 p-3 rounded-full bg-white/50 hover:bg-white text-slate-400 hover:text-slate-600 transition-colors shadow-sm"
+            className="absolute top-6 right-6 z-50 p-3 rounded-full bg-white/50 hover:bg-white text-slate-500 hover:text-slate-600 transition-colors shadow-sm"
             aria-label={MESSAGES.SYSTEM.BTN_CLOSE}
           >
             <HeartHandshake size={20} />
@@ -260,7 +260,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
                 <h2 className="text-2xl font-serif font-medium text-slate-800 tracking-widest mb-1 text-center">
                   {slides[currentSlide].title}
                 </h2>
-                <div className="text-xs font-bold tracking-[0.3em] text-slate-400 uppercase mb-4 text-center">
+                <div className="text-xs font-bold tracking-[0.3em] text-slate-500 uppercase mb-4 text-center">
                   {slides[currentSlide].subtitle}
                 </div>
 
@@ -297,7 +297,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
                 {isLastSlide ? (
                   <>
                     {MESSAGES.ONBOARDING.BTN_CLOSE}
-                    <HeartHandshake size={20} className="text-slate-400" />
+                    <HeartHandshake size={20} className="text-slate-500" />
                   </>
                 ) : (
                   <>

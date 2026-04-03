@@ -49,7 +49,7 @@ export const ApplicantItem: React.FC<{
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="text-base font-bold text-slate-400">
+            <span className="text-base font-bold text-slate-500">
               {isMasked ? (
                 <User className="w-5 h-5 text-slate-500" />
               ) : (
@@ -69,12 +69,12 @@ export const ApplicantItem: React.FC<{
           >
             {displayName}
             {metadata && (
-              <span className="ml-1.5 text-xs font-normal text-slate-400 opacity-80 whitespace-nowrap font-sans">
+              <span className="ml-1.5 text-xs font-normal text-slate-500 opacity-80 whitespace-nowrap font-sans">
                 {metadata}
               </span>
             )}
           </button>
-          <div className="text-xs text-slate-400 flex items-center gap-2 mt-0.5">
+          <div className="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
             {/* Trust/Helped Count Badge */}
             <div
               title={`${trustScore} times helped`}

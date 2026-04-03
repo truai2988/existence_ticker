@@ -117,306 +117,243 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center w-full relative pt-safe pt-20 md:pt-24">
-      {/* 1. Balance Display (Only when Alive/Color) */}
-      {showColor && (
-        <>
-          {/* Lm数値 (左寄り) */}
-          <div className="absolute top-[18%] left-0 right-0 flex flex-col items-center z-20 pointer-events-none">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col items-center gap-1"
-            >
-              <div className="text-6xl font-serif font-extralight tracking-[-0.05em] tabular-nums leading-none bg-gradient-to-b from-slate-700 via-slate-600 to-slate-500 bg-clip-text text-transparent transform drop-shadow-sm pb-2">
-                {Math.floor(availableLm).toLocaleString()}
-              </div>
-            </motion.div>
-          </div>
+    <div className="flex-1 flex flex-col items-center justify-start w-full relative pt-safe min-h-screen overflow-hidden">
+      {/* 1. Backdrop Glow (Dynamic but Subtle) */}
+      <div className="absolute inset-0 bg-gradient-radial from-amber-50/10 via-transparent to-transparent pointer-events-none" />
 
-          {/* Water Clock — ヘッダーと同じ max-w-2xl px-6 基準で右端に揃え */}
-          <div className="absolute top-[18%] left-0 right-0 z-20 pointer-events-none">
-            <div className="w-full max-w-2xl mx-auto px-6 flex justify-end">
+      {/* FLEX LAYOUT CONTAINER FOR CONTENT */}
+      <div className="flex-1 flex flex-col w-full h-full justify-between z-10 relative">
+        
+        {/* TOP AREA: Balance & Water Clock */}
+        <div className="w-full flex-none pt-[12vh] min-h-[140px] relative">
+          <div className="w-full max-w-2xl mx-auto px-6 relative flex justify-center">
+            {/* Balance Display (Centered) */}
+            {showColor && (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 1.0, delay: 0.3 }}
-                className="w-10 h-14 md:w-11 md:h-16 bg-white/60 backdrop-blur-sm rounded-full overflow-hidden border border-slate-200/60 shadow-[inset_0_1px_4px_rgba(0,0,0,0.06),0_2px_8px_rgba(0,0,0,0.06)]"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className="flex flex-col items-center gap-2 pointer-events-none"
               >
-                {/* Committed Lm (Bottom - Sediment) */}
-                <motion.div
-                  className="absolute bottom-0 left-0 right-0 bg-slate-400/60 saturate-[0.2]"
-                  initial={{ height: 0 }}
-                  animate={{ height: `${committedHeight}%` }}
-                  transition={{ duration: 1.2, ease: "easeOut" }}
-                />
-                {/* Available Lm (Top - Liquid Light) */}
-                <motion.div
-                  className="absolute left-0 right-0 bg-amber-300/70"
-                  initial={{ height: 0, bottom: 0 }}
-                  animate={{
-                    height: `${availableHeight}%`,
-                    bottom: `${committedHeight}%`,
-                  }}
-                  transition={{ duration: 1.2, ease: "easeOut", delay: 0.1 }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/20 to-transparent animate-pulse" />
-                </motion.div>
-                {/* Glass Reflection */}
-                <div className="absolute inset-x-2 top-1 bottom-1 border-r border-white/30 rounded-full opacity-40 pointer-events-none" />
-                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/50 to-transparent opacity-60 pointer-events-none" />
+                <div className="text-xs font-serif font-medium tracking-[0.15em] text-slate-500 mr-[0.15em]">
+                  つかえる Lm
+                </div>
+                <div className="text-4xl md:text-5xl font-serif font-extralight tracking-[-0.02em] tabular-nums leading-none text-slate-500 transition-all duration-1000">
+                  {Math.floor(availableLm).toLocaleString()}
+                </div>
               </motion.div>
-            </div>
-          </div>
-        </>
-      )}
+            )}
 
-      {/* 2. The Vessel (YinYang Coin) */}
-      <div className="relative w-[80%] md:w-[70%] lg:w-[45%] max-w-[540px] lg:max-w-[480px] max-h-[70vh] aspect-square z-10">
-
-        <motion.div
-          className="absolute inset-0 rounded-full shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] backdrop-blur-3xl border-[0.5px] border-white/60 overflow-hidden bg-white/40 text-slate-900"
-          animate={
-            isRitualReady
-              ? { 
-                  opacity: [0.6, 1, 0.6], 
-                  scale: [0.98, 1.04, 0.98],
-                  filter: [
-                    "drop-shadow(0px 0px 0px rgba(226,232,240,0)) brightness(0.95)", 
-                    "drop-shadow(0px 10px 30px rgba(226,232,240,0.8)) brightness(1.05)", 
-                    "drop-shadow(0px 0px 0px rgba(226,232,240,0)) brightness(0.95)"
-                  ]
-                }
-              : { opacity: 1, scale: 1, filter: "none" }
-          }
-          transition={
-            isRitualReady
-              ? { duration: 4, repeat: Infinity, ease: "easeInOut" }
-              : {}
-          }
-        >
-          <svg viewBox="0 0 100 100" className="w-full h-full">
-            <defs>
-              <filter id="dividerGlow">
-                <feGaussianBlur stdDeviation="2" result="coloredBlur" />
-                <feMerge>
-                  <feMergeNode in="coloredBlur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-
-              {/* Visual Assets */}
-              {/* 陽: HELP (琥珀 - Amber) */}
-              <linearGradient id="yangGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor="#FFFBEB" />
-                <stop offset="100%" stopColor="#FCD34D" /> {/* Amber Sanctuary */}
-              </linearGradient>
-              {/* 陰: WISH (淡藍 - Pale Indigo) */}
-              <linearGradient id="yinGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-                <stop offset="0%" stopColor="#EEF2FF" />
-                <stop offset="100%" stopColor="#A5B4FC" /> {/* Indigo Sanctuary */}
-              </linearGradient>
-
-              <linearGradient
-                id="cocoonLight"
-                x1="0%"
-                y1="0%"
-                x2="0%"
-                y2="100%"
-              >
-                <stop offset="0%" stopColor="#FFFFFF" />
-                <stop offset="100%" stopColor="#F1F5F9" />
-              </linearGradient>
-              <linearGradient
-                id="cocoonShadow"
-                x1="0%"
-                y1="100%"
-                x2="0%"
-                y2="0%"
-              >
-                <stop offset="0%" stopColor="#E2E8F0" />
-                <stop offset="100%" stopColor="#F8FAFC" />
-              </linearGradient>
-            </defs>
-            <g transform="rotate(-45 50 50)">
-              {/* Common Shape: The fills change based on state */}
-
-              {/* Left Side (Yin) */}
-              {/* Base: Monotone Shadow (Always there) */}
-              <path
-                d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 1 0 50 Z"
-                fill="url(#cocoonShadow)"
-              />
-              {/* Layer: Blue Gradient (Fade in when Color) */}
-              <motion.path
-                d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 1 0 50 Z"
-                fill="url(#yinGrad)"
-                initial={{ opacity: 0 }}
-                animate={{
-                  opacity: showColor ? 1 : 0,
-                  filter: isHoveringWish
-                    ? "brightness(1.15) contrast(1.05)"
-                    : "brightness(1) contrast(1)",
-                }}
-                transition={{
-                  opacity: { duration: 1.5, ease: "easeInOut" },
-                  filter: {
-                    duration: 1.2,
-                    repeat: isHoveringWish ? Infinity : 0,
-                    repeatType: "mirror",
-                    ease: "easeInOut",
-                  },
-                }}
-              />
-
-              {/* Right Side (Yang) */}
-              {/* Base: Monotone Light (Always there) */}
-              <path
-                d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 0 0 50 Z"
-                fill="url(#cocoonLight)"
-              />
-              {/* Layer: Yellow Gradient (Fade in when Color) */}
-              <motion.path
-                d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 0 0 50 Z"
-                fill="url(#yangGrad)"
-                initial={{ opacity: 0 }}
-                animate={{
-                  opacity: showColor ? 1 : 0,
-                  filter: isHoveringHelp
-                    ? "brightness(1.15) contrast(1.05)"
-                    : "brightness(1) contrast(1)",
-                }}
-                transition={{
-                  opacity: { duration: 1.5, ease: "easeInOut" },
-                  filter: {
-                    duration: 1.2,
-                    repeat: isHoveringHelp ? Infinity : 0,
-                    repeatType: "mirror",
-                    ease: "easeInOut",
-                  },
-                }}
-              />
-
-              {/* Boundary Line */}
-              <path
-                d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50"
-                fill="none"
-                stroke={showColor ? "white" : "rgba(255,255,255,0.8)"}
-                strokeWidth={showColor ? "1.5" : "1"}
-                filter={showColor ? "url(#dividerGlow)" : ""}
-                style={{ transition: "all 1.5s ease" }}
-              />
-            </g>
-          </svg>
-        </motion.div>
-
-        {/* 3. Buttons (Swapping Content) - Now correctly anchored to the Vessel container so coordinate geometry matches exactly */}
-        <AnimatePresence mode="wait">
-          {isRitualReady ? (
-            // Ritual Button
-            <motion.button
-              key="btn-ritual"
-              onClick={handleRitual}
-              className="absolute inset-0 flex flex-col items-center justify-center z-30 outline-none text-slate-500 hover:text-slate-600 transition-colors group"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <div className="flex flex-col items-center relative">
-                {/* Subtle breathing glow */}
-                <motion.div 
-                  className="absolute inset-0 bg-white/40 blur-2xl rounded-full scale-[2] transform -z-10 group-hover:bg-white/60 transition-colors duration-700"
-                  animate={{ opacity: [0.1, 0.6, 0.1] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                />
-                
-                {/* Modest, sophisticated text */}
-                <motion.div 
-                  className="flex items-center justify-center cursor-pointer px-12 py-8"
-                  animate={{ opacity: [0.6, 1, 0.6], scale: [0.98, 1.02, 0.98] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            {/* Water Clock (Absolute to Top Right of Container, aligned with Hamburger) */}
+            {showColor && (
+              <div className="absolute right-6 top-0 pointer-events-none">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 1.0, delay: 0.3 }}
+                  className="w-10 h-14 md:w-11 md:h-16 bg-white/40 backdrop-blur-md rounded-full overflow-hidden border border-cyan-100/50 shadow-[inset_0_1px_6px_rgba(6,182,212,0.1),0_4px_12px_rgba(6,182,212,0.05)] relative"
                 >
-                  <span className="text-xs sm:text-sm font-serif font-light tracking-[0.4em] sm:tracking-[0.6em] text-slate-500 group-hover:text-slate-800 transition-colors duration-700 uppercase drop-shadow-sm ml-[0.4em] sm:ml-[0.6em]">
+                  {/* Committed Lm (Bottom - Heavy Deep Water / Sediment) */}
+                  <motion.div
+                    className="absolute bottom-0 left-0 right-0 bg-cyan-900/30 saturate-[0.5]"
+                    initial={{ height: 0 }}
+                    animate={{ height: `${committedHeight}%` }}
+                    transition={{ duration: 1.2, ease: "easeOut" }}
+                  />
+                  {/* Available Lm (Top - Noctiluca Bioluminescent Liquid) */}
+                  <motion.div
+                    className="absolute left-0 right-0 bg-cyan-400/60"
+                    initial={{ height: 0, bottom: 0 }}
+                    animate={{
+                      height: `${availableHeight}%`,
+                      bottom: `${committedHeight}%`,
+                    }}
+                    transition={{ duration: 1.2, ease: "easeOut", delay: 0.1 }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/40 to-transparent animate-pulse" />
+                  </motion.div>
+                  {/* Glass Reflection */}
+                  <div className="absolute inset-x-2 top-1 bottom-1 border-r border-white/50 rounded-full opacity-50 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/60 to-transparent opacity-70 pointer-events-none" />
+                </motion.div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* MIDDLE AREA: The Vessel */}
+        <div className="flex-1 flex items-center justify-center w-full min-h-[300px]">
+          <div className="relative w-[50%] md:w-[35%] lg:w-[25%] max-w-[320px] aspect-square">
+            <motion.div
+              className="absolute inset-0 rounded-full backdrop-blur-3xl overflow-hidden bg-white/20 text-slate-900 border-[0.5px] border-white/10"
+              animate={
+                isRitualReady
+                  ? { 
+                      opacity: [0.6, 1, 0.6], 
+                      scale: [0.98, 1.04, 0.98],
+                      filter: [
+                        "drop-shadow(0px 0px 0px rgba(226,232,240,0)) brightness(0.95)", 
+                        "drop-shadow(0px 10px 40px rgba(226,232,240,0.4)) brightness(1.05)", 
+                        "drop-shadow(0px 0px 0px rgba(226,232,240,0)) brightness(0.95)"
+                      ]
+                    }
+                  : { opacity: 1, scale: 1, filter: "none" }
+              }
+              transition={
+                isRitualReady
+                  ? { duration: 4, repeat: Infinity, ease: "easeInOut" }
+                  : {}
+              }
+            >
+              <svg viewBox="0 0 100 100" className="w-full h-full">
+                <defs>
+                  <filter id="dividerGlow">
+                    <feGaussianBlur stdDeviation="1.5" result="coloredBlur" />
+                    <feMerge>
+                      <feMergeNode in="coloredBlur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                  <linearGradient id="yangGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stopColor="#FFFBEB" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#FCD34D" stopOpacity="0.5" />
+                  </linearGradient>
+                  <linearGradient id="yinGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="0%" stopColor="#EEF2FF" stopOpacity="0.8" />
+                    <stop offset="100%" stopColor="#A5B4FC" stopOpacity="0.5" />
+                  </linearGradient>
+                </defs>
+                <g transform="rotate(-45 50 50)">
+                  {/* Left Side (Yin) */}
+                  <motion.path
+                    d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 1 0 50 Z"
+                    fill="url(#yinGrad)"
+                    animate={{
+                      opacity: showColor ? 1 : 0.2,
+                      filter: isHoveringWish ? "brightness(1.2)" : "brightness(1)",
+                    }}
+                    transition={{ duration: 1.5 }}
+                  />
+                  {/* Right Side (Yang) */}
+                  <motion.path
+                    d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 0 0 50 Z"
+                    fill="url(#yangGrad)"
+                    animate={{
+                      opacity: showColor ? 1 : 0.2,
+                      filter: isHoveringHelp ? "brightness(1.2)" : "brightness(1)",
+                    }}
+                    transition={{ duration: 1.5 }}
+                  />
+                  {/* Boundary Line (Faint) */}
+                  <path
+                    d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="0.8"
+                    strokeOpacity="0.4"
+                    filter="url(#dividerGlow)"
+                  />
+                </g>
+              </svg>
+            </motion.div>
+
+            {/* Ritual Overlay Button */}
+            <AnimatePresence>
+              {isRitualReady && (
+                <motion.button
+                  key="btn-ritual"
+                  onClick={handleRitual}
+                  className="absolute inset-0 flex flex-col items-center justify-center z-30 outline-none text-slate-500 group"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <span className="text-xs font-serif font-medium tracking-widest text-slate-500 group-hover:text-slate-600 transition-colors uppercase ml-[0.1em]">
                     {ritualMessage}
                   </span>
-                </motion.div>
-              </div>
-            </motion.button>
-          ) : (
-            // Normal Buttons (Only show when showColor is true)
-            showColor && (
-              <>
-                <motion.button
-                  key="btn-help"
-                  onClick={onOpenFlow}
-                  onMouseEnter={() => setIsHoveringHelp(true)}
-                  onMouseLeave={() => setIsHoveringHelp(false)}
-                  className="absolute top-[32.32%] left-[67.68%] -translate-x-1/2 -translate-y-1/2 p-4 z-20 outline-none group text-amber-900/70"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
-                >
-                  <div className="relative flex justify-center items-center transition-opacity duration-700">
-                    <Inbox
-                      size={36}
-                      strokeWidth={1.2}
-                      className="opacity-70 group-hover:opacity-100 transition-opacity duration-500 drop-shadow-sm"
-                    />
-                    <span className="absolute bottom-[100%] mb-4 text-sm font-serif font-medium tracking-[0.4em] text-amber-950/90 drop-shadow-sm whitespace-nowrap ml-[0.4em] uppercase">
-                      {MESSAGES.HOME.BTN_RESPOND}
-                    </span>
-                  </div>
                 </motion.button>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
 
-                <motion.button
-                  key="btn-wish"
-                  onClick={onOpenRequest}
-                  onMouseEnter={() => setIsHoveringWish(true)}
-                  onMouseLeave={() => setIsHoveringWish(false)}
-                  className="absolute top-[67.68%] left-[32.32%] -translate-x-1/2 -translate-y-1/2 p-4 z-20 outline-none group text-indigo-900/70"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 1.5, delay: 0.5, ease: "easeOut" }}
-                >
-                  <div className="relative flex justify-center items-center transition-opacity duration-700">
-                    <Megaphone
-                      size={36}
-                      strokeWidth={1.2}
-                      className="opacity-70 group-hover:opacity-100 transition-opacity duration-500 drop-shadow-sm"
-                    />
-                    <span className="absolute top-[100%] mt-4 text-sm font-serif font-medium tracking-[0.4em] text-indigo-950/90 drop-shadow-sm whitespace-nowrap ml-[0.4em] uppercase">
+        {/* BOTTOM AREA: Interaction Buttons */}
+        <div className="w-full flex-none pb-[10vh] max-h-[30vh]">
+          <div className="w-full max-w-2xl mx-auto flex justify-center items-center gap-16 md:gap-24 px-8">
+            <AnimatePresence>
+              {showColor && (
+                <>
+                  {/* Request / お願い */}
+                  <motion.button
+                    key="btn-wish"
+                    onClick={onOpenRequest}
+                    onMouseEnter={() => setIsHoveringWish(true)}
+                    onMouseLeave={() => setIsHoveringWish(false)}
+                    className="flex flex-col items-center group outline-none"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 1.0, delay: 0.8 }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <div className="w-16 h-16 rounded-full bg-white/40 backdrop-blur-3xl flex items-center justify-center shadow-sm group-hover:shadow-indigo-200/20 group-hover:bg-indigo-50/50 transition-all duration-500">
+                      <Megaphone size={28} strokeWidth={1} className="text-indigo-900/60 group-hover:text-indigo-900 transition-colors" />
+                    </div>
+                    <span className="mt-4 text-xs font-serif font-medium tracking-widest text-slate-500 uppercase ml-[0.1em]">
                       {MESSAGES.HOME.BTN_REQUEST}
                     </span>
-                  </div>
-                </motion.button>
-              </>
-            )
-          )}
-        </AnimatePresence>
+                  </motion.button>
+
+                  {/* Respond / お返事 */}
+                  <motion.button
+                    key="btn-help"
+                    onClick={onOpenFlow}
+                    onMouseEnter={() => setIsHoveringHelp(true)}
+                    onMouseLeave={() => setIsHoveringHelp(false)}
+                    className="flex flex-col items-center group outline-none"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{ duration: 1.0, delay: 1.0 }}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <div className="w-16 h-16 rounded-full bg-white/40 backdrop-blur-3xl flex items-center justify-center shadow-sm group-hover:shadow-amber-200/20 group-hover:bg-amber-50/50 transition-all duration-500">
+                      <Inbox size={28} strokeWidth={1} className="text-amber-900/60 group-hover:text-amber-900 transition-colors" />
+                    </div>
+                    <span className="mt-4 text-xs font-serif font-medium tracking-widest text-slate-500 uppercase ml-[0.1em]">
+                      {MESSAGES.HOME.BTN_RESPOND}
+                    </span>
+                  </motion.button>
+                </>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
 
+      {/* 6. System Notifications (Logic Preserved) */}
       <AnimatePresence>
         {notification && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            className="fixed inset-x-6 top-10 z-[100] flex justify-center pointer-events-none"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/10 backdrop-blur-sm"
           >
-            <div className="bg-white/90 backdrop-blur-md border border-amber-100 p-6 rounded-2xl shadow-xl max-w-sm w-full pointer-events-auto flex flex-col items-center text-center">
-              <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-4">
-                <AlertCircle className="text-amber-500" size={24} />
+            <div className="bg-white/80 backdrop-blur-3xl p-8 rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center text-center border border-white/40">
+              <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-6">
+                <AlertCircle className="text-amber-500" size={24} strokeWidth={1.5} />
               </div>
-              <p className="text-sm text-slate-800 font-medium leading-relaxed mb-6 whitespace-pre-wrap font-sans">
+              <p className="text-sm text-slate-800 font-light leading-relaxed mb-8 whitespace-pre-wrap font-serif">
                 {notification}
               </p>
               <button
                 onClick={clearNotification}
-                className="w-full py-3 bg-amber-400 hover:bg-amber-500 text-white rounded-xl text-base font-bold tracking-widest transition-colors shadow-sm active:scale-[0.98] font-sans"
+                className="w-full py-4 bg-slate-900 text-white rounded-2xl text-xs font-serif font-light tracking-[0.4em] uppercase transition-all hover:bg-slate-800 active:scale-95 shadow-lg"
               >
                 {MESSAGES.HOME.BTN_UNDERSTOOD}
               </button>
