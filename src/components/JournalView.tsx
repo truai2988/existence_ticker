@@ -144,7 +144,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
 
         <div className="w-full flex-grow overflow-y-auto no-scrollbar relative flex flex-col items-center">
              <div className="w-full max-w-2xl flex-grow p-6 pt-4 pb-24 relative">
-                <div className="space-y-6 py-4">
+                <div className="space-y-3 py-4">
                     {isLoading ? (
                          <div className="text-center py-10 text-slate-600 text-sm animate-pulse">{MESSAGES.JOURNAL.LOADING}</div>
                     ) : logs.length === 0 ? (
@@ -273,11 +273,11 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
             initial={{ opacity: 0, y: 10 }} 
             animate={{ opacity: 1, y: 0 }} 
             transition={{ delay: index * 0.05 }} 
-            className="flex flex-col gap-4 relative group transition-all rounded-[2rem] p-6 bg-white/40 backdrop-blur-3xl border border-white/60 shadow-sm"
+            className="flex flex-col gap-4 relative group transition-shadow rounded-[2rem] p-5 bg-white/50 backdrop-blur-3xl border border-transparent shadow-sm hover:shadow-md"
         >
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 bg-white/60 ${isExp ? 'border-rose-100' : 'border-emerald-100'}`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isExp ? 'bg-rose-50/80' : 'bg-emerald-50/80'}`}>
                         {getIcon()}
                     </div>
                     <span className="text-xs font-serif tracking-widest text-slate-500 uppercase">{dateStr} — {date.getHours().toString().padStart(2, '0')}:{date.getMinutes().toString().padStart(2, '0')}</span>
