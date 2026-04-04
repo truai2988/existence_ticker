@@ -134,7 +134,7 @@ export const CardFooter: React.FC<{
                   <div className="relative">
                     <button
                       onClick={() => setShowApplicants(!showApplicants)}
-                      className="flex items-center gap-2 px-4 py-2 bg-yellow-400 text-white rounded-full text-base font-bold shadow-md shadow-yellow-200 hover:bg-yellow-500 transition-all active:scale-95"
+                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-400 text-white rounded-full text-sm font-bold shadow-md shadow-orange-200 hover:scale-105 transition-all active:scale-95"
                     >
                       <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
                       {applicants.length}

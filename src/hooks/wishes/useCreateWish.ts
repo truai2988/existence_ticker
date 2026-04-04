@@ -8,19 +8,17 @@ import { MESSAGES } from "../../constants/messages";
 
 export const useCreateWish = () => {
   const { user } = useAuth();
-  const { addOptimisticWish, updateOptimisticWish } = useWishesContext();
+  const { addOptimisticWish, updateOptimisticWish, removeOptimisticWish } = useWishesContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const costMap: Record<string, number> = { light: 0, medium: 500, heavy: 1000 };
 
-  const castWish = async (input: CreateWishInput): Promise<boolean> => {
+  const castWish = async (input: CreateWishInput): Promise<{success: boolean, error?: string}> => {
     if (!db) {
-      alert(MESSAGES.WISH_ACTIONS.ALERT_DB_ERROR);
-      return false;
+      return { success: false, error: MESSAGES.WISH_ACTIONS.ALERT_DB_ERROR };
     }
     if (!user) {
-      alert(MESSAGES.WISH_ACTIONS.ALERT_NOT_LOGGED_IN);
-      return false;
+      return { success: false, error: MESSAGES.WISH_ACTIONS.ALERT_NOT_LOGGED_IN };
     }
 
     setIsSubmitting(true);
@@ -52,15 +50,10 @@ export const useCreateWish = () => {
         if (!userDoc.exists()) throw "User not found";
 
         const userData = userDoc.data();
-        const currentBalance = userData.balance || 0;
         const currentCommitted = userData.committed_balance || 0;
         
-        // --- 存在ベースの限界ロジック ---
-        // 1. 世界の基本ルールとして、2400Lm以上の源気は同時に存在できない（ウォレット内の残高＋予約中の残高の合計限界）
-        if (currentBalance + currentCommitted > 2400) {
-            throw new Error(`【限界突破】現在の総源気（残高＋予約中）が2400Lmを超えています。`);
-        }
-        // ------------------------------
+        // Balance and commitments are handled at fulfillment.
+        // Client-side 'exceedsAvailable' prevents users from spamming overdrafts.
         
         // "Heavy" and "Medium" can be cast if user has 0 balance (they go into negative)
         // But "Light" (bounty 0) can ALWAYS be cast, even if negative.
@@ -83,12 +76,11 @@ export const useCreateWish = () => {
           committed_balance: currentCommitted + bounty,
         });
       });
-      return true;
+      return { success: true };
     } catch (e) {
       console.error("Failed to cast wish:", e);
-      updateOptimisticWish(wishId, { error: e instanceof Error ? e.message : String(e) });
-      alert(`${MESSAGES.WISH_ACTIONS.ALERT_CAST_FAILED} ${e instanceof Error ? e.message : String(e)}`);
-      return false;
+      removeOptimisticWish(wishId);
+      return { success: false, error: e instanceof Error ? e.message : String(e) };
     } finally {
       setIsSubmitting(false);
     }

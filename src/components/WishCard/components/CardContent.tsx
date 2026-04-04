@@ -140,23 +140,23 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
             </div>
           </div>
         ) : (
-          <div className="flex justify-between items-center bg-slate-50/50 p-3 rounded-xl border border-slate-100/50">
+          <div className="flex justify-between items-center bg-slate-50/60 p-3.5 rounded-xl border border-slate-100/40">
             <div>
-              <div className="flex items-center gap-2 mb-1.5 opacity-80">
+              <div className="flex items-center gap-2 mb-1.5 opacity-90">
                 <Hourglass size={14} className={isMyWish ? "text-amber-500" : "text-orange-400"} />
-                <span className={`text-sm font-medium ${isMyWish ? "text-amber-600" : "text-slate-600"}`}>
+                <span className={`text-xs font-semibold ${isMyWish ? "text-amber-600" : "text-slate-600"}`}>
                   {isMyWish ? MESSAGES.WISH_CARD.LBL_GIVE_THANKS : MESSAGES.WISH_CARD.LBL_SHARE_THANKS}
                 </span>
               </div>
               {displayValue > 0 && (
-                <div className="text-sm text-red-500 font-semibold tracking-wide">
+                <div className="text-xs text-slate-500 font-serif tracking-wide pt-0.5">
                   {MESSAGES.WISH_CARD.TXT_THANKS_DECAY_NOTE}
                 </div>
               )}
             </div>
             <div className={`text-base font-mono ${initialCost === 0 ? "text-pink-400" : "text-slate-600"} font-medium tracking-tight`}>
               {initialCost === 0 ? "∞" : Math.floor(displayValue).toLocaleString()}{" "}
-              <span className={`text-base font-normal ${initialCost === 0 ? "text-pink-300" : "text-slate-500"} ml-0.5`}>
+              <span className={`text-sm font-normal ${initialCost === 0 ? "text-pink-300" : "text-slate-500"} ml-0.5`}>
                 {initialCost === 0 ? MESSAGES.WISH_CARD.LBL_ECHO : UNIT_LABEL}
               </span>
             </div>

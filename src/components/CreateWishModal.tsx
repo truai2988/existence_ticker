@@ -54,6 +54,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
     const [selectedTier, setSelectedTier] = useState<GratitudeTier>('heavy');
     const [currentPlaceholder, setCurrentPlaceholder] = useState<string>(FALLBACK_PLACEHOLDER);
     const [isAnonymous, setIsAnonymous] = useState(false);
+    const [creationError, setCreationError] = useState<string | null>(null);
 
     const updatePlaceholder = React.useCallback((tier: GratitudeTier, seedsList: SeedPlaceholder[]) => {
         const numericTier = TIER_MAP[tier];
@@ -91,6 +92,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
     // Update placeholder when tier changes (if content is empty or placeholder was recently refreshed)
     const handleTierChange = (tier: GratitudeTier) => {
         setSelectedTier(tier);
+        setCreationError(null);
         if (!newWishContent.trim() && cachedSeeds) {
             updatePlaceholder(tier, cachedSeeds);
         }
@@ -103,18 +105,22 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
         if (!newWishContent.trim()) return;
         if (exceedsAvailable) return; // Double-check
 
+        setCreationError(null);
+
         const result = await castWish({
             content: newWishContent,
             tier: selectedTier,
             isAnonymous
         });
 
-        if (result) {
+        if (result.success) {
             showToast(MESSAGES.CREATE_WISH.TOAST_SUCCESS, "success");
             import('../utils/pwaEvent').then(({ globalTriggerPWAInstall }) => {
                 globalTriggerPWAInstall();
             });
             onClose();
+        } else {
+            setCreationError(result.error || "通信エラーが発生しました。");
         }
     };
 
@@ -206,7 +212,10 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                    <div className="bg-white/50 backdrop-blur-3xl p-6 rounded-[2rem] border border-transparent shadow-sm focus-within:bg-white/70 focus-within:shadow-md transition-all duration-700">
                       <textarea
                         value={newWishContent}
-                        onChange={(e) => setNewWishContent(e.target.value)}
+                        onChange={(e) => {
+                            setNewWishContent(e.target.value);
+                            setCreationError(null);
+                        }}
                         placeholder={currentPlaceholder}
                         className="w-full bg-transparent text-slate-800 placeholder:text-slate-500 text-base min-h-[160px] resize-none outline-none leading-relaxed font-serif tracking-wide"
                       />
@@ -251,6 +260,13 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                    {exceedsAvailable && (
                        <div className="bg-orange-50/80 backdrop-blur-sm rounded-xl p-4 text-xs text-orange-800 leading-relaxed shadow-sm">
                            {MESSAGES.CREATE_WISH.WARN_EXCEED}
+                       </div>
+                   )}
+
+                   {/* Creation Error */}
+                   {creationError && (
+                       <div className="bg-red-50/80 backdrop-blur-sm rounded-xl p-4 text-xs font-bold text-red-600 leading-relaxed shadow-sm text-center border border-red-100">
+                           ⚠️ {creationError}
                        </div>
                    )}
 

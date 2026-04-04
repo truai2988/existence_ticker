@@ -366,9 +366,9 @@ export const MESSAGES = {
     TOAST_ERROR: "上手く届けられませんでした",
 
     // CardHeader
-    HDR_MY_WISH: "[ わたしの願い ]", // 「マイタスク(作成)」を排除
-    HDR_MY_HELP: "[ 寄り添う願い ]", // 「マイタスク(担当)」を排除
-    HDR_OTHER_WISH: "[ 誰かの願い ]", // 「公開タスク」を排除
+    HDR_MY_WISH: "わたしの願い", // 「マイタスク(作成)」を排除
+    HDR_MY_HELP: "寄り添う願い", // 「マイタスク(担当)」を排除
+    HDR_OTHER_WISH: "誰かの願い", // 「公開タスク」を排除
     HDR_DEFAULT_HELPER: "システム",
     HDR_SENDER_DONE: "感謝を届けました",
     HDR_INTERRUPTED: "願いが取り下げられました", // 「中断」を排除
