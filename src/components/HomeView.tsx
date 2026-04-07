@@ -147,12 +147,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 className="flex flex-col items-center gap-2 pointer-events-none"
               >
                 {/* Moved from Header */}
-                <div className="flex items-center gap-1.5 text-slate-700/80 mb-2 mt-[-0.5rem] font-sans">
-                  <span className="text-xs font-medium tracking-wider uppercase">
+                <div className="flex items-center gap-2 text-slate-700 mb-2 mt-[-0.5rem] font-serif text-xs font-medium tracking-[0.15em]">
+                  <span className="uppercase">
                     {MESSAGES.LAYOUT.HEADER_BALANCE}{Math.floor(balance).toLocaleString()}
                   </span>
-                  <div className="w-[1px] h-2.5 bg-slate-300" />
-                  <span className="text-xs font-medium tracking-wider">
+                  <div className="w-[1px] h-2.5 bg-slate-400" />
+                  <span>
                     {MESSAGES.LAYOUT.HEADER_DAYS_LEFT_PREFIX}{daysLeft}{MESSAGES.LAYOUT.HEADER_DAYS_LEFT_SUFFIX}
                   </span>
                 </div>
