@@ -22,8 +22,8 @@ export const PWAInstallBanner: React.FC = () => {
       dismissBanner();
     };
 
-    window.addEventListener('pwa-installed', handleInstalled);
-    return () => window.removeEventListener('pwa-installed', handleInstalled);
+    window.addEventListener('appinstalled', handleInstalled);
+    return () => window.removeEventListener('appinstalled', handleInstalled);
   }, [showToast, dismissBanner, MESSAGES.PWA.INSTALL_SUCCESS]);
 
   return (

@@ -59,10 +59,6 @@ export const usePWAInstall = () => {
       // Clear event to prevent further prompts
       setInstallPromptEvent(null);
       setIsStandalone(true);
-
-      // We will show success Toast from the component level where context is available.
-      // Dispatching a custom event that UI components can listen to.
-      window.dispatchEvent(new CustomEvent("pwa-installed"));
     };
 
     window.addEventListener("appinstalled", handleAppInstalled);
