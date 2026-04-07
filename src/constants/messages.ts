@@ -459,7 +459,7 @@ export const MESSAGES = {
   PROFILE: {
     LANG_TITLE: "言語設定",
     LANG_HELP: "表示言語を切り替えます",
-    TITLE: "ユーザー設定",
+    TITLE: "設定",
     SUBTITLE: "",
     EDIT_TITLE: "プロフィール編集",
     EDIT_SUBTITLE: "基本情報の更新",
@@ -612,7 +612,7 @@ export const MESSAGES = {
   },
 
   ACCOUNT_MODAL: {
-    TITLE: "ユーザー設定",
+    TITLE: "設定",
     BTN_LOGOUT: "ログアウト",
     BTN_DELETE: "この場所から離れる",
     DELETE_WARNING: "すべての軌跡とLmは消え、元に戻すことはできません。本当によろしいですか？",
@@ -698,7 +698,7 @@ export const MESSAGES = {
   LAYOUT: {
     TAB_HOME: "ホーム",
     TAB_HISTORY: "軌跡",            // 「履歴」という無機質な言葉を排除
-    TAB_PROFILE: "ユーザー設定",          // 「アカウント」というシステム用語を排除
+    TAB_PROFILE: "設定",            // 「アカウント」というシステム用語を排除
     RETURN_HOME: "ホームへ戻る",
     OPEN_MENU: "メニューを開く",
     SIDEDRAWER_ONBOARDING: "この場所について", // 「システム概要」を排除

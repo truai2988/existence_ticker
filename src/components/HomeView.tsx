@@ -6,6 +6,7 @@ import { useProfile } from "../hooks/useProfile";
 import { AppMode } from "../hooks/useStartupMachine";
 import { LUNAR_CONSTANTS } from "../constants";
 import { useLanguage } from "../contexts/LanguageContext";
+import { getMillis } from "../logic/worldPhysics";
 
 interface HomeViewProps {
   onOpenFlow: () => void;
@@ -26,10 +27,20 @@ export const HomeView: React.FC<HomeViewProps> = ({
   setTargetBalance,
   appMode,
 }) => {
-  const { performRebirthReset, availableLm, committedLm } = useWallet();
+  const { performRebirthReset, availableLm, committedLm, balance } = useWallet();
   const { profile, updateProfile } = useProfile();
   const { t: MESSAGES } = useLanguage();
   const [notification, setNotification] = React.useState<string | null>(null);
+
+  const cycleDays = profile?.scheduled_cycle_days || 10;
+  const cycleStartedAt = getMillis(
+    profile?.cycle_started_at || profile?.created_at,
+  );
+  const nextReset = cycleStartedAt + cycleDays * 24 * 60 * 60 * 1000;
+  const daysLeft = Math.max(
+    0,
+    Math.ceil((nextReset - Date.now()) / (1000 * 60 * 60 * 24)),
+  );
 
   // Water Clock calculations
   const maxCapacity = LUNAR_CONSTANTS.REBIRTH_AMOUNT;
@@ -135,6 +146,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 transition={{ duration: 1.5, ease: "easeOut" }}
                 className="flex flex-col items-center gap-2 pointer-events-none"
               >
+                {/* Moved from Header */}
+                <div className="flex items-center gap-1.5 text-slate-700/80 mb-2 mt-[-0.5rem] font-sans">
+                  <span className="text-xs font-medium tracking-wider uppercase">
+                    {MESSAGES.LAYOUT.HEADER_BALANCE}{Math.floor(balance).toLocaleString()}
+                  </span>
+                  <div className="w-[1px] h-2.5 bg-slate-300" />
+                  <span className="text-xs font-medium tracking-wider">
+                    {MESSAGES.LAYOUT.HEADER_DAYS_LEFT_PREFIX}{daysLeft}{MESSAGES.LAYOUT.HEADER_DAYS_LEFT_SUFFIX}
+                  </span>
+                </div>
                 <div className="text-xs font-serif font-medium tracking-[0.15em] text-slate-700 mr-[0.15em]">
                   {MESSAGES.HOME.AVAILABLE_LM}
                 </div>

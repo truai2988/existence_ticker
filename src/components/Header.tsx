@@ -1,8 +1,5 @@
 import { Menu } from "lucide-react";
 import React, { useState } from "react";
-import { useWallet } from "../hooks/useWallet";
-import { useProfile } from "../hooks/useProfile";
-import { getMillis } from "../logic/worldPhysics";
 import { AppViewMode } from "../types";
 import { SideDrawer } from "./SideDrawer";
 import { NoticePanel } from "./NoticePanel";
@@ -19,21 +16,8 @@ export const Header: React.FC<HeaderProps> = ({
   onTabChange,
   onOpenOnboarding,
 }) => {
-  const { balance } = useWallet();
-  const { profile } = useProfile();
   const { t: MESSAGES } = useLanguage();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
-  // Days left: Consistent with HomeView logic
-  const cycleDays = profile?.scheduled_cycle_days || 10;
-  const cycleStartedAt = getMillis(
-    profile?.cycle_started_at || profile?.created_at,
-  );
-  const nextReset = cycleStartedAt + cycleDays * 24 * 60 * 60 * 1000;
-  const daysLeft = Math.max(
-    0,
-    Math.ceil((nextReset - Date.now()) / (1000 * 60 * 60 * 24)),
-  );
 
   return (
     <>
@@ -51,25 +35,13 @@ export const Header: React.FC<HeaderProps> = ({
                     className="w-10 h-10 rounded-lg shadow-sm border border-slate-300/50 shrink-0 object-cover"
                   />
                   {/* Text Group */}
-                  <div className="flex flex-col min-w-0">
+                  <div className="flex flex-col min-w-0 justify-center">
                     <h1
-                      className="text-xs sm:text-lg font-bold tracking-widest sm:tracking-[0.2em] text-slate-900 uppercase leading-tight truncate"
+                      className="text-xl sm:text-2xl font-bold tracking-[0.3em] text-slate-900 uppercase leading-tight truncate"
                       style={{ fontFamily: "'Noto Serif JP', serif" }}
                     >
-                      Existence Ticker
+                      E.T.
                     </h1>
-                    {/* Supplemental: Balance info */}
-                    {(!viewMode || viewMode === "home") && (
-                      <div className="flex items-center gap-1.5 text-slate-700 mt-0.5 min-w-0">
-                        <span className="text-xs font-medium tracking-wider uppercase truncate shrink">
-                          {MESSAGES.LAYOUT.HEADER_BALANCE}{Math.floor(balance).toLocaleString()}
-                        </span>
-                        <div className="w-[1px] h-2.5 bg-slate-300 shrink-0" />
-                        <span className="text-xs font-medium tracking-wider truncate shrink">
-                          {MESSAGES.LAYOUT.HEADER_DAYS_LEFT_PREFIX}{daysLeft}{MESSAGES.LAYOUT.HEADER_DAYS_LEFT_SUFFIX}
-                        </span>
-                      </div>
-                    )}
                   </div>
                 </div>
 
