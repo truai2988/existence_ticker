@@ -8,6 +8,7 @@ import { useWishActions } from "../../../hooks/useWishActions";
 import { useToast } from "../../../hooks/useToast";
 import { useUserView } from "../../../contexts/UserViewContext";
 import { toMilli } from "../../../logic/worldPhysics";
+import { useMicroInteractions } from "../../../hooks/useMicroInteractions";
 
 export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHandlers }> = ({ state, handlers }) => {
   const { t: MESSAGES } = useLanguage();
@@ -24,6 +25,7 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
   const { fulfillWish, withdrawApplication } = useWishActions();
   const { showToast } = useToast();
   const { openUserProfile } = useUserView();
+  const { triggerAccept } = useMicroInteractions();
   const applicants = wish.applicants || [];
 
   return (
@@ -139,7 +141,7 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
               className="w-full p-3 border border-slate-200 rounded-xl mb-4 text-base focus:ring-2 focus:ring-green-100 focus:border-green-400 outline-none resize-none min-h-[80px]"
             />
             <div className="flex flex-col gap-2 w-full">
-              <button onClick={executeApprove} disabled={isLoading} className="w-full py-3 rounded-xl text-base font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200 transition-all active:scale-[0.98]">
+              <button onClick={() => { triggerAccept(); executeApprove(); }} disabled={isLoading} className="w-full py-3 rounded-xl text-base font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200 transition-all active:scale-[0.98]">
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : MESSAGES.WISH_CARD.BTN_APPROVE}
               </button>
               <button

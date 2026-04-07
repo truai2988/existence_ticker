@@ -7,6 +7,7 @@ import { db } from '../lib/firebase';
 import { WISH_COST, UNIT_LABEL } from '../constants';
 import { useToast } from '../hooks/useToast';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useMicroInteractions } from '../hooks/useMicroInteractions';
 
 // Session-level cache for seeds
 let cachedSeeds: SeedPlaceholder[] | null = null;
@@ -20,6 +21,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
     const { castWish, isSubmitting } = useWishActions();
     const { showToast } = useToast();
     const { t: MESSAGES } = useLanguage();
+    const { getSendAction } = useMicroInteractions();
 
     const TIER_MAP: Record<GratitudeTier, 1000 | 500 | 0> = React.useMemo(() => ({
       heavy: 1000,
@@ -272,21 +274,23 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
 
                    {/* Action Button */}
                    <button 
-                       onClick={handlePostWish}
+                       onClick={getSendAction(handlePostWish)}
                        disabled={!newWishContent.trim() || isSubmitting || exceedsAvailable}
-                       className="w-full py-6 rounded-full bg-amber-900/90 backdrop-blur-md text-white font-bold text-base shadow-[0_15px_30px_-5px_rgba(69,26,3,0.3)] hover:bg-amber-900 hover:shadow-[0_20px_40px_-5px_rgba(69,26,3,0.4)] active:scale-[0.98] transition-all disabled:opacity-20 disabled:cursor-not-allowed flex items-center justify-center gap-4 group"
+                       className="w-full py-6 rounded-full bg-amber-900/90 backdrop-blur-md text-white font-bold text-base shadow-[0_15px_30px_-5px_rgba(69,26,3,0.3)] hover:bg-amber-900 hover:shadow-[0_20px_40px_-5px_rgba(69,26,3,0.4)] active:scale-[0.98] transition-all disabled:opacity-20 disabled:cursor-not-allowed relative overflow-hidden group"
                    >
-                       {isSubmitting ? (
-                           <>
-                               <Loader2 className="w-5 h-5 animate-spin text-amber-100" />
-                               <span className="tracking-widest">{MESSAGES.CREATE_WISH.BTN_SENDING}</span>
-                           </>
-                       ) : (
-                           <>
-                               <Send size={18} className="text-amber-100" />
-                               <span className="tracking-widest">{MESSAGES.CREATE_WISH.BTN_SUBMIT}</span>
-                           </>
-                       )}
+                       <span className="relative z-10 flex items-center justify-center gap-4 transition-transform duration-300">
+                           {isSubmitting ? (
+                               <>
+                                   <Loader2 className="w-5 h-5 animate-spin text-amber-100" />
+                                   <span className="tracking-widest">{MESSAGES.CREATE_WISH.BTN_SENDING}</span>
+                               </>
+                           ) : (
+                               <>
+                                   <Send size={18} className="text-amber-100" />
+                                   <span className="tracking-widest">{MESSAGES.CREATE_WISH.BTN_SUBMIT}</span>
+                               </>
+                           )}
+                       </span>
                    </button>
                </div>
             </div>

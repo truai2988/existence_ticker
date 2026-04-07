@@ -2,6 +2,7 @@ import { Check, HeartHandshake } from 'lucide-react';
 import { GratitudeTier } from '../types';
 import { UNIT_LABEL } from '../constants';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useMicroInteractions } from '../hooks/useMicroInteractions';
 
 // 親コンポーネントから、対象の wish データ（作成時に決めた内容）を受け取る
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
 
 export const CompleteWishModal = ({ wishTitle, helperName, preset, cost, onConfirm, onCancel }: Props) => {
   const { t: MESSAGES } = useLanguage();
+  const { triggerComplete } = useMicroInteractions();
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 animate-fade-in">
       <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" onClick={onCancel} />
@@ -63,7 +65,7 @@ export const CompleteWishModal = ({ wishTitle, helperName, preset, cost, onConfi
         {/* Actions */}
         <div className="space-y-3 pt-2">
           <button 
-            onClick={onConfirm}
+            onClick={() => { triggerComplete(); onConfirm(); }}
             className="w-full relative overflow-hidden rounded-full bg-blue-600 hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl active:scale-[0.98]"
           >
              <div className="flex items-center justify-center gap-2 py-3.5 px-6">

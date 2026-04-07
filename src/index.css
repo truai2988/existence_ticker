@@ -103,3 +103,86 @@ body {
     box-shadow: 0 0 25px -2px rgba(244, 114, 182, 0.4);
   }
 }
+
+@layer utilities {
+  /* 1. 願いを送るときの波紋拡大とフェードアウト */
+  .animate-ripple {
+    animation: rippleEffect 0.6s cubic-bezier(0.2, 0, 0, 1) forwards;
+  }
+  @keyframes rippleEffect {
+    0% { transform: scale(0); opacity: 0.8; }
+    100% { transform: scale(2.5); opacity: 0; }
+  }
+
+  /* 1. 願いを送るときのテキスト消去 */
+  .animate-text-vanish {
+    animation: textVanishEffect 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  @keyframes textVanishEffect {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-10px); opacity: 0; }
+  }
+
+  /* 2. 立候補ボタンの背景アンバー発光 (Paintさせず疑似要素のopacityのみで表現) */
+  .animate-amber-flash-container {
+    position: relative;
+    overflow: hidden;
+  }
+  .animate-amber-flash-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: #FFB04F;
+    opacity: 0;
+    z-index: -1;
+    animation: amberFlashEffect 0.5s ease-out forwards;
+  }
+  @keyframes amberFlashEffect {
+    0% { opacity: 0; }
+    15% { opacity: 0.6; } /* ほんのり温かいアンバー */
+    100% { opacity: 0; }
+  }
+
+  /* 3. マッチング成立のパーティクル（左） */
+  .animate-particle-left {
+    animation: particleLeft 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @keyframes particleLeft {
+    0% { transform: translateX(-30px); opacity: 0; }
+    30% { transform: translateX(-10px); opacity: 1; }
+    70% { transform: translateX(0); opacity: 1; }
+    100% { transform: translateX(0); opacity: 0; }
+  }
+
+  /* 3. マッチング成立のパーティクル（右） */
+  .animate-particle-right {
+    animation: particleRight 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @keyframes particleRight {
+    0% { transform: translateX(30px); opacity: 0; }
+    30% { transform: translateX(10px); opacity: 1; }
+    70% { transform: translateX(0); opacity: 1; }
+    100% { transform: translateX(0); opacity: 0; }
+  }
+
+  /* 3. マッチング成立時の重鳴り */
+  .animate-particle-merge {
+    animation: particleMerge 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  @keyframes particleMerge {
+    0%, 65% { transform: scale(0.5); opacity: 0; }
+    70% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(3); opacity: 0; }
+  }
+
+  /* 4. 完了（ありがとう）の深呼吸オーバーレイ */
+  .animate-sunset-breath {
+    animation: sunsetBreath 3s ease-in-out forwards;
+  }
+  @keyframes sunsetBreath {
+    0% { opacity: 0; }
+    33% { opacity: 0.15; } /* 約1秒かけてゆっくり広がる */
+    100% { opacity: 0; }   /* 残り2秒かけて消える */
+  }
+}
+

@@ -15,6 +15,7 @@ import { useWallet } from "./hooks/useWallet";
 import { useStats, DashboardStats } from "./hooks/useStats";
 import { NoticeProvider } from "./components/NoticeProvider";
 import { GoyenShimmer } from "./components/GoyenShimmer";
+import { MicroInteractionProvider } from "./hooks/useMicroInteractions";
 
 
 // カウントアップ・ダウン演出
@@ -296,7 +297,7 @@ function App() {
 
   // Branding Synchronization (Runtime Override for Cache/Service Worker)
   useEffect(() => {
-    document.title = "Existence Ticker | 天上の書庫";
+    document.title = "Existence Ticker";
     
     // Cleanup of any legacy meta tags if they exist
     const metaDescription = document.querySelector('meta[name="description"]');
@@ -400,8 +401,9 @@ function App() {
   // --- THE DETERMINISTIC SWITCH ---
   // Wrap everything in a top-level ErrorBoundary for catastrophic failure catching
   return (
-    <ErrorBoundary>
-        {(() => {
+    <MicroInteractionProvider>
+      <ErrorBoundary>
+          {(() => {
           switch (view) {
           case "LOADING":
             return <ScreenLoader message={data.message} />;
@@ -508,8 +510,9 @@ function App() {
           default:
             return <ScreenLoader />;
         }
-      })()}
-    </ErrorBoundary>
+        })()}
+      </ErrorBoundary>
+    </MicroInteractionProvider>
   );
 }
 export default App;

@@ -10,6 +10,7 @@ import { useLanguage } from "../../../contexts/LanguageContext";
 import { WishCardState, WishCardHandlers } from "../types";
 import { useWishActions } from "../../../hooks/useWishActions";
 import { useToast } from "../../../hooks/useToast";
+import { useMicroInteractions } from "../../../hooks/useMicroInteractions";
 
 export const CardFooter: React.FC<{
   state: WishCardState;
@@ -39,6 +40,7 @@ export const CardFooter: React.FC<{
 
   const { withdrawApplication, fulfillWish } = useWishActions();
   const { showToast } = useToast();
+  const { getCandidateAction } = useMicroInteractions();
   const applicants = wish.applicants || [];
 
   const handleFulfill = async () => {
@@ -203,9 +205,9 @@ export const CardFooter: React.FC<{
                   </div>
                 ) : (
                   <button
-                    onClick={handleApply}
+                    onClick={getCandidateAction(handleApply)}
                     disabled={isLoading || displayValue === 0}
-                    className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-500 hover:text-white hover:border-amber-500 text-base font-bold transition-all shadow-sm hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="relative overflow-hidden z-10 flex items-center gap-2 px-6 py-2.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-500 hover:text-white hover:border-amber-500 text-base font-bold transition-all shadow-sm hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoading ? (
                       <Loader2 className="w-4 h-4 animate-spin" />
