@@ -325,17 +325,7 @@ function App() {
 
   const { stats } = useStats(); // Global Stats
 
-  // Auto-show Story Guide on first visit
-  useEffect(() => {
-    const hasSeenGuide = localStorage.getItem("has_seen_story_guide_v1");
-    if (!hasSeenGuide && viewMode === "home" && view === "APP") {
-      setTimeout(() => {
-        setGuideMode("onboarding");
-        setShowStoryGuide(true);
-        localStorage.setItem("has_seen_story_guide_v1", "true");
-      }, 1000);
-    }
-  }, [viewMode, view]);
+
 
   const handleOpenOnboarding = () => {
     setGuideMode("reference");
