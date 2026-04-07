@@ -127,7 +127,7 @@ export const getTrustRank = (profile: UserProfile | null, snapshotScore: number 
 
     if (isImpure) {
         // 穢れ状態: ランク剥奪
-        return { id: 'BEGINNER', label: '新顔', icon: '🔰', color: 'text-slate-500', bg: 'bg-slate-100', isVerified: false };
+        return { id: 'BEGINNER', label: '新顔', icon: '🔰', color: 'text-slate-700', bg: 'bg-slate-100', isVerified: false };
     }
     
     // --- Verification Criteria ---

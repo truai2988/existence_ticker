@@ -59,7 +59,7 @@ export const CardFooter: React.FC<{
   };
 
   return (
-    <div className="relative pt-4 border-t border-slate-100 min-h-[50px] flex items-center justify-between gap-4 flex-wrap">
+    <div className="relative pt-4 border-t border-slate-300 min-h-[50px] flex items-center justify-between gap-4 flex-wrap">
       <div className="flex flex-col gap-1 items-start">
         <div className="">
           {wish.status === "in_progress" && (
@@ -73,7 +73,7 @@ export const CardFooter: React.FC<{
                 wish.cancel_reason === "helper_cancellation" ||
                 wish.cancel_reason === "compensatory_cancellation"
                   ? "text-red-600 bg-red-50 border-red-100"
-                  : "text-slate-600 bg-slate-100 border-slate-200"
+                  : "text-slate-800 bg-slate-100 border-slate-300"
               }`}
             >
               {wish.cancel_reason === "helper_cancellation" ||
@@ -95,7 +95,7 @@ export const CardFooter: React.FC<{
             </span>
           )}
           {wish.status === "expired" && (
-            <span className="text-sm font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
+            <span className="text-sm font-bold text-slate-800 bg-slate-100 px-3 py-1 rounded-full border border-slate-300 whitespace-nowrap shrink-0">
               {MESSAGES.WISH_CARD.FTR_EXPIRED_SETTLED}
             </span>
           )}
@@ -106,7 +106,7 @@ export const CardFooter: React.FC<{
                 {MESSAGES.WISH_CARD.FTR_EXPIRED}
               </span>
             ) : (
-              <span className="text-sm font-bold text-slate-600 bg-slate-50 px-3 py-1 rounded-full border border-slate-200 whitespace-nowrap shrink-0">
+              <span className="text-sm font-bold text-slate-800 bg-slate-50 px-3 py-1 rounded-full border border-slate-300 whitespace-nowrap shrink-0">
                 {MESSAGES.WISH_CARD.FTR_RECRUITING}
               </span>
             ))}
@@ -114,7 +114,7 @@ export const CardFooter: React.FC<{
 
         {isMyWish && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 ml-1">
-            <span className="flex items-center gap-1 text-sm text-slate-600">
+            <span className="flex items-center gap-1 text-sm text-slate-800">
               <Clock className="w-3.5 h-3.5" />
               <span>{formatDate(wish.created_at)}</span>
             </span>
@@ -152,7 +152,7 @@ export const CardFooter: React.FC<{
               (wish.status === "review_pending" ||
                 wish.status === "in_progress") && (
                 <div className="flex flex-col items-end gap-2">
-                  <p className="text-sm font-bold text-slate-800">
+                  <p className="text-sm font-bold text-slate-900">
                     {MESSAGES.WISH_CARD.FTR_THANK_CONFIRM_1}
                     <br />
                     {MESSAGES.WISH_CARD.FTR_THANK_CONFIRM_2}
@@ -180,7 +180,7 @@ export const CardFooter: React.FC<{
               <div>
                 {hasApplied ? (
                   <div className="flex items-center gap-2">
-                    <span className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600 rounded-full text-sm font-bold border border-slate-200 whitespace-nowrap shrink-0">
+                    <span className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-800 rounded-full text-sm font-bold border border-slate-300 whitespace-nowrap shrink-0">
                       <Clock size={14} />
                       {MESSAGES.WISH_CARD.TXT_WAITING_REPLY}
                     </span>
@@ -198,7 +198,7 @@ export const CardFooter: React.FC<{
                         }
                       }}
                       disabled={isLoading}
-                      className="px-3 py-2 text-base font-bold text-slate-500 border border-slate-200 rounded-full hover:bg-slate-50 hover:text-slate-600 hover:border-slate-300 transition-all"
+                      className="px-3 py-2 text-base font-bold text-slate-700 border border-slate-300 rounded-full hover:bg-slate-50 hover:text-slate-800 hover:border-slate-300 transition-all"
                     >
                       {MESSAGES.WISH_CARD.BTN_CANCEL_APPLY}
                     </button>
@@ -228,7 +228,7 @@ export const CardFooter: React.FC<{
                   <button
                     onClick={handleCancel}
                     disabled={isLoading}
-                    className="text-slate-600 hover:text-red-500 text-base font-bold transition-all underline decoration-slate-300 hover:decoration-red-200 underline-offset-4"
+                    className="text-slate-800 hover:text-red-500 text-base font-bold transition-all underline decoration-slate-300 hover:decoration-red-200 underline-offset-4"
                   >
                     {MESSAGES.WISH_CARD.BTN_DECLINE}
                   </button>

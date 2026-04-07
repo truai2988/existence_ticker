@@ -89,7 +89,7 @@ export const PWAInstallBanner: React.FC = () => {
             {isIOS && !hasPromptedIOS ? (
               <button
                 onClick={() => setHasPromptedIOS(true)}
-                className="w-full py-2.5 text-xs font-bold tracking-widest text-slate-500 hover:text-[#2D2D2D] transition-colors"
+                className="w-full py-2.5 text-xs font-bold tracking-widest text-slate-700 hover:text-[#2D2D2D] transition-colors"
                 >
                 {MESSAGES.PWA.BTN_CHECKED}
               </button>

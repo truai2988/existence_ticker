@@ -33,15 +33,15 @@ export const OptimisticWishPhantom: React.FC<{ wish: Wish }> = ({ wish }) => {
           <Trash2 className="w-4 h-4" />
           {MESSAGES.WISH_CARD.PH_TRASH}
         </button>
-        <p className="text-sm text-slate-600 mt-3 text-center font-sans">{MESSAGES.WISH_CARD.PH_CAUTION}</p>
+        <p className="text-sm text-slate-800 mt-3 text-center font-sans">{MESSAGES.WISH_CARD.PH_CAUTION}</p>
       </div>
     );
   }
 
   return (
-    <div className="relative bg-slate-50/50 border border-slate-200 rounded-2xl p-6 overflow-hidden">
+    <div className="relative bg-slate-50/50 border border-slate-300 rounded-2xl p-6 overflow-hidden">
       <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm z-10 rounded-xl">
-        <div className="flex flex-col items-center text-slate-500">
+        <div className="flex flex-col items-center text-slate-700">
           <Send className="w-6 h-6 animate-bounce mb-2" />
           <span className="text-sm font-bold tracking-wider font-sans">{MESSAGES.WISH_CARD.PH_SENDING}</span>
         </div>
@@ -51,7 +51,7 @@ export const OptimisticWishPhantom: React.FC<{ wish: Wish }> = ({ wish }) => {
         <div className="h-4 w-5/6 bg-slate-100 rounded" />
       </div>
       <div className="h-10 w-full bg-slate-200 rounded-xl" />
-      <div className="absolute top-4 right-6 flex items-center gap-1.5 text-slate-600 text-sm font-bold uppercase tracking-widest font-sans">
+      <div className="absolute top-4 right-6 flex items-center gap-1.5 text-slate-800 text-sm font-bold uppercase tracking-widest font-sans">
         <Loader2 size={12} className="animate-spin" />
         {MESSAGES.WISH_CARD.PH_SENDING}
       </div>

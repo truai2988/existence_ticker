@@ -81,7 +81,7 @@ export const NoticePanel: React.FC = () => {
         className={`relative p-3 rounded-full transition-all active:scale-95 ${
           unreadCount > 0
             ? "text-amber-500 bg-amber-50/50"
-            : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"
+            : "text-slate-700 hover:text-slate-900 hover:bg-slate-100"
         }`}
         aria-label={t.NOTICE.TITLE}
       >
@@ -103,25 +103,25 @@ export const NoticePanel: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed left-4 right-4 top-[70px] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 max-h-[70vh] bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col z-50"
+            className="fixed left-4 right-4 top-[70px] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 max-h-[70vh] bg-white rounded-2xl shadow-2xl border border-slate-300 overflow-hidden flex flex-col z-50"
           >
             {/* ヘッダー */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-slate-50 bg-white">
-              <h3 className="text-base font-serif font-medium text-slate-800 tracking-widest">
+              <h3 className="text-base font-serif font-medium text-slate-900 tracking-widest">
                 {t.NOTICE.TITLE}
               </h3>
               <div className="flex items-center gap-3">
                 {notices.length > 0 && (
                   <button
                     onClick={dismissAll}
-                    className="text-xs text-slate-500 hover:text-amber-600 transition-colors tracking-tighter"
+                    className="text-xs text-slate-700 hover:text-amber-600 transition-colors tracking-tighter"
                   >
                     {t.NOTICE.TOOLTIP_DISMISS_ALL}
                   </button>
                 )}
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-1 text-slate-500 hover:text-slate-500 transition-colors"
+                  className="p-1 text-slate-700 hover:text-slate-700 transition-colors"
                 >
                   <X size={18} strokeWidth={1.5} />
                 </button>
@@ -134,13 +134,13 @@ export const NoticePanel: React.FC = () => {
                 <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
                   <BellOff
                     size={28}
-                    className="text-slate-500 mb-3"
+                    className="text-slate-700 mb-3"
                     strokeWidth={1.5}
                   />
-                  <p className="text-sm text-slate-500 font-medium">
+                  <p className="text-sm text-slate-700 font-medium">
                     {t.NOTICE.EMPTY_TITLE}
                   </p>
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-slate-700 mt-1">
                     {t.NOTICE.EMPTY_DESC}
                   </p>
                 </div>
@@ -157,15 +157,15 @@ export const NoticePanel: React.FC = () => {
                     >
                       {/* ドットインジケーター */}
                       <span
-                        className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 opacity-60 ${typeColorMap[notice.type] || "bg-slate-300"}`}
+                        className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 opacity-90 ${typeColorMap[notice.type] || "bg-slate-300"}`}
                       />
 
                       {/* メッセージ */}
                       <div className="flex-1 min-w-0">
-                        <p className="text-[13px] text-slate-600 leading-relaxed font-light tracking-wide">
+                        <p className="text-[13px] text-slate-800 leading-relaxed font-light tracking-wide">
                           {resolveMessage(notice, wishActions)}
                         </p>
-                        <span className="text-xs text-slate-500 mt-1.5 block font-sans tracking-tight">
+                        <span className="text-xs text-slate-700 mt-1.5 block font-sans tracking-tight">
                           {formatTime(
                             notice.createdAt,
                             t.NOTICE.TIME_JUST_NOW,
@@ -178,7 +178,7 @@ export const NoticePanel: React.FC = () => {
                       {/* 削除ボタン */}
                       <button
                         onClick={() => dismissNotice(notice.id)}
-                        className="p-2.5 text-slate-500 hover:text-slate-500 hover:bg-slate-100 rounded-md transition-colors opacity-0 group-hover:opacity-100 shrink-0 mt-0.5"
+                        className="p-2.5 text-slate-700 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors opacity-0 group-hover:opacity-100 shrink-0 mt-0.5"
                         title={t.NOTICE.TOOLTIP_DISMISS}
                       >
                         <X size={14} />

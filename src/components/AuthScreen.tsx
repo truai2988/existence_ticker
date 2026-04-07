@@ -158,7 +158,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
       >
         <div className="flex flex-col items-center mb-8">
           <h1
-            className="text-lg sm:text-xl md:text-2xl font-serif font-bold text-slate-800 tracking-wider md:tracking-widest mb-2 whitespace-nowrap"
+            className="text-lg sm:text-xl md:text-2xl font-serif font-bold text-slate-900 tracking-wider md:tracking-widest mb-2 whitespace-nowrap"
             style={{ fontFamily: "Inter, Noto Sans JP" }}
           >
             {mode === "login" && MESSAGES.AUTH.APP_TITLE}
@@ -179,12 +179,12 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                   exit={{ opacity: 0, y: -10 }}
                   className="flex flex-col gap-1.5"
                 >
-                  <label className="text-sm font-bold text-slate-600 ml-1">
+                  <label className="text-sm font-bold text-slate-800 ml-1">
                     {MESSAGES.AUTH.NAME_LABEL} <span className="text-red-500">*</span>
                   </label>
                   <div className="relative group">
                     <User
-                      className="absolute left-3 top-3 text-slate-500 group-focus-within:text-slate-600 transition-colors"
+                      className="absolute left-3 top-3 text-slate-700 group-focus-within:text-slate-800 transition-colors"
                       size={18}
                     />
                     <input
@@ -192,7 +192,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                       placeholder={MESSAGES.AUTH.NAME_PLACEHOLDER}
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-500 text-base"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-10 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-700 text-base"
                     />
                   </div>
                 </motion.div>
@@ -200,12 +200,12 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
             </AnimatePresence>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-bold text-slate-600 ml-1">
+              <label className="text-sm font-bold text-slate-800 ml-1">
                 {MESSAGES.AUTH.EMAIL_LABEL} <span className="text-red-500">*</span>
               </label>
               <div className="relative group">
                 <Mail
-                  className="absolute left-3 top-3 text-slate-500 group-focus-within:text-slate-600 transition-colors"
+                  className="absolute left-3 top-3 text-slate-700 group-focus-within:text-slate-800 transition-colors"
                   size={18}
                 />
                 <input
@@ -213,19 +213,19 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                   placeholder={MESSAGES.AUTH.EMAIL_PLACEHOLDER}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-500 text-base"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-10 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-700 text-base"
                 />
               </div>
             </div>
 
             {mode !== "forgot" && (
               <div className="flex flex-col gap-1.5">
-                <label className="text-sm font-bold text-slate-600 ml-1">
+                <label className="text-sm font-bold text-slate-800 ml-1">
                   {MESSAGES.AUTH.PASSWORD_LABEL} <span className="text-red-500">*</span>
                 </label>
                 <div className="relative group">
                   <Lock
-                    className="absolute left-3 top-3 text-slate-500 group-focus-within:text-slate-600 transition-colors"
+                    className="absolute left-3 top-3 text-slate-700 group-focus-within:text-slate-800 transition-colors"
                     size={18}
                   />
                   <input
@@ -233,12 +233,12 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                     placeholder={MESSAGES.AUTH.PASSWORD_PLACEHOLDER}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-500 text-base"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-10 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-700 text-base"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-slate-500 hover:text-slate-600 transition-colors"
+                    className="absolute right-3 top-3 text-slate-700 hover:text-slate-800 transition-colors"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -255,13 +255,13 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                   className="flex flex-col gap-4 overflow-hidden pt-2"
                 >
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-bold text-slate-600 ml-1">
+                    <label className="text-sm font-bold text-slate-800 ml-1">
                       {MESSAGES.AUTH.RESIDENCE_LABEL} <span className="text-red-500">*</span>
                     </label>
                     <div className="grid grid-cols-2 gap-2">
                       <div className="relative group">
                         <MapPin
-                          className="absolute left-3 top-3 text-slate-500 group-focus-within:text-slate-600 transition-colors pointer-events-none"
+                          className="absolute left-3 top-3 text-slate-700 group-focus-within:text-slate-800 transition-colors pointer-events-none"
                           size={18}
                         />
                         <select
@@ -270,7 +270,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                             setPrefecture(e.target.value);
                             setCity("");
                           }}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all appearance-none text-base"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-xl px-10 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all appearance-none text-base"
                         >
                           <option value="" disabled>
                             {MESSAGES.AUTH.PREFECTURE_PLACEHOLDER}
@@ -282,7 +282,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                           ))}
                         </select>
                         <ChevronDown
-                          className="absolute right-3 top-3 text-slate-500 pointer-events-none"
+                          className="absolute right-3 top-3 text-slate-700 pointer-events-none"
                           size={18}
                         />
                       </div>
@@ -290,7 +290,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                         <select
                           value={city}
                           onChange={(e) => setCity(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all appearance-none disabled:opacity-50 text-base"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all appearance-none disabled:opacity-50 text-base"
                           disabled={!prefecture || loadingCities}
                         >
                           <option value="" disabled>
@@ -303,26 +303,26 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                           ))}
                         </select>
                         <ChevronDown
-                          className="absolute right-3 top-3 text-slate-500 pointer-events-none"
+                          className="absolute right-3 top-3 text-slate-700 pointer-events-none"
                           size={18}
                         />
                       </div>
                     </div>
-                    <p className="text-xs text-slate-500 ml-1 mt-1 leading-tight font-medium">
+                    <p className="text-xs text-slate-700 ml-1 mt-1 leading-tight font-medium">
                       {MESSAGES.AUTH.RESIDENCE_HELP}
                     </p>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-bold text-slate-600 ml-1">
+                      <label className="text-sm font-bold text-slate-800 ml-1">
                         {MESSAGES.AUTH.AGE_GROUP_LABEL} <span className="text-red-500">*</span>
                       </label>
                       <div className="relative group">
                         <select
                           value={ageGroup}
                           onChange={(e) => setAgeGroup(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-base appearance-none"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-base appearance-none"
                         >
                           <option value="" disabled>
                             {MESSAGES.AUTH.AGE_GROUP_PLACEHOLDER}
@@ -337,13 +337,13 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                           <option value="over_80">{MESSAGES.AUTH.AGE_GROUP_OVER_80}</option>
                         </select>
                         <ChevronDown
-                          className="absolute right-3 top-3 text-slate-500 pointer-events-none"
+                          className="absolute right-3 top-3 text-slate-700 pointer-events-none"
                           size={18}
                         />
                       </div>
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-bold text-slate-600 ml-1">
+                      <label className="text-sm font-bold text-slate-800 ml-1">
                         {MESSAGES.AUTH.GENDER_LABEL} <span className="text-red-500">*</span>
                       </label>
                       <div className="relative group">
@@ -354,7 +354,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                               e.target.value as "male" | "female" | "other",
                             )
                           }
-                          className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-base appearance-none"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-base appearance-none"
                         >
                           <option value="" disabled>
                             {MESSAGES.AUTH.GENDER_PLACEHOLDER}
@@ -364,21 +364,21 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                           <option value="other">{MESSAGES.AUTH.GENDER_OTHER}</option>
                         </select>
                         <ChevronDown
-                          className="absolute right-3 top-3 text-slate-500 pointer-events-none"
+                          className="absolute right-3 top-3 text-slate-700 pointer-events-none"
                           size={18}
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-100 mt-2">
-                    <label className="text-sm font-bold text-slate-600 ml-1">
+                  <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-300 mt-2">
+                    <label className="text-sm font-bold text-slate-800 ml-1">
                       {MESSAGES.AUTH.INVITE_LABEL}{" "}
                       <span className="text-red-500">*</span>
                     </label>
                     <div className="relative group">
                       <Key
-                        className="absolute left-3 top-3 text-slate-500 group-focus-within:text-slate-600 transition-colors"
+                        className="absolute left-3 top-3 text-slate-700 group-focus-within:text-slate-800 transition-colors"
                         size={18}
                       />
                       <input
@@ -386,10 +386,10 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                         placeholder={MESSAGES.AUTH.INVITE_PLACEHOLDER}
                         value={invitationCode}
                         onChange={(e) => setInvitationCode(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-10 py-2.5 text-slate-700 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all font-mono text-base"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-10 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all font-mono text-base"
                       />
                     </div>
-                    <p className="text-xs text-slate-500 ml-1 mt-1 leading-tight font-medium">
+                    <p className="text-xs text-slate-700 ml-1 mt-1 leading-tight font-medium">
                       {MESSAGES.AUTH.INVITE_HELP}
                     </p>
                   </div>
@@ -467,7 +467,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                     setMode("signup");
                     setError(null);
                   }}
-                  className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300"
+                  className="hover:text-slate-900 underline underline-offset-4 decoration-slate-300"
                 >
                   {MESSAGES.AUTH.TO_SIGNUP}
                 </button>
@@ -477,7 +477,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                     setMode("forgot");
                     setError(null);
                   }}
-                  className="text-xs hover:text-slate-800"
+                  className="text-xs hover:text-slate-900"
                 >
                   {MESSAGES.AUTH.TO_FORGOT}
                 </button>
@@ -490,7 +490,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                   setMode("login");
                   setError(null);
                 }}
-                className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300"
+                className="hover:text-slate-900 underline underline-offset-4 decoration-slate-300"
               >
                 {MESSAGES.AUTH.TO_LOGIN_BACK}
               </button>
@@ -502,7 +502,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                   setMode("login");
                   setError(null);
                 }}
-                className="hover:text-slate-800 underline underline-offset-4 decoration-slate-300"
+                className="hover:text-slate-900 underline underline-offset-4 decoration-slate-300"
               >
                 {MESSAGES.AUTH.TO_LOGIN_BACK}
               </button>
@@ -544,7 +544,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
               transition={{ delay: 1, duration: 2 }}
               className="relative z-10 px-12 py-16 text-center"
             >
-              <h2 className="text-3xl md:text-5xl font-serif text-slate-800 tracking-[0.3em] font-bold leading-relaxed whitespace-pre-wrap">
+              <h2 className="text-3xl md:text-5xl font-serif text-slate-900 tracking-[0.3em] font-bold leading-relaxed whitespace-pre-wrap">
                 {MESSAGES.AUTH.WELCOME_MSG_1}{"\n"}{MESSAGES.AUTH.WELCOME_MSG_2}
               </h2>
               <motion.div

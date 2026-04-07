@@ -32,15 +32,15 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-slate-800 font-sans">
-          <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-slate-100 shadow-xl text-center">
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-slate-900 font-sans">
+          <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-slate-300 shadow-xl text-center">
             <div className="inline-flex justify-center items-center w-12 h-12 rounded-full bg-rose-50 mb-4 border border-rose-100">
               <span className="text-rose-500 text-2xl">!</span>
             </div>
             <h2 className="text-xl font-bold text-slate-900 mb-2">
               {MESSAGES.SYSTEM.ERROR_BOUNDARY_TITLE}
             </h2>
-            <p className="text-sm text-slate-500 mb-6 leading-relaxed whitespace-pre-wrap">
+            <p className="text-sm text-slate-700 mb-6 leading-relaxed whitespace-pre-wrap">
               {MESSAGES.SYSTEM.ERROR_BOUNDARY_DESC}
             </p>
 
@@ -51,8 +51,8 @@ export class ErrorBoundary extends Component<Props, State> {
               {MESSAGES.SYSTEM.ERROR_BOUNDARY_BTN}
             </button>
 
-            <div className="mt-6 pt-6 border-t border-slate-100">
-              <p className="text-xs text-slate-500 font-mono text-left overflow-auto max-h-32 p-2 bg-slate-50 rounded">
+            <div className="mt-6 pt-6 border-t border-slate-300">
+              <p className="text-xs text-slate-700 font-mono text-left overflow-auto max-h-32 p-2 bg-slate-50 rounded">
                 {this.state.error?.message}
               </p>
             </div>

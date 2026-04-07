@@ -61,7 +61,7 @@ export const NameResolver: React.FC<NameResolverProps> = ({ userId, initialName,
   }, [userId, initialName]);
 
   if (loading) {
-    return <span className={`${className} animate-pulse opacity-50`}>取得中...</span>;
+    return <span className={`${className} animate-pulse opacity-80`}>取得中...</span>;
   }
 
   return <span className={className}>{resolvedName || "（読込中）"}</span>;

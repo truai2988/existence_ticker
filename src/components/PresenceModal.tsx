@@ -108,14 +108,14 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
         {/* Header */}
         <div className="p-6 pb-2 flex justify-between items-start">
             <div>
-                <h2 className="text-3xl font-serif text-slate-800 tracking-widest flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-slate-500" />
+                <h2 className="text-3xl font-serif text-slate-900 tracking-widest flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-slate-700" />
                     <span>{MESSAGES.MODALS.PRESENCE_TITLE}</span>
                 </h2>
             </div>
             <button 
                 onClick={onClose}
-                className="p-2 rounded-full hover:bg-slate-100/80 transition-colors text-slate-500"
+                className="p-2 rounded-full hover:bg-slate-100/80 transition-colors text-slate-700"
             >
                 <X size={20} />
             </button>
@@ -125,7 +125,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
         <div className="p-6 pt-4 space-y-6">
             
             {/* Display Area - Calm & Compact */}
-            <div className="relative h-28 rounded-xl bg-slate-50/50 border border-slate-100 flex flex-col items-center justify-center overflow-hidden">
+            <div className="relative h-28 rounded-xl bg-slate-50/50 border border-slate-300 flex flex-col items-center justify-center overflow-hidden">
                 {/* Subtle Breathing Light */}
                 {count !== null && Number(count) > 0 && (
                             <div className="absolute inset-0 pointer-events-none">
@@ -167,7 +167,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
 
                 <div className="relative z-10 text-center">
                     {loading ? (
-                        <div className="flex flex-col items-center gap-2 text-slate-500">
+                        <div className="flex flex-col items-center gap-2 text-slate-700">
                              <Loader2 className="w-5 h-5 animate-spin" />
                               <span className="text-xs font-bold uppercase tracking-widest">{MESSAGES.MODALS.PRESENCE_CHECKING}</span>
                         </div>
@@ -178,7 +178,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
                             key={getDisplayText()}
                             className="flex flex-col items-center"
                         >
-                            <span className="font-serif text-slate-700 text-base tracking-wide">
+                            <span className="font-serif text-slate-900 text-base tracking-wide">
                                 {getDisplayText()}
                             </span>
                         </motion.div>
@@ -193,14 +193,14 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
                     <select 
                         value={selectedPref}
                         onChange={(e) => handlePrefChange(e.target.value)}
-                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-700 text-base font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-slate-200/50 shadow-sm transition-all"
+                        className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-900 text-base font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-slate-200/50 shadow-sm transition-all"
                     >
                         <option value="">{MESSAGES.MODALS.PRESENCE_PREF_PLACEHOLDER}</option>
                         {PREFECTURES.map(pref => (
                             <option key={pref} value={pref}>{mapPrefecture(pref)}</option>
                         ))}
                     </select>
-                    <ChevronLeft size={16} className="absolute right-3 top-1/2 -translate-y-1/2 -rotate-90 text-slate-500 pointer-events-none" />
+                    <ChevronLeft size={16} className="absolute right-3 top-1/2 -translate-y-1/2 -rotate-90 text-slate-700 pointer-events-none" />
                  </div>
 
                  {/* City */}
@@ -209,7 +209,7 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
                         value={selectedCity}
                         onChange={(e) => setSelectedCity(e.target.value)}
                         disabled={!selectedPref || loadingCities}
-                        className="w-full p-3 bg-white border border-slate-200 rounded-xl text-slate-700 text-base font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-slate-200/50 shadow-sm transition-all disabled:opacity-50 disabled:bg-slate-50"
+                        className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-900 text-base font-medium appearance-none focus:outline-none focus:ring-2 focus:ring-slate-200/50 shadow-sm transition-all disabled:opacity-50 disabled:bg-slate-50"
                     >
                         <option value="">
                             {loadingCities ? MESSAGES.MODALS.PRESENCE_CITY_LOADING : MESSAGES.MODALS.PRESENCE_CITY_PLACEHOLDER}
@@ -218,11 +218,11 @@ export const PresenceModal = ({ onClose }: PresenceModalProps) => {
                             <option key={city} value={city}>{city}</option>
                         ))}
                     </select>
-                    <ChevronLeft size={16} className="absolute right-3 top-1/2 -translate-y-1/2 -rotate-90 text-slate-500 pointer-events-none" />
+                    <ChevronLeft size={16} className="absolute right-3 top-1/2 -translate-y-1/2 -rotate-90 text-slate-700 pointer-events-none" />
                  </div>
             </div>
 
-            <p className="text-xs text-slate-500 text-center leading-relaxed">
+            <p className="text-xs text-slate-700 text-center leading-relaxed">
                 {MESSAGES.MODALS.PRESENCE_PRIVACY_NOTE}
             </p>
 

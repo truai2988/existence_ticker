@@ -88,18 +88,18 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                             <img
                                 src="/logo.png"
                                 alt="Existence Ticker"
-                                className="w-10 h-10 rounded-lg shadow-sm border border-slate-200/40 object-cover hover:opacity-80 transition-opacity"
+                                className="w-10 h-10 rounded-lg shadow-sm border border-slate-300/40 object-cover hover:opacity-80 transition-opacity"
                             />
                         </button>
                         {/* Text Group */}
                         <div className="flex flex-col min-w-0 justify-center">
-                            <h2 className="text-xl sm:text-2xl font-light tracking-[0.2em] sm:tracking-[0.4em] text-slate-800 truncate leading-tight uppercase" style={{fontFamily: "'Noto Serif JP', serif"}}>{MESSAGES.FLOW.TITLE}</h2>
+                            <h2 className="text-xl sm:text-2xl font-light tracking-[0.2em] sm:tracking-[0.4em] text-slate-900 truncate leading-tight uppercase" style={{fontFamily: "'Noto Serif JP', serif"}}>{MESSAGES.FLOW.TITLE}</h2>
                         </div>
                     </div>
                     <div className="flex h-12 items-center gap-3 shrink-0">
                         <button
                           onClick={() => setIsDrawerOpen(true)}
-                          className="p-3 -mr-3 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
+                          className="p-3 -mr-3 text-slate-700 hover:text-slate-900 transition-colors active:scale-95"
                           aria-label={MESSAGES.LAYOUT.OPEN_MENU}
                         >
                           <Menu size={24} strokeWidth={1.5} />
@@ -124,10 +124,10 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             activeTab === 'explore' 
                                 ? 'text-amber-700' 
-                                : exploreWishes.length === 0 ? 'text-slate-500' : 'text-slate-500 hover:text-slate-500'
+                                : exploreWishes.length === 0 ? 'text-slate-700' : 'text-slate-700 hover:text-slate-700'
                         }`}
                     >
-                        <span>{MESSAGES.FLOW.TAB_EXPLORE} <span className="text-xs opacity-60 ml-1">({exploreWishes.length})</span></span>
+                        <span>{MESSAGES.FLOW.TAB_EXPLORE} <span className="text-xs opacity-90 ml-1">({exploreWishes.length})</span></span>
                         {activeTab === 'explore' && (
                             <motion.div 
                                 layoutId="flow-tab-underline"
@@ -141,10 +141,10 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             activeTab === 'pending' 
                                 ? 'text-indigo-800' 
-                                : pendingWishes.length === 0 ? 'text-slate-500' : 'text-slate-500 hover:text-slate-500'
+                                : pendingWishes.length === 0 ? 'text-slate-700' : 'text-slate-700 hover:text-slate-700'
                         }`}
                     >
-                        {MESSAGES.FLOW.TAB_PENDING} <span className="text-xs opacity-60 ml-1">({pendingWishes.length})</span>
+                        {MESSAGES.FLOW.TAB_PENDING} <span className="text-xs opacity-90 ml-1">({pendingWishes.length})</span>
                         {activeTab === 'pending' && (
                             <motion.div 
                                 layoutId="flow-tab-underline"
@@ -158,10 +158,10 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             activeTab === 'active' 
                                 ? 'text-emerald-700' 
-                                : activeWishes.length === 0 ? 'text-slate-500' : 'text-slate-500 hover:text-slate-500'
+                                : activeWishes.length === 0 ? 'text-slate-700' : 'text-slate-700 hover:text-slate-700'
                         }`}
                     >
-                        {MESSAGES.FLOW.TAB_ACTIVE} <span className="text-xs opacity-60 ml-1">({activeWishes.length})</span>
+                        {MESSAGES.FLOW.TAB_ACTIVE} <span className="text-xs opacity-90 ml-1">({activeWishes.length})</span>
                         {activeTab === 'active' && (
                             <motion.div 
                                 layoutId="flow-tab-underline"
@@ -183,7 +183,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                             currentUserId={currentUserId}
                             viewType="flow"
                             emptyMessage={MESSAGES.FLOW.EMPTY_EXPLORE}
-                            emptyIcon={<ClipboardList size={48} className="text-slate-500 mb-2" />}
+                            emptyIcon={<ClipboardList size={48} className="text-slate-700 mb-2" />}
                             onOpenProfile={onOpenProfile}
                             onActionComplete={handleActionComplete}
                             onTabChange={onTabChange}
@@ -196,7 +196,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                             currentUserId={currentUserId}
                             viewType="flow"
                             emptyMessage={MESSAGES.FLOW.EMPTY_PENDING}
-                            emptyIcon={<Timer size={48} className="text-slate-500 mb-2" />}
+                            emptyIcon={<Timer size={48} className="text-slate-700 mb-2" />}
                             onOpenProfile={onOpenProfile}
                             onActionComplete={handleActionComplete}
                             onTabChange={onTabChange}
@@ -209,7 +209,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                             currentUserId={currentUserId}
                             viewType="flow"
                             emptyMessage={MESSAGES.FLOW.EMPTY_ACTIVE}
-                            emptyIcon={<PlayCircle size={48} className="text-slate-500 mb-2" />}
+                            emptyIcon={<PlayCircle size={48} className="text-slate-700 mb-2" />}
                             onOpenProfile={onOpenProfile}
                             onActionComplete={handleActionComplete}
                             onTabChange={onTabChange}

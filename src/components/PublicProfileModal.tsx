@@ -20,7 +20,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
         return (
             <div className="fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in">
                 <div className="bg-white p-6 rounded-2xl w-full max-w-sm flex justify-center">
-                    <div className="animate-spin w-8 h-8 border-4 border-slate-200 border-t-slate-500 rounded-full"></div>
+                    <div className="animate-spin w-8 h-8 border-4 border-slate-300 border-t-slate-500 rounded-full"></div>
                 </div>
             </div>
         );
@@ -64,7 +64,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                      onClick={onClose}
                      className="absolute top-4 right-4 p-2 bg-white/60 hover:bg-white rounded-full transition-colors backdrop-blur-md z-50"
                 >
-                    <X size={20} className="text-slate-500" />
+                    <X size={20} className="text-slate-700" />
                 </button>
 
                 {/* Single Scrollable Container for Header & Content */}
@@ -76,12 +76,12 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                     <div className="px-6 -mt-10 pb-8 text-center relative z-10">
                         {/* Avatar */}
                         <div className="w-24 h-24 mx-auto bg-white rounded-full p-1 shadow-sm mb-3">
-                            <div className="w-full h-full bg-slate-50 rounded-full flex items-center justify-center overflow-hidden border border-slate-100">
+                            <div className="w-full h-full bg-slate-50 rounded-full flex items-center justify-center overflow-hidden border border-slate-300">
                                 {displayAvatar ? (
                                     <img src={displayAvatar} alt={displayName} className="w-full h-full object-cover" />
                                 ) : (
                                     <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-                                        <span className="text-3xl font-bold text-slate-500">
+                                        <span className="text-3xl font-bold text-slate-700">
                                             {isMasked ? '?' : (profile.name?.charAt(0).toUpperCase() || '?')}
                                         </span>
                                     </div>
@@ -105,21 +105,21 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                             </span>
                             
                             {!isMasked && (
-                                <span className="text-xs text-slate-500 font-mono px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50">
+                                <span className="text-xs text-slate-700 font-mono px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-300/50">
                                     ID: {profile.id.slice(0,6)}
                                 </span>
                             )}
 
                             {age_group && (
-                                <span className="text-xs text-slate-500 font-bold px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50 whitespace-nowrap">
+                                <span className="text-xs text-slate-700 font-bold px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-300/50 whitespace-nowrap">
                                     {age_group}
                                     {profile.gender && profile.gender !== 'other' && ` / ${profile.gender === 'male' ? MESSAGES.WISH_CARD.LBL_MALE : MESSAGES.WISH_CARD.LBL_FEMALE}`}
                                 </span>
                             )}
                             
                             {locationText && (
-                                <span className="text-xs text-slate-500 flex items-center gap-1 px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-100/50 whitespace-nowrap">
-                                    <MapPin size={10} className="shrink-0 text-slate-500" />
+                                <span className="text-xs text-slate-700 flex items-center gap-1 px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-300/50 whitespace-nowrap">
+                                    <MapPin size={10} className="shrink-0 text-slate-700" />
                                     {locationText}
                                     {isMasked && profile.gender && profile.gender !== 'other' && ` / ${profile.gender === 'male' ? MESSAGES.WISH_CARD.LBL_MALE : MESSAGES.WISH_CARD.LBL_FEMALE}`}
                                 </span>
@@ -129,7 +129,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                         {/* Bio (Quiet Space) */}
                         {displayBio && (
                             <div className="mb-6 mx-2">
-                                <p className="text-sm text-slate-600 leading-relaxed bg-slate-50/80 px-5 py-4 rounded-2xl border border-slate-100 text-left whitespace-pre-wrap">
+                                <p className="text-sm text-slate-800 leading-relaxed bg-slate-50/80 px-5 py-4 rounded-2xl border border-slate-300 text-left whitespace-pre-wrap">
                                     {displayBio}
                                 </p>
                             </div>
@@ -163,7 +163,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                                         href={profile.links.website} 
                                         target="_blank" 
                                         rel="noopener noreferrer" 
-                                        className="p-3 bg-white border border-slate-200 text-slate-500 rounded-full hover:scale-110 hover:text-blue-500 hover:border-blue-200 transition-all shadow-sm"
+                                        className="p-3 bg-white border border-slate-300 text-slate-700 rounded-full hover:scale-110 hover:text-blue-500 hover:border-blue-200 transition-all shadow-sm"
                                     >
                                         <LinkIcon size={16} />
                                     </a>
@@ -172,26 +172,26 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                         )}
 
                         {/* Stats - Subtle & Dignified */}
-                        <div className="grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
+                        <div className="grid grid-cols-2 gap-4 border-t border-slate-300 pt-4">
                             <div className="flex flex-col items-center p-3 rounded-xl hover:bg-slate-50/50 transition-colors">
-                                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{MESSAGES.PROFILE.LBL_HELPED_COUNT}</div>
+                                <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">{MESSAGES.PROFILE.LBL_HELPED_COUNT}</div>
                                 <div className="flex items-baseline gap-1">
                                     <Handshake size={14} className="text-blue-400" />
-                                    <span className="text-xl font-medium text-slate-700 tabular-nums">
+                                    <span className="text-xl font-medium text-slate-900 tabular-nums">
                                         {helpCount}
                                     </span>
-                                    <span className="text-xs text-slate-500 font-normal">{MESSAGES.PROFILE.TXT_TIMES}</span>
+                                    <span className="text-xs text-slate-700 font-normal">{MESSAGES.PROFILE.TXT_TIMES}</span>
                                 </div>
                             </div>
                             
                             <div className="flex flex-col items-center p-3 rounded-xl hover:bg-slate-50/50 transition-colors">
-                                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{MESSAGES.PROFILE.LBL_REQUEST_COUNT}</div>
+                                <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">{MESSAGES.PROFILE.LBL_REQUEST_COUNT}</div>
                                 <div className="flex items-baseline gap-1">
-                                    <Megaphone size={14} className="text-slate-500" />
-                                    <span className="text-xl font-medium text-slate-700 tabular-nums">
+                                    <Megaphone size={14} className="text-slate-700" />
+                                    <span className="text-xl font-medium text-slate-900 tabular-nums">
                                         {reqCount}
                                     </span>
-                                    <span className="text-xs text-slate-500 font-normal">{MESSAGES.PROFILE.TXT_TIMES}</span>
+                                    <span className="text-xs text-slate-700 font-normal">{MESSAGES.PROFILE.TXT_TIMES}</span>
                                 </div>
                             </div>
                         </div>

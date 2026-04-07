@@ -71,18 +71,18 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                             <img
                                 src="/logo.png"
                                 alt="Existence Ticker"
-                                className="w-10 h-10 rounded-lg shadow-sm border border-slate-200/40 object-cover hover:opacity-80 transition-opacity"
+                                className="w-10 h-10 rounded-lg shadow-sm border border-slate-300/40 object-cover hover:opacity-80 transition-opacity"
                             />
                         </button>
                         {/* Text Group */}
                         <div className="flex flex-col min-w-0 justify-center">
-                            <h2 className="text-xl sm:text-2xl font-light tracking-[0.2em] sm:tracking-[0.4em] text-slate-800 truncate leading-tight uppercase" style={{fontFamily: "'Noto Serif JP', serif"}}>{MESSAGES.HOME.LBL_WISH}</h2>
+                            <h2 className="text-xl sm:text-2xl font-light tracking-[0.2em] sm:tracking-[0.4em] text-slate-900 truncate leading-tight uppercase" style={{fontFamily: "'Noto Serif JP', serif"}}>{MESSAGES.HOME.LBL_WISH}</h2>
                         </div>
                     </div>
                     <div className="flex h-12 items-center gap-3 shrink-0">
                         <button
                           onClick={() => setIsDrawerOpen(true)}
-                          className="p-3 -mr-3 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
+                          className="p-3 -mr-3 text-slate-700 hover:text-slate-900 transition-colors active:scale-95"
                           aria-label={MESSAGES.HOME.ARIA_OPEN_MENU}
                         >
                           <Menu size={24} strokeWidth={1.5} />
@@ -107,7 +107,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             modalState === 'create_wish'
                                 ? 'text-amber-700' 
-                                : 'text-slate-500 hover:text-slate-500'
+                                : 'text-slate-700 hover:text-slate-700'
                         }`}
                     >
                         <span>{MESSAGES.HOME.BTN_NEW_WISH}</span>
@@ -124,10 +124,10 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             activeTab === 'active' && modalState !== 'create_wish'
                                 ? 'text-indigo-800' 
-                                : myActiveWishes.length === 0 ? 'text-slate-500' : 'text-slate-500 hover:text-slate-500'
+                                : myActiveWishes.length === 0 ? 'text-slate-700' : 'text-slate-700 hover:text-slate-700'
                         }`}
                     >
-                        {MESSAGES.HOME.TAB_SEARCHING} <span className="text-xs opacity-60 ml-1">({myActiveWishes.length})</span>
+                        {MESSAGES.HOME.TAB_SEARCHING} <span className="text-xs opacity-90 ml-1">({myActiveWishes.length})</span>
                         {activeTab === 'active' && modalState !== 'create_wish' && (
                             <motion.div 
                                 layoutId="radiance-tab-underline"
@@ -141,10 +141,10 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
                         className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
                             activeTab === 'outbound' && modalState !== 'create_wish'
                                 ? 'text-emerald-800' 
-                                : myOutboundWishes.length === 0 ? 'text-slate-500' : 'text-slate-500 hover:text-slate-500'
+                                : myOutboundWishes.length === 0 ? 'text-slate-700' : 'text-slate-700 hover:text-slate-700'
                         }`}
                     >
-                        {MESSAGES.HOME.TAB_IN_PROGRESS} <span className="text-xs opacity-60 ml-1">({myOutboundWishes.length})</span>
+                        {MESSAGES.HOME.TAB_IN_PROGRESS} <span className="text-xs opacity-90 ml-1">({myOutboundWishes.length})</span>
                         {activeTab === 'outbound' && modalState !== 'create_wish' && (
                             <motion.div 
                                 layoutId="radiance-tab-underline"

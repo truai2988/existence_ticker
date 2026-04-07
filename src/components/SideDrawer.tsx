@@ -94,16 +94,16 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
                 onClick={() => handleNavigate("home")}
                 className="text-left group transition-opacity hover:opacity-70 active:scale-[0.98]"
               >
-                <div className="text-3xl font-light tracking-tighter text-slate-800 leading-none font-['Inter']">
+                <div className="text-3xl font-light tracking-tighter text-slate-900 leading-none font-['Inter']">
                   ET
                 </div>
-                <div className="text-xs text-slate-500 font-light tracking-[0.35em] uppercase mt-1">
+                <div className="text-xs text-slate-700 font-light tracking-[0.35em] uppercase mt-1">
                   Existence Ticker
                 </div>
               </button>
               <button
                 onClick={onClose}
-                className="p-2 text-slate-500 hover:text-slate-600 hover:bg-slate-200/30 rounded-full transition-colors"
+                className="p-2 text-slate-700 hover:text-slate-800 hover:bg-slate-200/30 rounded-full transition-colors"
                 aria-label={MESSAGES.MODALS.BTN_CLOSE}
               >
                 <X size={20} strokeWidth={1.5} />
@@ -111,7 +111,7 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
             </div>
 
             {/* Divider */}
-            <div className="mx-7 border-b border-slate-200/50" />
+            <div className="mx-7 border-b border-slate-300/50" />
 
             {/* Install App Button (if not standalone) */}
             {!isStandalone && (
@@ -155,15 +155,15 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
                       w-full px-5 py-4 text-left flex items-center gap-4 rounded-xl transition-all duration-200
                       ${
                         active
-                          ? "bg-white/80 text-slate-800 shadow-sm"
-                          : "text-slate-500 hover:bg-white/40 hover:text-slate-700"
+                          ? "bg-white/80 text-slate-900 shadow-sm"
+                          : "text-slate-700 hover:bg-white/40 hover:text-slate-900"
                       }
                     `}
                   >
                     <item.icon
                       size={20}
                       strokeWidth={active ? 2 : 1.5}
-                      className={active ? "text-slate-700" : ""}
+                      className={active ? "text-slate-900" : ""}
                     />
                     <div className="flex flex-col">
                       <span
@@ -178,13 +178,13 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
             </nav>
 
             {/* Footer */}
-            <div className="px-7 pb-10 pt-6 border-t border-slate-200/50 flex flex-col items-center">
+            <div className="px-7 pb-10 pt-6 border-t border-slate-300/50 flex flex-col items-center">
               <button
                 onClick={() => {
                   window.open('/trust', '_blank');
                   onClose();
                 }}
-                className="text-xs font-serif text-slate-500 tracking-[0.15em] hover:text-slate-600 transition-colors duration-200"
+                className="text-xs font-serif text-slate-700 tracking-[0.15em] hover:text-slate-800 transition-colors duration-200"
               >
                 {MESSAGES.LAYOUT.SIDEDRAWER_TRUST}
               </button>

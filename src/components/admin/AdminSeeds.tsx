@@ -38,7 +38,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
             <Sprout className="text-emerald-400" />
             種子の書庫
           </h3>
-          <p className="text-sm text-slate-500 font-serif italic mt-1">
+          <p className="text-sm text-slate-700 font-serif italic mt-1">
             この世界に蒔かれる「願いの種」を管理します
           </p>
         </div>
@@ -53,7 +53,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
           <button
             type="button"
             onClick={onFetchSeeds}
-            className="p-2 text-slate-500 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+            className="p-2 text-slate-700 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
             title="種子を更新"
           >
             <RefreshCw size={18} className={isLoading ? "animate-spin" : ""} />
@@ -63,7 +63,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
 
       {/* Add Seed Form */}
       <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6 space-y-4">
-        <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-500 flex items-center gap-2">
+        <h4 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-700 flex items-center gap-2">
           <Plus size={14} /> 新しい種を蒔く
         </h4>
         <div className="flex flex-col gap-4">
@@ -78,7 +78,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
                     ? t === 1000 ? "bg-amber-500/10 border-amber-500 text-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.1)]" :
                       t === 500 ? "bg-orange-500/10 border-orange-500 text-orange-500" :
                       "bg-pink-500/10 border-pink-500 text-pink-500"
-                    : "bg-slate-800/50 border-slate-700 text-slate-500 hover:border-slate-500"
+                    : "bg-slate-800/50 border-slate-700 text-slate-700 hover:border-slate-500"
                 }`}
               >
                 {t === 1000 ? "人生の節目" : t === 500 ? "日常の手助け" : "魂の共鳴"}
@@ -91,7 +91,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
               value={newSeedContent}
               onChange={(e) => setNewSeedContent(e.target.value)}
               placeholder="「例えば：...」静かな願いの種を綴ってください"
-              className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-4 text-base text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 transition-all min-h-[100px] font-serif"
+              className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-4 text-base text-slate-200 placeholder:text-slate-700 focus:outline-none focus:border-emerald-500/50 transition-all min-h-[100px] font-serif"
             />
           </div>
           <button
@@ -126,10 +126,10 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
                     className="group bg-slate-900/30 border border-slate-800 hover:border-slate-700 p-4 rounded-xl flex justify-between items-start gap-4 transition-all"
                   >
                     <div className="flex-1">
-                      <p className="text-slate-500 font-serif leading-relaxed text-base">
+                      <p className="text-slate-700 font-serif leading-relaxed text-base">
                         {seed.content}
                       </p>
-                      <div className="mt-2 text-xs text-slate-500 font-mono uppercase tracking-tighter">
+                      <div className="mt-2 text-xs text-slate-700 font-mono uppercase tracking-tighter">
                         蒔かれた日時: {
                           seed.createdAt?.toDate 
                             ? seed.createdAt.toDate().toLocaleString() 
@@ -142,7 +142,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
                     <button
                       type="button"
                       onClick={() => onDeleteSeed(seed.id)}
-                      className="p-2 text-slate-700 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all active:scale-90"
+                      className="p-2 text-slate-900 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all active:scale-90"
                       title="種子を削除"
                     >
                       <Trash2 size={16} />
@@ -156,7 +156,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
       </div>
 
       {seeds.length === 0 && !isLoading && (
-        <div className="p-12 text-center text-slate-600 border border-dashed border-slate-800 rounded-2xl">
+        <div className="p-12 text-center text-slate-800 border border-dashed border-slate-800 rounded-2xl">
           <Sprout size={24} className="mx-auto mb-2 opacity-30" />
           <p className="text-sm">まだ「種」がありません。最初の種を蒔いてください。</p>
         </div>

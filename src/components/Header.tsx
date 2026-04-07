@@ -48,19 +48,19 @@ export const Header: React.FC<HeaderProps> = ({
                   <img
                     src="/logo.png"
                     alt="Existence Ticker"
-                    className="w-10 h-10 rounded-lg shadow-sm border border-slate-200/50 shrink-0 object-cover"
+                    className="w-10 h-10 rounded-lg shadow-sm border border-slate-300/50 shrink-0 object-cover"
                   />
                   {/* Text Group */}
                   <div className="flex flex-col min-w-0">
                     <h1
-                      className="text-sm sm:text-xl font-light tracking-[0.2em] sm:tracking-[0.3em] text-slate-800 uppercase leading-tight whitespace-nowrap"
+                      className="text-sm sm:text-xl font-light tracking-[0.2em] sm:tracking-[0.3em] text-slate-900 uppercase leading-tight whitespace-nowrap"
                       style={{ fontFamily: "'Noto Serif JP', serif" }}
                     >
                       Existence Ticker
                     </h1>
                     {/* Supplemental: Balance info */}
                     {(!viewMode || viewMode === "home") && (
-                      <div className="flex items-center gap-2 text-slate-500 mt-0.5">
+                      <div className="flex items-center gap-2 text-slate-700 mt-0.5">
                         <span className="text-xs font-medium tracking-wider uppercase whitespace-nowrap">
                           {MESSAGES.LAYOUT.HEADER_BALANCE}{Math.floor(balance).toLocaleString()}
                         </span>
@@ -81,7 +81,7 @@ export const Header: React.FC<HeaderProps> = ({
                   {/* Hamburger Menu */}
                   <button
                     onClick={() => setIsDrawerOpen(true)}
-                    className="p-3 -mr-3 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
+                    className="p-3 -mr-3 text-slate-700 hover:text-slate-900 transition-colors active:scale-95"
                     aria-label={MESSAGES.LAYOUT.OPEN_MENU}
                   >
                     <Menu size={24} strokeWidth={1.5} />

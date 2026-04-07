@@ -115,7 +115,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
                         <img
                             src="/logo.png"
                             alt="Existence Ticker"
-                            className="w-10 h-10 rounded-lg shadow-sm border border-slate-200/50 object-cover hover:opacity-80 transition-opacity"
+                            className="w-10 h-10 rounded-lg shadow-sm border border-slate-300/50 object-cover hover:opacity-80 transition-opacity"
                         />
                     </button>
                     <div className="flex flex-col min-w-0 justify-center">
@@ -125,7 +125,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
                 <div className="flex h-12 items-center gap-3 shrink-0">
                     <button
                       onClick={() => setIsDrawerOpen(true)}
-                      className="p-3 -mr-3 text-slate-500 hover:text-slate-800 transition-colors active:scale-95"
+                      className="p-3 -mr-3 text-slate-700 hover:text-slate-900 transition-colors active:scale-95"
                       aria-label={MESSAGES.LAYOUT.OPEN_MENU}
                     >
                       <Menu size={24} strokeWidth={1.5} />
@@ -146,11 +146,11 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
              <div className="w-full max-w-2xl flex-grow p-6 pt-4 pb-24 relative">
                 <div className="space-y-3 py-4">
                     {isLoading ? (
-                         <div className="text-center py-10 text-slate-600 text-sm animate-pulse">{MESSAGES.JOURNAL.LOADING}</div>
+                         <div className="text-center py-10 text-slate-800 text-sm animate-pulse">{MESSAGES.JOURNAL.LOADING}</div>
                     ) : logs.length === 0 ? (
                         <div className="text-center py-20 px-4">
-                            <p className="text-sm text-slate-600 font-medium mb-2">{MESSAGES.JOURNAL.EMPTY_TITLE}</p>
-                            <p className="text-sm text-slate-500 leading-relaxed">
+                            <p className="text-sm text-slate-800 font-medium mb-2">{MESSAGES.JOURNAL.EMPTY_TITLE}</p>
+                            <p className="text-sm text-slate-700 leading-relaxed">
                                 {MESSAGES.JOURNAL.EMPTY_DESC_1}<br/>
                                 {MESSAGES.JOURNAL.EMPTY_DESC_2}<br/>
                                 {MESSAGES.JOURNAL.EMPTY_DESC_3}
@@ -193,13 +193,13 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
     const isGrant = ['REBIRTH', 'BIRTH'].includes(log.type);
     const isExp = isSender && !isGrant; 
     let amountColor = isExp ? "text-rose-500" : "text-emerald-500";
-    if (log.amount === 0) amountColor = "text-slate-500";
+    if (log.amount === 0) amountColor = "text-slate-700";
 
     const getIcon = () => {
       const t = log.type;
       if (t === 'REBIRTH' || t === 'BIRTH') return <Sun size={14} className="text-amber-500 fill-amber-100" />;
       if (t === 'GIFT') return isSender ? <Heart size={14} className="text-pink-500" /> : <Sparkles size={14} className="text-cyan-500" />;
-      if (t === 'WISH_CANCELLED' || t === 'WISH_EXPIRED') return <Archive size={14} className="text-slate-500" />;
+      if (t === 'WISH_CANCELLED' || t === 'WISH_EXPIRED') return <Archive size={14} className="text-slate-700" />;
       if (t === 'COMPENSATION') return isSender ? <CheckCircle2 size={14} className="text-rose-400" /> : <Sun size={14} className="text-amber-500" />;
       return <CheckCircle2 size={14} className={isExp ? "text-rose-500" : "text-emerald-500"} />;
     };
@@ -280,7 +280,7 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${isExp ? 'bg-rose-50/80' : 'bg-emerald-50/80'}`}>
                         {getIcon()}
                     </div>
-                    <span className="text-xs font-serif tracking-widest text-slate-500 uppercase">{dateStr} — {date.getHours().toString().padStart(2, '0')}:{date.getMinutes().toString().padStart(2, '0')}</span>
+                    <span className="text-xs font-serif tracking-widest text-slate-700 uppercase">{dateStr} — {date.getHours().toString().padStart(2, '0')}:{date.getMinutes().toString().padStart(2, '0')}</span>
                 </div>
                 <div className="flex items-center gap-1 opacity-80">
                     <span className={`text-base font-mono font-light ${amountColor}`}>
@@ -289,18 +289,18 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
                             : `${(!isSender || isGrant) ? '+' : '-'}${Math.floor(Math.abs(log.amount)).toLocaleString()}`
                         }
                     </span>
-                    <span className="text-xs text-slate-500 font-sans tracking-tight">Lm</span>
+                    <span className="text-xs text-slate-700 font-sans tracking-tight">Lm</span>
                 </div>
             </div>
 
             <div className="space-y-2">
-                <p className="text-base text-slate-800 font-serif font-medium leading-relaxed tracking-wide">
+                <p className="text-base text-slate-900 font-serif font-medium leading-relaxed tracking-wide">
                     {getTitle()}
                 </p>
                 {log.wish_title && log.type !== 'WISH_CANCELLED' && log.type !== 'WISH_EXPIRED' && (
-                    <p className="text-sm text-slate-500 mt-2 pl-3 border-l border-slate-200/50 italic line-clamp-1">"{log.wish_title}"</p>
+                    <p className="text-sm text-slate-700 mt-2 pl-3 border-l border-slate-300/50 italic line-clamp-1">"{log.wish_title}"</p>
                 )}
-                <p className="text-sm text-slate-500 mt-2 line-clamp-2 leading-relaxed font-light">
+                <p className="text-sm text-slate-700 mt-2 line-clamp-2 leading-relaxed font-light">
                     {getDescription()}
                 </p>
             </div>

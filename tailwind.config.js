@@ -3,6 +3,13 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      fontSize: {
+        'xs': ['0.875rem', { lineHeight: '1.25rem' }], // Default sm
+        'sm': ['1rem', { lineHeight: '1.5rem' }],      // Default base
+        'base': ['1.125rem', { lineHeight: '1.75rem' }], // Default lg
+        'lg': ['1.25rem', { lineHeight: '1.75rem' }],    // Default xl
+        'xl': ['1.5rem', { lineHeight: '2rem' }],        // Default 2xl
+      },
       animation: {
         glow: "glow 2s ease-in-out infinite alternate",
         expand: "expand 1s ease-out forwards",

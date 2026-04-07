@@ -110,7 +110,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
           {/* Header */}
           <div className={`p-4 sm:p-6 pb-3 flex justify-between items-start border-b border-slate-800/50 ${diagnosis.bg.replace('/30', '/10')}`}>
             <div>
-              <div className="flex items-center gap-2 text-slate-500 mb-0.5 uppercase tracking-[0.2em] text-xs font-sans">
+              <div className="flex items-center gap-2 text-slate-700 mb-0.5 uppercase tracking-[0.2em] text-xs font-sans">
                 <Activity size={10} />
                 <span>{MESSAGES.DIAGNOSTICS.SAGE_TITLE}</span>
               </div>
@@ -120,7 +120,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
             </div>
             <button
               onClick={onClose}
-              className="p-2 -mr-2 text-slate-500 hover:text-white transition-colors"
+              className="p-2 -mr-2 text-slate-700 hover:text-white transition-colors"
             >
               <X size={24} />
             </button>
@@ -131,9 +131,9 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               
               {/* Sage's Voice quote section */}
               <div className="relative group">
-                  <div className="absolute -top-3 -left-1 text-4xl text-slate-800 font-serif leading-none select-none">“</div>
+                  <div className="absolute -top-3 -left-1 text-4xl text-slate-900 font-serif leading-none select-none">“</div>
                   <div className="relative z-10 pl-5 border-l border-slate-700">
-                    <p className="text-slate-500 font-serif text-sm sm:text-lg leading-relaxed italic whitespace-pre-wrap">
+                    <p className="text-slate-700 font-serif text-sm sm:text-lg leading-relaxed italic whitespace-pre-wrap">
                         {content.voice}
                     </p>
                   </div>
@@ -142,19 +142,19 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
               {/* Responsive Metrics Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-0.5 bg-slate-800/50 border border-slate-800 rounded-xl overflow-hidden">
                   <div className="bg-slate-900 p-3 text-center">
-                      <div className="text-xs text-slate-500 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_SPEED}</div>
-                      <div className={`font-mono text-lg sm:text-xl ${metabolism.rate >= 10 ? 'text-cyan-400' : 'text-slate-500'}`}>
+                      <div className="text-xs text-slate-700 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_SPEED}</div>
+                      <div className={`font-mono text-lg sm:text-xl ${metabolism.rate >= 10 ? 'text-cyan-400' : 'text-slate-700'}`}>
                           {metabolism.rate}%
                       </div>
                   </div>
                   <div className="bg-slate-800/50 p-2.5 rounded-lg border border-slate-700/50">
-                      <div className="text-xs text-slate-500 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_SAVINGS}</div>
-                        <div className="font-mono text-lg sm:text-xl text-slate-500">
+                      <div className="text-xs text-slate-700 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_SAVINGS}</div>
+                        <div className="font-mono text-lg sm:text-xl text-slate-700">
                           {avgBalance.toLocaleString()}
                       </div>
                   </div>
                   <div className="bg-slate-800/50 p-2.5 rounded-lg border border-slate-700/50">
-                       <div className="text-xs text-slate-500 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_DECAY}</div>
+                       <div className="text-xs text-slate-700 uppercase tracking-widest mb-0.5">{MESSAGES.DIAGNOSTICS.LBL_DECAY}</div>
                        <div className="font-mono text-lg sm:text-xl text-red-500/80">
                           -{metabolism.decay24h.toLocaleString()}
                        </div>
@@ -175,7 +175,7 @@ export const DiagnosticModal: React.FC<DiagnosticModalProps> = ({
                           <p className="text-xs sm:text-sm text-slate-200 leading-relaxed mb-3 font-sans">
                               {content.actionDesc}
                           </p>
-                          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-black/40 border border-white/10 text-xs font-mono text-slate-500 rounded-full">
+                          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-black/40 border border-white/10 text-xs font-mono text-slate-700 rounded-full">
                               <Info size={10} />
                               {content.targetValue}
                           </div>

@@ -76,7 +76,7 @@ const RitualOverlay = ({
           className={`absolute inset-0 bg-white/90 backdrop-blur-xl transition-all duration-1000 ${state === "syncing" ? "opacity-0" : "opacity-100"}`}
         />
 
-        <div className="relative z-10 flex flex-col items-center justify-center text-slate-800">
+        <div className="relative z-10 flex flex-col items-center justify-center text-slate-900">
           {state === "blooming" && (
             <motion.div
               initial={{ scale: 0.8, opacity: 0, y: 20 }}
@@ -88,7 +88,7 @@ const RitualOverlay = ({
               <div className="text-6xl font-serif font-bold text-slate-900 tracking-tighter">
                 2,400
               </div>
-              <div className="text-xs tracking-[0.3em] mt-2 text-slate-500 uppercase font-bold">
+              <div className="text-xs tracking-[0.3em] mt-2 text-slate-700 uppercase font-bold">
                 灯火が還りました
               </div>
             </motion.div>
@@ -101,7 +101,7 @@ const RitualOverlay = ({
               className="text-center"
             >
               <CountingNumber value={targetBalance} duration={2} />
-              <div className="text-xs tracking-[0.3em] mt-2 text-slate-500 uppercase font-bold">
+              <div className="text-xs tracking-[0.3em] mt-2 text-slate-700 uppercase font-bold">
                 刻が同期されました
               </div>
             </motion.div>
@@ -275,13 +275,13 @@ const ScreenLoader = ({ message }: { message?: string }) => (
     <div className="relative flex flex-col items-center justify-center z-10">
       <div className="relative flex items-center justify-center mb-8">
         <div className="absolute w-12 h-12 bg-slate-200 rounded-full animate-ping opacity-20"></div>
-        <div className="w-3 h-3 bg-white border border-slate-100 rounded-full shadow-sm animate-pulse z-10"></div>
+        <div className="w-3 h-3 bg-white border border-slate-300 rounded-full shadow-sm animate-pulse z-10"></div>
       </div>
       {message && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-slate-500 font-serif tracking-[0.2em] text-sm animate-pulse"
+          className="text-slate-700 font-serif tracking-[0.2em] text-sm animate-pulse"
         >
           {message}
         </motion.div>

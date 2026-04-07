@@ -29,7 +29,7 @@ export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats, onOpenDiagno
         {/* Metabolism Card */}
         <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6">
           <div className="flex justify-between items-start mb-4">
-            <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">
+            <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-700">
               代謝状態 (Metabolism)
             </h3>
             <Activity className={`w-4 h-4 ${getMetaColor(metabolism.status)}`} />
@@ -38,18 +38,18 @@ export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats, onOpenDiagno
             <span className={`text-3xl font-bold font-mono ${getMetaColor(metabolism.status)}`}>
               {metabolism.status}
             </span>
-            <span className="text-slate-500 text-sm font-mono">
+            <span className="text-slate-700 text-sm font-mono">
               / {metabolism.rate.toFixed(1)}%
             </span>
           </div>
-          <p className="text-xs text-slate-500 font-serif italic">
+          <p className="text-xs text-slate-700 font-serif italic">
             全住民のLm減衰と自律分配のバランス指標
           </p>
         </div>
 
         {/* Population Card */}
         <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6">
-          <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500 mb-4">
+          <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-slate-700 mb-4">
             存在の分布 (Distribution)
           </h3>
           <div className="flex h-3 rounded-full overflow-hidden bg-slate-800 mb-4">
@@ -69,17 +69,17 @@ export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats, onOpenDiagno
               title={`新月: ${distribution.new}`}
             />
           </div>
-          <div className="flex justify-between text-xs font-mono text-slate-500">
+          <div className="flex justify-between text-xs font-mono text-slate-700">
             <span className="flex items-center gap-1">
               <Sun size={10} className="text-yellow-400" />
               {distribution.full}
             </span>
             <span className="flex items-center gap-1">
-              <Moon size={10} className="text-slate-500" />
+              <Moon size={10} className="text-slate-700" />
               {distribution.quarter}
             </span>
-            <span className="flex items-center gap-1 opacity-60">
-              <Moon size={10} className="text-slate-500" />
+            <span className="flex items-center gap-1 opacity-90">
+              <Moon size={10} className="text-slate-700" />
               {distribution.new}
             </span>
           </div>
@@ -97,12 +97,12 @@ export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats, onOpenDiagno
           </div>
           <div>
             <h3 className="text-slate-200 font-bold">システム診断 (Diagnostics)</h3>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-700 mt-0.5">
               数理的な整合性とプロトコルの健全性を確認
             </p>
           </div>
         </div>
-        <div className="text-slate-600 group-hover:text-slate-500 transition-colors">
+        <div className="text-slate-800 group-hover:text-slate-700 transition-colors">
           →
         </div>
       </div>

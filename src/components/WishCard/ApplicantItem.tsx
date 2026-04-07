@@ -36,11 +36,11 @@ export const ApplicantItem: React.FC<{
       : genderLabel;
 
   return (
-    <div className="flex flex-col gap-3 p-4 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-all group">
+    <div className="flex flex-col gap-3 p-4 bg-white border border-slate-300 rounded-2xl shadow-sm hover:shadow-md transition-all group">
       <div className="flex items-center gap-3">
         {/* Avatar with fallback */}
         <div
-          className={`w-10 h-10 rounded-full flex items-center justify-center border shrink-0 overflow-hidden ${isMasked ? "bg-slate-200 border-slate-300" : "bg-slate-100 border-slate-200"}`}
+          className={`w-10 h-10 rounded-full flex items-center justify-center border shrink-0 overflow-hidden ${isMasked ? "bg-slate-200 border-slate-300" : "bg-slate-100 border-slate-300"}`}
         >
           {avatarUrl ? (
             <img
@@ -49,12 +49,12 @@ export const ApplicantItem: React.FC<{
               className="w-full h-full object-cover"
             />
           ) : (
-            <span className="text-base font-bold text-slate-500">
+            <span className="text-base font-bold text-slate-700">
               {isMasked ? (
-                <User className="w-5 h-5 text-slate-500" />
+                <User className="w-5 h-5 text-slate-700" />
               ) : (
                 displayName?.charAt(0).toUpperCase() || (
-                  <User className="w-5 h-5 text-slate-500" />
+                  <User className="w-5 h-5 text-slate-700" />
                 )
               )}
             </span>
@@ -65,16 +65,16 @@ export const ApplicantItem: React.FC<{
           <button
             onClick={() => !isMasked && onOpenProfile && onOpenProfile(applicant.id, isMasked)}
             disabled={isMasked}
-            className={`text-base font-bold text-left truncate w-full block transition-colors font-sans ${isMasked ? "text-slate-500 cursor-default" : "text-slate-800 hover:text-blue-600 hover:underline"}`}
+            className={`text-base font-bold text-left truncate w-full block transition-colors font-sans ${isMasked ? "text-slate-700 cursor-default" : "text-slate-900 hover:text-blue-600 hover:underline"}`}
           >
             {displayName}
             {metadata && (
-              <span className="ml-1.5 text-xs font-normal text-slate-500 opacity-80 whitespace-nowrap font-sans">
+              <span className="ml-1.5 text-xs font-normal text-slate-700 opacity-80 whitespace-nowrap font-sans">
                 {metadata}
               </span>
             )}
           </button>
-          <div className="text-xs text-slate-500 flex items-center gap-2 mt-0.5">
+          <div className="text-xs text-slate-700 flex items-center gap-2 mt-0.5">
             {/* Trust/Helped Count Badge */}
             <div
               title={`${trustScore} times helped`}
@@ -86,8 +86,8 @@ export const ApplicantItem: React.FC<{
 
             {/* Rank Label */}
             <>
-              <span className="text-slate-500">|</span>
-              <span className="text-slate-600 font-bold">{MESSAGES.DATA.RANKS[rank.id]}</span>
+              <span className="text-slate-700">|</span>
+              <span className="text-slate-800 font-bold">{MESSAGES.DATA.RANKS[rank.id]}</span>
             </>
           </div>
         </div>

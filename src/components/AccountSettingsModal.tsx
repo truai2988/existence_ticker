@@ -63,13 +63,13 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                 {/* Modal Content */}
                 <div className="p-6">
                     <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-base font-bold text-slate-800 font-sans">{MESSAGES.ACCOUNT_MODAL.TITLE}</h2>
+                        <h2 className="text-base font-bold text-slate-900 font-sans">{MESSAGES.ACCOUNT_MODAL.TITLE}</h2>
                         <button 
                             onClick={onClose} 
                             disabled={isDeleting}
                             className={`p-3 rounded-full hover:bg-slate-100 ${isDeleting ? 'opacity-30 cursor-not-allowed' : ''}`}
                         >
-                            <X size={20} className="text-slate-500" />
+                            <X size={20} className="text-slate-700" />
                         </button>
                     </div>
 
@@ -78,7 +78,7 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                          <button 
                             onClick={handleSignOut}
                             disabled={isDeleting}
-                            className="w-full flex items-center gap-3 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors text-slate-600 font-bold disabled:opacity-50 text-base font-sans"
+                            className="w-full flex items-center gap-3 p-4 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors text-slate-800 font-bold disabled:opacity-50 text-base font-sans"
                         >
                             <LogOut size={20} />
                             {MESSAGES.ACCOUNT_MODAL.BTN_LOGOUT}
@@ -134,7 +134,7 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                                             setError('');
                                         }}
                                         disabled={isDeleting}
-                                        className="flex-1 py-3 rounded-lg bg-white text-slate-600 font-bold shadow-sm border border-slate-100 disabled:opacity-50 text-base font-sans"
+                                        className="flex-1 py-3 rounded-lg bg-white text-slate-800 font-bold shadow-sm border border-slate-300 disabled:opacity-50 text-base font-sans"
                                     >
                                         {MESSAGES.ACCOUNT_MODAL.BTN_CANCEL}
                                     </button>
@@ -168,8 +168,8 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                             className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-10"
                         >
                              <Loader2 size={40} className="text-red-500 animate-spin mb-4" />
-                            <h3 className="text-base font-bold text-slate-800 mb-2 font-sans">{MESSAGES.ACCOUNT_MODAL.LOADING_TITLE}</h3>
-                            <p className="text-xs text-slate-500 leading-relaxed font-sans" dangerouslySetInnerHTML={{ __html: MESSAGES.ACCOUNT_MODAL.LOADING_DESC.replace('\n', '<br />') }} />
+                            <h3 className="text-base font-bold text-slate-900 mb-2 font-sans">{MESSAGES.ACCOUNT_MODAL.LOADING_TITLE}</h3>
+                            <p className="text-xs text-slate-700 leading-relaxed font-sans" dangerouslySetInnerHTML={{ __html: MESSAGES.ACCOUNT_MODAL.LOADING_DESC.replace('\n', '<br />') }} />
                         </motion.div>
                     )}
                 </AnimatePresence>

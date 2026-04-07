@@ -62,9 +62,9 @@ export const ExistenceTicker = React.memo<ExistenceTickerProps>(({ balance, last
                 </span>
             </div>
             
-            <div className="mt-2 text-sm text-slate-500 font-serif tracking-widest uppercase flex items-center gap-2">
+            <div className="mt-2 text-sm text-slate-700 font-serif tracking-widest uppercase flex items-center gap-2">
                 <span>{MESSAGES.TICKER.PHASE}: {ratio > 0.9 ? MESSAGES.TICKER.PHASE_FULL : ratio > 0.4 ? MESSAGES.TICKER.PHASE_HALF : MESSAGES.TICKER.PHASE_NEW}</span>
-                <span className="opacity-50">|</span>
+                <span className="opacity-80">|</span>
                 <span>{((ratio) * 100).toFixed(0)}%</span>
             </div>
 

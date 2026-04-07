@@ -135,10 +135,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 transition={{ duration: 1.5, ease: "easeOut" }}
                 className="flex flex-col items-center gap-2 pointer-events-none"
               >
-                <div className="text-xs font-serif font-medium tracking-[0.15em] text-slate-500 mr-[0.15em]">
+                <div className="text-xs font-serif font-medium tracking-[0.15em] text-slate-700 mr-[0.15em]">
                   {MESSAGES.HOME.AVAILABLE_LM}
                 </div>
-                <div className="text-4xl md:text-5xl font-serif font-extralight tracking-[-0.02em] tabular-nums leading-none text-slate-500 transition-all duration-1000">
+                <div className="text-4xl md:text-5xl font-serif font-extralight tracking-[-0.02em] tabular-nums leading-none text-slate-700 transition-all duration-1000">
                   {Math.floor(availableLm).toLocaleString()}
                 </div>
               </motion.div>
@@ -173,7 +173,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     <div className="absolute inset-0 bg-gradient-to-t from-transparent via-white/40 to-transparent animate-pulse" />
                   </motion.div>
                   {/* Glass Reflection */}
-                  <div className="absolute inset-x-2 top-1 bottom-1 border-r border-white/50 rounded-full opacity-50 pointer-events-none" />
+                  <div className="absolute inset-x-2 top-1 bottom-1 border-r border-white/50 rounded-full opacity-80 pointer-events-none" />
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/60 to-transparent opacity-70 pointer-events-none" />
                 </motion.div>
               </div>
@@ -263,14 +263,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <motion.button
                   key="btn-ritual"
                   onClick={handleRitual}
-                  className="absolute inset-0 flex flex-col items-center justify-center z-30 outline-none text-slate-500 group"
+                  className="absolute inset-0 flex flex-col items-center justify-center z-30 outline-none text-slate-700 group"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <span className="text-xs font-serif font-medium tracking-widest text-slate-500 group-hover:text-slate-600 transition-colors uppercase ml-[0.1em]">
+                  <span className="text-xs font-serif font-medium tracking-widest text-slate-700 group-hover:text-slate-800 transition-colors uppercase ml-[0.1em]">
                     {ritualMessage}
                   </span>
                 </motion.button>
@@ -302,7 +302,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     <div className="w-16 h-16 rounded-full bg-white/40 backdrop-blur-3xl flex items-center justify-center shadow-sm group-hover:shadow-indigo-200/20 group-hover:bg-indigo-50/50 transition-all duration-500">
                       <Megaphone size={28} strokeWidth={1} className="text-indigo-900/60 group-hover:text-indigo-900 transition-colors" />
                     </div>
-                    <span className="mt-4 text-xs font-serif font-medium tracking-widest text-slate-500 uppercase ml-[0.1em]">
+                    <span className="mt-4 text-xs font-serif font-medium tracking-widest text-slate-700 uppercase ml-[0.1em]">
                       {MESSAGES.HOME.BTN_REQUEST}
                     </span>
                   </motion.button>
@@ -324,7 +324,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     <div className="w-16 h-16 rounded-full bg-white/40 backdrop-blur-3xl flex items-center justify-center shadow-sm group-hover:shadow-amber-200/20 group-hover:bg-amber-50/50 transition-all duration-500">
                       <Inbox size={28} strokeWidth={1} className="text-amber-900/60 group-hover:text-amber-900 transition-colors" />
                     </div>
-                    <span className="mt-4 text-xs font-serif font-medium tracking-widest text-slate-500 uppercase ml-[0.1em]">
+                    <span className="mt-4 text-xs font-serif font-medium tracking-widest text-slate-700 uppercase ml-[0.1em]">
                       {MESSAGES.HOME.BTN_RESPOND}
                     </span>
                   </motion.button>
@@ -348,7 +348,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
               <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-6">
                 <AlertCircle className="text-amber-500" size={24} strokeWidth={1.5} />
               </div>
-              <p className="text-sm text-slate-800 font-light leading-relaxed mb-8 whitespace-pre-wrap font-serif">
+              <p className="text-sm text-slate-900 font-light leading-relaxed mb-8 whitespace-pre-wrap font-serif">
                 {notification}
               </p>
               <button

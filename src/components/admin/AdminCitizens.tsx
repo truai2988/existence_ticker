@@ -33,7 +33,7 @@ export const AdminCitizens = React.memo<AdminCitizensProps>(({
         <div className="p-4 border-b border-slate-700 flex flex-col md:flex-row gap-4 justify-between items-center">
           <div className="relative w-full md:w-64">
             <Search
-              className="absolute left-3 top-2.5 text-slate-500"
+              className="absolute left-3 top-2.5 text-slate-700"
               size={16}
             />
             <input
@@ -50,7 +50,7 @@ export const AdminCitizens = React.memo<AdminCitizensProps>(({
             />
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-xs text-slate-500 font-mono">
+            <span className="text-xs text-slate-700 font-mono">
               {filteredUsers.length} 名を表示中
             </span>
           </div>
@@ -58,7 +58,7 @@ export const AdminCitizens = React.memo<AdminCitizensProps>(({
 
         <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
           <table className="w-full text-left border-collapse">
-            <thead className="text-xs uppercase tracking-widest text-slate-500 border-b border-slate-800 bg-slate-900/80 sticky top-0">
+            <thead className="text-xs uppercase tracking-widest text-slate-700 border-b border-slate-800 bg-slate-900/80 sticky top-0">
               <tr>
                 <th className="px-2 sm:px-4 py-3 font-bold">住民</th>
                 <th className="px-2 sm:px-4 py-3 font-bold">状態</th>
@@ -85,13 +85,13 @@ export const AdminCitizens = React.memo<AdminCitizensProps>(({
                         管理者
                       </span>
                     ) : (
-                      <span className="bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded-full text-xs font-bold ring-1 ring-slate-700 whitespace-nowrap">
+                      <span className="bg-slate-800 text-slate-700 px-1.5 py-0.5 rounded-full text-xs font-bold ring-1 ring-slate-700 whitespace-nowrap">
                         一般
                       </span>
                     )}
                   </td>
                   <td className="px-2 sm:px-4 py-3">
-                    <span className="text-slate-500 font-mono text-xs">
+                    <span className="text-slate-700 font-mono text-xs">
                       {Math.floor(u.balance || 0).toLocaleString()}
                     </span>
                   </td>
@@ -99,7 +99,7 @@ export const AdminCitizens = React.memo<AdminCitizensProps>(({
                     <button
                       type="button"
                       onClick={() => onToggleAdmin(u)}
-                      className="p-2 text-slate-600 hover:text-white hover:bg-slate-700 rounded-lg transition-all"
+                      className="p-2 text-slate-800 hover:text-white hover:bg-slate-700 rounded-lg transition-all"
                       title="権限切り替え"
                     >
                       <Shield size={16} />
@@ -112,22 +112,22 @@ export const AdminCitizens = React.memo<AdminCitizensProps>(({
 
           {isLoading && searchQuery.trim().length > 0 && (
             <div className="p-4 flex justify-center border-t border-slate-800">
-              <span className="text-xs font-bold text-slate-500 animate-pulse">
+              <span className="text-xs font-bold text-slate-700 animate-pulse">
                 検索中...
               </span>
             </div>
           )}
 
           {searchQuery.trim().length === 0 && (
-            <div className="p-20 text-center text-slate-600 flex flex-col items-center gap-2">
+            <div className="p-20 text-center text-slate-800 flex flex-col items-center gap-2">
               <Search size={24} className="opacity-20" />
               <p className="text-sm">名前を入力して住民を検索してください</p>
-              <p className="text-xs opacity-60">※部分一致で検索可能です</p>
+              <p className="text-xs opacity-90">※部分一致で検索可能です</p>
             </div>
           )}
           
           {searchQuery.trim().length > 0 && filteredUsers.length === 0 && !isLoading && (
-            <div className="p-20 text-center text-slate-600 flex flex-col items-center gap-2">
+            <div className="p-20 text-center text-slate-800 flex flex-col items-center gap-2">
               <Activity size={24} className="opacity-20" />
               <p className="text-sm">該当する住民が見つかりませんでした</p>
             </div>

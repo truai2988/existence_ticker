@@ -29,27 +29,27 @@ export const CompleteWishModal = ({ wishTitle, helperName, preset, cost, onConfi
             <HeartHandshake className="w-7 h-7 text-blue-500" />
           </div>
           <h2 className="text-lg font-bold text-slate-900">{MESSAGES.COMPLETE_WISH.TITLE}</h2>
-          <p className="text-xs text-slate-500 font-medium">
-            <span className="font-bold text-slate-700">{helperName}</span> {MESSAGES.COMPLETE_WISH.GREETING}
+          <p className="text-xs text-slate-700 font-medium">
+            <span className="font-bold text-slate-900">{helperName}</span> {MESSAGES.COMPLETE_WISH.GREETING}
           </p>
         </div>
 
         {/* The Pact (約束の内容) */}
-        <div className="bg-slate-50 rounded-xl p-5 border border-slate-100 space-y-4 shadow-inner">
+        <div className="bg-slate-50 rounded-xl p-5 border border-slate-300 space-y-4 shadow-inner">
           <div className="space-y-1">
-             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">{MESSAGES.COMPLETE_WISH.REQ_LABEL}</span>
-             <p className="text-sm text-slate-700 font-medium leading-relaxed break-words">
+             <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block">{MESSAGES.COMPLETE_WISH.REQ_LABEL}</span>
+             <p className="text-sm text-slate-900 font-medium leading-relaxed break-words">
                  {wishTitle}
              </p>
           </div>
           
-          <div className="border-t border-slate-200/50" />
+          <div className="border-t border-slate-300/50" />
 
           {/* Locked Reward Display */}
           <div className="flex justify-between items-center">
             <div>
-               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">{MESSAGES.COMPLETE_WISH.THANKS_LABEL}</span>
-               <span className="text-xs text-slate-600 font-medium">
+               <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block">{MESSAGES.COMPLETE_WISH.THANKS_LABEL}</span>
+               <span className="text-xs text-slate-800 font-medium">
                  {preset === 'light' && MESSAGES.COMPLETE_WISH.TIER_LIGHT}
                  {preset === 'medium' && MESSAGES.COMPLETE_WISH.TIER_MEDIUM}
                  {preset === 'heavy' && MESSAGES.COMPLETE_WISH.TIER_HEAVY}
@@ -57,7 +57,7 @@ export const CompleteWishModal = ({ wishTitle, helperName, preset, cost, onConfi
             </div>
             <div className="text-right">
               <span className="text-2xl font-bold font-mono text-slate-900">-{cost.toLocaleString()}</span>
-              <span className="text-xs text-slate-500 ml-1 font-sans">{UNIT_LABEL}</span>
+              <span className="text-xs text-slate-700 ml-1 font-sans">{UNIT_LABEL}</span>
             </div>
           </div>
         </div>
@@ -76,7 +76,7 @@ export const CompleteWishModal = ({ wishTitle, helperName, preset, cost, onConfi
             </div>
           </button>
           
-          <button onClick={onCancel} className="w-full text-xs font-bold text-slate-500 hover:text-slate-700 py-3 transition-colors">
+          <button onClick={onCancel} className="w-full text-xs font-bold text-slate-700 hover:text-slate-900 py-3 transition-colors">
             {MESSAGES.COMPLETE_WISH.BTN_CANCEL}
           </button>
         </div>

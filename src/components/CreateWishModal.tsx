@@ -134,8 +134,8 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                <div className="space-y-4">
                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-1">
                        <div className="flex items-baseline flex-wrap gap-x-3 gap-y-1">
-                           <label className="text-xs uppercase tracking-widest font-bold text-slate-500 shrink-0">
-                               {MESSAGES.CREATE_WISH.LBL_MIGHT} <span className="text-xs font-normal text-slate-500 ml-0.5">{MESSAGES.CREATE_WISH.LBL_UNIT}</span>
+                           <label className="text-xs uppercase tracking-widest font-bold text-slate-700 shrink-0">
+                               {MESSAGES.CREATE_WISH.LBL_MIGHT} <span className="text-xs font-normal text-slate-700 ml-0.5">{MESSAGES.CREATE_WISH.LBL_UNIT}</span>
                            </label>
                        </div>
                        <span className="self-start sm:self-center text-xs uppercase font-bold text-amber-700 bg-amber-100/30 backdrop-blur-md px-3 py-1 rounded-full tracking-[0.2em]">
@@ -144,7 +144,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                    </div>
                     
                    {/* Available Info */}
-                   <p className="text-xs text-slate-500 mb-2">
+                   <p className="text-xs text-slate-700 mb-2">
                        {MESSAGES.CREATE_WISH.LBL_AVAILABLE_1} <span className="font-mono font-medium text-amber-600">{Math.floor(availableLm).toLocaleString()} {UNIT_LABEL}</span> {MESSAGES.CREATE_WISH.LBL_AVAILABLE_2}
                    </p>
 
@@ -163,7 +163,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                                             : tier.cost === 500
                                               ? "bg-white/80 backdrop-blur-xl shadow-[0_10px_25px_-5px_rgba(251,191,36,0.15)] z-10"
                                               : "bg-white/60 backdrop-blur-lg shadow-md z-10"
-                                          : "bg-white/40 backdrop-blur-md text-slate-500 hover:bg-white/60 hover:shadow-md"
+                                          : "bg-white/40 backdrop-blur-md text-slate-700 hover:bg-white/60 hover:shadow-md"
                                       }
                                   `}
                             >
@@ -177,10 +177,10 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                                 <div className="flex flex-col items-start gap-1">
                                   <span className={`text-base font-medium tracking-[0.1em] ${selectedTier === tier.id 
                                     ? tier.cost === 0 ? "text-amber-900" : tier.cost === 500 ? "text-amber-800" : "text-amber-800" 
-                                    : "text-slate-600"}`} style={{fontFamily: "'Noto Serif JP', serif"}}>
+                                    : "text-slate-800"}`} style={{fontFamily: "'Noto Serif JP', serif"}}>
                                     {tier.label}
                                   </span>
-                                  <span className="text-xs text-slate-500/80 font-medium uppercase tracking-[0.2em]">
+                                  <span className="text-xs text-slate-700/80 font-medium uppercase tracking-[0.2em]">
                                     {tier.subLabel}
                                   </span>
                                 </div>
@@ -188,12 +188,12 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
 
                               <div className="flex items-center gap-4 pl-4 shrink-0">
                                   <span className={`flex items-baseline gap-1.5 font-mono font-light tracking-widest ${selectedTier === tier.id 
-                                    ? tier.cost === 0 ? "text-amber-600" : tier.cost === 500 ? "text-amber-500" : "text-slate-500" 
+                                    ? tier.cost === 0 ? "text-amber-600" : tier.cost === 500 ? "text-amber-500" : "text-slate-700" 
                                     : "text-slate-400"}`}>
                                     {tier.cost === 0 
                                       ? <span className="text-4xl sm:text-5xl leading-[0.5] pt-3">∞</span> 
                                       : <span className="text-lg sm:text-xl">{tier.cost.toLocaleString()}</span>}
-                                    <span className="text-xs font-sans font-medium opacity-50 uppercase tracking-widest">{tier.cost === 0 ? MESSAGES.CREATE_WISH.TIER_0 : UNIT_LABEL}</span>
+                                    <span className="text-xs font-sans font-medium opacity-80 uppercase tracking-widest">{tier.cost === 0 ? MESSAGES.CREATE_WISH.TIER_0 : UNIT_LABEL}</span>
                                   </span>
                               </div>
                               
@@ -208,7 +208,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
 
                {/* Input Section */}
                <div className="space-y-4">
-                  <label className="block text-xs uppercase tracking-widest font-bold text-slate-500 font-sans">
+                  <label className="block text-xs uppercase tracking-widest font-bold text-slate-700 font-sans">
                       {MESSAGES.CREATE_WISH.LBL_CONTENT}
                   </label>
                    <div className="bg-white/50 backdrop-blur-3xl p-6 rounded-[2rem] border border-transparent shadow-sm focus-within:bg-white/70 focus-within:shadow-md transition-all duration-700">
@@ -219,7 +219,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                             setCreationError(null);
                         }}
                         placeholder={currentPlaceholder}
-                        className="w-full bg-transparent text-slate-800 placeholder:text-slate-500 text-base min-h-[160px] resize-none outline-none leading-relaxed font-serif tracking-wide"
+                        className="w-full bg-transparent text-slate-900 placeholder:text-slate-700 text-base min-h-[160px] resize-none outline-none leading-relaxed font-serif tracking-wide"
                       />
                   </div>
                </div>
@@ -248,10 +248,10 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                                </svg>
                            </div>
                            <div className="flex-1">
-                               <span className={`text-sm font-bold uppercase tracking-widest transition-colors ${isAnonymous ? "text-amber-900" : "text-slate-600"}`}>
+                               <span className={`text-sm font-bold uppercase tracking-widest transition-colors ${isAnonymous ? "text-amber-900" : "text-slate-800"}`}>
                                    {MESSAGES.CREATE_WISH.CHK_ANONYMOUS}
                                </span>
-                               <p className="text-xs text-slate-500 mt-1 leading-relaxed opacity-80">
+                               <p className="text-xs text-slate-700 mt-1 leading-relaxed opacity-80">
                                    {MESSAGES.CREATE_WISH.NOTE_ANONYMOUS}
                                </p>
                            </div>
