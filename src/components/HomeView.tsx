@@ -167,7 +167,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
             {/* Water Clock (Absolute to Top Right of Container, aligned with Hamburger) */}
             {showColor && (
-              <div className="absolute right-6 top-0 pointer-events-none">
+              <div className="absolute right-6 top-8 pointer-events-none">
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
