@@ -165,7 +165,7 @@ export const AccountSettingsModal: React.FC<{ onClose: () => void }> = ({ onClos
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-white/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-10"
+                            className="absolute inset-0 bg-white shadow-sm border border-slate-200 flex flex-col items-center justify-center p-6 text-center z-10"
                         >
                              <Loader2 size={40} className="text-red-500 animate-spin mb-4" />
                             <h3 className="text-base font-bold text-slate-900 mb-2 font-sans">{MESSAGES.ACCOUNT_MODAL.LOADING_TITLE}</h3>

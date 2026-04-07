@@ -73,7 +73,7 @@ const RitualOverlay = ({
       >
         {/* Backdrop Blur & Brightness */}
         <div
-          className={`absolute inset-0 bg-white/90 backdrop-blur-xl transition-all duration-1000 ${state === "syncing" ? "opacity-0" : "opacity-100"}`}
+          className={`absolute inset-0 bg-white shadow-sm border border-slate-200 transition-all duration-1000 ${state === "syncing" ? "opacity-0" : "opacity-100"}`}
         />
 
         <div className="relative z-10 flex flex-col items-center justify-center text-slate-900">

@@ -8,7 +8,7 @@ interface ProtocolManualProps {
 
 export const ProtocolManual: React.FC<ProtocolManualProps> = ({ onClose }) => {
   return (
-    <div className="fixed inset-0 z-[200] bg-white/95 backdrop-blur-xl p-6 overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-300 text-slate-900">
+    <div className="fixed inset-0 z-[200] bg-white shadow-sm border border-slate-200 p-6 overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-300 text-slate-900">
       <div className="max-w-3xl mx-auto pb-20 mt-10">
         {/* Header */}
         <div className="flex justify-between items-start mb-12 border-b-2 border-slate-900 pb-6">

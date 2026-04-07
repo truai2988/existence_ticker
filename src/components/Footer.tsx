@@ -12,7 +12,7 @@ interface FooterProps {
 export const Footer: React.FC<FooterProps> = ({ currentTab, onTabChange }) => {
     const { t: MESSAGES } = useLanguage();
     return (
-        <footer className="flex-shrink-0 w-full pb-safe border-t border-slate-300 bg-white/95 backdrop-blur-sm">
+        <footer className="flex-shrink-0 w-full pb-safe border-t border-slate-300 bg-white shadow-sm border border-slate-200">
             <div className="w-full max-w-2xl mx-auto px-6 h-16 flex items-center justify-around">
                 <button
                     onClick={() => onTabChange('home')}

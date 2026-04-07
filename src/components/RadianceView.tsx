@@ -100,7 +100,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
             />
 
             {/* Tab Navigation (Premium Glassmorphism) */}
-            <div className="bg-white/40 backdrop-blur-2xl border-b border-white/20 sticky top-0 z-30">
+            <div className="bg-white shadow-sm border border-slate-200 border-b border-white/20 sticky top-0 z-30">
                 <div className="max-w-2xl mx-auto px-6 flex items-center gap-8 overflow-x-auto no-scrollbar relative min-h-[52px]">
                     <button 
                         onClick={() => setModalState(modalState === 'create_wish' ? 'none' : 'create_wish')}

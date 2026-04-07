@@ -60,7 +60,7 @@ export const PWAInstallBanner: React.FC = () => {
             )}
 
             {isIOS && (
-              <div className="bg-white/60 rounded-xl p-3.5 border border-black/5 flex flex-col gap-3 text-xs tracking-wide">
+              <div className="bg-white rounded-xl p-3.5 border border-black/5 flex flex-col gap-3 text-xs tracking-wide">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded flex items-center justify-center bg-black/5 text-[#2D2D2D]">
                     <Share size={16} />

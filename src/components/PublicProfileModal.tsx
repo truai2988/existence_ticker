@@ -62,7 +62,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                 {/* Close Button - Fixed relative to card */}
                 <button 
                      onClick={onClose}
-                     className="absolute top-4 right-4 p-2 bg-white/60 hover:bg-white rounded-full transition-colors backdrop-blur-md z-50"
+                     className="absolute top-4 right-4 p-2 bg-white hover:bg-white rounded-full transition-colors backdrop-blur-md z-50"
                 >
                     <X size={20} className="text-slate-700" />
                 </button>

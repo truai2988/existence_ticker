@@ -273,7 +273,7 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
             initial={{ opacity: 0, y: 10 }} 
             animate={{ opacity: 1, y: 0 }} 
             transition={{ delay: index * 0.05 }} 
-            className="flex flex-col gap-4 relative group transition-shadow rounded-[2rem] p-5 bg-white/50 backdrop-blur-3xl border border-transparent shadow-sm hover:shadow-md"
+            className="flex flex-col gap-4 relative group transition-shadow rounded-[2rem] p-5 bg-white shadow-sm border border-slate-200 shadow-sm hover:shadow-md"
         >
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">

@@ -148,7 +148,7 @@ export const LandingPage = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setLang(lang === 'ja' ? 'en' : 'ja')}
-              className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all group relative overflow-hidden"
+              className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-full bg-white shadow-sm border border-slate-200 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all group relative overflow-hidden"
               title={lang === 'ja' ? 'English' : '日本語'}
             >
               <Languages size={12} className="md:w-[14px] md:h-[14px] opacity-70 group-hover:opacity-100 transition-opacity" />
@@ -518,7 +518,7 @@ export const LandingPage = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="pointer-events-auto px-6 md:px-8 py-4 bg-white/95 backdrop-blur-sm border border-[#E5E0D5] rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] w-max max-w-[calc(100vw-2rem)]"
+              className="pointer-events-auto px-6 md:px-8 py-4 bg-white shadow-sm border border-slate-200 border border-[#E5E0D5] rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] w-max max-w-[calc(100vw-2rem)]"
             >
               <p className="text-sm md:text-base text-[#666666] font-serif tracking-wide text-center leading-relaxed">
                 {m.TOAST.PREPARING}

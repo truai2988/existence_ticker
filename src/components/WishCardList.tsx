@@ -58,7 +58,7 @@ export const WishCardList: React.FC<WishCardListProps> = ({
     }, [onLoadMore, hasMore, isFetchingMore]);
     if (wishes.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 px-6 border-2 border-dashed border-slate-300 rounded-3xl bg-white/50">
+            <div className="flex flex-col items-center justify-center py-20 px-6 border-2 border-dashed border-slate-300 rounded-3xl bg-white">
                 {emptyIcon}
                 <p className="text-slate-800 text-sm font-medium">{emptyMessage || MESSAGES.WISH.EMPTY_DEFAULT}</p>
             </div>

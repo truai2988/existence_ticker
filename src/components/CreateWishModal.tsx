@@ -159,11 +159,11 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                                       relative flex items-center justify-between p-5 rounded-2xl transition-all duration-700 border border-transparent
                                       ${selectedTier === tier.id
                                           ? tier.cost === 0
-                                            ? "bg-white/95 backdrop-blur-3xl shadow-[0_15px_40px_-5px_rgba(245,158,11,0.3)] z-10"
+                                            ? "bg-white shadow-sm border border-slate-200 shadow-[0_15px_40px_-5px_rgba(245,158,11,0.3)] z-10"
                                             : tier.cost === 500
-                                              ? "bg-white/80 backdrop-blur-xl shadow-[0_10px_25px_-5px_rgba(251,191,36,0.15)] z-10"
-                                              : "bg-white/60 backdrop-blur-lg shadow-md z-10"
-                                          : "bg-white/40 backdrop-blur-md text-slate-700 hover:bg-white/60 hover:shadow-md"
+                                              ? "bg-white shadow-sm border border-slate-200 shadow-[0_10px_25px_-5px_rgba(251,191,36,0.15)] z-10"
+                                              : "bg-white shadow-sm border border-slate-200 shadow-md z-10"
+                                          : "bg-white shadow-sm border border-slate-200 text-slate-700 hover:bg-white hover:shadow-md"
                                       }
                                   `}
                             >
@@ -171,7 +171,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                                 <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all duration-500
                                     ${selectedTier === tier.id 
                                       ? (tier.cost === 0 ? "border-amber-600 bg-amber-600" : tier.cost === 500 ? "border-amber-500 bg-amber-500" : "border-slate-500 bg-slate-500")
-                                      : "border-slate-300/80 bg-white/50"}`}>
+                                      : "border-slate-300/80 bg-white"}`}>
                                     {selectedTier === tier.id && <div className="w-2 h-2 rounded-full bg-white scale-in-center shadow-sm" />}
                                 </div>
                                 <div className="flex flex-col items-start gap-1">
@@ -211,7 +211,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                   <label className="block text-xs uppercase tracking-widest font-bold text-slate-700 font-sans">
                       {MESSAGES.CREATE_WISH.LBL_CONTENT}
                   </label>
-                   <div className="bg-white/50 backdrop-blur-3xl p-6 rounded-[2rem] border border-transparent shadow-sm focus-within:bg-white/70 focus-within:shadow-md transition-all duration-700">
+                   <div className="bg-white shadow-sm border border-slate-200 p-6 rounded-[2rem] border border-slate-200 shadow-sm focus-within:bg-white/70 focus-within:shadow-md transition-all duration-700">
                       <textarea
                         value={newWishContent}
                         onChange={(e) => {
@@ -227,7 +227,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                {/* Final Actions Area: Anonymous, Warning, and Submit */}
                <div className="space-y-4 pt-6">
                    {/* Anonymous Option */}
-                   <div className="bg-white/30 backdrop-blur-md rounded-2xl p-5 border border-transparent shadow-sm hover:bg-white/40 transition-colors">
+                   <div className="bg-white shadow-sm border border-slate-200 rounded-2xl p-5 border border-slate-200 shadow-sm hover:bg-white/40 transition-colors">
                        <label className="flex items-start gap-4 cursor-pointer group">
                            <div className="relative flex items-center mt-1 shrink-0">
                                <input

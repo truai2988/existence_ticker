@@ -82,7 +82,7 @@ const getSlides = (t: typeof MESSAGES) => [
     icon: <Scale size={28} className="text-emerald-500" />,
     content: (
       <div className="space-y-2.5 w-full max-w-sm mx-auto">
-        <div className="bg-white/50 backdrop-blur-3xl p-3 sm:p-4 rounded-2xl border border-transparent shadow-sm flex items-center gap-3">
+        <div className="bg-white shadow-sm border border-slate-200 p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
           <span className="font-mono font-bold text-base sm:text-lg text-[#B8860B] w-12 sm:w-14 text-right shrink-0">1,000</span>
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-bold text-slate-900 mb-0.5">{t.ONBOARDING.SLIDE4_TIER1_TITLE}</h3>
@@ -91,7 +91,7 @@ const getSlides = (t: typeof MESSAGES) => [
             </p>
           </div>
         </div>
-        <div className="bg-white/50 backdrop-blur-3xl p-3 sm:p-4 rounded-2xl border border-transparent shadow-sm flex items-center gap-3">
+        <div className="bg-white shadow-sm border border-slate-200 p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
           <span className="font-mono font-bold text-base sm:text-lg text-amber-600 w-12 sm:w-14 text-right shrink-0">500</span>
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-bold text-slate-900 mb-0.5">{t.ONBOARDING.SLIDE4_TIER2_TITLE}</h3>
@@ -100,7 +100,7 @@ const getSlides = (t: typeof MESSAGES) => [
             </p>
           </div>
         </div>
-        <div className="bg-white/50 backdrop-blur-3xl p-3 sm:p-4 rounded-2xl border border-transparent shadow-sm flex items-center gap-3">
+        <div className="bg-white shadow-sm border border-slate-200 p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
           <span className="font-mono font-bold text-base sm:text-lg text-pink-400 w-12 sm:w-14 text-right shrink-0">0</span>
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-bold text-slate-900 mb-0.5">{t.ONBOARDING.SLIDE4_TIER3_TITLE}</h3>
@@ -221,7 +221,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
           {/* Close Button */}
           <button 
             onClick={onClose}
-            className="absolute top-6 right-6 z-50 p-3 rounded-full bg-white/40 backdrop-blur-md border border-transparent text-slate-700 hover:text-slate-800 hover:bg-white/60 shadow-sm hover:shadow-md transition-all"
+            className="absolute top-6 right-6 z-50 p-3 rounded-full bg-white shadow-sm border border-slate-200 border border-transparent text-slate-700 hover:text-slate-800 hover:bg-white shadow-sm hover:shadow-md transition-all"
             aria-label={MESSAGES.SYSTEM.BTN_CLOSE}
           >
             <HeartHandshake size={20} />
@@ -291,7 +291,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
               {/* Next / Finish Button */}
               <button
                 onClick={handleNext}
-                className="flex-[2] py-3.5 rounded-2xl bg-white/80 backdrop-blur-md text-slate-900 font-bold shadow-sm hover:shadow-md border border-transparent hover:bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 outline-none select-none"
+                className="flex-[2] py-3.5 rounded-2xl bg-white shadow-sm border border-slate-200 text-slate-900 font-bold shadow-sm hover:shadow-md border border-transparent hover:bg-white active:scale-[0.98] transition-all flex items-center justify-center gap-2 outline-none select-none"
               >
                 {isLastSlide ? (
                   <>

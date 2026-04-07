@@ -62,7 +62,7 @@ const ListItem: React.FC<ListItemProps> = ({
 }) => {
   return (
     <div
-      className={`w-full flex items-center justify-between p-4 bg-white/50 backdrop-blur-3xl border border-transparent shadow-sm mb-2 rounded-2xl transition-all ${onClick ? "hover:bg-white/60 hover:shadow-md cursor-pointer active:scale-[0.98]" : ""} ${isDestructive ? "text-red-500" : "text-slate-900"}`}
+      className={`w-full flex items-center justify-between p-4 bg-white shadow-sm border border-slate-200 shadow-sm mb-2 rounded-2xl transition-all ${onClick ? "hover:bg-white hover:shadow-md cursor-pointer active:scale-[0.98]" : ""} ${isDestructive ? "text-red-500" : "text-slate-900"}`}
       onClick={onClick}
     >
       <div className="flex items-center gap-3">
@@ -279,7 +279,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
       <div className="flex-1 overflow-y-auto no-scrollbar w-full">
         <div className="max-w-2xl mx-auto w-full px-6 pt-4 pb-32">
           {/* 1. Header Profile Info (Glass Sanctuary) */}
-          <div className="flex flex-col items-center py-10 bg-white/50 backdrop-blur-3xl mb-6 rounded-[2.5rem] border border-transparent shadow-sm">
+          <div className="flex flex-col items-center py-10 bg-white shadow-sm border border-slate-200 mb-6 rounded-[2.5rem] border border-slate-200 shadow-sm">
             <div className="relative mb-3">
               <div className="w-24 h-24 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border-2 border-white shadow-md">
                 {profile?.avatarUrl ? (
@@ -766,7 +766,7 @@ const AreaInfoCard: React.FC<{
       </div>
       <button 
         onClick={onClick}
-        className="w-full bg-white/50 backdrop-blur-3xl rounded-2xl overflow-hidden border border-transparent shadow-sm transition-all hover:bg-white/60 hover:shadow-md active:scale-[0.99] text-left"
+        className="w-full bg-white shadow-sm border border-slate-200 rounded-2xl overflow-hidden border border-slate-200 shadow-sm transition-all hover:bg-white hover:shadow-md active:scale-[0.99] text-left"
       >
         <div className="p-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
