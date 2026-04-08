@@ -135,7 +135,13 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
             )}
 
             {/* Menu Items */}
-            <nav className={`flex-1 overflow-y-auto no-scrollbar px-5 ${!isStandalone ? 'pt-2 pb-8' : 'py-8'} space-y-2`}>
+            <nav 
+              className={`flex-1 overflow-y-auto no-scrollbar px-5 ${!isStandalone ? 'pt-2 pb-20' : 'pt-8 pb-20'} space-y-2`}
+              style={{
+                maskImage: 'linear-gradient(to bottom, black calc(100% - 60px), transparent 100%)',
+                WebkitMaskImage: 'linear-gradient(to bottom, black calc(100% - 60px), transparent 100%)'
+              }}
+            >
               {menuItems.map((item) => {
                 const isOnboarding = item.id === "onboarding";
                 const active = !isOnboarding && isActive(item.id);
