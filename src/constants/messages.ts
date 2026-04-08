@@ -461,7 +461,7 @@ export const MESSAGES = {
     LANG_HELP: "表示言語を切り替えます",
     TITLE: "設定",
     SUBTITLE: "",
-    EDIT_TITLE: "プロフィール編集",
+    EDIT_TITLE: "自己紹介",
     EDIT_SUBTITLE: "基本情報の更新",
     SAVE_BUTTON: "保存",
     SAVING: "保存中...", 
@@ -506,7 +506,7 @@ export const MESSAGES = {
     // ProfileView Additions
     MSG_FAREWELL: "すべての繋がりが解かれました。",
     ARIA_ADMIN: "管理コンソール",
-    ARIA_EDIT: "プロフィール編集",
+    ARIA_EDIT: "自己紹介",
     TXT_LEFT_DAYS: "あと",
     TTL_ACTIVITY: "アクティビティ・実績",
     TXT_NOT_SET: "未設定",

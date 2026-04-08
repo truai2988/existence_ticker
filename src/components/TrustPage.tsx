@@ -48,7 +48,7 @@ export const TrustPage = () => {
                         <p className="text-xs tracking-[0.5em] text-[#AAAAAA] uppercase mb-6 font-sans">
                             {MESSAGES.TRUST.HEADER_SUB}
                         </p>
-                        <h1 className="text-2xl md:text-3xl font-light tracking-[0.2em] text-[#1A1A1A] mb-8">
+                        <h1 className="text-base md:text-lg font-serif tracking-[0.3em] text-[#1A1A1A] font-medium mb-8">
                             {MESSAGES.TRUST.HEADER_TITLE}
                         </h1>
                         <div className="h-[1px] w-16 bg-[#8B6B50]/20 mx-auto" />
@@ -70,13 +70,13 @@ export const TrustPage = () => {
                             <span className="text-xs tracking-[0.5em] text-[#BBBBBB] uppercase block mb-3 font-sans">
                                 {MESSAGES.TRUST.SEC1_SUB}
                             </span>
-                            <h2 className="text-lg font-medium tracking-[0.15em] text-[#2D2D2D]">
+                            <h2 className="text-sm md:text-base font-serif font-medium tracking-[0.25em] text-[#2D2D2D]">
                                 {MESSAGES.TRUST.SEC1_TITLE}
                             </h2>
                             <div className="h-[1px] w-8 bg-[#DED9D0] mt-4" />
                         </div>
-                        <article className="space-y-6 text-base leading-[2.4] text-[#444444] tracking-wide">
-                            <p className="text-justify">
+                        <article className="space-y-6 text-[#444444] font-serif leading-[2.2] md:leading-[2.6] tracking-widest text-justify text-base">
+                            <p>
                                 {MESSAGES.TRUST.SEC1_P1_1}{' '}
                                 <a
                                     href="https://yori-somaru.com/"
@@ -121,13 +121,13 @@ export const TrustPage = () => {
                             <span className="text-xs tracking-[0.5em] text-[#BBBBBB] uppercase block mb-3 font-sans">
                                 {MESSAGES.TRUST.SEC2_SUB}
                             </span>
-                            <h2 className="text-lg font-medium tracking-[0.15em] text-[#2D2D2D]">
+                            <h2 className="text-sm md:text-base font-serif font-medium tracking-[0.25em] text-[#2D2D2D]">
                                 {MESSAGES.TRUST.SEC2_TITLE}
                             </h2>
                             <div className="h-[1px] w-8 bg-[#DED9D0] mt-4" />
                         </div>
-                        <article className="space-y-6 text-base leading-[2.4] text-[#444444] tracking-wide">
-                            <p className="text-justify whitespace-pre-wrap">
+                        <article className="space-y-6 text-[#444444] font-serif leading-[2.2] md:leading-[2.6] tracking-widest text-justify text-base">
+                            <p className="whitespace-pre-wrap">
                                 {MESSAGES.TRUST.SEC2_P1}
                             </p>
                             <p className="text-justify whitespace-pre-wrap">
@@ -155,13 +155,13 @@ export const TrustPage = () => {
                             <span className="text-xs tracking-[0.5em] text-[#BBBBBB] uppercase block mb-3 font-sans">
                                 {MESSAGES.TRUST.SEC3_SUB}
                             </span>
-                            <h2 className="text-lg font-medium tracking-[0.15em] text-[#2D2D2D]">
+                            <h2 className="text-sm md:text-base font-serif font-medium tracking-[0.25em] text-[#2D2D2D]">
                                 {MESSAGES.TRUST.SEC3_TITLE}
                             </h2>
                             <div className="h-[1px] w-8 bg-[#DED9D0] mt-4" />
                         </div>
-                        <article className="space-y-6 text-base leading-[2.4] text-[#444444] tracking-wide">
-                            <p className="text-justify whitespace-pre-wrap">
+                        <article className="space-y-6 text-[#444444] font-serif leading-[2.2] md:leading-[2.6] tracking-widest text-justify text-base">
+                            <p className="whitespace-pre-wrap">
                                 {MESSAGES.TRUST.SEC3_P1}
                             </p>
                             <p className="text-justify whitespace-pre-wrap">
@@ -179,7 +179,7 @@ export const TrustPage = () => {
                     </p>
                     <button
                         onClick={() => window.close()}
-                        className="inline-block px-12 py-5 bg-[#2D2D2D] text-white rounded-xl shadow-xl hover:bg-[#111111] transition-all tracking-[0.3em] font-medium text-sm font-sans"
+                        className="inline-block px-12 py-5 bg-[#2D2D2D] text-white rounded-xl shadow-xl hover:bg-[#111111] transition-all tracking-[0.3em] font-medium text-xs md:text-sm font-sans"
                     >
                         {MESSAGES.TRUST.FOOTER_BTN}
                     </button>
