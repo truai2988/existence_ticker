@@ -148,7 +148,7 @@ export const LandingPage = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setLang(lang === 'ja' ? 'en' : 'ja')}
-              className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-full bg-white shadow-sm border border-slate-200 border border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all group relative overflow-hidden"
+              className="flex items-center gap-1.5 md:gap-2 px-2 md:px-3 py-1 md:py-1.5 rounded-full border border-white/20 text-white/60 hover:text-white hover:bg-white/10 hover:border-white/40 transition-all group relative overflow-hidden"
               title={lang === 'ja' ? 'English' : '日本語'}
             >
               <Languages size={12} className="md:w-[14px] md:h-[14px] opacity-70 group-hover:opacity-100 transition-opacity" />
