@@ -128,7 +128,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-start w-full relative pt-safe min-h-screen overflow-hidden">
+    <div className="flex flex-col items-center justify-start w-full relative min-h-full pb-6">
       {/* 1. Backdrop Glow (Dynamic but Subtle) */}
       <div className="absolute inset-0 bg-gradient-radial from-amber-50/10 via-transparent to-transparent pointer-events-none" />
 
@@ -136,7 +136,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       <div className="flex-1 flex flex-col w-full h-full justify-between z-10 relative">
         
         {/* TOP AREA: Balance & Water Clock */}
-        <div className="w-full flex-none pt-[12vh] min-h-[140px] relative">
+        <div className="w-full flex-none pt-2 md:pt-4 min-h-[100px] relative">
           <div className="w-full max-w-2xl mx-auto px-6 relative flex justify-center">
             {/* Balance Display (Centered) */}
             {showColor && (
@@ -167,7 +167,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
             {/* Water Clock (Absolute to Top Right of Container, aligned with Hamburger) */}
             {showColor && (
-              <div className="absolute right-6 top-8 pointer-events-none">
+              <div className="absolute right-6 top-1 md:top-4 pointer-events-none">
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -203,8 +203,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
 
         {/* MIDDLE AREA: The Vessel */}
-        <div className="flex-1 flex items-center justify-center w-full min-h-[300px]">
-          <div className="relative w-[50%] md:w-[35%] lg:w-[25%] max-w-[320px] aspect-square">
+        <div className="flex-1 flex items-center justify-center w-full min-h-[220px]">
+          <div className="relative w-[45%] md:w-[35%] lg:w-[25%] max-w-[280px] aspect-square">
             <motion.div
               className="absolute inset-0 rounded-full backdrop-blur-3xl overflow-hidden bg-white/20 text-slate-900 border-[0.5px] border-white/10"
               animate={
@@ -301,8 +301,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
         </div>
 
         {/* BOTTOM AREA: Interaction Buttons */}
-        <div className="w-full flex-none pb-[10vh] max-h-[30vh]">
-          <div className="w-full max-w-2xl mx-auto flex justify-center items-center gap-16 md:gap-24 px-8">
+        <div className="w-full flex-none pb-[5vh] max-h-[25vh]">
+          <div className="w-full max-w-2xl mx-auto flex justify-center items-center gap-12 md:gap-24 px-4">
             <AnimatePresence>
               {showColor && (
                 <>

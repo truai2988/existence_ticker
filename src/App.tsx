@@ -442,26 +442,25 @@ function App() {
                   <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
                   <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
 
-                  {/* Header */}
-                  <AnimatePresence>
-                    {viewMode === "home" && !isRitual && ritualState === "idle" && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="absolute top-0 left-0 right-0 z-50"
-                      >
-                        <Header
-                          viewMode={viewMode}
-                          onTabChange={handleTabChange}
-                          onOpenOnboarding={handleOpenOnboarding}
-                        />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
                   <main className="flex-1 relative overflow-y-auto no-scrollbar scroll-smooth flex flex-col">
+                    {/* Header */}
+                    <AnimatePresence>
+                      {viewMode === "home" && !isRitual && ritualState === "idle" && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.8, ease: "easeOut" }}
+                          className="w-full relative z-50 shrink-0"
+                        >
+                          <Header
+                            viewMode={viewMode}
+                            onTabChange={handleTabChange}
+                            onOpenOnboarding={handleOpenOnboarding}
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                     <Suspense fallback={<ScreenLoader />}>
                       <motion.div
                         className="w-full h-full flex flex-col flex-1"
