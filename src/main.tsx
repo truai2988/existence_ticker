@@ -26,19 +26,7 @@ const isStandalone =
   ('standalone' in window.navigator && (window.navigator as any).standalone);
 
 
-// --- Service Worker Kill Switch (Branding Synchronization) ---
-// This ensures that any legacy service workers (e.g. from the 'Noctiluca' project)
-// are forcefully unregistered so that the new 'Existence Ticker' branding 
-// and metadata are correctly served.
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then((registrations) => {
-    for (const registration of registrations) {
-      registration.unregister();
-      console.log('Legacy Service Worker Unregistered for Branding Sync.');
-    }
-  });
-}
-// -------------------------------------------------------------
+// Service Worker is managed by vite-plugin-pwa
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
