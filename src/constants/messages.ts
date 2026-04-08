@@ -975,8 +975,8 @@ export const MESSAGES = {
   LP: {
     NAV: {
       TITLE: "Existence Ticker",
-      INVITE_LINK: "招待コードをお持ちの方",
-      INVITE_LINK_SHORT: "招待コード",
+      INVITE_LINK: "アプリを開く",
+      INVITE_LINK_SHORT: "開く",
     },
     HERO: {
       P1: "減ることは、失うことではありません。それは、深呼吸（代謝）です。",

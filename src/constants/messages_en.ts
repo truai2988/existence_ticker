@@ -35,8 +35,8 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
   LP: {
     NAV: {
       TITLE: "Existence Ticker",
-      INVITE_LINK: "For those with an invite code",
-      INVITE_LINK_SHORT: "Invite Code",
+      INVITE_LINK: "Open App",
+      INVITE_LINK_SHORT: "Open",
     },
     HERO: {
       P1: "To decay is not to lose. It is a deep breath (metabolism).",

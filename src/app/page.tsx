@@ -126,24 +126,39 @@ export const LandingPage = () => {
       className="bg-[#F9F8F4] min-h-screen text-[#2D2D2D] font-sans selection:bg-orange-100 selection:text-[#2D2D2D] overflow-x-hidden relative antialiased"
     >
       {/* --- Header / Navigation --- */}
-      <nav className="absolute top-0 left-0 right-0 z-[100] px-6 py-8 flex justify-center items-center mix-blend-difference pointer-events-none">
-        <div className="flex items-center gap-6 pointer-events-auto">
-          <span className="text-xs md:text-base font-bold tracking-[0.4em] uppercase text-white/90 select-none">
+      <nav className="absolute top-0 left-0 right-0 z-[100] px-4 md:px-8 py-6 md:py-8 flex justify-between items-center mix-blend-difference pointer-events-none w-full">
+        {/* LOGO */}
+        <div className="pointer-events-auto shrink-1 min-w-0 max-w-[50%] md:max-w-none pr-2">
+          <span className="text-xs md:text-base font-bold tracking-[0.2em] md:tracking-[0.4em] uppercase text-white/90 select-none block truncate">
             {m.NAV.TITLE}
           </span>
+        </div>
+
+        {/* ACTIONS */}
+        <div className="flex items-center gap-3 md:gap-6 pointer-events-auto shrink-0 pl-2">
           <button
-            onClick={() => {
-              document
-                .getElementById("entrance")
-                ?.scrollIntoView({ behavior: "smooth" });
-            }}
-            className="text-xs md:text-sm tracking-[0.1em] md:tracking-[0.5em] text-white/40 hover:text-white transition-all uppercase text-left whitespace-nowrap"
+            onClick={handleNavigate}
+            className="group flex items-center gap-0.5 md:gap-2 text-xs md:text-sm tracking-[0.1em] md:tracking-[0.3em] text-white/40 hover:text-white transition-all uppercase text-left whitespace-nowrap shrink-0"
           >
-            <span className="hidden md:inline">{m.NAV.INVITE_LINK}</span>
-            <span className="md:hidden">{m.NAV.INVITE_LINK_SHORT}</span>
+            <span className="hidden md:inline shrink-0">{m.NAV.INVITE_LINK}</span>
+            <span className="md:hidden shrink-0">{m.NAV.INVITE_LINK_SHORT}</span>
+            <svg
+              className="w-3.5 h-3.5 md:w-4 md:h-4 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
           </button>
           
-          <div className="border-l border-white/20 pl-3 md:pl-6 h-4 flex items-center">
+          <div className="border-l border-white/20 pl-3 md:pl-6 h-4 flex items-center shrink-0">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
