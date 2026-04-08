@@ -48,8 +48,22 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const availableHeight = Math.min(100, (availableLm / maxCapacity) * 100);
 
   const ritualMessage = MESSAGES.HOME.MONOTONE_MSG_1;
-  const [isHoveringHelp, setIsHoveringHelp] = React.useState(false);
-  const [isHoveringWish, setIsHoveringWish] = React.useState(false);
+  const [isWishAnimating, setIsWishAnimating] = React.useState(false);
+  const [isHelpAnimating, setIsHelpAnimating] = React.useState(false);
+
+  const handleWishClick = async () => {
+    setIsWishAnimating(true);
+    await new Promise((r) => setTimeout(r, 800)); // アニメーションが完了するまで待つ
+    onOpenRequest();
+    setIsWishAnimating(false);
+  };
+
+  const handleHelpClick = async () => {
+    setIsHelpAnimating(true);
+    await new Promise((r) => setTimeout(r, 800));
+    onOpenFlow();
+    setIsHelpAnimating(false);
+  };
 
   // Monitor for interruption notifications
   React.useEffect(() => {
@@ -172,7 +186,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 1.0, delay: 0.3 }}
-                  className="w-10 h-14 md:w-11 md:h-16 bg-white shadow-sm border border-slate-200 rounded-full overflow-hidden border border-cyan-100/50 shadow-[inset_0_1px_6px_rgba(6,182,212,0.1),0_4px_12px_rgba(6,182,212,0.05)] relative"
+                  className="w-10 h-14 md:w-11 md:h-16 bg-white border border-cyan-100/50 rounded-full overflow-hidden shadow-[inset_0_1px_6px_rgba(6,182,212,0.1),0_4px_12px_rgba(6,182,212,0.05)] relative"
                 >
                   {/* Committed Lm (Bottom - Heavy Deep Water / Sediment) */}
                   <motion.div
@@ -251,9 +265,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     fill="url(#yinGrad)"
                     animate={{
                       opacity: showColor ? 1 : 0.2,
-                      filter: isHoveringWish ? "brightness(1.2)" : "brightness(1)",
+                      filter: isWishAnimating ? "brightness(1.5)" : "brightness(1)",
                     }}
-                    transition={{ duration: 1.5 }}
+                    transition={{ duration: 0.8 }}
                   />
                   {/* Right Side (Yang) */}
                   <motion.path
@@ -261,9 +275,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     fill="url(#yangGrad)"
                     animate={{
                       opacity: showColor ? 1 : 0.2,
-                      filter: isHoveringHelp ? "brightness(1.2)" : "brightness(1)",
+                      filter: isHelpAnimating ? "brightness(1.5)" : "brightness(1)",
                     }}
-                    transition={{ duration: 1.5 }}
+                    transition={{ duration: 0.8 }}
                   />
                   {/* Boundary Line (Faint) */}
                   <path
@@ -309,9 +323,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   {/* Request / お願い */}
                   <motion.button
                     key="btn-wish"
-                    onClick={onOpenRequest}
-                    onMouseEnter={() => setIsHoveringWish(true)}
-                    onMouseLeave={() => setIsHoveringWish(false)}
+                    onClick={handleWishClick}
                     className="flex flex-col items-center group outline-none"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -320,7 +332,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <div className="w-16 h-16 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center shadow-sm group-hover:shadow-indigo-200/20 group-hover:bg-indigo-50/50 transition-all duration-500">
+                    <div className="w-16 h-16 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center group-hover:shadow-indigo-200/20 group-hover:bg-indigo-50/50 transition-all duration-500">
                       <Megaphone size={28} strokeWidth={1} className="text-indigo-900/60 group-hover:text-indigo-900 transition-colors" />
                     </div>
                     <span className="mt-4 text-xs font-serif font-medium tracking-widest text-slate-700 uppercase ml-[0.1em]">
@@ -331,9 +343,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   {/* Respond / お返事 */}
                   <motion.button
                     key="btn-help"
-                    onClick={onOpenFlow}
-                    onMouseEnter={() => setIsHoveringHelp(true)}
-                    onMouseLeave={() => setIsHoveringHelp(false)}
+                    onClick={handleHelpClick}
                     className="flex flex-col items-center group outline-none"
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -342,7 +352,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <div className="w-16 h-16 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center shadow-sm group-hover:shadow-amber-200/20 group-hover:bg-amber-50/50 transition-all duration-500">
+                    <div className="w-16 h-16 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center group-hover:shadow-amber-200/20 group-hover:bg-amber-50/50 transition-all duration-500">
                       <Inbox size={28} strokeWidth={1} className="text-amber-900/60 group-hover:text-amber-900 transition-colors" />
                     </div>
                     <span className="mt-4 text-xs font-serif font-medium tracking-widest text-slate-700 uppercase ml-[0.1em]">
@@ -365,7 +375,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             exit={{ opacity: 0, scale: 0.95 }}
             className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/10 backdrop-blur-sm"
           >
-            <div className="bg-white shadow-sm border border-slate-200 p-8 rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center text-center border border-white/40">
+            <div className="bg-white border text-center border-white/40 p-8 rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center">
               <div className="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center mb-6">
                 <AlertCircle className="text-amber-500" size={24} strokeWidth={1.5} />
               </div>

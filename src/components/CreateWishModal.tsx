@@ -159,10 +159,10 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                                       relative flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-5 gap-1.5 sm:gap-0 rounded-2xl transition-all duration-700 border border-transparent
                                       ${selectedTier === tier.id
                                           ? tier.cost === 0
-                                            ? "bg-white shadow-sm border border-slate-200 shadow-[0_15px_40px_-5px_rgba(245,158,11,0.3)] z-10"
+                                            ? "bg-white border border-slate-200 shadow-[0_15px_40px_-5px_rgba(245,158,11,0.3)] z-10"
                                             : tier.cost === 500
-                                              ? "bg-white shadow-sm border border-slate-200 shadow-[0_10px_25px_-5px_rgba(251,191,36,0.15)] z-10"
-                                              : "bg-white shadow-sm border border-slate-200 shadow-md z-10"
+                                              ? "bg-white border border-slate-200 shadow-[0_10px_25px_-5px_rgba(251,191,36,0.15)] z-10"
+                                              : "bg-white border border-slate-200 shadow-md z-10"
                                           : "bg-white shadow-sm border border-slate-200 text-slate-700 hover:bg-white hover:shadow-md"
                                       }
                                   `}
@@ -211,7 +211,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                   <label className="block text-xs uppercase tracking-widest font-bold text-slate-700 font-sans">
                       {MESSAGES.CREATE_WISH.LBL_CONTENT}
                   </label>
-                   <div className="bg-white shadow-sm border border-slate-200 p-6 rounded-[2rem] border border-slate-200 shadow-sm focus-within:bg-white/70 focus-within:shadow-md transition-all duration-700">
+                   <div className="bg-white shadow-sm border border-slate-200 p-6 rounded-[2rem] focus-within:bg-white/70 focus-within:shadow-md transition-all duration-700">
                       <textarea
                         value={newWishContent}
                         onChange={(e) => {
@@ -227,7 +227,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                {/* Final Actions Area: Anonymous, Warning, and Submit */}
                <div className="space-y-4 pt-6">
                    {/* Anonymous Option */}
-                   <div className="bg-white shadow-sm border border-slate-200 rounded-2xl p-5 border border-slate-200 shadow-sm hover:bg-white/40 transition-colors">
+                   <div className="bg-white shadow-sm border border-slate-200 rounded-2xl p-5 hover:bg-white/40 transition-colors">
                        <label className="flex items-start gap-4 cursor-pointer group">
                            <div className="relative flex items-center mt-1 shrink-0">
                                <input

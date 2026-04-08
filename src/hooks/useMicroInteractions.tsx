@@ -73,11 +73,14 @@ export const useMicroInteractions = () => {
   const context = useContext(InteractionContext);
 
   // 1. 願いを送るとき（送信アクション用のPropsジェネレーター）
-  const getSendAction = (onClick: () => void) => {
-    return (e: React.MouseEvent<HTMLButtonElement>) => {
+  const getSendAction = (onClick: () => void | Promise<void>) => {
+    return async (e: React.MouseEvent<HTMLButtonElement>) => {
+      const btn = e.currentTarget;
+      if (btn.disabled || btn.getAttribute('data-animating') === 'true') return;
+      btn.setAttribute('data-animating', 'true');
+
       safeVibrate(20); // 万年筆が離れたような「コッ」
       
-      const btn = e.currentTarget;
       const rect = btn.getBoundingClientRect();
       const ripple = document.createElement("span");
       
@@ -90,35 +93,40 @@ export const useMicroInteractions = () => {
       ripple.style.top = `${y}px`;
       ripple.className = "absolute bg-white/40 rounded-full animate-ripple pointer-events-none z-0";
       
-      // テキスト部分となる要素を探してアニメーション付与（button直下のspanを想定）
       const textSpan = btn.querySelector('span');
       if (textSpan) textSpan.classList.add('animate-text-vanish');
       
       btn.appendChild(ripple);
       
-      setTimeout(() => {
-        ripple.remove();
-        if (textSpan) textSpan.classList.remove('animate-text-vanish');
-      }, 600);
+      // エフェクト終了まで待機してから実行
+      await new Promise(r => setTimeout(r, 600));
+      
+      ripple.remove();
+      if (textSpan) textSpan.classList.remove('animate-text-vanish');
+      btn.removeAttribute('data-animating');
 
-      onClick();
+      await onClick();
     };
   };
 
   // 2. 立候補するとき（アンバー色へのフラッシュ）
-  const getCandidateAction = (onClick: () => void) => {
-    return (e: React.MouseEvent<HTMLButtonElement>) => {
+  const getCandidateAction = (onClick: () => void | Promise<void>) => {
+    return async (e: React.MouseEvent<HTMLButtonElement>) => {
+      const btn = e.currentTarget;
+      if (btn.disabled || btn.getAttribute('data-animating') === 'true') return;
+      btn.setAttribute('data-animating', 'true');
+
       safeVibrate([30, 100, 30]); // 心臓の鼓動「…トクリ」
       
-      const btn = e.currentTarget;
-      // paint/reflowを避けるため、疑似要素用クラスを付与しopacityのみを操作
       btn.classList.add('animate-amber-flash-container');
       
-      setTimeout(() => {
-        btn.classList.remove('animate-amber-flash-container');
-      }, 500);
+      // エフェクト終了まで待機してから実行
+      await new Promise(r => setTimeout(r, 500));
+      
+      btn.classList.remove('animate-amber-flash-container');
+      btn.removeAttribute('data-animating');
 
-      onClick();
+      await onClick();
     };
   };
 

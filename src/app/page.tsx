@@ -518,7 +518,7 @@ export const LandingPage = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="pointer-events-auto px-6 md:px-8 py-4 bg-white shadow-sm border border-slate-200 border border-[#E5E0D5] rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] w-max max-w-[calc(100vw-2rem)]"
+              className="pointer-events-auto px-6 md:px-8 py-4 bg-white border border-[#E5E0D5] rounded-xl shadow-[0_8px_30px_rgba(0,0,0,0.06)] w-max max-w-[calc(100vw-2rem)]"
             >
               <p className="text-sm md:text-base text-[#666666] font-serif tracking-wide text-center leading-relaxed">
                 {m.TOAST.PREPARING}
