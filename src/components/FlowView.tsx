@@ -93,7 +93,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
                         </button>
                         {/* Text Group */}
                         <div className="flex flex-col min-w-0 justify-center">
-                            <h2 className="text-xl sm:text-2xl font-light tracking-[0.2em] sm:tracking-[0.4em] text-slate-900 truncate leading-tight uppercase" style={{fontFamily: "'Noto Serif JP', serif"}}>{MESSAGES.FLOW.TITLE}</h2>
+                            <h2 className="text-lg sm:text-2xl font-light tracking-[0.1em] sm:tracking-[0.2em] text-slate-900 truncate leading-tight uppercase" style={{fontFamily: "'Noto Serif JP', serif"}}>{MESSAGES.FLOW.TITLE}</h2>
                         </div>
                     </div>
                     <div className="flex h-12 items-center gap-3 shrink-0">

@@ -198,27 +198,27 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
             {/* Header */}
             <div className="w-full sticky top-0 z-10 shrink-0 pt-safe">
                 <div className="border-b border-transparent">
-                    <div className="max-w-2xl mx-auto px-6 py-4 md:py-8 flex items-center justify-between flex-nowrap gap-2">
-                        <div className="flex items-center gap-3 min-w-0">
+                    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-4 md:py-8 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                             <button
                                 onClick={onBack}
                                 aria-label={MESSAGES.SYSTEM.BTN_CLOSE}
-                                className="p-2 -ml-2 text-slate-700 hover:text-slate-800 transition-colors active:scale-95"
+                                className="p-2 -ml-2 text-slate-700 hover:text-slate-800 transition-colors active:scale-95 shrink-0"
                             >
                                 <X size={24} strokeWidth={1.5} />
                             </button>
                             {/* Text Group */}
                             <div className="flex flex-col min-w-0">
-                                <h2 className="text-xl sm:text-2xl font-light tracking-[0.2em] sm:tracking-[0.4em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Noto Serif JP', serif"}}>
+                                <h2 className="text-lg sm:text-2xl font-light tracking-[0.1em] sm:tracking-[0.2em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Noto Serif JP', serif"}}>
                                     {MESSAGES.PROFILE.EDIT_TITLE}
                                 </h2>
                             </div>
                         </div>
-                        <div className="flex h-12 items-center">
+                        <div className="flex h-12 items-center shrink-0">
                             <button 
                                 onClick={handleSave} 
                                 disabled={isLoading}
-                                className="flex items-center gap-2 px-6 py-3 bg-amber-900/90 backdrop-blur-md text-white rounded-full text-sm font-bold shadow-[0_10px_20px_-5px_rgba(69,26,3,0.3)] hover:bg-amber-900 hover:shadow-2xl active:scale-[0.98] transition-all disabled:opacity-20 disabled:cursor-not-allowed group font-sans tracking-widest"
+                                className="flex items-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-amber-900/90 backdrop-blur-md text-white rounded-full text-xs sm:text-sm font-bold shadow-[0_10px_20px_-5px_rgba(69,26,3,0.3)] hover:bg-amber-900 hover:shadow-2xl active:scale-[0.98] transition-all disabled:opacity-20 disabled:cursor-not-allowed group font-sans tracking-widest whitespace-nowrap"
                             >
                                 {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                                 <span>{MESSAGES.PROFILE.SAVE_BUTTON}</span>
