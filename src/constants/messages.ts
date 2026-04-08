@@ -710,6 +710,25 @@ export const MESSAGES = {
     HEADER_DAYS_LEFT_SUFFIX: "日)",
   },
 
+  // 9a. 招待機能 (useInviteCode / ProfileView)
+  INVITE: {
+    SECTION_TITLE: "万年筆を手渡す",
+    SECTION_SUB: "あなたの招待で、この場所に光が増えます",
+    BTN_SEND: "万年筆を手渡す（招待状を送る）",
+    BTN_GENERATING: "準備しています...",
+    SLOT_LABEL: "招待状",
+    SLOT_PENDING: "未使用",
+    SLOT_USED: "届いた",
+    SLOT_EMPTY: "空き",
+    LIMIT_REACHED: "現在3枚の招待状が手元にあります。\n誰かが受け取った後、また新しく綴れます。",
+    SHARE_TITLE: "Existence Ticker への招待",
+    SHARE_TEXT: "損得のない、安らぎのインフラへ招待します。\n\n時間と共に静かに減っていく価値を、\n贈り合いながら生きる場所があります。\n\n【招待コード】\n%s\n\n【扉はこちら】\n%s\n\n—— Existence Ticker",
+    COPY_SUCCESS: "招待状をコピーしました",
+    COPY_FAIL: "コピーに失敗しました",
+    ERROR_GENERATE: "招待コードの発行に失敗しました",
+    CODE_LABEL: "招待コード",
+  },
+
   // 9. PWAインストール関連 (PWAInstallBanner等)
   PWA: {
     BANNER_DESC: "ホーム画面にアプリを追加することで、ブラウザのUIを非表示にし、ネイティブアプリのように利用できます。",

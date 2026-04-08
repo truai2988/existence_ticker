@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { AppViewMode } from "../types";
 import { SideDrawer } from "./SideDrawer";
 import { NoticePanel } from "./NoticePanel";
+import { InviteModal } from "./InviteModal";
 import { useLanguage } from "../contexts/LanguageContext";
 
 interface HeaderProps {
@@ -45,8 +46,11 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                 </div>
 
-                {/* Right Cluster: Bell + Hamburger */}
-                <div className="flex h-12 items-center gap-3 shrink-0">
+                {/* Right Cluster: Invite + Bell + Hamburger */}
+                <div className="flex h-12 items-center gap-1 shrink-0">
+                  {/* 招待ボタン */}
+                  <InviteModal />
+
                   {/* Notice Bell */}
                   <NoticePanel />
 

@@ -4,7 +4,6 @@ import {
   X,
   Activity,
   Users,
-  Key,
   Sprout,
   Book,
 } from "lucide-react";
@@ -14,30 +13,16 @@ import { useDiagnostics } from "../hooks/useDiagnostics";
 import { DiagnosticModal } from "./DiagnosticModal";
 import { db } from "../lib/firebase";
 import { UserProfile, SeedPlaceholder } from "../types";
-import {
-  getMillis,
-} from "../logic/worldPhysics";
+import { getMillis } from "../logic/worldPhysics";
 
 import { AdminMonitor } from "./admin/AdminMonitor";
 import { AdminCitizens } from "./admin/AdminCitizens";
-import { AdminInvitations } from "./admin/AdminInvitations";
 import { AdminSeeds } from "./admin/AdminSeeds";
 
 interface AdminDashboardProps {
   onClose: () => void;
 }
 
-interface InviteCode {
-  id: string;
-  is_used: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  created_at?: any;
-  created_by?: string;
-  used_by?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  used_at?: any;
-  memo?: string;
-}
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const { stats, error } = useStats();
@@ -47,14 +32,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
 
   // User Management State
   const [activeTab, setActiveTab] = useState<
-    "monitor" | "citizens" | "invitations" | "seeds"
+    "monitor" | "citizens" | "seeds"
   >("monitor");
   const [userList, setUserList] = useState<UserProfile[]>([]);
-  const [inviteCodes, setInviteCodes] = useState<InviteCode[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [lastVisibleDoc, setLastVisibleDoc] = useState<QueryDocumentSnapshot | null>(null);
-  const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
 
   // Seed Library State
   const [seeds, setSeeds] = useState<SeedPlaceholder[]>([]);
@@ -177,73 +160,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     }
   }, [searchQuery, userList.length, activeTab, fetchUsers]);
 
-  const fetchInviteCodes = useCallback(async () => {
-    try {
-      if (!db) return;
-      const { collection, getDocs } = await import("firebase/firestore");
-      const snap = await getDocs(collection(db, "invitation_codes"));
-      setInviteCodes(
-        snap.docs.map((d) => ({ id: d.id, ...d.data() }) as InviteCode),
-      );
-    } catch (e) {
-      console.error("Failed to fetch invite codes", e);
-    }
-  }, []);
-
-  const generateInviteCode = useCallback(async () => {
-    try {
-      if (!db) return;
-      const { doc, setDoc, serverTimestamp } =
-        await import("firebase/firestore");
-      const { auth } = await import("../lib/firebase");
-
-      const randomStr = Math.random()
-        .toString(36)
-        .substring(2, 6)
-        .toUpperCase();
-      const code = `ALPHA-${randomStr}`;
-      const codeRef = doc(db, "invitation_codes", code);
-
-      await setDoc(codeRef, {
-        is_used: false,
-        created_at: serverTimestamp(),
-        created_by: auth?.currentUser?.uid,
-      });
-
-      fetchInviteCodes();
-      alert(`招待コードを生成しました: ${code}`);
-    } catch (err: unknown) {
-      console.error(err);
-      const msg = err instanceof Error ? err.message : String(err);
-      alert(`コードの生成に失敗しました: ${msg}`);
-    }
-  }, [fetchInviteCodes]);
 
   const toggleAdmin = useCallback(async (u: UserProfile) => {
     if (u.role === "admin") {
-      const otherAdmins = userList.filter((user) => 
+      const otherAdmins = userList.filter((user) =>
         user.id !== u.id && user.role === "admin"
       ).length;
-      
       if (otherAdmins === 0) {
         alert("システムには管理画面にアクセスできるユーザーが最低1人は必要です。");
         return;
       }
     }
-
     if (!window.confirm(`⚠️ ${u.name || "ユーザー"} の権限を変更しますか？`)) return;
     try {
       if (!db) return;
       const { doc, updateDoc } = await import("firebase/firestore");
       const newRole = u.role === "admin" ? "user" : "admin";
-      await updateDoc(doc(db, "users", u.id), {
-        role: newRole,
-      });
-      const roleNameMap: Record<string, string> = {
-        "admin": "管理者",
-        "user": "一般ユーザー",
-      };
-      
+      await updateDoc(doc(db, "users", u.id), { role: newRole });
+      const roleNameMap: Record<string, string> = { admin: "管理者", user: "一般ユーザー" };
       alert(`権限を ${roleNameMap[newRole] || newRole} に変更しました。`);
       fetchUsers();
     } catch (e) {
@@ -251,47 +185,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       alert("変更に失敗しました");
     }
   }, [userList, fetchUsers]);
-
-  const handleCopyInvitation = useCallback(async (codeId: string) => {
-    const template = `重機を降りて、存在を祝うインフラへ。
-あなたを『Existence Ticker』の共同創設者として招待します。
-
-私たちは豊かさを求めて走り続けてきましたが、
-ときにはその轟音を離れて、ただ「ここにいること」を祝福する場所が必要です。
-
-まずは、このインフラの「原典（Story）」を読んでみてください：
-https://www.existenceticker.com/story
-
-【扉を開く（招待コード）】
-${codeId}
-
-【扉はこちら】
-https://www.existenceticker.com/?code=${codeId}
-
-一緒に、新しい呼吸を始めましょう。`;
-
-    try {
-      await navigator.clipboard.writeText(template);
-      setCopiedCodeId(codeId);
-      setTimeout(() => setCopiedCodeId(null), 3000);
-    } catch (err) {
-      console.error("Failed to copy invitation:", err);
-      alert("コピーに失敗しました");
-    }
-  }, []);
-
-  const updateInviteMemo = useCallback(async (codeId: string, newMemo: string) => {
-    try {
-      if (!db) return;
-      const { doc, updateDoc } = await import("firebase/firestore");
-      await updateDoc(doc(db, "invitation_codes", codeId), {
-        memo: newMemo
-      });
-      fetchInviteCodes(); // Refresh to show the updated memo
-    } catch (err) {
-      console.error("Failed to update memo:", err);
-    }
-  }, [fetchInviteCodes]);
 
   const addSeed = useCallback(async (tier: 1000 | 500 | 0, content: string) => {
     setIsAddingSeed(true);
@@ -327,9 +220,8 @@ https://www.existenceticker.com/?code=${codeId}
 
   // Data Fetching Logic: Only trigger when switching TO the tab
   React.useEffect(() => {
-    if (activeTab === "invitations" && inviteCodes.length === 0) fetchInviteCodes();
     if (activeTab === "seeds" && seeds.length === 0) fetchSeeds();
-  }, [activeTab, inviteCodes.length, seeds.length, fetchInviteCodes, fetchSeeds]);
+  }, [activeTab, seeds.length, fetchSeeds]);
 
   // Lock body scroll when dashboard is open
   React.useEffect(() => {
@@ -429,13 +321,6 @@ https://www.existenceticker.com/?code=${codeId}
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab("invitations")}
-            className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "invitations" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-700 hover:text-slate-700"}`}
-          >
-            <Key size={16} /> 招待
-          </button>
-          <button
-            type="button"
             onClick={() => setActiveTab("seeds")}
             className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "seeds" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-700 hover:text-slate-700"}`}
           >
@@ -461,18 +346,6 @@ https://www.existenceticker.com/?code=${codeId}
                 onToggleAdmin={toggleAdmin}
                 onLoadMore={() => fetchUsers(true)}
                 isLoading={isLoadingUsers}
-              />
-            </div>
-          )}
-
-          {activeTab === "invitations" && (
-            <div className="w-full min-w-0">
-              <AdminInvitations 
-                inviteCodes={inviteCodes}
-                onGenerateCode={generateInviteCode}
-                onCopyInvitation={handleCopyInvitation}
-                onUpdateMemo={updateInviteMemo}
-                copiedCodeId={copiedCodeId}
               />
             </div>
           )}
