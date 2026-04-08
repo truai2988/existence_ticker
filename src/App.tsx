@@ -315,7 +315,33 @@ function App() {
   >("idle");
   const [targetBalance, setTargetBalance] = useState(2400); // Lifted for Overlay
 
-  const [viewMode, setViewMode] = useState<AppViewMode>("home");
+  const [viewMode, setViewModeState] = useState<AppViewMode>("home");
+  const viewModeRef = React.useRef(viewMode);
+  viewModeRef.current = viewMode;
+
+  // History APIを用いたviewMode切り替え
+  const setViewMode = React.useCallback((modeAction: React.SetStateAction<AppViewMode>) => {
+    const nextMode = typeof modeAction === "function" ? (modeAction as (prev: AppViewMode) => AppViewMode)(viewModeRef.current) : modeAction;
+    if (viewModeRef.current !== nextMode) {
+      window.history.pushState({ tab: nextMode }, "");
+      setViewModeState(nextMode);
+    }
+  }, []);
+
+  // 戻るボタン（popstate）の購読
+  useEffect(() => {
+    // 初回マウント時に現在の履歴を"home"として置き換え
+    window.history.replaceState({ tab: "home" }, "");
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && event.state.tab) {
+        setViewModeState(event.state.tab as AppViewMode);
+      } else {
+        setViewModeState("home"); // フォールバック
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
   const [showAdmin, setShowAdmin] = useState(false);
 
   // Onboarding / Guide State
@@ -396,7 +422,7 @@ function App() {
     if (viewMode === "admin" && !data.isAdmin) {
       setViewMode("home");
     }
-  }, [viewMode, data.isAdmin]);
+  }, [viewMode, data.isAdmin, setViewMode]);
 
   // --- THE DETERMINISTIC SWITCH ---
   // Wrap everything in a top-level ErrorBoundary for catastrophic failure catching
