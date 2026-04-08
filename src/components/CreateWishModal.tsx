@@ -156,7 +156,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                               key={tier.id}
                               onClick={() => handleTierChange(tier.id)}
                                   className={`
-                                      relative flex items-center justify-between p-5 rounded-2xl transition-all duration-700 border border-transparent
+                                      relative flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-5 gap-1.5 sm:gap-0 rounded-2xl transition-all duration-700 border border-transparent
                                       ${selectedTier === tier.id
                                           ? tier.cost === 0
                                             ? "bg-white shadow-sm border border-slate-200 shadow-[0_15px_40px_-5px_rgba(245,158,11,0.3)] z-10"
@@ -167,33 +167,33 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                                       }
                                   `}
                             >
-                              <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-3 w-full sm:flex-1 sm:w-auto min-w-0">
                                 <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all duration-500
                                     ${selectedTier === tier.id 
                                       ? (tier.cost === 0 ? "border-amber-600 bg-amber-600" : tier.cost === 500 ? "border-amber-500 bg-amber-500" : "border-slate-500 bg-slate-500")
                                       : "border-slate-300/80 bg-white"}`}>
                                     {selectedTier === tier.id && <div className="w-2 h-2 rounded-full bg-white scale-in-center shadow-sm" />}
                                 </div>
-                                <div className="flex flex-col items-start gap-1">
-                                  <span className={`text-base font-medium tracking-[0.1em] ${selectedTier === tier.id 
+                                <div className="flex flex-col items-start gap-0.5 min-w-0 text-left">
+                                  <span className={`text-sm sm:text-base font-bold whitespace-nowrap tracking-wider sm:tracking-[0.1em] ${selectedTier === tier.id 
                                     ? tier.cost === 0 ? "text-amber-900" : tier.cost === 500 ? "text-amber-800" : "text-amber-800" 
                                     : "text-slate-800"}`} style={{fontFamily: "'Noto Serif JP', serif"}}>
                                     {tier.label}
                                   </span>
-                                  <span className="text-xs text-slate-700/80 font-medium uppercase tracking-[0.2em]">
+                                  <span className="text-[10px] sm:text-xs text-slate-700/80 font-medium tracking-wide sm:tracking-[0.2em] leading-snug">
                                     {tier.subLabel}
                                   </span>
                                 </div>
                               </div>
 
-                              <div className="flex items-center gap-4 pl-4 shrink-0">
-                                  <span className={`flex items-baseline gap-1.5 font-mono font-light tracking-widest ${selectedTier === tier.id 
+                              <div className="flex items-center pl-8 sm:pl-2 shrink-0 self-start sm:self-center">
+                                  <span className={`flex items-baseline gap-1 font-mono font-light tracking-widest ${selectedTier === tier.id 
                                     ? tier.cost === 0 ? "text-amber-600" : tier.cost === 500 ? "text-amber-500" : "text-slate-700" 
                                     : "text-slate-400"}`}>
                                     {tier.cost === 0 
-                                      ? <span className="text-4xl sm:text-5xl leading-[0.5] pt-3">∞</span> 
-                                      : <span className="text-lg sm:text-xl">{tier.cost.toLocaleString()}</span>}
-                                    <span className="text-xs font-sans font-medium opacity-80 uppercase tracking-widest">{tier.cost === 0 ? MESSAGES.CREATE_WISH.TIER_0 : UNIT_LABEL}</span>
+                                      ? <span className="text-3xl sm:text-4xl leading-[0.5] pt-2">∞</span> 
+                                      : <span className="text-base sm:text-xl">{tier.cost.toLocaleString()}</span>}
+                                    <span className="text-[10px] sm:text-xs font-sans font-medium opacity-80 uppercase tracking-widest">{tier.cost === 0 ? MESSAGES.CREATE_WISH.TIER_0 : UNIT_LABEL}</span>
                                   </span>
                               </div>
                               

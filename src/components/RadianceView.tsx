@@ -101,10 +101,10 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
 
             {/* Tab Navigation (Premium Glassmorphism) */}
             <div className="bg-white shadow-sm border border-slate-200 border-b border-white/20 sticky top-0 z-30">
-                <div className="max-w-2xl mx-auto px-6 flex items-center gap-8 overflow-x-auto no-scrollbar relative min-h-[52px]">
+                <div className="max-w-2xl mx-auto px-4 sm:px-6 flex items-center justify-between sm:justify-start gap-2 sm:gap-8 overflow-x-auto no-scrollbar relative min-h-[52px]">
                     <button 
                         onClick={() => setModalState(modalState === 'create_wish' ? 'none' : 'create_wish')}
-                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
+                        className={`relative py-3 text-xs sm:text-sm font-bold transition-all shrink-0 focus:outline-none tracking-wider sm:tracking-widest ${
                             modalState === 'create_wish'
                                 ? 'text-amber-700' 
                                 : 'text-slate-700 hover:text-slate-700'
@@ -121,7 +121,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
 
                     <button
                         onClick={() => { setActiveTab('active'); setModalState('none'); }}
-                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
+                        className={`relative py-3 text-xs sm:text-sm font-bold transition-all shrink-0 focus:outline-none tracking-wider sm:tracking-widest ${
                             activeTab === 'active' && modalState !== 'create_wish'
                                 ? 'text-indigo-800' 
                                 : myActiveWishes.length === 0 ? 'text-slate-700' : 'text-slate-700 hover:text-slate-700'
@@ -138,7 +138,7 @@ export const RadianceView: React.FC<RadianceViewProps> = ({ currentUserId, onTab
 
                     <button
                         onClick={() => { setActiveTab('outbound'); setModalState('none'); }}
-                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
+                        className={`relative py-3 text-xs sm:text-sm font-bold transition-all shrink-0 focus:outline-none tracking-wider sm:tracking-widest ${
                             activeTab === 'outbound' && modalState !== 'create_wish'
                                 ? 'text-emerald-800' 
                                 : myOutboundWishes.length === 0 ? 'text-slate-700' : 'text-slate-700 hover:text-slate-700'

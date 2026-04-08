@@ -118,10 +118,10 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
 
             {/* Sub-Tabs (Premium Glassmorphism) */}
             <div className="bg-white shadow-sm border border-slate-200 border-b border-white/20 sticky top-0 z-30">
-                <div className="max-w-2xl mx-auto px-6 flex items-center gap-8 overflow-x-auto no-scrollbar relative min-h-[52px]">
+                <div className="max-w-2xl mx-auto px-4 sm:px-6 flex items-center justify-between sm:justify-start gap-2 sm:gap-8 overflow-x-auto no-scrollbar relative min-h-[52px]">
                     <button 
                         onClick={() => setActiveTab('explore')}
-                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
+                        className={`relative py-3 text-xs sm:text-sm font-bold transition-all shrink-0 focus:outline-none tracking-wider sm:tracking-widest ${
                             activeTab === 'explore' 
                                 ? 'text-amber-700' 
                                 : exploreWishes.length === 0 ? 'text-slate-700' : 'text-slate-700 hover:text-slate-700'
@@ -138,7 +138,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
 
                     <button
                         onClick={() => setActiveTab('pending')}
-                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
+                        className={`relative py-3 text-xs sm:text-sm font-bold transition-all shrink-0 focus:outline-none tracking-wider sm:tracking-widest ${
                             activeTab === 'pending' 
                                 ? 'text-indigo-800' 
                                 : pendingWishes.length === 0 ? 'text-slate-700' : 'text-slate-700 hover:text-slate-700'
@@ -155,7 +155,7 @@ export const FlowView: React.FC<FlowViewProps> = ({ currentUserId, onOpenProfile
 
                     <button
                         onClick={() => setActiveTab('active')}
-                        className={`relative py-3 text-sm font-bold transition-all shrink-0 focus:outline-none tracking-widest ${
+                        className={`relative py-3 text-xs sm:text-sm font-bold transition-all shrink-0 focus:outline-none tracking-wider sm:tracking-widest ${
                             activeTab === 'active' 
                                 ? 'text-emerald-700' 
                                 : activeWishes.length === 0 ? 'text-slate-700' : 'text-slate-700 hover:text-slate-700'
