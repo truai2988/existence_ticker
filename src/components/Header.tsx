@@ -41,7 +41,7 @@ export const Header: React.FC<HeaderProps> = ({
                       className="text-xl sm:text-2xl font-bold tracking-[0.3em] text-slate-900 uppercase leading-tight truncate"
                       style={{ fontFamily: "'Noto Serif JP', serif" }}
                     >
-                      E.T.
+                      ET
                     </h1>
                   </div>
                 </div>
