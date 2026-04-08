@@ -265,9 +265,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     fill="url(#yinGrad)"
                     animate={{
                       opacity: showColor ? 1 : 0.2,
-                      filter: isWishAnimating ? "brightness(1.5)" : "brightness(1)",
                     }}
                     transition={{ duration: 0.8 }}
+                  />
+                  {/* Yin Click Glow Overlay (Mobile Safe) */}
+                  <motion.path
+                    d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 1 0 50 Z"
+                    fill="#FFFFFF"
+                    style={{ mixBlendMode: 'overlay' }}
+                    animate={{
+                      opacity: isWishAnimating ? 0.7 : 0,
+                    }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
                   />
                   {/* Right Side (Yang) */}
                   <motion.path
@@ -275,9 +284,18 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     fill="url(#yangGrad)"
                     animate={{
                       opacity: showColor ? 1 : 0.2,
-                      filter: isHelpAnimating ? "brightness(1.5)" : "brightness(1)",
                     }}
                     transition={{ duration: 0.8 }}
+                  />
+                  {/* Yang Click Glow Overlay (Mobile Safe) */}
+                  <motion.path
+                    d="M 0 50 A 25 25 0 0 1 50 50 A 25 25 0 0 0 100 50 A 50 50 0 0 0 0 50 Z"
+                    fill="#FFFFFF"
+                    style={{ mixBlendMode: 'overlay' }}
+                    animate={{
+                      opacity: isHelpAnimating ? 0.7 : 0,
+                    }}
+                    transition={{ duration: 0.6, ease: "easeOut" }}
                   />
                   {/* Boundary Line (Faint) */}
                   <path
@@ -332,8 +350,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <div className="w-16 h-16 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center group-hover:shadow-indigo-200/20 group-hover:bg-indigo-50/50 transition-all duration-500">
-                      <Megaphone size={28} strokeWidth={1} className="text-indigo-900/60 group-hover:text-indigo-900 transition-colors" />
+                    <div className={`w-16 h-16 rounded-full bg-white border border-slate-200 flex items-center justify-center transition-all duration-500
+                      ${isWishAnimating ? "shadow-[0_0_20px_rgba(165,180,252,0.4)] bg-indigo-50" : "shadow-sm group-hover:shadow-[0_0_15px_rgba(165,180,252,0.2)] group-hover:bg-indigo-50/50"}`}>
+                      <Megaphone size={28} strokeWidth={1} className={`transition-colors duration-500 ${isWishAnimating ? "text-indigo-900" : "text-indigo-900/60 group-hover:text-indigo-900"}`} />
                     </div>
                     <span className="mt-4 text-xs font-serif font-medium tracking-widest text-slate-700 uppercase ml-[0.1em]">
                       {MESSAGES.HOME.BTN_REQUEST}
@@ -352,8 +371,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <div className="w-16 h-16 rounded-full bg-white shadow-sm border border-slate-200 flex items-center justify-center group-hover:shadow-amber-200/20 group-hover:bg-amber-50/50 transition-all duration-500">
-                      <Inbox size={28} strokeWidth={1} className="text-amber-900/60 group-hover:text-amber-900 transition-colors" />
+                    <div className={`w-16 h-16 rounded-full bg-white border border-slate-200 flex items-center justify-center transition-all duration-500
+                      ${isHelpAnimating ? "shadow-[0_0_20px_rgba(252,211,77,0.4)] bg-amber-50" : "shadow-sm group-hover:shadow-[0_0_15px_rgba(252,211,77,0.2)] group-hover:bg-amber-50/50"}`}>
+                      <Inbox size={28} strokeWidth={1} className={`transition-colors duration-500 ${isHelpAnimating ? "text-amber-900" : "text-amber-900/60 group-hover:text-amber-900"}`} />
                     </div>
                     <span className="mt-4 text-xs font-serif font-medium tracking-widest text-slate-700 uppercase ml-[0.1em]">
                       {MESSAGES.HOME.BTN_RESPOND}
