@@ -439,11 +439,11 @@ export const LandingPage = () => {
 
 
         {/* --- Entrance Section --- */}
-        <Section
+        <section
           id="entrance"
-          className="min-h-[70vh] flex flex-col items-center justify-center bg-[#F9F8F4] relative border-t border-[#EAEAEA]"
+          className="min-h-[70vh] flex flex-col items-center bg-[#F9F8F4] relative border-t border-[#EAEAEA]"
         >
-          <div className="flex flex-col items-center flex-grow justify-center">
+          <div className="flex flex-col items-center flex-grow justify-center w-full">
             <button
               onClick={handleNavigate}
               className="group relative inline-block px-14 py-6 bg-gradient-to-b from-[#FFFFFF] to-[#FDFDFB] border border-[#E0DCD0] shadow-[0_4px_20px_rgba(139,107,80,0.05),0_1px_3px_rgba(0,0,0,0.02)] rounded-2xl hover:shadow-[0_8px_30px_rgba(139,107,80,0.1),0_2px_8px_rgba(0,0,0,0.04)] hover:border-[#D0C8B8] transition-all duration-700 tracking-[0.2em] text-xs uppercase text-[#6B5A4F] hover:text-[#2D2D2D] overflow-hidden font-sans"
@@ -487,7 +487,7 @@ export const LandingPage = () => {
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out"></div>
             </button>
           </div>
-          <div className="absolute bottom-8 left-0 right-0 text-center space-y-2">
+          <div className="w-full text-center space-y-2 pb-8">
             <p className="text-xs text-[#AAAAAA] tracking-[0.3em] uppercase font-serif">
               {m.FOOTER.COPYRIGHT}
             </p>
@@ -509,7 +509,7 @@ export const LandingPage = () => {
               {m.FOOTER.CONTACT}
             </p>
           </div>
-        </Section>
+        </section>
       </div>
 
       {/* Full screen fade to Porcelain White */}
