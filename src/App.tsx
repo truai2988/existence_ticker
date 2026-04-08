@@ -473,10 +473,10 @@ function App() {
                     <AnimatePresence>
                       {viewMode === "home" && !isRitual && ritualState === "idle" && (
                         <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          exit={{ opacity: 0 }}
-                          transition={{ duration: 0.8, ease: "easeOut" }}
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0, overflow: "hidden" }}
+                          transition={{ duration: 0.4, ease: "easeOut" }}
                           className="w-full relative z-50 shrink-0"
                         >
                           <Header
