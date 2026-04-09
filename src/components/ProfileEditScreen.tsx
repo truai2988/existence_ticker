@@ -367,10 +367,10 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                             key={opt.value}
                                             type="button"
                                             onClick={() => setGender(opt.value as "male" | "female" | "other")}
-                                            className={`py-3 px-2 rounded-2xl text-sm font-bold transition-all border-2 ${
+                                            className={`appearance-none py-3 px-2 rounded-2xl text-sm font-bold transition-all border ${
                                                 gender === opt.value
-                                                    ? "bg-amber-50 text-amber-900 border-amber-900 shadow-md"
-                                                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-sm"
+                                                    ? "bg-amber-900/10 text-amber-900 border-slate-200 shadow-sm"
+                                                    : "bg-white/40 text-slate-700 border-slate-200 shadow-sm hover:bg-white hover:shadow-md"
                                             }`}
                                         >
                                             {opt.label}

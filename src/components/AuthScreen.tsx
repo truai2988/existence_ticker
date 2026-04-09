@@ -154,7 +154,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
         layout
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full bg-white shadow-sm border border-slate-200 rounded-2xl shadow-xl border border-white/50 p-8 overflow-hidden"
+        className="w-full bg-white border border-slate-200 rounded-2xl shadow-xl p-8 overflow-hidden"
       >
         <div className="flex flex-col items-center mb-8">
           <h1
