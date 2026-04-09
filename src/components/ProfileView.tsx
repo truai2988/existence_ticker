@@ -239,7 +239,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   {/* Page-specific: Admin */}
                   {user && !user.isAnonymous && isAdmin && (
                     <button
-                      onClick={() => onTabChange?.("admin")}
+                      onClick={() => window.open('/admin', '_blank')}
                       className="p-3 text-red-400 hover:text-red-600 transition-colors active:scale-95"
                       aria-label={MESSAGES.PROFILE.ARIA_ADMIN}
                     >

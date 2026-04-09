@@ -174,15 +174,6 @@ export const TrustPage = () => {
 
                 {/* Footer */}
                 <footer className="mt-40 pt-16 border-t border-[#E5E0D5] text-center">
-                    <p className="text-xs tracking-[0.2em] text-[#AAAAAA] mb-10 font-sans">
-                        {MESSAGES.TRUST.FOOTER_SUB}
-                    </p>
-                    <button
-                        onClick={() => window.close()}
-                        className="inline-block px-12 py-5 bg-[#2D2D2D] text-white rounded-xl shadow-xl hover:bg-[#111111] transition-all tracking-[0.3em] font-medium text-xs md:text-sm font-sans"
-                    >
-                        {MESSAGES.TRUST.FOOTER_BTN}
-                    </button>
                     <p className="mt-16 text-xs tracking-[0.3em] text-[#CCCCCC] uppercase font-serif">
                         {MESSAGES.TRUST.FOOTER_COPY}
                     </p>

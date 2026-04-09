@@ -315,7 +315,10 @@ function App() {
   >("idle");
   const [targetBalance, setTargetBalance] = useState(2400); // Lifted for Overlay
 
-  const [viewMode, setViewModeState] = useState<AppViewMode>("home");
+  const [viewMode, setViewModeState] = useState<AppViewMode>(() => {
+    if (window.location.pathname === '/admin') return 'admin';
+    return "home";
+  });
   const viewModeRef = React.useRef(viewMode);
   viewModeRef.current = viewMode;
 
@@ -330,8 +333,8 @@ function App() {
 
   // 戻るボタン（popstate）の購読
   useEffect(() => {
-    // 初回マウント時に現在の履歴を"home"として置き換え
-    window.history.replaceState({ tab: "home" }, "");
+    // 初回マウント時に現在の履歴を viewMode の初期値として置き換え
+    window.history.replaceState({ tab: viewModeRef.current }, "");
     const handlePopState = (event: PopStateEvent) => {
       if (event.state && event.state.tab) {
         setViewModeState(event.state.tab as AppViewMode);
@@ -415,14 +418,20 @@ function App() {
   };
 
   const handleTabChange = (tab: AppViewMode) => setViewMode(tab);
-  const handleGoHome = () => setViewMode("home");
+  const handleGoHome = () => {
+    if (window.location.pathname === '/admin') {
+      window.close();
+    } else {
+      setViewMode("home");
+    }
+  };
 
   // Fix: Ensure viewMode resets to home if user loses admin privileges while in admin view
   useEffect(() => {
-    if (viewMode === "admin" && !data.isAdmin) {
+    if (view === "APP" && viewMode === "admin" && !data.isAdmin) {
       setViewMode("home");
     }
-  }, [viewMode, data.isAdmin, setViewMode]);
+  }, [view, viewMode, data.isAdmin, setViewMode]);
 
   // --- THE DETERMINISTIC SWITCH ---
   // Wrap everything in a top-level ErrorBoundary for catastrophic failure catching

@@ -52,6 +52,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                     {/* 器：既存のアプリケーション機能 */}
                     {/* path="/app/*" とすることで、App内での内部ルーティングも維持します */}
                     <Route path="/app/*" element={<App />} />
+                    
+                    {/* 管理コンソール専用の独立タブ用ルート */}
+                    <Route path="/admin" element={<App />} />
 
                     {/* 救済：迷い込んだユーザーをLPへ */}
                     <Route path="*" element={<Navigate to="/" replace />} />
