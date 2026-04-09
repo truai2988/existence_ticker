@@ -181,7 +181,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+          className="absolute inset-0 bg-slate-900/60"
         />
 
         {/* Modal Content */}
@@ -192,22 +192,7 @@ export const OnboardingStory: React.FC<OnboardingStoryProps> = ({
           transition={{ duration: 0.4, ease: "easeOut" }}
           className="relative w-full max-w-lg bg-[#F9F8F4] rounded-[2rem] shadow-2xl overflow-hidden flex flex-col h-[600px] max-h-[calc(100dvh-2rem)]"
         >
-          {/* Background Textures (Washi) */}
-          <div className="absolute inset-0 pointer-events-none opacity-[0.05] mix-blend-multiply z-0"
-               style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")` }} />
-          
-          {/* Dynamic Ambient Light */}
-          <motion.div 
-            key={`bg-${currentSlide}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1 }}
-            className={`absolute top-0 right-0 w-[80%] h-[80%] blur-[100px] rounded-full pointer-events-none z-0
-              ${currentSlide % 5 === 0 ? 'bg-amber-200/30' : 
-                currentSlide % 5 === 1 ? 'bg-blue-200/30' : 
-                currentSlide % 5 === 2 ? 'bg-rose-200/30' : 
-                currentSlide % 5 === 3 ? 'bg-emerald-200/30' : 'bg-slate-200/30'}`}
-          />
+
 
           {/* Close Button */}
           <button 
