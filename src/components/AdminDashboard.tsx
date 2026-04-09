@@ -4,20 +4,16 @@ import {
   X,
   Activity,
   Users,
-  Sprout,
   Book,
 } from "lucide-react";
 import { ProtocolManual } from "./ProtocolManual";
 import { useStats } from "../hooks/useStats";
-import { useDiagnostics } from "../hooks/useDiagnostics";
-import { DiagnosticModal } from "./DiagnosticModal";
 import { db } from "../lib/firebase";
-import { UserProfile, SeedPlaceholder } from "../types";
+import { UserProfile } from "../types";
 import { getMillis } from "../logic/worldPhysics";
 
 import { AdminMonitor } from "./admin/AdminMonitor";
 import { AdminCitizens } from "./admin/AdminCitizens";
-import { AdminSeeds } from "./admin/AdminSeeds";
 
 interface AdminDashboardProps {
   onClose: () => void;
@@ -26,77 +22,18 @@ interface AdminDashboardProps {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const { stats, error } = useStats();
-  const diagnostics = useDiagnostics(stats);
   const [showManual, setShowManual] = useState(false);
-  const [showDiagnosisModal, setShowDiagnosisModal] = useState(false);
 
   // User Management State
   const [activeTab, setActiveTab] = useState<
-    "monitor" | "citizens" | "seeds"
+    "monitor" | "citizens"
   >("monitor");
   const [userList, setUserList] = useState<UserProfile[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [lastVisibleDoc, setLastVisibleDoc] = useState<QueryDocumentSnapshot | null>(null);
 
-  // Seed Library State
-  const [seeds, setSeeds] = useState<SeedPlaceholder[]>([]);
-  const [isAddingSeed, setIsAddingSeed] = useState(false);
-  const [isLoadingSeeds, setIsLoadingSeeds] = useState(false);
 
-  const fetchSeeds = useCallback(async () => {
-    setIsLoadingSeeds(true);
-    try {
-      if (!db) return;
-      const { collection, getDocs, query, orderBy } = await import("firebase/firestore");
-      const q = query(collection(db, "seed_placeholders"), orderBy("createdAt", "desc"));
-      const snap = await getDocs(q);
-      const fetchedSeeds = snap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as SeedPlaceholder[];
-      setSeeds(fetchedSeeds);
-    } catch (e) {
-      console.error("Failed to fetch seeds", e);
-    } finally {
-      setIsLoadingSeeds(false);
-    }
-  }, []);
-
-  const INITIAL_SEEDS = React.useMemo(() => [
-    { tier: 1000, content: "止まったままのチェロに、もう一度光を当ててほしいのです。・・・" },
-    { tier: 1000, content: "私のとりとめのない人生の断片を、一通の手紙に編み直してくれませんか。・・・" },
-    { tier: 1000, content: "実家の古い書庫にある、傷んだ古文書を一緒に紐解いてほしい。・・・" },
-    { tier: 500, content: "高いところの電球を、ひとつだけ替えてくれませんか。・・・" },
-    { tier: 500, content: "雨の午後、静かに隣で本を読んでいてほしいのです。・・・" },
-    { tier: 500, content: "スマホの奥に眠っている、数年前の家族写真を一緒に探してほしい。・・・" },
-    { tier: 0, content: "作りすぎた肉じゃがを、お裾分けさせてください。・・・" },
-    { tier: 0, content: "今夜、あなたが住む場所から見える一番綺麗な月を教えて。・・・" },
-    { tier: 0, content: "あなたが人生の最期に見たい景色は、どこですか？・・・" },
-    { tier: 0, content: "深夜2時、宇宙の広さについて語り合いませんか。・・・" },
-  ], []);
-
-  const seedLibrary = useCallback(async () => {
-    if (!window.confirm("初期の種を一括で蒔きますか？")) return;
-    setIsLoadingSeeds(true);
-    try {
-      if (!db) return;
-      const { collection, addDoc, serverTimestamp } = await import("firebase/firestore");
-      for (const seed of INITIAL_SEEDS) {
-        await addDoc(collection(db, "seed_placeholders"), {
-          ...seed,
-          createdAt: serverTimestamp()
-        });
-      }
-      alert("初期の種をすべて蒔きました。");
-      fetchSeeds();
-    } catch (e) {
-      console.error(e);
-      alert("不具合が発生しました。");
-    } finally {
-      setIsLoadingSeeds(false);
-    }
-  }, [fetchSeeds, INITIAL_SEEDS]);
 
   const fetchUsers = useCallback(async (isLoadMore = false) => {
     setIsLoadingUsers(true);
@@ -186,42 +123,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     }
   }, [userList, fetchUsers]);
 
-  const addSeed = useCallback(async (tier: 1000 | 500 | 0, content: string) => {
-    setIsAddingSeed(true);
-    try {
-      if (!db) return;
-      const { collection, addDoc, serverTimestamp } = await import("firebase/firestore");
-      await addDoc(collection(db, "seed_placeholders"), {
-        tier,
-        content,
-        createdAt: serverTimestamp()
-      });
-      fetchSeeds();
-    } catch (e) {
-      console.error("Failed to add seed", e);
-      alert("種の蒔画に失敗しました");
-    } finally {
-      setIsAddingSeed(false);
-    }
-  }, [fetchSeeds]);
-
-  const deleteSeed = useCallback(async (id: string) => {
-    if (!window.confirm("この種を削除しますか？")) return;
-    try {
-      if (!db) return;
-      const { doc, deleteDoc } = await import("firebase/firestore");
-      await deleteDoc(doc(db, "seed_placeholders", id));
-      fetchSeeds();
-    } catch (e) {
-      console.error("Failed to delete seed", e);
-      alert("種の削除に失敗しました");
-    }
-  }, [fetchSeeds]);
-
   // Data Fetching Logic: Only trigger when switching TO the tab
-  React.useEffect(() => {
-    if (activeTab === "seeds" && seeds.length === 0) fetchSeeds();
-  }, [activeTab, seeds.length, fetchSeeds]);
 
   // Lock body scroll when dashboard is open
   React.useEffect(() => {
@@ -316,13 +218,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           >
             <Users size={16} /> 住民
           </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("seeds")}
-            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "seeds" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-700 hover:text-slate-700"}`}
-          >
-            <Sprout size={16} /> 種子の書庫
-          </button>
         </div>
 
         {/* Content Stack */}
@@ -330,7 +225,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           {activeTab === "monitor" && stats && (
             <AdminMonitor 
               stats={stats} 
-              onOpenDiagnostics={() => setShowDiagnosisModal(true)} 
             />
           )}
 
@@ -346,37 +240,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               />
             </div>
           )}
-
-          {activeTab === "seeds" && (
-            <div className="w-full min-w-0">
-              <AdminSeeds 
-                seeds={seeds}
-                onFetchSeeds={fetchSeeds}
-                onSeedLibrary={seedLibrary}
-                onAddSeed={addSeed}
-                onDeleteSeed={deleteSeed}
-                isLoading={isLoadingSeeds}
-                isAdding={isAddingSeed}
-              />
-            </div>
-          )}
         </div>
       </div>
-
-      {showDiagnosisModal && stats && (
-        <DiagnosticModal 
-          isOpen={showDiagnosisModal} 
-          onClose={() => setShowDiagnosisModal(false)}
-          stats={stats}
-          diagnosis={diagnostics}
-          onScrollToSupply={() => {
-            const container = document.getElementById("admin-scroll-container");
-            if (container) {
-              container.scrollTo({ top: 0, behavior: "smooth" });
-            }
-          }}
-        />
-      )}
     </div>
   );
 };

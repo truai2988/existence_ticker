@@ -1,7 +1,7 @@
 import { initializeApp, FirebaseApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getAuth, Auth } from 'firebase/auth';
-import { getFunctions, Functions, connectFunctionsEmulator } from 'firebase/functions';
+import { getFunctions, Functions } from 'firebase/functions';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
 
 // Only initialize if env vars are present to mock safe behavior
@@ -35,10 +35,13 @@ if (apiKey) {
   storage = getStorage(app);
 
   // Connect to Emulators if running locally
+  // Connect to Emulators if running locally
   if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-      // User is only running functions emulator locally
+      /* 
+      // ⚠️ Production Test: Temporarily point localhost to the actual Cloud Functions instead of Emulator
       console.log(`Connecting to Firebase Functions Emulator at ${location.hostname}:5001...`);
       connectFunctionsEmulator(functions, location.hostname, 5001);
+      */
       
       // Keep others commented out as requested by user env
       /*

@@ -6,6 +6,7 @@ import { useProfile } from "../hooks/useProfile";
 import { AppMode } from "../hooks/useStartupMachine";
 import { LUNAR_CONSTANTS } from "../constants";
 import { useLanguage } from "../contexts/LanguageContext";
+
 import { getMillis } from "../logic/worldPhysics";
 
 interface HomeViewProps {
@@ -32,7 +33,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const { t: MESSAGES } = useLanguage();
   const [notification, setNotification] = React.useState<string | null>(null);
 
-  const cycleDays = profile?.scheduled_cycle_days || 10;
+  const cycleDays = 10;
   const cycleStartedAt = getMillis(
     profile?.cycle_started_at || profile?.created_at,
   );

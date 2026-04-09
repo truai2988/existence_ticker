@@ -101,7 +101,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
     const cycleStartedAt = profile.cycle_started_at || 0;
 
-    const effectiveCycleDays = profile.scheduled_cycle_days || 10;
+    const effectiveCycleDays = 10;
     const cycleDurationMillis = effectiveCycleDays * 24 * 60 * 60 * 1000;
     const expiryDate = cycleStartedAt + cycleDurationMillis;
     const now = globalNow;
@@ -158,7 +158,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             newAnchorTimeMillis = Date.now();
             isFirstBirth = true;
         } else {
-            const days = data.scheduled_cycle_days || 10;
+            const days = 10;
             const duration = days * 24 * 60 * 60 * 1000;
             const now = Date.now();
             const elapsedSinceStart = now - cycleStartedAt;

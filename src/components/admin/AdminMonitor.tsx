@@ -1,13 +1,12 @@
 import React from "react";
-import { Activity, Moon, Sun, AlertTriangle } from "lucide-react";
+import { Activity, Moon, Sun } from "lucide-react";
 import { MetabolismStatus, DashboardStats } from "../../hooks/useStats";
 
 interface AdminMonitorProps {
   stats: DashboardStats;
-  onOpenDiagnostics: () => void;
 }
 
-export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats, onOpenDiagnostics }) => {
+export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats }) => {
   const { metabolism, distribution } = stats;
 
   const getMetaColor = (s: MetabolismStatus) => {
@@ -86,26 +85,6 @@ export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats, onOpenDiagno
         </div>
       </div>
 
-      {/* Diagnostics Trigger Card */}
-      <div
-        onClick={onOpenDiagnostics}
-        className="group bg-slate-900/50 rounded-2xl border border-slate-800 p-6 flex items-center justify-between cursor-pointer hover:bg-slate-800/50 transition-all active:scale-[0.99]"
-      >
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-yellow-500/10 rounded-xl group-hover:bg-yellow-500/20 transition-colors">
-            <AlertTriangle className="text-yellow-500" size={20} />
-          </div>
-          <div>
-            <h3 className="text-base font-bold">システム診断 (Diagnostics)</h3>
-            <p className="text-xs text-slate-700 mt-0.5">
-              数理的な整合性とプロトコルの健全性を確認
-            </p>
-          </div>
-        </div>
-        <div className="text-slate-800 group-hover:text-slate-700 transition-colors">
-          →
-        </div>
-      </div>
     </div>
   );
 });

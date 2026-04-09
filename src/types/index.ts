@@ -36,7 +36,6 @@ export interface UserProfile {
   has_cancellation_history?: boolean;
   pending_interruption_notification?: string | null;
 
-  scheduled_cycle_days?: number;
   cycle_started_at?: number;
   created_at?: number;
   spent_lm?: number;
@@ -97,13 +96,6 @@ export interface CreateWishInput {
   content: string;
   tier: GratitudeTier;
   isAnonymous?: boolean;
-}
-
-export interface SeedPlaceholder {
-  id: string;
-  tier: 1000 | 500 | 0;
-  content: string;
-  createdAt: { seconds: number; nanoseconds: number; toDate?: () => Date } | null;
 }
 
 export type AppViewMode =

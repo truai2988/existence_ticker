@@ -33,19 +33,17 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateCreativeContent = void 0;
+exports.generateWishDraft = exports.generateCreativeContent = void 0;
 const functions = __importStar(require("firebase-functions"));
 const ai_1 = require("ai");
-const openai_1 = require("@ai-sdk/openai");
+const google_1 = require("@ai-sdk/google");
 const dotenv = __importStar(require("dotenv"));
 const admin = __importStar(require("firebase-admin"));
 // Initialize dotenv
 dotenv.config();
-// Initialize OpenAI provider
-// If using Vercel AI Gateway, you might need to adjust the baseURL or simply use the standard OpenAI provider if compatible.
-// For now, we'll use the standard OpenAI provider which is the most common integration.
-const openai = (0, openai_1.createOpenAI)({
-    apiKey: process.env.AI_GATEWAY_API_KEY || '',
+// Initialize Google Gemini provider
+const google = (0, google_1.createGoogleGenerativeAI)({
+    apiKey: process.env.GEMINI_API_KEY || '',
 });
 // Initialize Firebase Admin if not already initialized
 if (admin.apps.length === 0) {
@@ -83,15 +81,15 @@ exports.generateCreativeContent = functions.https.onRequest(async (req, res) => 
         return;
     }
     // 3. Check for API Key
-    if (!process.env.AI_GATEWAY_API_KEY) {
-        console.error('Missing AI_GATEWAY_API_KEY in environment variables.');
+    if (!process.env.GEMINI_API_KEY) {
+        console.error('Missing GEMINI_API_KEY in environment variables.');
         res.status(500).send('Server configuration error: API Key missing.');
         return;
     }
     try {
         // 4. Generate Content
         const { text } = await (0, ai_1.generateText)({
-            model: openai('gpt-4-turbo'), // Use a suitable model
+            model: google('gemini-2.5-flash'), // Use a suitable model
             prompt: prompt,
             // maxTokens: 500, // Limit response length
         });
@@ -101,6 +99,60 @@ exports.generateCreativeContent = functions.https.onRequest(async (req, res) => 
     catch (error) {
         console.error('Error generating content:', error);
         res.status(500).send('Internal Server Error: Failed to generate content.');
+    }
+});
+/**
+ * Cloud Function: Generate Wish Draft
+ *
+ * Uses Vercel AI SDK to generate a warm 3-line wish based on a brief keyword.
+ *
+ * Call Data:
+ * {
+ *   "keyword": "いつもありがとう"
+ * }
+ */
+exports.generateWishDraft = functions.https.onCall(async (data, context) => {
+    // 1. Security Check
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
+    }
+    const { keyword } = data;
+    if (!keyword || typeof keyword !== 'string' || keyword.length > 50) {
+        throw new functions.https.HttpsError('invalid-argument', 'Invalid keyword provided. Must be under 50 characters.');
+    }
+    if (!process.env.GEMINI_API_KEY) {
+        console.error('Missing GEMINI_API_KEY in environment variables.');
+        throw new functions.https.HttpsError('internal', 'Server configuration error: API Key missing.');
+    }
+    const systemPrompt = `あなたは、お金を介さない純粋な助け合いインフラ「Existence Ticker」の中で、ユーザーの言葉を温かく綴り直す「代筆の万年筆」です。
+ユーザーから短い要望が入力されますので、それを見知らぬご近所さんや他の利用者に向けた、心温まる3行程度（最大150文字程度）の「お願い文」に変換してください。
+
+【トーン＆マナー】
+- 業者への依頼のような事務的な言葉遣いや、金銭・報酬を匂わせる言葉は絶対に使わないこと。
+- 「完璧な作業」を求めるのではなく、「少しだけ手を貸してほしい」「そばにいてくれるだけで助かる」という、余白と謙虚さのあるニュアンスにすること。
+- 読む側が「それくらいならやってあげようかな」と自然に思える、親しみやすいトーンであること。
+
+【制約事項】
+- 出力は必ず3行以内、全体で最大150文字程度に収めること。
+- AIとしての前置きや後書き（例: 「承知しました」「以下のようになります」等）は一切含めず、メッセージの本文のみを直接出力すること。
+
+【出力例】
+入力キーワード: 「引っ越しの段ボールを運ぶの手伝って」
+出力:
+今週末、近くへ引っ越すのですが、一人では運べない段ボールがあり途方に暮れています。
+プロのような作業は求めていません。30分ほど、一緒に端を持って運んでくださる方がいれば本当に助かります。
+手を貸していただけませんか？`;
+    try {
+        const { text } = await (0, ai_1.generateText)({
+            model: google('gemini-2.5-flash'),
+            system: systemPrompt,
+            prompt: `キーワード: ${keyword}`,
+        });
+        return { draft: text.trim() };
+    }
+    catch (error) {
+        console.error('Error generating wish draft:', error);
+        throw new functions.https.HttpsError('internal', 'Failed to generate wish draft.');
     }
 });
 //# sourceMappingURL=ai.js.map

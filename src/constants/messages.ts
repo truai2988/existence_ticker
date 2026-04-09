@@ -32,55 +32,6 @@ export const MESSAGES = {
     ERROR_BOUNDARY_BTN: "ページを再読み込みする",
   },
 
-  // 1.5. 診断関連 (useDiagnostics)
-  DIAGNOSTICS: {
-    STATUS_LOADING: "データを読み込み中",
-    PHASE_STARVATION_SHORT: "残高低下", 
-    PHASE_STARVATION_LONG: "システム全体の残高が低下しています。",
-    PHASE_SATURATION_SHORT: "流動性低下", 
-    PHASE_SATURATION_LONG: "資産が滞留しており、取引が発生していません。",
-    PHASE_STAGNATION_SHORT: "取引停止", 
-    PHASE_STAGNATION_LONG: "システム内での取引が確認できません。",
-    PHASE_HEALTHY_SHORT: "正常稼働", 
-    MICRO_PREFIX: "[Micro]",
-    ANOMALY_NEGATIVE_BALANCE: "エラー：残高がマイナス",
-    ANOMALY_DATA_CORRUPTION: "エラー：データ破損",
-
-    // DiagnosticModal Specifics
-    SAGE_TITLE: "システム診断結果",
-    LBL_SPEED: "流通速度",
-    LBL_SAVINGS: "平均残高",
-    LBL_DECAY: "減価する源気",
-    LBL_PRESCRIPTION: "推奨アクション",
-    BTN_ADJUST: "設定の変更",
-    BTN_EXECUTE: "実行する",
-    FOOTER_TICKER: "Existence Ticker",
-    FOOTER_RULE: "利用規約",
-
-    STARVATION_VOICE: "システムの流動性が著しく低下しています。平均残高: %s Lm。\nパラメータを調整して流通を促進してください。",
-    STARVATION_TITLE: "配布サイクルの短縮",
-    STARVATION_DESC: "サイクル期間を短縮（5～7日）し、ユーザーへの給付頻度を増加させます。",
-    STARVATION_TARGET: "目標: 5日",
-    
-    SATURATION_VOICE: "システム内にトークンが滞留しています。%s% のユーザーが上限に達しています。\nパラメータを調整して消費を促進してください。",
-    SATURATION_TITLE: "配布サイクルの延長",
-    SATURATION_DESC: "サイクル期間を延長（15～20日）し、インフレを抑制します",
-    SATURATION_TARGET: "目標: 20日",
-
-    STAGNATION_VOICE: "アクティブな取引が存在しません。\n初期ユーザーとして取引を開始するか、システム設定を見直してください。",
-    STAGNATION_TITLE: "取引の手動実行",
-    STAGNATION_DESC: "管理者権限を用いて手動でトランザクションを発生させます。",
-    STAGNATION_TARGET: "操作: トランザクション生成",
-
-    HEALTHY_VOICE: "システムは正常なパラメータ範囲内で稼働しています。",
-    HEALTHY_TITLE: "ステータスの維持",
-    HEALTHY_DESC: "現在のパラメータ設定を維持します。",
-    HEALTHY_TARGET: "操作: なし",
-
-    MICRO_VOICE: "[Micro構成]\n%s\n小規模なユーザー数での動作を確認中。",
-    MICRO_DESC: "[Micro構成] %s 小規模環境用のパラメータが適用されます。",
-  },
-
   // 1.8. 認証エラー関連 (useAuthHook)
   AUTH_ERROR: {
     INVALID_INVITE_CODE: "無効な招待コードです",
@@ -653,6 +604,12 @@ export const MESSAGES = {
     TIER_MEDIUM_SUB: "日常のなかでの、ちょっとした手助け",
     TIER_LIGHT_LABEL: "[無償の願い]",
     TIER_LIGHT_SUB: "数字では測れない、プライスレスな想いや温もりの交換",
+    AI_DRAFT_BTN_IDLE: "万年筆に下書きを頼む",
+    AI_DRAFT_BTN_LOADING: "下書きを執筆中...",
+    AI_DRAFT_PLACEHOLDER: "キーワード（例：引っ越しの段ボールを運んでほしい）",
+    AI_DRAFT_ERROR: "下書きの作成に失敗しました",
+    AI_DRAFT_SUGGESTION_LABEL: "💡例えば：",
+    AI_DRAFT_SUGGESTIONS: ["電球交換の脚立押さえ", "重い買い物の手伝い", "一緒に空を見てほしい"],
   },
   
   TICKER: {

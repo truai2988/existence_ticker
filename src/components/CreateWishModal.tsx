@@ -1,16 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Loader2, Send } from 'lucide-react';
+import React, { useState } from 'react';
+import { Loader2, Send, PenTool } from 'lucide-react';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useWishActions } from '../hooks/useWishActions';
 import { useWallet } from '../hooks/useWallet';
-import { GratitudeTier, SeedPlaceholder } from '../types';
-import { db } from '../lib/firebase';
+import { GratitudeTier } from '../types';
 import { WISH_COST, UNIT_LABEL } from '../constants';
 import { useToast } from '../hooks/useToast';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useMicroInteractions } from '../hooks/useMicroInteractions';
-
-// Session-level cache for seeds
-let cachedSeeds: SeedPlaceholder[] | null = null;
 
 interface CreateWishModalProps {
     onClose: () => void;
@@ -23,11 +20,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
     const { t: MESSAGES } = useLanguage();
     const { getSendAction } = useMicroInteractions();
 
-    const TIER_MAP: Record<GratitudeTier, 1000 | 500 | 0> = React.useMemo(() => ({
-      heavy: 1000,
-      medium: 500,
-      light: 0
-    }), []);
+
 
     const TIERS = React.useMemo(() => [
       {
@@ -54,54 +47,41 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
     
     const [newWishContent, setNewWishContent] = useState('');
     const [selectedTier, setSelectedTier] = useState<GratitudeTier>('heavy');
-    const [currentPlaceholder, setCurrentPlaceholder] = useState<string>(FALLBACK_PLACEHOLDER);
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [creationError, setCreationError] = useState<string | null>(null);
+    const [draftKeyword, setDraftKeyword] = useState('');
+    const [isDrafting, setIsDrafting] = useState(false);
 
-    const updatePlaceholder = React.useCallback((tier: GratitudeTier, seedsList: SeedPlaceholder[]) => {
-        const numericTier = TIER_MAP[tier];
-        const tierSeeds = seedsList.filter(s => s.tier === numericTier);
-        if (tierSeeds.length > 0) {
-            const random = tierSeeds[Math.floor(Math.random() * tierSeeds.length)];
-            setCurrentPlaceholder(`${MESSAGES.CREATE_WISH.PLACEHOLDER_PREFIX}${random.content}`);
-        } else {
-            setCurrentPlaceholder(FALLBACK_PLACEHOLDER);
-        }
-    }, [FALLBACK_PLACEHOLDER, MESSAGES.CREATE_WISH.PLACEHOLDER_PREFIX, TIER_MAP]);
-
-    // Fetch seeds and set initial placeholder
-    useEffect(() => {
-        const loadSeeds = async () => {
-            if (cachedSeeds) {
-                updatePlaceholder(selectedTier, cachedSeeds);
-                return;
-            }
-
-            try {
-                if (!db) throw new Error("Database not initialized");
-                const { collection, getDocs } = await import('firebase/firestore');
-                const snap = await getDocs(collection(db, 'seed_placeholders'));
-                const fetched = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as SeedPlaceholder[];
-                cachedSeeds = fetched;
-                updatePlaceholder(selectedTier, fetched);
-            } catch (e) {
-                console.error("Failed to load seeds, using fallback", e);
-            }
-        };
-        loadSeeds();
-    }, [selectedTier, updatePlaceholder]);
-
-    // Update placeholder when tier changes (if content is empty or placeholder was recently refreshed)
     const handleTierChange = (tier: GratitudeTier) => {
         setSelectedTier(tier);
         setCreationError(null);
-        if (!newWishContent.trim() && cachedSeeds) {
-            updatePlaceholder(tier, cachedSeeds);
-        }
     };
 
     const selectedTierCost = TIERS.find(t => t.id === selectedTier)?.cost || 0;
     const exceedsAvailable = selectedTierCost > availableLm;
+
+    const handleDraftWish = async () => {
+        if (!draftKeyword.trim() || isDrafting) return;
+        setIsDrafting(true);
+        setCreationError(null);
+        try {
+            const functions = getFunctions();
+            const generateWishDraft = httpsCallable(functions, 'generateWishDraft');
+            const result = await generateWishDraft({ keyword: draftKeyword });
+            const data = result.data as { draft?: string };
+            if (data.draft) {
+                setNewWishContent(data.draft);
+                setDraftKeyword(''); 
+            } else {
+                setCreationError(MESSAGES.CREATE_WISH.AI_DRAFT_ERROR || "下書きの作成に失敗しました");
+            }
+        } catch (error) {
+            console.error("Failed to generate draft", error);
+            setCreationError(MESSAGES.CREATE_WISH.AI_DRAFT_ERROR || "下書きの作成に失敗しました");
+        } finally {
+            setIsDrafting(false);
+        }
+    };
 
     const handlePostWish = async () => {
         if (!newWishContent.trim()) return;
@@ -211,14 +191,66 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                   <label className="block text-xs uppercase tracking-widest font-bold text-slate-700 font-sans">
                       {MESSAGES.CREATE_WISH.LBL_CONTENT}
                   </label>
-                   <div className="bg-white shadow-sm border border-slate-200 p-6 rounded-[2rem] focus-within:bg-white/70 focus-within:shadow-md transition-all duration-700">
+                  
+                  {/* AI Assist UI */}
+                  <div className="flex flex-col gap-3 relative z-10 w-full">
+                      {isDrafting && (
+                          <div className="absolute -inset-2 bg-slate-50/50 backdrop-blur-[1px] z-10 flex items-center justify-center rounded-2xl" />
+                      )}
+                      
+                      <div className="flex flex-col sm:flex-row gap-3 items-center relative z-20 w-full">
+                          <input
+                              type="text"
+                              value={draftKeyword}
+                              onChange={(e) => {
+                                  setDraftKeyword(e.target.value);
+                                  setCreationError(null);
+                              }}
+                              placeholder={MESSAGES.CREATE_WISH.AI_DRAFT_PLACEHOLDER}
+                              className="flex-1 w-full bg-white text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 px-4 py-3.5 sm:py-3 rounded-xl border border-amber-200/50 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all font-sans"
+                              maxLength={50}
+                          />
+                          <button
+                              onClick={handleDraftWish}
+                              disabled={!draftKeyword.trim() || isDrafting}
+                              className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-2 px-5 py-3.5 sm:py-3 rounded-xl bg-amber-900/5 hover:bg-amber-900/10 text-amber-900 border border-amber-900/10 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-xs font-bold tracking-widest"
+                          >
+                              {isDrafting ? (
+                                  <>
+                                      <Loader2 className="w-4 h-4 animate-spin" />
+                                      <span>{MESSAGES.CREATE_WISH.AI_DRAFT_BTN_LOADING}</span>
+                                  </>
+                              ) : (
+                                  <>
+                                      <PenTool className="w-4 h-4" />
+                                      <span>{MESSAGES.CREATE_WISH.AI_DRAFT_BTN_IDLE}</span>
+                                  </>
+                              )}
+                          </button>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2 pt-1 relative z-20">
+                          <span className="text-xs text-amber-900/70 mr-1 font-medium tracking-wider">{MESSAGES.CREATE_WISH.AI_DRAFT_SUGGESTION_LABEL}</span>
+                          {MESSAGES.CREATE_WISH.AI_DRAFT_SUGGESTIONS.map((suggest) => (
+                             <button
+                                key={suggest}
+                                onClick={() => setDraftKeyword(suggest)}
+                                className="text-xs text-amber-900/80 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded-full border border-amber-200/60 shadow-sm transition-all text-left"
+                             >
+                                {suggest}
+                             </button>
+                          ))}
+                      </div>
+                  </div>
+
+                   <div className="bg-white shadow-sm border border-slate-200 p-6 rounded-[2rem] focus-within:bg-white/70 focus-within:shadow-md transition-all duration-700 mt-2">
                       <textarea
                         value={newWishContent}
                         onChange={(e) => {
                             setNewWishContent(e.target.value);
                             setCreationError(null);
                         }}
-                        placeholder={currentPlaceholder}
+                        placeholder={FALLBACK_PLACEHOLDER}
                         className="w-full bg-transparent text-slate-900 placeholder:text-slate-700 text-sm min-h-[160px] resize-none outline-none leading-relaxed font-serif tracking-wide"
                       />
                   </div>

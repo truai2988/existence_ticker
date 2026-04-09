@@ -118,7 +118,7 @@ export const useStats = () => {
                         else low++;
                         
                         const startedAt = getMillis(data.cycle_started_at || data.created_at);
-                        const scheduledCycleDays = data.scheduled_cycle_days || 10;
+                        const scheduledCycleDays = 10;
                         
                         const elapsed = now - startedAt;
                         // 1 day = 86400000ms
