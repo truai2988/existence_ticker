@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { LUNAR_CONSTANTS } from '../constants';
 import { db } from '../lib/firebase';
-import { collection, query, limit, getDocs, doc, getDoc, getCountFromServer, runTransaction, Transaction } from 'firebase/firestore';
+import { collection, query, limit, getDocs, doc, getDoc, getCountFromServer, runTransaction, Transaction, where, documentId } from 'firebase/firestore';
 import { calculateDecayedValue, getMillis, toMilli, fromMilli, WORLD_CONSTANTS } from '../logic/worldPhysics';
 
 export type Season = 'Spring' | 'Autumn' | 'Winter';
@@ -16,13 +16,13 @@ export interface DashboardStats {
         rebornToday: number;
     };
     metabolism: {
-        volume24h: number;
+        volume10d: number;
         giftVolume: number;
         wishVolume: number;
         rate: number; // percentage
         status: MetabolismStatus;
         totalSupply: number;
-        decay24h: number; // Estimated gravity loss
+        decay10d: number; // Estimated gravity loss for 10 days
         overflowLoss?: number; // Loss due to cap
         avgBalance?: number; // Average Lm per user
     };
@@ -30,6 +30,11 @@ export interface DashboardStats {
         full: number; // count
         quarter: number;
         new: number;
+    };
+    wishesActive: {
+        light: number;
+        medium: number;
+        heavy: number;
     };
     sunCapacity: number;
 }
@@ -70,20 +75,23 @@ export const useStats = () => {
 
             if (db) {
                 try {
-                    const today = new Date().toISOString().split('T')[0];
-                    const dailyStatsRef = doc(db, 'daily_stats', today);
-                    const dailyStatsSnap = await getDoc(dailyStatsRef);
+                    const todayStr = new Date(now).toISOString().split('T')[0];
+                    const tenDaysAgoStr = new Date(now - 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
                     
-                    if (dailyStatsSnap.exists()) {
-                        const data = dailyStatsSnap.data();
-                        volume = data.volume || 0;
-                        giftVolume = data.gift_volume || 0;
-                        wishVolume = data.wish_volume || 0;
-                        rebornCount = data.reborn_count || 0;
-                        overflowVolume = data.overflow_volume || 0;
-                    }
+                    const dailyStatsColl = collection(db, 'daily_stats');
+                    const statsQuery = query(dailyStatsColl, where(documentId(), '>=', tenDaysAgoStr), where(documentId(), '<=', todayStr));
+                    const statsSnap = await getDocs(statsQuery);
+                    
+                    statsSnap.forEach(docSnap => {
+                        const data = docSnap.data();
+                        volume += data.volume || 0;
+                        giftVolume += data.gift_volume || 0;
+                        wishVolume += data.wish_volume || 0;
+                        rebornCount += data.reborn_count || 0;
+                        overflowVolume += data.overflow_volume || 0;
+                    });
                 } catch (e) {
-                     console.warn("Failed to fetch daily stats", e);
+                     console.warn("Failed to fetch 10-day stats", e);
                 }
             }
 
@@ -144,6 +152,24 @@ export const useStats = () => {
                         quarter,
                         new: low
                     };
+
+                    let lightWishes = 0;
+                    let mediumWishes = 0;
+                    let heavyWishes = 0;
+                    try {
+                        const wishColl = collection(db, 'wishes');
+                        const wishQ = query(wishColl, where('status', 'in', ['open', 'in_progress', 'review_pending']));
+                        const wishSnap = await getDocs(wishQ);
+                        wishSnap.forEach(doc => {
+                            const data = doc.data();
+                            if (data.gratitude_preset === 'light') lightWishes++;
+                            else if (data.gratitude_preset === 'medium') mediumWishes++;
+                            else if (data.gratitude_preset === 'heavy') heavyWishes++;
+                        });
+                    } catch (e) {
+                         console.warn("Failed to fetch wishes", e);
+                    }
+                    
                     
                     // Calculate Total Supply & Decay
                     let calculatedTotalSupply = 0;
@@ -170,7 +196,7 @@ export const useStats = () => {
                     // New Law: Rate = 100 / (avg scheduled cycle days)
                     // We use 10 as a reference for macro stats if avg is unknown,
                     // but since most people are currently 10, it's consistent.
-                    const estimatedDecay24h = totalPopulation * 240; 
+                    const estimatedDecay10d = totalPopulation * 240 * 10; 
                     
                     const avgBalance = totalPopulation > 0 ? calculatedTotalSupply / totalPopulation : 0;
 
@@ -196,17 +222,22 @@ export const useStats = () => {
                             rebornToday: rebornCount 
                         },
                         metabolism: {
-                            volume24h: volume,
+                            volume10d: volume,
                             giftVolume,
                             wishVolume,
                             rate,
                             status,
                             totalSupply: calculatedTotalSupply,
-                            decay24h: estimatedDecay24h,
+                            decay10d: estimatedDecay10d,
                             overflowLoss: overflowVolume,
                             avgBalance
                         },
                         distribution,
+                        wishesActive: {
+                            light: lightWishes,
+                            medium: mediumWishes,
+                            heavy: heavyWishes
+                        },
                         sunCapacity // Reads current state
                     });
                     setError(null);

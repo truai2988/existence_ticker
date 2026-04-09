@@ -52,6 +52,11 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
     const [draftKeyword, setDraftKeyword] = useState('');
     const [isDrafting, setIsDrafting] = useState(false);
 
+    const randomSuggestions = React.useMemo(() => {
+        const shuffled = [...MESSAGES.CREATE_WISH.AI_DRAFT_SUGGESTIONS].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, 9);
+    }, []);
+
     const handleTierChange = (tier: GratitudeTier) => {
         setSelectedTier(tier);
         setCreationError(null);
@@ -231,7 +236,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
 
                       <div className="flex flex-wrap items-center gap-2 pt-1 relative z-20">
                           <span className="text-xs text-amber-900/70 mr-1 font-medium tracking-wider">{MESSAGES.CREATE_WISH.AI_DRAFT_SUGGESTION_LABEL}</span>
-                          {MESSAGES.CREATE_WISH.AI_DRAFT_SUGGESTIONS.map((suggest) => (
+                          {randomSuggestions.map((suggest) => (
                              <button
                                 key={suggest}
                                 onClick={() => setDraftKeyword(suggest)}
