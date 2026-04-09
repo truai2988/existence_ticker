@@ -76,6 +76,9 @@ export const useCreateWish = () => {
           committed_balance: currentCommitted + bounty,
         });
       });
+      // 即座に削除するとちらつく懸念があるが、transaction完了時点ですでにonSnapshotが
+      // 最新のローカルキャッシュのデータを反映しているため、ここでオプティミスティック版を消しても問題ない。
+      removeOptimisticWish(wishId);
       return { success: true };
     } catch (e) {
       console.error("Failed to cast wish:", e);

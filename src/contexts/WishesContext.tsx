@@ -36,6 +36,11 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
     const addOptimisticWish = (wish: Wish) => {
         setOptimisticWishes(prev => [wish, ...prev]);
+        // セーフティネット：何らかの通信エラー等でクリア処理が呼ばれなかった場合でも、
+        // 15秒後に自動的に幻影を消去する（システムトラブルによるフリーズ永続化防止）
+        setTimeout(() => {
+            setOptimisticWishes(prev => prev.filter(w => w.id !== wish.id));
+        }, 15000);
     };
 
     const removeOptimisticWish = (wishId: string) => {

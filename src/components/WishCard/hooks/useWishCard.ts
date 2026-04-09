@@ -172,9 +172,6 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
       success = await cancelWish(wish.id);
     }
 
-    // ドキュメント物理削除後はコンポーネントがアンマウントされるため、
-    // ここでsetIsLoading(false)を呼ぶとReactのエラー/フリーズの要因になります。
-    // 親のToast等に結果だけを委譲するようになっています。
     if (success) {
       showToast(
         confirmAction === "resign"
@@ -184,10 +181,12 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
       );
       if (onActionComplete) onActionComplete(actionType);
     } else {
-      setIsLoading(false); // 失敗時のみローディングを解除してエラーを見せる
-      setConfirmAction(null);
       showToast("不具合により取り下げに失敗しました。時間をおいて再度お試しください。", "error");
     }
+    
+    // コンポーネントがアンマウントされない場合（非物理削除時等）に備え、状態をリセットする
+    setIsLoading(false);
+    setConfirmAction(null);
   };
 
   const handleCleanup = async () => {
