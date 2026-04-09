@@ -151,8 +151,10 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
                     key={item.id}
                     onClick={() => {
                       if (isOnboarding) {
-                        onOpenOnboarding?.();
                         onClose();
+                        setTimeout(() => {
+                          onOpenOnboarding?.();
+                        }, 300);
                       } else {
                         handleNavigate(item.id as AppViewMode);
                       }
