@@ -39,7 +39,7 @@ export const AdminCitizens = React.memo<AdminCitizensProps>(({
             <input
               type="text"
               placeholder="住民を検索..."
-              className="w-full bg-slate-800 border border-slate-600 rounded-lg pl-9 pr-3 py-2 text-base text-slate-200 focus:outline-none focus:border-yellow-500 placeholder-slate-500"
+              className="w-full bg-slate-800 border border-slate-600 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-yellow-500 placeholder-slate-500"
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -112,7 +112,7 @@ export const AdminCitizens = React.memo<AdminCitizensProps>(({
 
           {isLoading && searchQuery.trim().length > 0 && (
             <div className="p-4 flex justify-center border-t border-slate-800">
-              <span className="text-xs font-bold text-slate-700 animate-pulse">
+              <span className="text-sm font-bold text-slate-700 animate-pulse">
                 検索中...
               </span>
             </div>
@@ -122,7 +122,7 @@ export const AdminCitizens = React.memo<AdminCitizensProps>(({
             <div className="p-20 text-center text-slate-800 flex flex-col items-center gap-2">
               <Search size={24} className="opacity-20" />
               <p className="text-sm">名前を入力して住民を検索してください</p>
-              <p className="text-xs opacity-90">※部分一致で検索可能です</p>
+              <p className="text-sm opacity-90">※部分一致で検索可能です</p>
             </div>
           )}
           

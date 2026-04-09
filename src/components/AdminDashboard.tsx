@@ -307,7 +307,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           <button
             type="button"
             onClick={() => setActiveTab("monitor")}
-            className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "monitor" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-700 hover:text-slate-700"}`}
+            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "monitor" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-700 hover:text-slate-700"}`}
           >
             <Activity size={16} />
             監視
@@ -315,14 +315,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           <button
             type="button"
             onClick={() => setActiveTab("citizens")}
-            className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "citizens" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-700 hover:text-slate-700"}`}
+            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "citizens" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-700 hover:text-slate-700"}`}
           >
             <Users size={16} /> 住民
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("seeds")}
-            className={`pb-3 px-1 text-base font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "seeds" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-700 hover:text-slate-700"}`}
+            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "seeds" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-700 hover:text-slate-700"}`}
           >
             <Sprout size={16} /> 種子の書庫
           </button>

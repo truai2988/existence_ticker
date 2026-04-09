@@ -42,7 +42,7 @@ export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats, onOpenDiagno
               / {metabolism.rate.toFixed(1)}%
             </span>
           </div>
-          <p className="text-xs text-slate-700 font-serif italic">
+          <p className="text-sm text-slate-700 font-serif italic">
             全住民のLm減衰と自律分配のバランス指標
           </p>
         </div>
@@ -96,7 +96,7 @@ export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats, onOpenDiagno
             <AlertTriangle className="text-yellow-500" size={20} />
           </div>
           <div>
-            <h3 className="text-slate-200 font-bold">システム診断 (Diagnostics)</h3>
+            <h3 className="text-base font-bold">システム診断 (Diagnostics)</h3>
             <p className="text-xs text-slate-700 mt-0.5">
               数理的な整合性とプロトコルの健全性を確認
             </p>

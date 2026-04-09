@@ -98,7 +98,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
             type="button"
             onClick={handleAdd}
             disabled={isAdding || !newSeedContent.trim()}
-            className="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold tracking-widest text-base transition-all shadow-lg shadow-emerald-600/20 active:scale-[0.98] disabled:opacity-30 disabled:grayscale"
+            className="w-full py-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold tracking-widest text-sm transition-all shadow-lg shadow-emerald-600/20 active:scale-[0.98] disabled:opacity-30 disabled:grayscale"
           >
             {isAdding ? "種を蒔いています..." : "生命のインフラに種を蒔く"}
           </button>
@@ -126,7 +126,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
                     className="group bg-slate-900/30 border border-slate-800 hover:border-slate-700 p-4 rounded-xl flex justify-between items-start gap-4 transition-all"
                   >
                     <div className="flex-1">
-                      <p className="text-slate-700 font-serif leading-relaxed text-base">
+                      <p className="text-slate-700 font-serif leading-relaxed text-sm">
                         {seed.content}
                       </p>
                       <div className="mt-2 text-xs text-slate-700 font-mono uppercase tracking-tighter">
@@ -142,7 +142,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
                     <button
                       type="button"
                       onClick={() => onDeleteSeed(seed.id)}
-                      className="p-2 text-slate-900 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all active:scale-90"
+                      className="p-2 text-slate-400 hover:text-red-400 transition-all active:scale-90"
                       title="種子を削除"
                     >
                       <Trash2 size={16} />

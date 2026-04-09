@@ -786,7 +786,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     type="email"
                     placeholder={MESSAGES.PROFILE.PH_EMAIL}
                     required
-                    className="w-full p-4 bg-slate-50 border border-slate-300 rounded-lg text-base"
+                    className="w-full p-4 bg-slate-50 border border-slate-300 rounded-lg text-sm"
                     value={emailInput}
                     onChange={(e) => setEmailInput(e.target.value)}
                   />
@@ -794,7 +794,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     type="password"
                     placeholder={MESSAGES.PROFILE.PH_PASSWORD}
                     required
-                    className="w-full p-4 bg-slate-50 border border-slate-300 rounded-lg text-base"
+                    className="w-full p-4 bg-slate-50 border border-slate-300 rounded-lg text-sm"
                     value={passInput}
                     onChange={(e) => setPassInput(e.target.value)}
                   />
@@ -835,7 +835,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     type="password"
                     placeholder={MESSAGES.PROFILE.PH_NEW_PASSWORD}
                     required
-                    className="w-full p-4 bg-slate-50 border border-slate-300 rounded-lg text-base"
+                    className="w-full p-4 bg-slate-50 border border-slate-300 rounded-lg text-sm"
                     value={newPass}
                     onChange={(e) => setNewPass(e.target.value)}
                   />
@@ -843,7 +843,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                     type="password"
                     placeholder={MESSAGES.PROFILE.PH_CONFIRM}
                     required
-                    className="w-full p-4 bg-slate-50 border border-slate-300 rounded-lg text-base"
+                    className="w-full p-4 bg-slate-50 border border-slate-300 rounded-lg text-sm"
                     value={confirmNewPass}
                     onChange={(e) => setConfirmNewPass(e.target.value)}
                   />
