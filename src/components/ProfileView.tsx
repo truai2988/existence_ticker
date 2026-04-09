@@ -13,12 +13,6 @@ import {
   Shield,
   Menu,
   Users,
-  Languages,
-  MailOpen,
-  RefreshCw,
-  Share2,
-  Copy,
-  Check,
 } from "lucide-react";
 
 import React, { useState } from "react";
@@ -34,7 +28,6 @@ import { ProfileEditScreen } from "./ProfileEditScreen";
 import { SideDrawer } from "./SideDrawer";
 import { PresenceModal } from "./PresenceModal";
 import { useLanguage } from "../contexts/LanguageContext";
-import { useInviteCode } from "../hooks/useInviteCode";
 
 interface ProfileViewProps {
   userId?: string;
@@ -96,7 +89,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   onOpenOnboarding,
 }) => {
   const { profile, isLoading: isProfileLoading } = useProfile();
-  const { t: MESSAGES, lang, setLang } = useLanguage();
+  const { t: MESSAGES } = useLanguage();
   const { user, isAdmin, signOut, linkEmail, deleteAccount, updateUserPassword, reauthenticate } =
     useAuth();
 
@@ -119,18 +112,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   const [successMsg, setSuccessMsg] = useState("");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showPresenceModal, setShowPresenceModal] = useState(false);
-  const [copiedCodeId, setCopiedCodeId] = useState<string | null>(null);
-
-  const {
-    myCodes,
-    pendingCount,
-    canGenerate,
-    isGenerating,
-    generateCode,
-    shareCode,
-    deleteCode,
-    MAX_PENDING,
-  } = useInviteCode(user?.uid ?? null);
 
   const isAnonymous = user?.isAnonymous ?? false;
   const currentName = profile?.name || MESSAGES.PROFILE.FALLBACK_NAME;
@@ -505,162 +486,12 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                   />
                 )}
 
-              <ListItem
-                icon={Languages}
-                label={MESSAGES.PROFILE.LANG_TITLE}
-                hasArrow={false}
-              >
-                <div className="flex bg-slate-100 p-0.5 rounded-lg shrink-0">
-                  <button
-                    onClick={() => setLang('ja')}
-                    className={`px-3 py-1 text-sm font-bold rounded-md transition-all ${
-                      lang === 'ja'
-                        ? 'bg-white text-slate-900 shadow-sm'
-                        : 'text-slate-700 hover:text-slate-900'
-                    }`}
-                  >
-                    日本語
-                  </button>
-                  <button
-                    onClick={() => setLang('en')}
-                    className={`px-3 py-1 text-sm font-bold rounded-md transition-all ${
-                      lang === 'en'
-                        ? 'bg-white text-slate-900 shadow-sm'
-                        : 'text-slate-700 hover:text-slate-900'
-                    }`}
-                  >
-                    EN
-                  </button>
-                </div>
-              </ListItem>
+
             </div>
 
 
 
-            {/* ====== 招待セクション ====== */}
-            {!isAnonymous && (
-              <div>
-                <div className="text-sm font-bold text-slate-700 ml-2 mb-2" style={{fontFamily: "'Noto Serif JP', serif"}}>
-                  {MESSAGES.INVITE.SECTION_TITLE}
-                </div>
 
-                {/* スロット表示 */}
-                <div className="bg-white shadow-sm border border-slate-200 p-5 rounded-[2rem] mb-3">
-                  <p className="text-xs text-slate-700 mb-4 leading-relaxed tracking-wide">
-                    {MESSAGES.INVITE.SECTION_SUB}
-                  </p>
-
-                  {/* 3スロットビジュアル */}
-                  <div className="flex gap-3 mb-4">
-                    {Array.from({ length: MAX_PENDING }).map((_, i) => {
-                      const code = myCodes.filter(c => !c.is_used)[i] ||
-                                    myCodes.filter(c => c.is_used)[i - pendingCount] ||
-                                    null;
-                      const isUsed = code?.is_used;
-                      const isPending = code && !isUsed;
-                      return (
-                        <div
-                          key={i}
-                          className={`flex-1 flex flex-col items-center gap-1.5 p-3 rounded-2xl border transition-all ${
-                            isPending
-                              ? 'bg-amber-50 border-amber-200'
-                              : isUsed
-                              ? 'bg-slate-50 border-slate-200'
-                              : 'bg-white border-dashed border-slate-300'
-                          }`}
-                        >
-                          <MailOpen
-                            size={18}
-                            className={isPending ? 'text-amber-600' : isUsed ? 'text-slate-400' : 'text-slate-300'}
-                          />
-                          <span className={`text-xs font-bold tracking-wide ${
-                            isPending ? 'text-amber-700' : isUsed ? 'text-slate-400' : 'text-slate-300'
-                          }`}>
-                            {isPending
-                              ? MESSAGES.INVITE.SLOT_PENDING
-                              : isUsed
-                              ? MESSAGES.INVITE.SLOT_USED
-                              : MESSAGES.INVITE.SLOT_EMPTY}
-                          </span>
-                          {isPending && code && (
-                            <span className="text-[10px] font-mono text-amber-600 truncate w-full text-center">
-                              {code.id}
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* 未使用コードのシェアリスト */}
-                  {myCodes.filter(c => !c.is_used).length > 0 && (
-                    <div className="space-y-2 mb-4">
-                      {myCodes.filter(c => !c.is_used).map(code => (
-                        <div key={code.id} className="flex items-center gap-2 bg-amber-50/60 border border-amber-100 rounded-xl px-3 py-2">
-                          <span className="font-mono text-sm text-amber-800 flex-1 truncate">{code.id}</span>
-                          <button
-                            onClick={async () => {
-                              const result = await shareCode(
-                                code.id,
-                                MESSAGES.INVITE.SHARE_TITLE,
-                                MESSAGES.INVITE.SHARE_TEXT
-                              );
-                              if (result === 'copied') {
-                                setCopiedCodeId(code.id);
-                                setTimeout(() => setCopiedCodeId(null), 2500);
-                              }
-                            }}
-                            className="shrink-0 p-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 transition-colors"
-                            aria-label="シェア"
-                          >
-                            {copiedCodeId === code.id
-                              ? <Check size={14} className="text-emerald-600" />
-                              : ('share' in navigator)
-                              ? <Share2 size={14} className="text-amber-700" />
-                              : <Copy size={14} className="text-amber-700" />}
-                          </button>
-                          {/* 削除ボタン */}
-                          <button
-                            onClick={async () => {
-                              await deleteCode(code.id);
-                            }}
-                            className="shrink-0 p-1.5 rounded-lg bg-red-50 hover:bg-red-100 transition-colors"
-                            aria-label="削除"
-                          >
-                            <Trash2 size={14} className="text-red-400 hover:text-red-600" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* 上限メッセージ */}
-                  {!canGenerate && (
-                    <p className="text-xs text-slate-700 leading-relaxed mb-3 whitespace-pre-line">
-                      {MESSAGES.INVITE.LIMIT_REACHED}
-                    </p>
-                  )}
-
-                  {/* 発行ボタン */}
-                  <button
-                    onClick={async () => {
-                      if (!canGenerate || isGenerating) return;
-                      await generateCode();
-                    }}
-                    disabled={!canGenerate || isGenerating}
-                    className={`w-full py-3 px-4 rounded-2xl text-sm font-bold tracking-wide transition-all flex items-center justify-center gap-2 ${
-                      canGenerate
-                        ? 'bg-amber-900/90 text-white shadow-[0_10px_20px_-5px_rgba(69,26,3,0.3)] hover:bg-amber-900 active:scale-[0.98]'
-                        : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                    }`}
-                  >
-                    {isGenerating
-                      ? <><RefreshCw size={14} className="animate-spin" />{MESSAGES.INVITE.BTN_GENERATING}</>
-                      : <><MailOpen size={14} />{MESSAGES.INVITE.BTN_SEND}</>}
-                  </button>
-                </div>
-              </div>
-            )}
 
              <div className="text-center text-xs uppercase tracking-[0.3em] text-slate-700 opacity-90 py-8 font-sans focus:outline-none">
                Existence Ticker v0.2.0 Sanctuary Edition

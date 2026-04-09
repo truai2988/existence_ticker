@@ -29,7 +29,7 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
   onOpenOnboarding,
 }) => {
   const { isStandalone } = usePWAInstall();
-  const { t: MESSAGES } = useLanguage();
+  const { t: MESSAGES, lang, setLang } = useLanguage();
 
   const handleNavigate = (tab: AppViewMode) => {
     onTabChange(tab);
@@ -186,13 +186,37 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
             </nav>
 
             {/* Footer */}
-            <div className="px-7 pb-10 pt-6 border-t border-slate-300/50 flex flex-col items-center">
+            <div className="px-7 pb-10 pt-6 border-t border-slate-300/50 flex flex-col items-center gap-6">
+              {/* Language Switcher */}
+              <div className="flex bg-slate-200/50 p-1 rounded-xl shrink-0 shadow-inner">
+                <button
+                  onClick={() => setLang('ja')}
+                  className={`px-4 py-1.5 text-xs tracking-wider transition-all rounded-lg ${
+                    lang === 'ja'
+                      ? 'bg-white text-slate-900 shadow-sm font-bold'
+                      : 'text-slate-600 hover:text-slate-900 font-medium'
+                  }`}
+                >
+                  日本語
+                </button>
+                <button
+                  onClick={() => setLang('en')}
+                  className={`px-4 py-1.5 text-xs tracking-wider transition-all rounded-lg ${
+                    lang === 'en'
+                      ? 'bg-white text-slate-900 shadow-sm font-bold'
+                      : 'text-slate-600 hover:text-slate-900 font-medium'
+                  }`}
+                >
+                  EN
+                </button>
+              </div>
+
               <button
                 onClick={() => {
                   window.open('/trust', '_blank');
                   onClose();
                 }}
-                className="text-xs font-serif text-slate-700 tracking-[0.15em] hover:text-slate-800 transition-colors duration-200"
+                className="text-xs font-serif text-slate-500 tracking-[0.15em] hover:text-slate-800 transition-colors duration-200"
               >
                 {MESSAGES.LAYOUT.SIDEDRAWER_TRUST}
               </button>
