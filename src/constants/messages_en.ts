@@ -642,8 +642,8 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
     SLIDE5_TITLE: "The Boundary with Money",
     SLIDE5_P1_1: "Actual expenses like goods or travel",
     SLIDE5_P1_2: "should be settled directly between parties.",
-    SLIDE5_P4_1: "Under this promise,",
-    SLIDE5_P4_2: "please enjoy using the service.",
+    SLIDE5_P4_1: "May this place be",
+    SLIDE5_P4_2: "a comfortable space for everyone.",
     BTN_BACK: "Back",
     BTN_NEXT: "Next",
     BTN_CLOSE: "Close"
