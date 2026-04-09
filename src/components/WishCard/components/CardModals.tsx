@@ -138,7 +138,7 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
               value={contactNote}
               onChange={(e) => setContactNote(e.target.value)}
               placeholder={MESSAGES.WISH_CARD.MODAL_MSG_PLACEHOLDER}
-              className="w-full p-3 border border-slate-300 rounded-xl mb-4 text-base focus:ring-2 focus:ring-green-100 focus:border-green-400 outline-none resize-none min-h-[80px]"
+              className="w-full p-3 border border-slate-300 rounded-xl mb-4 text-sm focus:ring-2 focus:ring-green-100 focus:border-green-400 outline-none resize-none min-h-[80px]"
             />
             <div className="flex flex-col gap-2 w-full">
               <button onClick={() => { triggerAccept(); executeApprove(); }} disabled={isLoading} className="w-full py-3 rounded-xl text-base font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-xl shadow-slate-200 transition-all active:scale-[0.98]">

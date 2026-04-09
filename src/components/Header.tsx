@@ -25,8 +25,7 @@ export const Header: React.FC<HeaderProps> = ({
       <header className="relative w-full pt-safe z-40">
         <div className="relative w-full">
           <div className="relative w-full bg-transparent">
-            <div className="w-full max-w-2xl mx-auto px-6 py-4 md:py-6">
-              <div className="flex items-center justify-between">
+            <div className="w-full max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between">
                 {/* Left Side: Logo + Text */}
                 <div className="flex items-center gap-3 min-w-0">
                   {/* Square Logo */}
@@ -38,7 +37,7 @@ export const Header: React.FC<HeaderProps> = ({
                   {/* Text Group */}
                   <div className="flex flex-col min-w-0 justify-center">
                     <h1
-                      className="text-xl sm:text-2xl font-bold tracking-[0.3em] text-slate-900 uppercase leading-tight truncate"
+                      className="text-xl font-serif font-medium text-slate-900 uppercase leading-tight truncate"
                       style={{ fontFamily: "'Noto Serif JP', serif" }}
                     >
                       ET
@@ -63,7 +62,6 @@ export const Header: React.FC<HeaderProps> = ({
                     <Menu size={24} strokeWidth={1.5} />
                   </button>
                 </div>
-              </div>
             </div>
           </div>
         </div>

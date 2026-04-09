@@ -233,8 +233,8 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   return (
     <div className="flex-1 flex flex-col w-full h-full">
       {/* Subtle Section Header */}
-      <div className="pt-safe">
-          <div className="max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between flex-wrap gap-y-4 gap-x-2">
+      <div className="pt-safe w-full">
+          <div className="w-full max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between">
               <div className="flex items-center gap-3 min-w-0">
                    {/* Logo: ホームへ戻るボタン */}
                    <button
@@ -250,7 +250,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                    </button>
                    {/* Text Group */}
                    <div className="flex flex-col min-w-0 flex-1 justify-center">
-                                <h2 className="text-lg sm:text-2xl font-light tracking-[0.1em] sm:tracking-[0.2em] text-slate-900 truncate leading-tight uppercase" style={{fontFamily: "'Noto Serif JP', serif"}}>{MESSAGES.PROFILE.TITLE}</h2>
+                                <h2 className="text-xl font-serif font-medium text-slate-900 truncate leading-tight uppercase" style={{fontFamily: "'Noto Serif JP', serif"}}>{MESSAGES.PROFILE.TITLE}</h2>
                    </div>
               </div>
               <div className="flex h-12 items-center gap-3 shrink-0">

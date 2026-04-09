@@ -209,7 +209,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                             </button>
                             {/* Text Group */}
                             <div className="flex flex-col min-w-0">
-                                <h2 className="text-lg sm:text-2xl font-light tracking-[0.1em] sm:tracking-[0.2em] uppercase text-slate-900 truncate leading-tight" style={{fontFamily: "'Noto Serif JP', serif"}}>
+                                <h2 className="text-xl font-serif font-medium text-slate-900 truncate leading-tight" style={{fontFamily: "'Noto Serif JP', serif"}}>
                                     {MESSAGES.PROFILE.EDIT_TITLE}
                                 </h2>
                             </div>
@@ -333,7 +333,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     type="text" 
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
-                                    className="w-full p-4 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-900 font-medium focus:outline-none focus:bg-white/80 focus:shadow-md transition-all text-base placeholder:text-slate-700"
+                                    className="w-full p-4 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-900 font-medium focus:outline-none focus:bg-white/80 focus:shadow-md transition-all text-sm placeholder:text-slate-700"
                                     placeholder={MESSAGES.PROFILE.NAME_PLACEHOLDER}
                                 />
                             </div>
@@ -343,7 +343,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     <select 
                                         value={age_group}
                                         onChange={(e) => setAgeGroup(e.target.value)}
-                                        className="w-full p-4 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-900 font-medium appearance-none focus:outline-none focus:bg-white/80 focus:shadow-md transition-all text-base"
+                                        className="w-full p-4 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-900 font-medium appearance-none focus:outline-none focus:bg-white/80 focus:shadow-md transition-all text-sm"
                                     >
                                         <option value="">{MESSAGES.PROFILE.AGE_UNSELECTED}</option>
                                         {BaseMessages.PROFILE.AGE_OPTIONS.map(age => (
@@ -388,7 +388,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                 <textarea 
                                     value={bio}
                                     onChange={(e) => setBio(e.target.value)}
-                                    className="w-full p-4 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-900 text-base focus:outline-none focus:bg-white/80 focus:shadow-md transition-all resize-none h-24 placeholder:text-slate-700"
+                                    className="w-full p-4 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-900 text-sm focus:outline-none focus:bg-white/80 focus:shadow-md transition-all resize-none h-24 placeholder:text-slate-700"
                                     placeholder={MESSAGES.PROFILE.BIO_PLACEHOLDER}
                                     maxLength={160}
                                 />
@@ -411,7 +411,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                         <select 
                                             value={location.prefecture}
                                             onChange={(e) => setLocation(prev => ({ ...prev, prefecture: e.target.value }))}
-                                            className="w-full p-4 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-900 text-base font-medium appearance-none focus:outline-none focus:bg-white/80 focus:shadow-md transition-all"
+                                            className="w-full p-4 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-900 text-sm font-medium appearance-none focus:outline-none focus:bg-white/80 focus:shadow-md transition-all"
                                         >
                                             <option value="">{MESSAGES.PROFILE.AGE_UNSELECTED}</option>
                                             {PREFECTURES.map(pref => (
@@ -429,7 +429,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                         <select 
                                             value={location.city}
                                             onChange={(e) => setLocation(prev => ({ ...prev, city: e.target.value }))}
-                                            className="w-full p-4 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-900 text-base font-medium appearance-none focus:outline-none focus:bg-white/80 focus:shadow-md disabled:opacity-30 transition-all"
+                                            className="w-full p-4 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-900 text-sm font-medium appearance-none focus:outline-none focus:bg-white/80 focus:shadow-md disabled:opacity-30 transition-all"
                                             disabled={!location.prefecture || loadingCities}
                                         >
                                             <option value="">{loadingCities ? MESSAGES.PROFILE.LOCATION_LOADING : MESSAGES.PROFILE.LOCATION_CITY_SELECT}</option>
@@ -459,7 +459,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     type="text" 
                                     value={links.x}
                                     onChange={(e) => setLinks(prev => ({ ...prev, x: e.target.value }))}
-                                    className="flex-1 min-w-0 p-4 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-900 text-base font-mono focus:outline-none focus:bg-white/80 focus:shadow-md transition-all placeholder:text-slate-700"
+                                    className="flex-1 min-w-0 p-4 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-900 text-sm font-mono focus:outline-none focus:bg-white/80 focus:shadow-md transition-all placeholder:text-slate-700"
                                     placeholder={MESSAGES.PROFILE.SNS_PLACEHOLDER_USER}
                                 />
                             </div>
@@ -471,7 +471,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     type="text" 
                                     value={links.instagram}
                                     onChange={(e) => setLinks(prev => ({ ...prev, instagram: e.target.value }))}
-                                    className="flex-1 min-w-0 p-4 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-900 text-base font-mono focus:outline-none focus:bg-white/80 focus:shadow-md transition-all placeholder:text-slate-700"
+                                    className="flex-1 min-w-0 p-4 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-900 text-sm font-mono focus:outline-none focus:bg-white/80 focus:shadow-md transition-all placeholder:text-slate-700"
                                     placeholder={MESSAGES.PROFILE.SNS_PLACEHOLDER_USER}
                                 />
                             </div>
@@ -483,7 +483,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     type="text" 
                                     value={links.website}
                                     onChange={(e) => setLinks(prev => ({ ...prev, website: e.target.value }))}
-                                    className="flex-1 min-w-0 p-4 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-900 text-base font-mono focus:outline-none focus:bg-white/80 focus:shadow-md transition-all placeholder:text-slate-700"
+                                    className="flex-1 min-w-0 p-4 bg-white shadow-sm border border-slate-200 rounded-2xl text-slate-900 text-sm font-mono focus:outline-none focus:bg-white/80 focus:shadow-md transition-all placeholder:text-slate-700"
                                     placeholder={MESSAGES.PROFILE.SNS_PLACEHOLDER_WEB}
                                 />
                             </div>
@@ -500,7 +500,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                             <div className="bg-white shadow-sm border border-slate-200 p-6 rounded-[2rem] space-y-5 transition-shadow">
                                 <div>
                                     <label className="block text-sm font-bold text-slate-800 mb-1.5">{MESSAGES.PROFILE.EMAIL_LABEL}</label>
-                                    <div className="w-full p-4 bg-white/40 border border-slate-200 shadow-sm rounded-2xl text-slate-700 text-base font-mono">
+                                    <div className="w-full p-4 bg-white/40 border border-slate-200 shadow-sm rounded-2xl text-slate-700 text-sm font-mono">
                                         {user.email}
                                     </div>
                                     <p className="text-sm text-slate-700 mt-1.5 ml-1 flex items-center gap-1">
@@ -537,7 +537,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     onChange={(e) => setNewEmail(e.target.value)}
                                     placeholder="new@example.com" 
                                     required 
-                                    className="w-full p-3 bg-white border border-slate-300 rounded-xl text-base font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
+                                    className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
                                 />
                             </div>
                             <div>
@@ -548,7 +548,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
                                     onChange={(e) => setEmailPassword(e.target.value)}
                                     placeholder={MESSAGES.PROFILE.PH_PASSWORD} 
                                     required 
-                                    className="w-full p-3 bg-white border border-slate-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
+                                    className="w-full p-3 bg-white border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
                                 />
                             </div>
                             {emailError && <p className="text-sm text-red-600 bg-red-50 p-2 rounded">{emailError}</p>}

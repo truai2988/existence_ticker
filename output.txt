@@ -1,130 +1,124 @@
-src/components\AccountSettingsModal.tsx:118
-placeholder={MESSAGES.ACCOUNT_MODAL.PW_PLACEHOLDER}
-className="w-full px-3 py-2 text-base border border-red-200 rounded-lg focus:outline-none focus:border-red-400 disabled:bg-red-50/50 font-sans"
-/>
----
-src/components\AuthScreen.tsx:192
-placeholder={MESSAGES.AUTH.NAME_PLACEHOLDER}
-value={name}
-onChange={(e) => setName(e.target.value)}
----
-src/components\AuthScreen.tsx:213
-placeholder={MESSAGES.AUTH.EMAIL_PLACEHOLDER}
-value={email}
-onChange={(e) => setEmail(e.target.value)}
----
-src/components\AuthScreen.tsx:233
-placeholder={MESSAGES.AUTH.PASSWORD_PLACEHOLDER}
-value={password}
-onChange={(e) => setPassword(e.target.value)}
----
-src/components\AuthScreen.tsx:386
-placeholder={MESSAGES.AUTH.INVITE_PLACEHOLDER}
-value={invitationCode}
-onChange={(e) => setInvitationCode(e.target.value)}
----
-src/components\CreateWishModal.tsx:221
-placeholder={currentPlaceholder}
-className="w-full bg-transparent text-slate-900 placeholder:text-slate-700 text-base min-h-[160px] resize-none outline-none leading-relaxed font-serif tracking-wide"
-/>
----
-src/components\ProfileEditScreen.tsx:337
-placeholder={MESSAGES.PROFILE.NAME_PLACEHOLDER}
-/>
-</div>
----
-src/components\ProfileEditScreen.tsx:392
-placeholder={MESSAGES.PROFILE.BIO_PLACEHOLDER}
-maxLength={160}
-/>
----
-src/components\ProfileEditScreen.tsx:463
-placeholder={MESSAGES.PROFILE.SNS_PLACEHOLDER_USER}
-/>
-</div>
----
-src/components\ProfileEditScreen.tsx:475
-placeholder={MESSAGES.PROFILE.SNS_PLACEHOLDER_USER}
-/>
-</div>
----
-src/components\ProfileEditScreen.tsx:487
-placeholder={MESSAGES.PROFILE.SNS_PLACEHOLDER_WEB}
-/>
-</div>
----
-src/components\ProfileEditScreen.tsx:538
-placeholder="new@example.com"
-required
-className="w-full p-3 bg-white border border-slate-300 rounded-xl text-base font-mono focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
----
-src/components\ProfileEditScreen.tsx:549
-placeholder={MESSAGES.PROFILE.PH_PASSWORD}
-required
-className="w-full p-3 bg-white border border-slate-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-100 shadow-[inset_0_1px_4px_rgba(0,0,0,0.02)]"
----
-src/components\ProfileView.tsx:744
-placeholder={MESSAGES.PROFILE.PW_INPUT}
-className="w-full px-3 py-2 text-base border border-red-200 rounded-lg focus:outline-none focus:border-red-400 font-sans"
-/>
----
-src/components\ProfileView.tsx:787
-placeholder={MESSAGES.PROFILE.PH_EMAIL}
-required
-className="w-full p-4 bg-slate-50 border border-slate-300 rounded-lg text-base"
----
-src/components\ProfileView.tsx:795
-placeholder={MESSAGES.PROFILE.PH_PASSWORD}
-required
-className="w-full p-4 bg-slate-50 border border-slate-300 rounded-lg text-base"
----
-src/components\ProfileView.tsx:836
-placeholder={MESSAGES.PROFILE.PH_NEW_PASSWORD}
-required
-className="w-full p-4 bg-slate-50 border border-slate-300 rounded-lg text-base"
----
-src/components\ProfileView.tsx:844
-placeholder={MESSAGES.PROFILE.PH_CONFIRM}
-required
-className="w-full p-4 bg-slate-50 border border-slate-300 rounded-lg text-base"
----
-src/components\admin\AdminCitizens.tsx:41
-placeholder="Z–¯‚ðŒŸõ..."
-className="w-full bg-slate-800 border border-slate-600 rounded-lg pl-9 pr-3 py-2 text-base text-slate-200 focus:outline-none focus:border-yellow-500 placeholder-slate-500"
-value={searchQuery}
----
-src/components\admin\AdminInvitations.tsx:108
-placeholder="ƒƒ‚ (’N‚É“n‚µ‚½‚©...)"
-defaultValue={code.memo || ""}
-onBlur={(e) => {
----
-src/components\admin\AdminSeeds.tsx:93
-placeholder="u—á‚¦‚ÎF...vÃ‚©‚ÈŠè‚¢‚ÌŽí‚ð’Ô‚Á‚Ä‚­‚¾‚³‚¢"
-className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-4 text-base text-slate-200 placeholder:text-slate-700 focus:outline-none focus:border-emerald-500/50 transition-all min-h-[100px] font-serif"
-/>
----
-src/components\WishCard\components\CardModals.tsx:140
-placeholder={MESSAGES.WISH_CARD.MODAL_MSG_PLACEHOLDER}
-className="w-full p-3 border border-slate-300 rounded-xl mb-4 text-base focus:ring-2 focus:ring-green-100 focus:border-green-400 outline-none resize-none min-h-[80px]"
-/>
----
-src/components/admin\AdminCitizens.tsx:41
-placeholder="Z–¯‚ðŒŸõ..."
-className="w-full bg-slate-800 border border-slate-600 rounded-lg pl-9 pr-3 py-2 text-base text-slate-200 focus:outline-none focus:border-yellow-500 placeholder-slate-500"
-value={searchQuery}
----
-src/components/admin\AdminInvitations.tsx:108
-placeholder="ƒƒ‚ (’N‚É“n‚µ‚½‚©...)"
-defaultValue={code.memo || ""}
-onBlur={(e) => {
----
-src/components/admin\AdminSeeds.tsx:93
-placeholder="u—á‚¦‚ÎF...vÃ‚©‚ÈŠè‚¢‚ÌŽí‚ð’Ô‚Á‚Ä‚­‚¾‚³‚¢"
-className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-4 text-base text-slate-200 placeholder:text-slate-700 focus:outline-none focus:border-emerald-500/50 transition-all min-h-[100px] font-serif"
-/>
----
-src/components/WishCard/components\CardModals.tsx:140
-placeholder={MESSAGES.WISH_CARD.MODAL_MSG_PLACEHOLDER}
-className="w-full p-3 border border-slate-300 rounded-xl mb-4 text-base focus:ring-2 focus:ring-green-100 focus:border-green-400 outline-none resize-none min-h-[80px]"
-/>
----
+--- src/components\AccountSettingsModal.tsx ---
+No Class: <input 
+                                            type="password"
+                                            value={password}
+                                            onChange={(e) =>
+--- src/components\AuthScreen.tsx ---
+No Class: <input
+                      type="text"
+                      placeholder={MESSAGES.AUTH.NAME_PLACEHOLDER}
+                      value={name}
+                      onChange={(e) =>
+--- src/components\AuthScreen.tsx ---
+No Class: <input
+                  type="email"
+                  placeholder={MESSAGES.AUTH.EMAIL_PLACEHOLDER}
+                  value={email}
+                  onChange={(e) =>
+--- src/components\AuthScreen.tsx ---
+No Class: <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder={MESSAGES.AUTH.PASSWORD_PLACEHOLDER}
+                    value={password}
+                    onChange={(e) =>
+--- src/components\AuthScreen.tsx ---
+No Class: <input
+                        type="text"
+                        placeholder={MESSAGES.AUTH.INVITE_PLACEHOLDER}
+                        value={invitationCode}
+                        onChange={(e) =>
+--- src/components\CreateWishModal.tsx ---
+No Class: <textarea
+                        value={newWishContent}
+                        onChange={(e) =>
+--- src/components\CreateWishModal.tsx ---
+class: peer sr-only
+--- src/components\ProfileEditScreen.tsx ---
+class: hidden
+--- src/components\ProfileEditScreen.tsx ---
+No Class: <input 
+                                    type="text" 
+                                    value={name}
+                                    onChange={(e) =>
+--- src/components\ProfileEditScreen.tsx ---
+No Class: <textarea 
+                                    value={bio}
+                                    onChange={(e) =>
+--- src/components\ProfileEditScreen.tsx ---
+No Class: <input 
+                                    type="text" 
+                                    value={links.x}
+                                    onChange={(e) =>
+--- src/components\ProfileEditScreen.tsx ---
+No Class: <input 
+                                    type="text" 
+                                    value={links.instagram}
+                                    onChange={(e) =>
+--- src/components\ProfileEditScreen.tsx ---
+No Class: <input 
+                                    type="text" 
+                                    value={links.website}
+                                    onChange={(e) =>
+--- src/components\ProfileEditScreen.tsx ---
+No Class: <input 
+                                    type="email" 
+                                    value={newEmail}
+                                    onChange={(e) =>
+--- src/components\ProfileEditScreen.tsx ---
+No Class: <input 
+                                    type="password" 
+                                    value={emailPassword}
+                                    onChange={(e) =>
+--- src/components\ProfileView.tsx ---
+No Class: <input
+                          type="password"
+                          value={reauthPassword}
+                          onChange={(e) =>
+--- src/components\ProfileView.tsx ---
+class: w-full p-4 bg-slate-50 border border-slate-300 rounded-lg text-sm
+--- src/components\ProfileView.tsx ---
+class: w-full p-4 bg-slate-50 border border-slate-300 rounded-lg text-sm
+--- src/components\ProfileView.tsx ---
+class: w-full p-4 bg-slate-50 border border-slate-300 rounded-lg text-sm
+--- src/components\ProfileView.tsx ---
+class: w-full p-4 bg-slate-50 border border-slate-300 rounded-lg text-sm
+--- src/components\admin\AdminCitizens.tsx ---
+class: w-full bg-slate-800 border border-slate-600 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-yellow-500 placeholder-slate-500
+--- src/components\admin\AdminInvitations.tsx ---
+No Class: <input
+                              type="text"
+                              placeholder="ƒƒ‚ (’N‚É“n‚µ‚½‚©...)"
+                              defaultValue={code.memo || ""}
+                              onBlur={(e) =>
+--- src/components\admin\AdminSeeds.tsx ---
+No Class: <textarea
+              value={newSeedContent}
+              onChange={(e) =>
+--- src/components\WishCard\components\CardContent.tsx ---
+No Class: <textarea
+              value={editContent}
+              onChange={(e) =>
+--- src/components\WishCard\components\CardModals.tsx ---
+No Class: <textarea
+              value={contactNote}
+              onChange={(e) =>
+--- src/components/admin\AdminCitizens.tsx ---
+class: w-full bg-slate-800 border border-slate-600 rounded-lg pl-9 pr-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-yellow-500 placeholder-slate-500
+--- src/components/admin\AdminInvitations.tsx ---
+No Class: <input
+                              type="text"
+                              placeholder="ƒƒ‚ (’N‚É“n‚µ‚½‚©...)"
+                              defaultValue={code.memo || ""}
+                              onBlur={(e) =>
+--- src/components/admin\AdminSeeds.tsx ---
+No Class: <textarea
+              value={newSeedContent}
+              onChange={(e) =>
+--- src/components/WishCard/components\CardContent.tsx ---
+No Class: <textarea
+              value={editContent}
+              onChange={(e) =>
+--- src/components/WishCard/components\CardModals.tsx ---
+No Class: <textarea
+              value={contactNote}
+              onChange={(e) =>

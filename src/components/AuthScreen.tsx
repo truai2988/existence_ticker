@@ -158,7 +158,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
       >
         <div className="flex flex-col items-center mb-8">
           <h1
-            className="text-lg sm:text-xl md:text-2xl font-serif font-bold text-slate-900 tracking-wider md:tracking-widest mb-2 whitespace-nowrap"
+            className="text-xl font-serif font-medium text-slate-900 mb-2 whitespace-nowrap"
             style={{ fontFamily: "Inter, Noto Sans JP" }}
           >
             {mode === "login" && MESSAGES.AUTH.APP_TITLE}
@@ -192,7 +192,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                       placeholder={MESSAGES.AUTH.NAME_PLACEHOLDER}
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-10 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-700 text-base"
+                      className="w-full bg-slate-50 border border-slate-300 rounded-xl px-10 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-700 text-sm"
                     />
                   </div>
                 </motion.div>
@@ -213,7 +213,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                   placeholder={MESSAGES.AUTH.EMAIL_PLACEHOLDER}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-10 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-700 text-base"
+                  className="w-full bg-slate-50 border border-slate-300 rounded-xl px-10 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-700 text-sm"
                 />
               </div>
             </div>
@@ -233,7 +233,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                     placeholder={MESSAGES.AUTH.PASSWORD_PLACEHOLDER}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-10 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-700 text-base"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-10 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all placeholder:text-slate-700 text-sm"
                   />
                   <button
                     type="button"
@@ -270,7 +270,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                             setPrefecture(e.target.value);
                             setCity("");
                           }}
-                          className="w-full bg-slate-50 border border-slate-300 rounded-xl px-10 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all appearance-none text-base"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-xl px-10 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all appearance-none text-sm"
                         >
                           <option value="" disabled>
                             {MESSAGES.AUTH.PREFECTURE_PLACEHOLDER}
@@ -290,7 +290,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                         <select
                           value={city}
                           onChange={(e) => setCity(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all appearance-none disabled:opacity-50 text-base"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all appearance-none disabled:opacity-50 text-sm"
                           disabled={!prefecture || loadingCities}
                         >
                           <option value="" disabled>
@@ -322,7 +322,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                         <select
                           value={ageGroup}
                           onChange={(e) => setAgeGroup(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-base appearance-none"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-sm appearance-none"
                         >
                           <option value="" disabled>
                             {MESSAGES.AUTH.AGE_GROUP_PLACEHOLDER}
@@ -354,7 +354,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                               e.target.value as "male" | "female" | "other",
                             )
                           }
-                          className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-base appearance-none"
+                          className="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all text-sm appearance-none"
                         >
                           <option value="" disabled>
                             {MESSAGES.AUTH.GENDER_PLACEHOLDER}
@@ -386,7 +386,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
                         placeholder={MESSAGES.AUTH.INVITE_PLACEHOLDER}
                         value={invitationCode}
                         onChange={(e) => setInvitationCode(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-10 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all font-mono text-base"
+                        className="w-full bg-slate-50 border border-slate-300 rounded-xl px-10 py-2.5 text-slate-900 outline-none focus:ring-2 focus:ring-slate-200 focus:border-transparent transition-all font-mono text-sm"
                       />
                     </div>
                     <p className="text-xs text-slate-700 ml-1 mt-1 leading-tight font-medium">

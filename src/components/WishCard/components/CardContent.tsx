@@ -21,7 +21,7 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
             <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none text-base resize-none min-h-[100px]"
+              className="w-full p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-200 focus:border-blue-400 outline-none text-sm resize-none min-h-[100px]"
             />
             <div className="flex gap-2 justify-end">
               <button

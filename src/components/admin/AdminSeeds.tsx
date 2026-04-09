@@ -91,7 +91,7 @@ export const AdminSeeds = React.memo<AdminSeedsProps>(({
               value={newSeedContent}
               onChange={(e) => setNewSeedContent(e.target.value)}
               placeholder="「例えば：...」静かな願いの種を綴ってください"
-              className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-4 text-base text-slate-200 placeholder:text-slate-700 focus:outline-none focus:border-emerald-500/50 transition-all min-h-[100px] font-serif"
+              className="w-full bg-slate-800/80 border border-slate-700 rounded-xl px-4 py-4 text-sm text-slate-200 placeholder:text-slate-700 focus:outline-none focus:border-emerald-500/50 transition-all min-h-[100px] font-serif"
             />
           </div>
           <button

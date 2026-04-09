@@ -219,7 +219,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                             setCreationError(null);
                         }}
                         placeholder={currentPlaceholder}
-                        className="w-full bg-transparent text-slate-900 placeholder:text-slate-700 text-base min-h-[160px] resize-none outline-none leading-relaxed font-serif tracking-wide"
+                        className="w-full bg-transparent text-slate-900 placeholder:text-slate-700 text-sm min-h-[160px] resize-none outline-none leading-relaxed font-serif tracking-wide"
                       />
                   </div>
                </div>
