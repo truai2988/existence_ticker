@@ -60,7 +60,6 @@ export const useProfile = () => {
   // SELF-REPAIR: Sync email from Auth to Firestore if missing in Profile
   useEffect(() => {
     if (user && profile && !profile.email && user.email && !isLoading) {
-      console.log("[useProfile] Missing email in Firestore. Self-repairing from Auth state...");
       updateProfile({ email: user.email });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -96,7 +95,6 @@ export const useProfile = () => {
         });
       }
       
-      console.log("Profile updated:", updates);
       return { success: true };
     } catch (error) {
       console.error("Profile update error:", error);
@@ -134,7 +132,6 @@ export const useProfile = () => {
                 spent_lm: fromMilli(newSpentMilli),
             });
         });
-        console.log("Spent Lm decreased by", amount);
         return { success: true };
     } catch (error) {
         console.error("Increment balance error:", error);
@@ -166,7 +163,6 @@ export const useProfile = () => {
             return { success: true, newSpent: newSpent };
         });
 
-        console.log("Spent Lm increased by", amount);
         return result;
     } catch (error) {
         console.error("Deduct balance error:", error);
@@ -190,7 +186,6 @@ export const useProfile = () => {
                 timestamp: serverTimestamp(),
             });
         });
-        console.log("Transaction recorded:", type, amount, description);
         return { success: true };
     } catch (error) {
         console.error("Record transaction error:", error);

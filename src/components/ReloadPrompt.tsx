@@ -8,11 +8,11 @@ export function ReloadPrompt() {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
   } = useRegisterSW({
-    onRegistered(r: ServiceWorkerRegistration | undefined) {
-      console.log('SW Registered: ' + r)
+    onRegistered(_r: ServiceWorkerRegistration | undefined) {
+      // SW登録完了
     },
-    onRegisterError(error: unknown) {
-      console.log('SW registration error', error)
+    onRegisterError(_error: unknown) {
+      // SW登録エラーは本番では無視
     },
   })
 

@@ -267,7 +267,6 @@ export const useStats = () => {
                 transaction.set(settingsRef, { global_capacity: newCapacity }, { merge: true });
             });
             setSunCapacity(newCapacity);
-            console.log(`Sun Capacity Synced: ${newCapacity}`);
         } catch (e) {
             console.error("Failed to sync sun capacity", e);
         }

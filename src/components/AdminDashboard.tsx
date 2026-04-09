@@ -19,21 +19,15 @@ interface AdminDashboardProps {
   onClose: () => void;
 }
 
-
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const { stats, error } = useStats();
   const [showManual, setShowManual] = useState(false);
 
-  // User Management State
-  const [activeTab, setActiveTab] = useState<
-    "monitor" | "citizens"
-  >("monitor");
+  const [activeTab, setActiveTab] = useState<"monitor" | "citizens">("monitor");
   const [userList, setUserList] = useState<UserProfile[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   const [lastVisibleDoc, setLastVisibleDoc] = useState<QueryDocumentSnapshot | null>(null);
-
-
 
   const fetchUsers = useCallback(async (isLoadMore = false) => {
     setIsLoadingUsers(true);
@@ -43,12 +37,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         await import("firebase/firestore");
 
       const usersRef = collection(db, "users");
-      
-      let q = query(
-        usersRef, 
-        orderBy("last_updated", "desc"), 
-        limit(50)
-      );
+      let q = query(usersRef, orderBy("last_updated", "desc"), limit(50));
 
       if (isLoadMore && lastVisibleDoc) {
         q = query(
@@ -62,10 +51,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       const snapshot = await getDocs(q);
       const newLastDoc = snapshot.docs[snapshot.docs.length - 1];
       setLastVisibleDoc(newLastDoc || null);
-      
-      if (snapshot.docs.length < 50) {
-        // End of list
-      }
 
       const users = snapshot.docs.map((doc) => {
         const data = doc.data();
@@ -90,18 +75,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     }
   }, [lastVisibleDoc]);
 
-  // Handle Search Trigger
+  // 住民タブに切り替えた際、まだ未取得なら自動フェッチ
   React.useEffect(() => {
     if (searchQuery.trim().length >= 1 && userList.length === 0 && activeTab === 'citizens') {
-        fetchUsers();
+      fetchUsers();
     }
   }, [searchQuery, userList.length, activeTab, fetchUsers]);
 
-
   const toggleAdmin = useCallback(async (u: UserProfile) => {
     if (u.role === "admin") {
-      const otherAdmins = userList.filter((user) =>
-        user.id !== u.id && user.role === "admin"
+      const otherAdmins = userList.filter(
+        (user) => user.id !== u.id && user.role === "admin"
       ).length;
       if (otherAdmins === 0) {
         alert("システムには管理画面にアクセスできるユーザーが最低1人は必要です。");
@@ -123,9 +107,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
     }
   }, [userList, fetchUsers]);
 
-  // Data Fetching Logic: Only trigger when switching TO the tab
-
-  // Lock body scroll when dashboard is open
+  // ダッシュボード表示中はbodyスクロールを無効化
   React.useEffect(() => {
     const originalStyle = window.getComputedStyle(document.body).overflow;
     document.body.style.overflow = "hidden";
@@ -159,8 +141,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
       id="admin-scroll-container"
       className={`fixed inset-0 z-[100] bg-black/95 backdrop-blur-md ${showManual ? "overflow-hidden" : "overflow-y-auto"}`}
     >
-      {/* Header (Full Width Sticky) */}
       {showManual && <ProtocolManual onClose={() => setShowManual(false)} />}
+
+      {/* ヘッダー */}
       <div className="sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-slate-800/50 w-full">
         <div className="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center flex-wrap gap-4">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
@@ -168,7 +151,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               <Activity className="w-5 h-5 text-slate-200" />
             </div>
             <div className="flex flex-col min-w-0">
-              <h2 className="text-xl font-serif font-medium text-slate-200 truncate leading-tight" style={{fontFamily: "'Noto Serif JP', serif"}}>
+              <h2
+                className="text-xl font-serif font-medium text-slate-200 truncate leading-tight"
+                style={{ fontFamily: "'Noto Serif JP', serif" }}
+              >
                 管理コンソール
               </h2>
             </div>
@@ -201,12 +187,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           </div>
         )}
 
-        {/* Tab Navigation */}
+        {/* タブナビゲーション */}
         <div className="flex gap-4 mb-6 border-b border-slate-800 overflow-x-auto no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab("monitor")}
-            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "monitor" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-700 hover:text-slate-700"}`}
+            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${
+              activeTab === "monitor"
+                ? "text-yellow-500 border-b-2 border-yellow-500"
+                : "text-slate-700 hover:text-slate-700"
+            }`}
           >
             <Activity size={16} />
             利用状況
@@ -214,23 +204,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
           <button
             type="button"
             onClick={() => setActiveTab("citizens")}
-            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${activeTab === "citizens" ? "text-yellow-500 border-b-2 border-yellow-500" : "text-slate-700 hover:text-slate-700"}`}
+            className={`pb-3 px-1 text-sm font-bold tracking-widest uppercase transition-colors flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${
+              activeTab === "citizens"
+                ? "text-yellow-500 border-b-2 border-yellow-500"
+                : "text-slate-700 hover:text-slate-700"
+            }`}
           >
             <Users size={16} /> 住民
           </button>
         </div>
 
-        {/* Content Stack */}
+        {/* コンテンツ */}
         <div className="flex flex-col gap-6">
           {activeTab === "monitor" && stats && (
-            <AdminMonitor 
-              stats={stats} 
-            />
+            <AdminMonitor stats={stats} />
           )}
 
           {activeTab === "citizens" && (
             <div className="w-full min-w-0">
-              <AdminCitizens 
+              <AdminCitizens
                 userList={userList}
                 searchQuery={searchQuery}
                 setSearchQuery={setSearchQuery}

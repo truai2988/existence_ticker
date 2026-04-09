@@ -121,7 +121,6 @@ export const useAuth = () => {
                     
                     try {
                         await cred.user.delete();
-                        console.log("Auth user rollback successful.");
                     } catch (deleteErr) {
                         console.error("CRITICAL: Failed to rollback Auth user after Firestore error.", deleteErr);
                         // Double Tap: If delete fails (e.g., network), force sign-out locally to preventing 'Ghost Login'.
@@ -222,15 +221,11 @@ export const useAuth = () => {
         if (!functions) throw new Error("Functions not initialized");
         
         try {
-            console.log(" [useAuthHook] Calling deleteAccount Cloud Function...");
             const deleteAccountFn = httpsCallable(functions, 'deleteAccount');
-            const result = await deleteAccountFn();
-            console.log(" [useAuthHook] Result:", result.data);
+            await deleteAccountFn();
             
             // Sign out locally to clear state
             await firebaseSignOut(auth);
-            
-            console.log("Account Deletion Complete via Cloud Function.");
         } catch (error) {
              console.error("Account deletion failed:", error);
              throw error;

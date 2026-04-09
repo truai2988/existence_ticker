@@ -29,13 +29,11 @@ if (apiKey) {
   
   // 物理法則の調律：認証メールの言語を日本語に固定
   auth.languageCode = 'ja';
-  console.log('Auth Language Code set to:', auth.languageCode); // Verification log
 
   functions = getFunctions(app);
   storage = getStorage(app);
 
-  // Connect to Emulators if running locally
-  // Connect to Emulators if running locally
+  // ローカル実行時はエミュレータに接続（現在は無効）
   if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
       /* 
       // ⚠️ Production Test: Temporarily point localhost to the actual Cloud Functions instead of Emulator

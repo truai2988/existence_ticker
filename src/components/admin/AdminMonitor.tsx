@@ -6,13 +6,20 @@ interface AdminMonitorProps {
   stats: DashboardStats;
 }
 
+interface MetricCardProps {
+  title: string;
+  value: string;
+  icon: React.ElementType;
+  subtitle?: string;
+}
+
 export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats }) => {
   const { metabolism, distribution, cycle, wishesActive } = stats;
 
   const totalPop = distribution.full + distribution.quarter + distribution.new;
   const activeWishes = wishesActive || { light: 0, medium: 0, heavy: 0 };
 
-  const MetricCard = ({ title, value, icon: Icon, subtitle }: any) => (
+  const MetricCard = ({ title, value, icon: Icon, subtitle }: MetricCardProps) => (
     <div className="bg-slate-900/50 rounded-2xl border border-slate-800 p-6 flex flex-col">
       <div className="flex justify-between items-start mb-4 text-slate-400">
         <h3 className="text-xs font-bold uppercase tracking-[0.1em] text-slate-500">
