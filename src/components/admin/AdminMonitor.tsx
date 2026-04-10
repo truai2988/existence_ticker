@@ -17,7 +17,6 @@ interface MetricCardProps {
 export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats }) => {
   const { metabolism, distribution, cycle, wishesActive } = stats;
   const { t } = useLanguage();
-
   const totalPop = distribution.full + distribution.quarter + distribution.new;
   const activeWishes = wishesActive || { light: 0, medium: 0, heavy: 0 };
 
@@ -44,6 +43,7 @@ export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats }) => {
 
   return (
     <div className="animate-in fade-in duration-300 space-y-6">
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
           title={t.ADMIN.MONITOR.TOTAL_USERS}

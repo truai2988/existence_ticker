@@ -272,10 +272,8 @@ export const NoticePanel: React.FC = () => {
                             {resolveMessage(notice, wishActions)}
                           </p>
                           {notice.params?.note && (
-                            <div className="mt-2.5 p-3 sm:p-2 sm:px-3 bg-white/50 border border-slate-200 rounded-lg rounded-tl-none">
-                              <p className="text-sm font-medium text-slate-700 italic">
-                                「{notice.params.note}」
-                              </p>
+                            <div className="mt-2.5 p-3 bg-white rounded-xl border border-slate-200 text-slate-600 text-sm italic shadow-sm">
+                              {notice.params.note}
                             </div>
                           )}
                           <span className="text-xs text-slate-700 mt-1.5 block font-sans tracking-tight text-left">

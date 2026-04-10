@@ -186,7 +186,7 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
             <NameResolver 
                 userId={partnerId || null} 
                 initialName={(isSender ? log.recipient_name : log.sender_name) || null} 
-            />
+            />さん
         </span>
     );
 
@@ -293,16 +293,18 @@ const LogItem = ({ log, index, userId, MESSAGES, formatDate }: { log: Transactio
                 </div>
             </div>
 
-            <div className="space-y-2">
-                <p className="text-base text-slate-900 font-serif font-medium leading-relaxed tracking-wide">
+            <div className="space-y-1.5">
+                <p className="text-sm text-slate-900 font-medium leading-relaxed tracking-wide">
                     {getTitle()}
                 </p>
                 {log.wish_title && log.type !== 'WISH_CANCELLED' && log.type !== 'WISH_EXPIRED' && (
-                    <p className="text-sm text-slate-700 mt-2 pl-3 border-l border-slate-300/50 italic line-clamp-1">"{log.wish_title}"</p>
+                    <p className="text-xs text-slate-500 pl-2 border-l border-slate-300 italic line-clamp-1">{log.wish_title}</p>
                 )}
-                <p className="text-sm text-slate-700 mt-2 line-clamp-2 leading-relaxed font-light">
-                    {getDescription()}
-                </p>
+                {getDescription() && (
+                    <p className="text-xs text-slate-500 leading-relaxed font-light line-clamp-2">
+                        {getDescription()}
+                    </p>
+                )}
             </div>
         </motion.div>
     );

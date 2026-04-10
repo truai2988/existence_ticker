@@ -51,7 +51,7 @@ export const useWishLifecycle = () => {
         issuerQueryCommittedMilli += calculateDecayedValue(toMilli(initialCost), wElapsedSec);
       });
 
-      await runTransaction(db, async (transaction: Transaction) => {
+      const resolvedNames = await runTransaction(db, async (transaction: Transaction) => {
         const wishDoc = await transaction.get(wishRef);
         if (!wishDoc.exists()) throw "Wish does not exist";
 
@@ -140,6 +140,10 @@ export const useWishLifecycle = () => {
           volume: increment(paymentAmount),
           updated_at: serverTimestamp(),
         }, { merge: true });
+
+        return {
+          requesterName: issuerDoc.data()?.name || wishData.requester_name || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER
+        };
       });
 
       setOptimisticBalanceOffset(0);
@@ -147,10 +151,10 @@ export const useWishLifecycle = () => {
       sendNoticeSilently({
         userId: fulfillerId,
         // wishId: wishId, // 願い本体は削除されているため紐付けない（詳細モーダルを開かせない）
-        message: MESSAGES.WISH_ACTIONS.NOTICE_FULFILLED.replace('%name', user?.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER),
+        message: MESSAGES.WISH_ACTIONS.NOTICE_FULFILLED.replace('%name', resolvedNames.requesterName),
         messageKey: "NOTICE_FULFILLED",
         params: { 
-          name: user?.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER,
+          name: resolvedNames.requesterName,
           note: message || ""
         },
         type: "wish_fulfilled",
