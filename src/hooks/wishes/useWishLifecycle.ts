@@ -146,10 +146,13 @@ export const useWishLifecycle = () => {
 
       sendNoticeSilently({
         userId: fulfillerId,
-        wishId,
+        // wishId: wishId, // 願い本体は削除されているため紐付けない（詳細モーダルを開かせない）
         message: MESSAGES.WISH_ACTIONS.NOTICE_FULFILLED.replace('%name', user?.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER),
         messageKey: "NOTICE_FULFILLED",
-        params: { name: user?.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER },
+        params: { 
+          name: user?.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER,
+          note: message || ""
+        },
         type: "wish_fulfilled",
       });
 

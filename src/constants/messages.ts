@@ -350,6 +350,7 @@ export const MESSAGES = {
     FTR_APPLICANTS: "名の立候補", 
     FTR_THANK_CONFIRM: "願いが叶ったら、完了ボタンを押して下さい", // 「決済を実行」を排除
     FTR_THANK_ALERT: "感謝を届けますか？ Lmが手元から離れます。",
+    FTR_THANK_ALERT_LIGHT: "完了して感謝を伝えますか？（無償のためLmは消費されません）",
 
     // OptimisticWishPhantom
     PH_ERROR_TITLE: "通信が不安定です: 願いが届きませんでした",
@@ -737,7 +738,7 @@ export const MESSAGES = {
     TOOLTIP_DISMISS_ALL: "すべてクリア",
     TOOLTIP_DISMISS: "閉じる",
     LOADING_WISH: "確認中...",
-    WISH_NOT_FOUND: "この願いはすでに存在しません",
+    WISH_NOT_FOUND: "この願いは、静かに役目を終えました",
   },
 
   // 8. ナビゲーション・レイアウト (Header, Footer, SideDrawer)

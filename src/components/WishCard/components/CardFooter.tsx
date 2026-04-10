@@ -42,9 +42,9 @@ export const CardFooter: React.FC<{
   const { getCandidateAction } = useMicroInteractions();
   const applicants = wish.applicants || [];
 
-  const handleFulfill = async () => {
+  const handleFulfill = async (message?: string) => {
     setIsLoading(true);
-    const success = await fulfillWish(wish.id, wish.helper_id!);
+    const success = await fulfillWish(wish.id, wish.helper_id!, message);
     if (success) {
       showToast(MESSAGES.WISH_CARD.TOAST_THANKED, "success");
       import("../../../utils/pwaEvent").then(
@@ -107,8 +107,14 @@ export const CardFooter: React.FC<{
                   </div>
                   <button
                     onClick={() => {
-                      if (window.confirm(MESSAGES.WISH_CARD.FTR_THANK_ALERT)) {
-                        handleFulfill();
+                      const alertMsg = wish.gratitude_preset === "light" 
+                        ? MESSAGES.WISH_CARD.FTR_THANK_ALERT_LIGHT 
+                        : MESSAGES.WISH_CARD.FTR_THANK_ALERT;
+                      
+                      const confirmPrompt = alertMsg + "\n\n（感謝のメッセージがあればここに入力してください）：";
+                      const msg = window.prompt(confirmPrompt);
+                      if (msg !== null) {
+                        handleFulfill(msg.trim() || undefined);
                       }
                     }}
                     disabled={isLoading}

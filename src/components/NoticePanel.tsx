@@ -132,8 +132,7 @@ const NoticeWishModal: React.FC<{
           ) : !wish ? (
             <div className="bg-white rounded-[2rem] shadow-xl p-12 flex flex-col items-center justify-center text-center h-full min-h-[300px]">
               <BellOff className="w-12 h-12 text-slate-300 mb-4" />
-              <p className="text-slate-600 font-bold">{t.NOTICE.WISH_NOT_FOUND || "この願いはすでに存在しません"}</p>
-              <button onClick={onClose} className="mt-6 px-6 py-2 bg-slate-100 font-bold rounded-lg hover:bg-slate-200">閉じる</button>
+              <p className="text-slate-600 font-bold">{t.NOTICE.WISH_NOT_FOUND || "この願いは、静かに役目を終えました"}</p>
             </div>
           ) : (
             <div className="bg-transparent pb-0">
@@ -272,6 +271,13 @@ export const NoticePanel: React.FC = () => {
                           <p className="text-base sm:text-sm text-slate-800 leading-relaxed tracking-wide text-left">
                             {resolveMessage(notice, wishActions)}
                           </p>
+                          {notice.params?.note && (
+                            <div className="mt-2.5 p-3 sm:p-2 sm:px-3 bg-white/50 border border-slate-200 rounded-lg rounded-tl-none">
+                              <p className="text-sm font-medium text-slate-700 italic">
+                                「{notice.params.note}」
+                              </p>
+                            </div>
+                          )}
                           <span className="text-xs text-slate-700 mt-1.5 block font-sans tracking-tight text-left">
                             {formatTime(
                               notice.createdAt,
