@@ -24,7 +24,6 @@ export const CardFooter: React.FC<{
     isLoading,
     showApplicants,
     hasApplied,
-    displayValue,
     currentUserId,
   } = state;
 
@@ -107,11 +106,7 @@ export const CardFooter: React.FC<{
                   </div>
                   <button
                     onClick={() => {
-                      const alertMsg = wish.gratitude_preset === "light" 
-                        ? MESSAGES.WISH_CARD.FTR_THANK_ALERT_LIGHT 
-                        : MESSAGES.WISH_CARD.FTR_THANK_ALERT;
-                      
-                      const confirmPrompt = alertMsg + "\n\n（感謝のメッセージがあればここに入力してください）：";
+                      const confirmPrompt = MESSAGES.WISH_CARD.FTR_THANK_ALERT + "\n\n（感謝のメッセージがあればここに入力してください）：";
                       const msg = window.prompt(confirmPrompt);
                       if (msg !== null) {
                         handleFulfill(msg.trim() || undefined);
@@ -160,7 +155,7 @@ export const CardFooter: React.FC<{
                 ) : (
                   <button
                     onClick={getCandidateAction(handleApply)}
-                    disabled={isLoading || displayValue === 0}
+                    disabled={isLoading}
                     className="relative overflow-hidden z-10 flex items-center gap-2 px-6 py-2.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-500 hover:text-white hover:border-amber-500 text-base font-bold transition-all shadow-sm hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoading ? (

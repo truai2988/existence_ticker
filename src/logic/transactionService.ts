@@ -15,12 +15,11 @@ interface FulfillmentParams extends BaseParams {
   fulfillerName: string;
   paymentAmount: number;
   txType: string;
-  isBankruptcy: boolean;
   message?: string | null;
 }
 
 export const recordFulfillment = (transaction: Transaction, db: Firestore, params: FulfillmentParams) => {
-  const { wishId, wishData, issuerId, issuerName, fulfillerId, fulfillerName, paymentAmount, txType, isBankruptcy, message } = params;
+  const { wishId, wishData, issuerId, issuerName, fulfillerId, fulfillerName, paymentAmount, txType, message } = params;
   
   const txId = `wish_${wishId}_PAY_${fulfillerId}`;
   const txRef = doc(collection(db, "transactions"), txId);
@@ -43,18 +42,18 @@ export const recordFulfillment = (transaction: Transaction, db: Firestore, param
     message: message || null 
   };
 
-  // Sender Record
+  // 依頼主レコード
   transaction.set(txRef, {
     ...baseRecord,
     owner_id: issuerId,
-    description: isBankruptcy ? "wish_bankrupt_sender" : (paymentAmount === 0 ? "wish_priceless" : "wish_fulfill_sender"),
+    description: "wish_fulfill_sender",
   });
 
-  // Receiver Record
+  // 助け手レコード
   transaction.set(rxRef, {
     ...baseRecord,
     owner_id: fulfillerId,
-    description: isBankruptcy ? "wish_bankrupt_recv" : (paymentAmount === 0 ? "wish_priceless" : "wish_fulfill_recv"),
+    description: "wish_fulfill_recv",
   });
 };
 

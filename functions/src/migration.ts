@@ -162,3 +162,72 @@ export const purgeGhostJournals = functions.https.onCall(async (data, context) =
         throw new functions.https.HttpsError('internal', String(e));
     }
 });
+
+/**
+ * [1000 Lm固定化マイグレーション]
+ * 既存のすべてのWishデータを cost: 1000, gratitude_preset: "heavy" に正規化する。
+ * テストデータのみ存在する環境で一度だけ実行するクリーンアップ用。
+ * Admin権限者のみ呼び出し可能。
+ */
+export const normalizeWishCosts = functions.https.onCall(async (_data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
+    }
+
+    const db = admin.firestore();
+
+    // Admin権限チェック
+    const callerRef = db.collection('users').doc(context.auth.uid);
+    const callerSnap = await callerRef.get();
+    if (!callerSnap.exists || callerSnap.data()?.role !== 'admin') {
+        throw new functions.https.HttpsError('permission-denied', '管理者のみが実行できます。');
+    }
+
+    const batchLimit = 500;
+    let batch = db.batch();
+    let opCount = 0;
+    let updatedCount = 0;
+    let skippedCount = 0;
+
+    try {
+        console.log("[normalizeWishCosts] Starting wish cost normalization...");
+
+        const wishSnap = await db.collection('wishes').get();
+        console.log(`[normalizeWishCosts] Found ${wishSnap.size} wishes.`);
+
+        for (const wishDoc of wishSnap.docs) {
+            const data = wishDoc.data();
+            const needsUpdate = data.cost !== 1000 || data.gratitude_preset !== 'heavy';
+
+            if (!needsUpdate) {
+                skippedCount++;
+                continue;
+            }
+
+            batch.update(wishDoc.ref, {
+                cost: 1000,
+                gratitude_preset: 'heavy',
+                updated_at: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            updatedCount++;
+            opCount++;
+
+            if (opCount >= batchLimit) {
+                await batch.commit();
+                batch = db.batch();
+                opCount = 0;
+            }
+        }
+
+        if (opCount > 0) {
+            await batch.commit();
+        }
+
+        const message = `正規化完了: ${updatedCount}件を1000Lmに更新、${skippedCount}件はスキップ（既に1000Lm）。`;
+        console.log(`[normalizeWishCosts] ${message}`);
+        return { success: true, updatedCount, skippedCount, message };
+    } catch (e) {
+        console.error("[normalizeWishCosts] Failed:", e);
+        throw new functions.https.HttpsError('internal', String(e));
+    }
+});

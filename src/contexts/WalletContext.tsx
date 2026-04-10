@@ -16,6 +16,7 @@ import {
   fromMilli,
   getMillis
 } from "../logic/worldPhysics";
+import { FIXED_WISH_COST } from "../constants";
 import { WalletStatus } from "../types/wallet";
 import { useWishesContext } from "./WishesContext";
 import { WalletContext } from "./WalletContextDefinition";
@@ -64,10 +65,10 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const committedLm = useMemo(() => {
     // 【世界の理】願いの価値はそれそれが生まれた瞬間（created_at）からのみ計算される。
     let totalMilli = 0;
-    const costMap: Record<string, number> = { light: 0, medium: 500, heavy: 1000 };
-    
+
     userActiveWishes.forEach(wish => {
-      const initialCost = wish.cost || costMap[wish.gratitude_preset || ''] || 0;
+      // すべての願いは1000 Lm固定。既存DBの値が存在する場合はそれを尊重する。
+      const initialCost = wish.cost ?? FIXED_WISH_COST;
       const createdAt = getMillis(wish.created_at);
       const elapsedSec = ((globalNow - createdAt) / 1000) | 0;
       totalMilli += calculateDecayedValue(toMilli(initialCost), elapsedSec);

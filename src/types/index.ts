@@ -96,7 +96,6 @@ export interface Wish {
 
 export interface CreateWishInput {
   content: string;
-  tier: GratitudeTier;
   isAnonymous?: boolean;
 }
 

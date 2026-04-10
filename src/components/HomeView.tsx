@@ -171,11 +171,12 @@ export const HomeView: React.FC<HomeViewProps> = ({
                     {MESSAGES.LAYOUT.HEADER_DAYS_LEFT_PREFIX}{daysLeft}{MESSAGES.LAYOUT.HEADER_DAYS_LEFT_SUFFIX}
                   </span>
                 </div>
-                <div className="text-xs font-serif font-medium tracking-[0.15em] text-slate-700 mr-[0.15em]">
-                  {MESSAGES.HOME.AVAILABLE_LM}
-                </div>
-                <div className="text-4xl md:text-5xl font-serif font-extralight tracking-[-0.02em] tabular-nums leading-none text-slate-700 transition-all duration-1000">
-                  {Math.floor(availableLm).toLocaleString()}
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-xs font-serif font-medium tracking-[0.15em] text-slate-700">余り</span>
+                  <span className="text-4xl md:text-5xl font-serif font-extralight tracking-[-0.02em] tabular-nums leading-none text-slate-700 transition-all duration-1000">
+                    {Math.floor(availableLm).toLocaleString()}
+                  </span>
+                  <span className="text-xs font-serif font-medium tracking-[0.15em] text-slate-700">Lm</span>
                 </div>
               </motion.div>
             )}

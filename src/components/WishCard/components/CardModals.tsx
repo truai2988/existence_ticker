@@ -7,7 +7,6 @@ import { CompleteWishModal } from "../../CompleteWishModal";
 import { useWishActions } from "../../../hooks/useWishActions";
 import { useToast } from "../../../hooks/useToast";
 import { useUserView } from "../../../contexts/UserViewContext";
-import { toMilli } from "../../../logic/worldPhysics";
 import { useMicroInteractions } from "../../../hooks/useMicroInteractions";
 
 export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHandlers }> = ({ state, handlers }) => {
@@ -151,7 +150,7 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
           wishTitle={wish.content}
           helperName={helperProfile?.name || wish.helper_name || MESSAGES.WISH_CARD.ANONYMOUS_HELPER}
           preset={wish.gratitude_preset}
-          cost={toMilli(initialCost)}
+          cost={initialCost}
           onConfirm={async () => {
             setShowCompleteModal(false);
             handlers.setIsLoading(true);

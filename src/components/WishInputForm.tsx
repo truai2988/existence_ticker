@@ -3,8 +3,7 @@ import { Loader2, Send, PenTool } from 'lucide-react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useWishActions } from '../hooks/useWishActions';
 import { useWallet } from '../hooks/useWallet';
-import { GratitudeTier } from '../types';
-import { WISH_COST, UNIT_LABEL } from '../constants';
+import { FIXED_WISH_COST, UNIT_LABEL } from '../constants';
 import { useToast } from '../hooks/useToast';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useMicroInteractions } from '../hooks/useMicroInteractions';
@@ -20,29 +19,7 @@ export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
   const { t: MESSAGES } = useLanguage();
   const { getSendAction } = useMicroInteractions();
 
-  const TIERS = React.useMemo(() => [
-    {
-      id: "heavy",
-      label: MESSAGES.CREATE_WISH.TIER_HEAVY_LABEL,
-      subLabel: MESSAGES.CREATE_WISH.TIER_HEAVY_SUB,
-      cost: WISH_COST.BONFIRE,
-    },
-    {
-      id: "medium",
-      label: MESSAGES.CREATE_WISH.TIER_MEDIUM_LABEL,
-      subLabel: MESSAGES.CREATE_WISH.TIER_MEDIUM_SUB,
-      cost: WISH_COST.CANDLE,
-    },
-    {
-      id: "light",
-      label: MESSAGES.CREATE_WISH.TIER_LIGHT_LABEL,
-      subLabel: MESSAGES.CREATE_WISH.TIER_LIGHT_SUB,
-      cost: WISH_COST.SPARK,
-    },
-  ] as const, [MESSAGES]);
-
   const [newWishContent, setNewWishContent] = useState('');
-  const [selectedTier, setSelectedTier] = useState<GratitudeTier | null>(null);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [creationError, setCreationError] = useState<string | null>(null);
   const [draftKeyword, setDraftKeyword] = useState('');
@@ -55,13 +32,8 @@ export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const selectedTierCost = selectedTier ? TIERS.find(t => t.id === selectedTier)?.cost || 0 : 0;
-  const exceedsAvailable = selectedTier !== null && selectedTierCost > availableLm;
-
-  const handleTierChange = (tier: GratitudeTier) => {
-    setSelectedTier(tier);
-    setCreationError(null);
-  };
+  // 残高が1000Lm未満の場合は送信不可
+  const insufficientBalance = availableLm < FIXED_WISH_COST;
 
   // AIによる下書き生成
   const handleDraftWish = async () => {
@@ -89,12 +61,11 @@ export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
 
   // 願いの公開
   const handlePostWish = async () => {
-    if (!newWishContent.trim() || !selectedTier || exceedsAvailable) return;
+    if (!newWishContent.trim() || insufficientBalance) return;
     setCreationError(null);
 
     const result = await castWish({
       content: newWishContent,
-      tier: selectedTier,
       isAnonymous,
     });
 
@@ -106,7 +77,6 @@ export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
       if (onSuccess) onSuccess();
       setNewWishContent('');
       setDraftKeyword('');
-      setSelectedTier(null);
       setIsAnonymous(false);
     } else {
       setCreationError(result.error || "通信エラーが発生しました。");
@@ -117,97 +87,12 @@ export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
     <div className="w-full">
       <div className="max-w-2xl mx-auto py-4 space-y-10">
 
-        {/* 感謝の重さ選択 */}
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 px-1">
-            <div className="flex items-baseline flex-wrap gap-x-3 gap-y-1">
-              <label className="text-xs uppercase tracking-widest font-bold text-slate-700 shrink-0">
-                {MESSAGES.CREATE_WISH.LBL_MIGHT}{' '}
-                <span className="text-xs font-normal text-slate-700 ml-0.5">
-                  {MESSAGES.CREATE_WISH.LBL_UNIT}
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <p className="text-xs text-slate-700 mb-2">
-            {MESSAGES.CREATE_WISH.LBL_AVAILABLE_1}{' '}
-            <span className="font-mono font-medium text-amber-600">
-              {Math.floor(availableLm).toLocaleString()} {UNIT_LABEL}
-            </span>{' '}
-            {MESSAGES.CREATE_WISH.LBL_AVAILABLE_2}
-          </p>
-
-          <div className="grid grid-cols-1 gap-3">
-            {TIERS.map((tier) => (
-              <button
-                key={tier.id}
-                onClick={() => handleTierChange(tier.id)}
-                className={`
-                  relative flex flex-col sm:flex-row items-start sm:items-center justify-between
-                  p-4 sm:p-5 gap-1.5 sm:gap-0 rounded-2xl transition-all duration-700 border border-transparent
-                  ${selectedTier === tier.id
-                    ? tier.cost === 0
-                      ? "bg-white border border-slate-200 shadow-[0_15px_40px_-5px_rgba(245,158,11,0.3)] z-10"
-                      : tier.cost === 500
-                        ? "bg-white border border-slate-200 shadow-[0_10px_25px_-5px_rgba(251,191,36,0.15)] z-10"
-                        : "bg-white border border-slate-200 shadow-md z-10"
-                    : "bg-white shadow-sm border border-slate-200 text-slate-700 hover:bg-white hover:shadow-md"
-                  }
-                `}
-              >
-                <div className="flex items-center gap-3 w-full sm:flex-1 sm:w-auto min-w-0">
-                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all duration-500
-                    ${selectedTier === tier.id
-                      ? tier.cost === 0 ? "border-amber-600 bg-amber-600"
-                        : tier.cost === 500 ? "border-amber-500 bg-amber-500"
-                        : "border-slate-500 bg-slate-500"
-                      : "border-slate-300/80 bg-white"
-                    }`}
-                  >
-                    {selectedTier === tier.id && <div className="w-2 h-2 rounded-full bg-white scale-in-center shadow-sm" />}
-                  </div>
-                  <div className="flex flex-col items-start gap-0.5 min-w-0 text-left">
-                    <span
-                      className={`text-xs sm:text-sm font-bold whitespace-nowrap tracking-wider sm:tracking-[0.1em]
-                        ${selectedTier === tier.id ? "text-amber-800" : "text-slate-800"}`}
-                      style={{ fontFamily: "'Noto Serif JP', serif" }}
-                    >
-                      {tier.label}
-                    </span>
-                    <span className="text-xs text-slate-700/80 font-medium tracking-wide sm:tracking-[0.2em] leading-snug">
-                      {tier.subLabel}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center pl-8 sm:pl-2 shrink-0 self-start sm:self-center">
-                  <span className={`flex items-baseline gap-1 font-mono font-light tracking-widest
-                    ${selectedTier === tier.id
-                      ? tier.cost === 0 ? "text-amber-600"
-                        : tier.cost === 500 ? "text-amber-500"
-                        : "text-slate-700"
-                      : "text-slate-400"
-                    }`}
-                  >
-                    {tier.cost === 0
-                      ? <span className="text-3xl sm:text-4xl leading-[0.5] pt-2">∞</span>
-                      : <span className="text-base sm:text-xl">{tier.cost.toLocaleString()}</span>
-                    }
-                    <span className="text-xs font-sans font-medium opacity-80 uppercase tracking-widest">
-                      {tier.cost === 0 ? MESSAGES.CREATE_WISH.TIER_0 : UNIT_LABEL}
-                    </span>
-                  </span>
-                </div>
-
-                {/* 無償の願い: 呼吸するグロー */}
-                {selectedTier === tier.id && tier.cost === 0 && (
-                  <div className="absolute inset-0 rounded-xl bg-amber-200/10 animate-soft-glow pointer-events-none mix-blend-overlay" />
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
+        {/* 固定コスト注釈 */}
+        <p className="text-xs text-slate-500 px-1">
+          ※ お願いの感謝は一律{' '}
+          <span className="font-mono font-medium text-amber-600">1,000 {UNIT_LABEL}</span>{' '}
+          固定です。
+        </p>
 
         {/* 願いの内容入力 */}
         <div className="space-y-4">
@@ -315,13 +200,6 @@ export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
             </label>
           </div>
 
-          {/* Lm超過警告 */}
-          {exceedsAvailable && (
-            <div className="bg-orange-50/80 backdrop-blur-sm rounded-xl p-4 text-xs text-orange-800 leading-relaxed shadow-sm">
-              {MESSAGES.CREATE_WISH.WARN_EXCEED}
-            </div>
-          )}
-
           {/* エラー表示 */}
           {creationError && (
             <div className="bg-red-50/80 backdrop-blur-sm rounded-xl p-4 text-xs font-bold text-red-600 leading-relaxed shadow-sm text-center border border-red-100">
@@ -332,7 +210,7 @@ export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
           {/* 公開ボタン */}
           <button
             onClick={getSendAction(handlePostWish)}
-            disabled={!newWishContent.trim() || isSubmitting || exceedsAvailable || selectedTier === null}
+            disabled={!newWishContent.trim() || isSubmitting || insufficientBalance}
             className="w-full py-6 rounded-full bg-amber-900/90 backdrop-blur-md text-white font-bold text-base shadow-[0_15px_30px_-5px_rgba(69,26,3,0.3)] hover:bg-amber-900 hover:shadow-[0_20px_40px_-5px_rgba(69,26,3,0.4)] active:scale-[0.98] transition-all disabled:opacity-20 disabled:cursor-not-allowed relative overflow-hidden group"
           >
             <span className="relative z-10 flex items-center justify-center gap-4 transition-transform duration-300">

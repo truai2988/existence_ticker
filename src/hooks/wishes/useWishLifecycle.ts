@@ -3,9 +3,10 @@ import { UserProfile } from "../../types";
 import { useAuth } from "../useAuthHook";
 import { useWallet } from "../useWallet";
 import { db } from "../../lib/firebase";
-import { collection, doc, runTransaction, serverTimestamp, Transaction, query, where, getDocs, increment, deleteField } from "firebase/firestore";
+import { collection, doc, runTransaction, serverTimestamp, Transaction, increment, deleteField } from "firebase/firestore";
 import { calculateDecayedValue, toMilli, fromMilli, WORLD_CONSTANTS, getMillis } from "../../logic/worldPhysics";
 import { MESSAGES } from "../../constants/messages";
+import { FIXED_WISH_COST } from "../../constants";
 import { useWishNotice } from "./useWishNotice";
 import { recordFulfillment, recordCompensation, recordCancellation, recordExpiration } from "../../logic/transactionService";
 
@@ -28,28 +29,6 @@ export const useWishLifecycle = () => {
 
     try {
       const now = Date.now();
-      
-      const wishesRef = collection(db, 'wishes');
-      const wDocInitial = await getDocs(query(collection(db, 'wishes'), where('__name__', '==', wishId)));
-      if (wDocInitial.empty) throw "Wish not found (initial check)";
-      const wDataInitial = wDocInitial.docs[0].data();
-      const issuerId = wDataInitial.requester_id;
-
-      const issuerActiveQ = query(
-        wishesRef, 
-        where('requester_id', '==', issuerId), 
-        where('status', 'in', ['open', 'in_progress', 'review_pending'])
-      );
-      const issuerActiveSnap = await getDocs(issuerActiveQ);
-      let issuerQueryCommittedMilli = 0;
-      const costMap: Record<string, number> = { light: 0, medium: 500, heavy: 1000 };
-
-      issuerActiveSnap.forEach(wishDoc => {
-        const w = wishDoc.data();
-        const initialCost = w.cost || costMap[w.gratitude_preset as string] || 0;
-        const wElapsedSec = Math.max(0, ((now - getMillis(w.created_at)) / 1000) | 0);
-        issuerQueryCommittedMilli += calculateDecayedValue(toMilli(initialCost), wElapsedSec);
-      });
 
       const resolvedNames = await runTransaction(db, async (transaction: Transaction) => {
         const wishDoc = await transaction.get(wishRef);
@@ -62,38 +41,26 @@ export const useWishLifecycle = () => {
         const issuerDoc = await transaction.get(issuerRef);
         const fulfillerDoc = await transaction.get(fulfillerRef);
 
+        // 幂幱防止のための冪等性トリガー ID
         const txId = `wish_${wishId}_PAY_${fulfillerId}`;
         const txRef = doc(collection(db!, "transactions"), txId);
         const txDoc = await transaction.get(txRef);
         if (txDoc.exists()) throw "Idempotency trigger";
 
+        // 「心と心の交わり」の決済計算:
+        // 作成時にコミットされた 1000 Lm が、現在までに自然にいくらに減価したかを計算する。
+        // コミットLmと残高は全く同じ选度で減価するため、破産（バンクラプトシー）は数学的に絶対に発生しない。
         const wishElapsedSec = ((now - getMillis(wishData.created_at)) / 1000) | 0;
-        const wishDecayedMilli = calculateDecayedValue(toMilli(wishData.cost || 0), wishElapsedSec);
-
-        let paymentMilli = wishDecayedMilli;
-        if (issuerDoc.exists()) {
-             const issuerData = issuerDoc.data() as UserProfile;
-             const iCycleStart = getMillis(issuerData.cycle_started_at, 0);
-             const iSpent = issuerData.spent_lm || 0;
-             const iElapsedSec = ((now - iCycleStart) / 1000) | 0;
-             const iDecayedVesselMilli = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), iElapsedSec);
-             const iCurrentRealMilli = Math.max(0, iDecayedVesselMilli - toMilli(iSpent));
-             
-             const activeCommittedExceptThisMilli = Math.max(0, issuerQueryCommittedMilli - wishDecayedMilli);
-             const availableForThisPaymentMilli = Math.max(0, iCurrentRealMilli - activeCommittedExceptThisMilli);
-             paymentMilli = Math.min(wishDecayedMilli, availableForThisPaymentMilli);
-        } else {
-             paymentMilli = 0;
-        }
-        
-        const isBankruptcy = paymentMilli < wishDecayedMilli;
+        const paymentMilli = calculateDecayedValue(toMilli(wishData.cost ?? FIXED_WISH_COST), wishElapsedSec);
         const paymentAmount = fromMilli(paymentMilli);
 
+        // 助け手の残高を増やす（spent_lmを減らす）
         if (fulfillerDoc.exists()) {
           const fData = fulfillerDoc.data() as UserProfile;
           const fCycleStart = getMillis(fData.cycle_started_at, 0);
           const fDecayedVesselMilli = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), ((now - fCycleStart) / 1000) | 0);
-          
+
+          // 壁チェック: 助け手の残高が器（2400 Lm）を超えないよう
           const minFSpentMilli = fDecayedVesselMilli - toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT);
           const fSpentMilli = toMilli(fData.spent_lm || 0);
           const newFSpentMilli = Math.max(minFSpentMilli, fSpentMilli - paymentMilli);
@@ -105,20 +72,20 @@ export const useWishLifecycle = () => {
           });
         }
 
+        // 依頼主の spent_lm を増やす
         if (issuerDoc.exists()) {
           const issuerProfile = issuerDoc.data() as UserProfile;
-          const currentSpent = issuerProfile.spent_lm || 0;
           transaction.update(issuerRef, {
-            spent_lm: currentSpent + paymentAmount,
+            spent_lm: (issuerProfile.spent_lm || 0) + paymentAmount,
             completed_requests: increment(1),
           });
         }
 
         transaction.delete(wishRef);
 
+        // 減価後の金額から取引タイプを決定
         let txType = "SPARK";
-        if (paymentAmount === 0) txType = "PRICELESS";
-        else if (paymentAmount >= 900) txType = "BONFIRE";
+        if (paymentAmount >= 900) txType = "BONFIRE";
         else if (paymentAmount >= 400) txType = "CANDLE";
 
         recordFulfillment(transaction, db!, {
@@ -130,7 +97,6 @@ export const useWishLifecycle = () => {
           fulfillerName: fulfillerDoc.data()?.name || wishData.helper_name || MESSAGES.WISH_ACTIONS.FALLBACK_HELPER,
           paymentAmount,
           txType,
-          isBankruptcy,
           message
         });
 
@@ -150,7 +116,6 @@ export const useWishLifecycle = () => {
 
       sendNoticeSilently({
         userId: fulfillerId,
-        // wishId: wishId, // 願い本体は削除されているため紐付けない（詳細モーダルを開かせない）
         message: MESSAGES.WISH_ACTIONS.NOTICE_FULFILLED.replace('%name', resolvedNames.requesterName),
         messageKey: "NOTICE_FULFILLED",
         params: { 
@@ -194,7 +159,6 @@ export const useWishLifecycle = () => {
           if (!requesterDoc.exists()) throw "Requester not found";
           
           const rData = requesterDoc.data() as UserProfile;
-          const rCycleStart = getMillis(rData.cycle_started_at, 0);
           const rSpent = rData.spent_lm || 0;
           const rName = rData.name || "Requester";
 
@@ -204,11 +168,8 @@ export const useWishLifecycle = () => {
           const hName = helperDoc.data()?.name || "Helper";
 
           const wishElapsedSec = ((now - getMillis(wishData.created_at)) / 1000) | 0;
-          const wishDecayedMilli = calculateDecayedValue(toMilli(wishData.cost || 0), wishElapsedSec);
-          
-          const rElapsedSec = ((now - rCycleStart) / 1000) | 0;
-          const rDecayedVesselMilli = calculateDecayedValue(toMilli(WORLD_CONSTANTS.REBIRTH_AMOUNT), rElapsedSec);
-          const rCurrentRealMilli = Math.max(0, rDecayedVesselMilli - toMilli(rSpent));
+          // コミットLmと残高は全く同じ选度で減価するため、破産は数学的に絵対に発生しない。
+          const wishDecayedMilli = calculateDecayedValue(toMilli(wishData.cost ?? FIXED_WISH_COST), wishElapsedSec);
           
           const txId = isRequesterCanceling 
               ? `compensate_${wishId}_TO_${wishData.helper_id}`
@@ -217,7 +178,8 @@ export const useWishLifecycle = () => {
           const txCheck = await transaction.get(txRef);
 
           if (isRequesterCanceling) {
-            const actualPaymentMilli = Math.min(rCurrentRealMilli, wishDecayedMilli);
+            // 依頼主キャンセル時の補償：減価後のLmを助け手にそのまま移動する。
+            const actualPaymentMilli = wishDecayedMilli;
             
             transaction.update(requesterRef, {
               spent_lm: rSpent + fromMilli(actualPaymentMilli),

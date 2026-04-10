@@ -1,9 +1,6 @@
-// Poetic Cost Constants (The weight of existence shared)
-export const WISH_COST = {
-  SPARK: 0, // Echo (共鳴)
-  CANDLE: 500, // Ray (月光)
-  BONFIRE: 1000, // Halo (月暈)
-};
+/** すべての願いに共通する固定コスト（1回の心と心の交わり＝1000 Lm）
+ * 資本主義的な値付けを廃し、事の大小に関わらず価値を平等にする。 */
+export const FIXED_WISH_COST = 1000;
 
 // 1 Lm = 1 Lumen (生命の源気)
 export const UNIT_LABEL = "Lm";

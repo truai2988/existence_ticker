@@ -1,5 +1,5 @@
 import React from "react";
-import { Loader2, Heart, CheckCircle, X, Archive, Hourglass } from "lucide-react";
+import { Loader2, CheckCircle, X, Archive, Hourglass } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { WishCardState, WishCardHandlers } from "../types";
 import { calculateHistoricalValue } from "../../../logic/worldPhysics";
@@ -8,7 +8,7 @@ import { UNIT_LABEL } from "../../../constants";
 export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHandlers }> = ({ state, handlers }) => {
   const { t: MESSAGES } = useLanguage();
   const {
-    wish, isEditing, editContent, isLoading, isExpired, initialCost, currentUserId, displayValue, isMyWish
+    wish, isEditing, editContent, isLoading, isExpired, currentUserId, displayValue, isMyWish
   } = state;
 
   const { setIsEditing, setEditContent, handleUpdate } = handlers;
@@ -62,9 +62,7 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
           <div
             className={`p-4 rounded-xl border flex justify-between items-center ${
               wish.status === "fulfilled"
-                ? initialCost === 0
-                  ? "bg-pink-50/30 border-pink-100/50"
-                  : "bg-green-50/50 border-green-100/50"
+                ? "bg-green-50/50 border-green-100/50"
                 : wish.status === "cancelled"
                 ? "bg-red-50/30 border-red-100/50"
                 : wish.status === "interrupted"
@@ -74,7 +72,7 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
           >
             <div className="flex items-center gap-2">
               {wish.status === "fulfilled" ? (
-                initialCost === 0 ? <Heart size={16} className="text-pink-400" /> : <CheckCircle size={16} className="text-green-500" />
+                <CheckCircle size={16} className="text-green-500" />
               ) : wish.status === "cancelled" ? (
                 <X size={16} className="text-red-400" />
               ) : wish.status === "interrupted" ? (
@@ -85,14 +83,14 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
               <span
                 className={`text-sm font-bold font-sans ${
                   wish.status === "fulfilled"
-                    ? initialCost === 0 ? "text-pink-600" : "text-green-700"
+                    ? "text-green-700"
                     : wish.status === "cancelled"
                     ? "text-red-600"
                     : "text-slate-800"
                 }`}
               >
                 {wish.status === "fulfilled"
-                  ? initialCost === 0 ? MESSAGES.WISH_CARD.LBL_RESONANCE : MESSAGES.WISH_CARD.LBL_DELIVERED_THANKS
+                  ? MESSAGES.WISH_CARD.LBL_DELIVERED_THANKS
                   : wish.status === "interrupted"
                   ? MESSAGES.WISH_CARD.LBL_END_BY_WITHDRAWAL
                   : wish.status === "cancelled"
@@ -114,13 +112,9 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
             </div>
             <div className="text-xl font-medium font-mono text-slate-900 tracking-tight">
               {wish.status === "fulfilled" ? (
-                initialCost === 0 ? (
-                  <span className="text-pink-500 font-medium tracking-[0.15em]">{MESSAGES.WISH_CARD.TAG_ECHO}</span>
-                ) : (
-                  <>
-                    {isMyWish ? '-' : '+'}{Math.floor(wish.val_at_fulfillment || 0).toLocaleString()} <span className="text-sm text-slate-700 ml-0.5">Lm</span>
-                  </>
-                )
+                <>
+                  {isMyWish ? '-' : '+'}{Math.floor(wish.val_at_fulfillment || 0).toLocaleString()} <span className="text-sm text-slate-700 ml-0.5">Lm</span>
+                </>
               ) : wish.status === "cancelled" ? (
                 wish.cancel_reason === "compensatory_cancellation" || wish.cancel_reason === "helper_cancellation" || wish.val_at_fulfillment ? (
                   <div className="flex flex-col items-end">
@@ -148,17 +142,13 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
                   {isMyWish ? MESSAGES.WISH_CARD.LBL_GIVE_THANKS : MESSAGES.WISH_CARD.LBL_SHARE_THANKS}
                 </span>
               </div>
-              {displayValue > 0 && (
-                <div className="text-xs text-slate-700 font-serif tracking-wide pt-0.5">
-                  {MESSAGES.WISH_CARD.TXT_THANKS_DECAY_NOTE}
-                </div>
-              )}
+              <div className="text-xs text-slate-700 font-serif tracking-wide pt-0.5">
+                {MESSAGES.WISH_CARD.TXT_THANKS_DECAY_NOTE}
+              </div>
             </div>
-            <div className={`text-base font-mono ${initialCost === 0 ? "text-pink-400" : "text-slate-800"} font-medium tracking-tight`}>
-              {initialCost === 0 ? "∞" : Math.floor(displayValue).toLocaleString()}{" "}
-              <span className={`text-sm font-normal ${initialCost === 0 ? "text-pink-300" : "text-slate-700"} ml-0.5`}>
-                {initialCost === 0 ? MESSAGES.WISH_CARD.LBL_ECHO : UNIT_LABEL}
-              </span>
+            <div className="text-base font-mono text-slate-800 font-medium tracking-tight">
+              {Math.floor(displayValue).toLocaleString()}{" "}
+              <span className="text-sm font-normal text-slate-700 ml-0.5">{UNIT_LABEL}</span>
             </div>
           </div>
         )}

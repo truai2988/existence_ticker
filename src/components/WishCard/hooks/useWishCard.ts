@@ -7,6 +7,7 @@ import { useWallet } from "../../../hooks/useWallet";
 import { isProfileComplete } from "../../../utils/profileCompleteness";
 import { useToast } from "../../../hooks/useToast";
 import { WishCardProps, WishCardState, WishCardHandlers } from "../types";
+import { FIXED_WISH_COST } from "../../../constants";
 
 export function useWishCard(props: WishCardProps): { state: WishCardState; handlers: WishCardHandlers } {
   const {
@@ -48,15 +49,8 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
   const [isCopied, setIsCopied] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
 
-  const getInitialCost = (tier: string) => {
-    switch (tier) {
-      case "light": return 0;
-      case "medium": return 500;
-      case "heavy": return 1000;
-      default: return wish.cost || 0;
-    }
-  };
-  const initialCost = wish.cost !== undefined ? wish.cost : getInitialCost(wish.gratitude_preset);
+  // すべての願いは1000 Lm固定。DBに cost フィールドが存在する場合はそれを尊重する（メイン：wish.costが常に書き込まれる）。
+  const initialCost = wish.cost ?? FIXED_WISH_COST;
 
   const displayValue = useMemo(() => {
     const elapsedSec = ((globalNow - wish.created_at) / 1000) | 0;

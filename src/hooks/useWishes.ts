@@ -15,7 +15,8 @@ export const useWishes = () => {
             const newWishData = {
                 requester_id: user.uid,
                 content: input.content,
-                gratitude_preset: input.tier,
+                gratitude_preset: 'heavy',
+                cost: 1000,
                 status: 'open',
                 created_at: new Date().toISOString(),
             };
