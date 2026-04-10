@@ -162,7 +162,7 @@ export const NoticePanel: React.FC = () => {
 
                       {/* メッセージ */}
                       <div className="flex-1 min-w-0">
-                        <p className="text-[13px] text-slate-800 leading-relaxed font-light tracking-wide">
+                        <p className="text-sm text-slate-800 leading-relaxed font-light tracking-wide">
                           {resolveMessage(notice, wishActions)}
                         </p>
                         <span className="text-xs text-slate-700 mt-1.5 block font-sans tracking-tight">
