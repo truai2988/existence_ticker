@@ -330,10 +330,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
               {profile?.has_cancellation_history &&
                 (profile.consecutive_completions || 0) < 2 &&
                 user?.uid === profile.id && (
-                  <div className="mt-2 px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg max-w-[240px]">
-                    <p className="text-sm text-slate-800 text-center leading-relaxed font-sans">
-                      {MESSAGES.PROFILE.TRUST_RECOVERY_1}
-                      <br />
+                  <div className="mt-2 max-w-xs text-center w-full">
+                    <p className="text-sm text-slate-800 text-center leading-relaxed bg-slate-50 px-4 py-2 rounded-xl border border-slate-300 font-sans">
+                      {MESSAGES.PROFILE.TRUST_RECOVERY_1}{" "}
                       {MESSAGES.PROFILE.TXT_LEFT_DAYS}{" "}
                       <span className="font-bold text-slate-900">
                         {2 - (profile.consecutive_completions || 0)}

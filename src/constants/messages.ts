@@ -365,6 +365,7 @@ export const MESSAGES = {
     // CardFooter
     BTN_GIVE_THANKS_DONE: "完了しました",
     TXT_WAITING_REPLY: "返事を待っています",
+    TXT_WAITING_CANDIDATE: "立候補を待っています",
     MSG_CONFIRM_CANCEL: "本当に寄り添うのを取りやめますか？", // 「立候補を取り消す」を排除
     MSG_CANCEL_SUCCESS: "取りやめました",
     BTN_CANCEL_APPLY: "取り消す",
@@ -405,6 +406,7 @@ export const MESSAGES = {
     LBL_FEMALE: "女性",
     BTN_CHOOSE: "この人に託す", // 「お願いする」を統一
     LBL_ANONYMOUS: "匿名",
+    LBL_YOU_ANONYMOUS: " (あなた)",
   },
 
   // 5. プロフィール・設定関連 (ProfileView / ProfileEditScreen)
@@ -509,8 +511,8 @@ export const MESSAGES = {
     PW_REQUIRED: "パスワードの入力は必須です。",
     PW_INCORRECT: "パスワードが正しくありません。",
     ERROR_PREFIX: "エラー: ",
-    TRUST_RECOVERY_1: "現在、中断による制限があります。",
-    TRUST_RECOVERY_2: "あと %d 回願いを叶えることで、制限が解除されます。",
+    TRUST_RECOVERY_1: "中断歴により、本来の称号が隠れています。",
+    TRUST_RECOVERY_2: "回願いを叶えると、称号が復活します。",
     PW_VERIFY: "パスワード認証",
     PW_INPUT: "パスワードを入力",
     PROC_LOADING: "処理中...",
@@ -732,7 +734,7 @@ export const MESSAGES = {
     TIME_MINUTES_AGO: "分前",
     TIME_HOURS_AGO: "時間前",
 
-    TOOLTIP_DISMISS_ALL: "すべて既読にする",
+    TOOLTIP_DISMISS_ALL: "すべてクリア",
     TOOLTIP_DISMISS: "閉じる",
     LOADING_WISH: "確認中...",
     WISH_NOT_FOUND: "この願いはすでに存在しません",

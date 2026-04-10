@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, X, BellOff, Loader2 } from "lucide-react";
+import { Bell, X, BellOff, Loader2, ChevronRight } from "lucide-react";
 import { useNoticeContext } from "../hooks/useNoticeContext";
 import { Notice } from "../types/notice";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -113,32 +113,34 @@ const NoticeWishModal: React.FC<{
   return (
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={onClose}>
       <div 
-        className="relative w-full max-w-lg max-h-screen overflow-y-auto no-scrollbar rounded-[2rem] bg-slate-50/50 p-2 sm:p-0 my-auto"
+        className="relative w-full max-w-lg max-h-[85vh] flex flex-col"
         onClick={e => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute -top-3 -right-3 z-50 p-2.5 bg-slate-800 text-white hover:bg-slate-900 rounded-full shadow-lg border-2 border-white transition-transform active:scale-95"
+          className="absolute -top-3 -right-1 sm:-top-4 sm:-right-4 z-50 p-2.5 bg-slate-800 text-white hover:bg-slate-900 rounded-full shadow-xl border-2 border-white transition-transform active:scale-95"
         >
           <X size={20} strokeWidth={2.5}/>
         </button>
 
-        {loading ? (
-          <div className="bg-white rounded-[2rem] shadow-xl p-12 flex flex-col items-center justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-amber-500 mb-4" />
-            <p className="text-slate-500 font-bold">{t.NOTICE.LOADING_WISH || "確認中..."}</p>
-          </div>
-        ) : !wish ? (
-          <div className="bg-white rounded-[2rem] shadow-xl p-12 flex flex-col items-center justify-center text-center">
-            <BellOff className="w-12 h-12 text-slate-300 mb-4" />
-            <p className="text-slate-600 font-bold">{t.NOTICE.WISH_NOT_FOUND || "この願いはすでに存在しません"}</p>
-            <button onClick={onClose} className="mt-6 px-6 py-2 bg-slate-100 font-bold rounded-lg hover:bg-slate-200">閉じる</button>
-          </div>
-        ) : (
-          <div className="bg-transparent">
-             <WishCard wish={wish} currentUserId={user?.uid || ""} />
-          </div>
-        )}
+        <div className="w-full flex-1 overflow-y-auto no-scrollbar rounded-[2rem]">
+          {loading ? (
+            <div className="bg-white rounded-[2rem] shadow-xl p-12 flex flex-col items-center justify-center h-full min-h-[300px]">
+              <Loader2 className="w-8 h-8 animate-spin text-amber-500 mb-4" />
+              <p className="text-slate-500 font-bold">{t.NOTICE.LOADING_WISH || "確認中..."}</p>
+            </div>
+          ) : !wish ? (
+            <div className="bg-white rounded-[2rem] shadow-xl p-12 flex flex-col items-center justify-center text-center h-full min-h-[300px]">
+              <BellOff className="w-12 h-12 text-slate-300 mb-4" />
+              <p className="text-slate-600 font-bold">{t.NOTICE.WISH_NOT_FOUND || "この願いはすでに存在しません"}</p>
+              <button onClick={onClose} className="mt-6 px-6 py-2 bg-slate-100 font-bold rounded-lg hover:bg-slate-200">閉じる</button>
+            </div>
+          ) : (
+            <div className="bg-transparent pb-0">
+               <WishCard wish={wish} currentUserId={user?.uid || ""} />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -266,7 +268,7 @@ export const NoticePanel: React.FC = () => {
                         />
 
                         {/* メッセージ */}
-                        <div className="flex-1 min-w-0 pr-12">
+                        <div className="flex-1 min-w-0 pr-2">
                           <p className="text-base sm:text-sm text-slate-800 leading-relaxed tracking-wide text-left">
                             {resolveMessage(notice, wishActions)}
                           </p>
@@ -279,16 +281,23 @@ export const NoticePanel: React.FC = () => {
                             )}
                           </span>
                         </div>
-                      </div>
 
-                      {/* 削除ボタン */}
-                      <button
-                        onClick={(e) => { e.stopPropagation(); dismissNotice(notice.id); }}
-                        className="absolute right-4 top-5 p-2.5 text-slate-700 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors opacity-0 group-hover:opacity-100 shrink-0"
-                        title={t.NOTICE.TOOLTIP_DISMISS}
-                      >
-                        <X size={14} />
-                      </button>
+                        {/* アクション群（開く・削除） */}
+                        <div className="flex items-center gap-1 shrink-0 -mr-2 mt-1">
+                          {notice.wishId && (
+                            <div className="text-slate-300 group-hover:text-amber-400 group-active:text-amber-500 transition-colors hidden sm:block">
+                              <ChevronRight size={18} />
+                            </div>
+                          )}
+                          <button
+                            onClick={(e) => { e.stopPropagation(); dismissNotice(notice.id); }}
+                            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-md transition-all sm:opacity-0 group-hover:opacity-100"
+                            title={t.NOTICE.TOOLTIP_DISMISS}
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      </div>
                     </motion.div>
                   ))}
                 </div>

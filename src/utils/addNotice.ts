@@ -18,6 +18,7 @@ export async function addNotice(input: CreateNoticeInput): Promise<void> {
       userId: input.userId,
       fromId: input.fromId,
       message: input.message,
+      ...(input.wishId ? { wishId: input.wishId } : {}),
       ...(input.messageKey ? { messageKey: input.messageKey } : {}),
       ...(input.params ? { params: input.params } : {}),
       type: input.type,

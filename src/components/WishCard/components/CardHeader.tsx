@@ -3,6 +3,7 @@ import { User, ShieldCheck, Megaphone, Clock, Pencil, Trash2, AlertTriangle } fr
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { WishCardState, WishCardHandlers } from "../types";
 import { useUserView } from "../../../contexts/UserViewContext";
+import { mapAgeGroup } from "../../../utils/formatAgeGroup";
 
 export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHandlers }> = ({ state, handlers }) => {
   const { t: MESSAGES } = useLanguage();
@@ -46,7 +47,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
     if (!label) return null;
 
     return (
-      <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider ${colorClass}`}>
+      <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider whitespace-nowrap shrink-0 ${colorClass}`}>
         {label}
       </span>
     );
@@ -81,7 +82,22 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                   disabled={isMasked}
                   className={`text-base font-bold tracking-wide text-left font-sans transition-colors ${isMasked ? "text-slate-600 cursor-default" : "text-slate-900 hover:underline"}`}
                 >
-                  {isMasked ? MESSAGES.WISH_CARD.LBL_ANONYMOUS : displayRequesterName}
+                  {isMasked ? (
+                    <div className="flex items-center gap-2">
+                      <span>
+                        {MESSAGES.WISH_CARD.LBL_ANONYMOUS}
+                        {isMyWish && <span className="opacity-80 ml-0.5">{MESSAGES.WISH_CARD.LBL_YOU_ANONYMOUS}</span>}
+                      </span>
+                      {requesterProfile?.age_group && (
+                        <span className="text-[13px] font-normal text-slate-500 font-mono tracking-normal shrink-0 translate-y-[1px]">
+                          {mapAgeGroup(requesterProfile.age_group, MESSAGES)}
+                          {requesterProfile.gender && requesterProfile.gender !== 'other' 
+                            ? ` / ${requesterProfile.gender === 'male' ? MESSAGES.WISH_CARD.LBL_MALE : MESSAGES.WISH_CARD.LBL_FEMALE}` 
+                            : ''}
+                        </span>
+                      )}
+                    </div>
+                  ) : displayRequesterName}
                 </button>
 
                 {/* トラスト・実績（自分以外） */}
@@ -103,12 +119,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
 
               </div>
 
-              {/* 自己紹介（自分以外・非匿名） */}
-              {!isMyWish && !isMasked && requesterProfile?.bio && (
-                <p className="text-sm text-slate-800 mt-1 line-clamp-2 leading-relaxed font-sans">
-                  {requesterProfile.bio.length > 60 ? `${requesterProfile.bio.slice(0, 60)}...` : requesterProfile.bio}
-                </p>
-              )}
+
 
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="flex items-center gap-1 text-sm text-slate-800 font-sans">

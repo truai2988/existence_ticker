@@ -520,6 +520,7 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
     PH_SENDING: "Sending...",
     BTN_GIVE_THANKS_DONE: "Give Thanks (Complete)",
     TXT_WAITING_REPLY: "Waiting for reply",
+    TXT_WAITING_CANDIDATE: "Waiting for candidate",
     MSG_CANCEL_SUCCESS: "Withdrawn",
     BTN_CLEANUP_RECORD: "Archive this record",
     BTN_UPDATE: "Update",
@@ -550,6 +551,7 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
     LBL_MALE: "M",
     LBL_FEMALE: "F",
     LBL_ANONYMOUS: "Anonymous",
+    LBL_YOU_ANONYMOUS: " (You)",
   },
   CREATE_WISH: {
     PLACEHOLDER_FALLBACK: "Please describe your wish...",
@@ -787,8 +789,9 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
     PROMPT_BIO: "Please enter a bio",
     MSG_FAREWELL: "All connections have been dissolved.",
     ARIA_ADMIN: "Admin Console",
-    ARIA_EDIT: "Edit Profile",
     FALLBACK_NAME: "—",
+    TRUST_RECOVERY_1: "Your title is hidden due to an interruption.",
+    TRUST_RECOVERY_2: " more wishes to restore your title.",
   },
   JOURNAL: {
     TITLE: "Footprints",

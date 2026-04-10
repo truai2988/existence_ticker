@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ClipboardList, Menu } from "lucide-react";
+import { PREFECTURES } from '../data/prefectures';
 import { useWishes } from '../hooks/useWishes';
+import { useLocationData } from '../hooks/useLocationData';
 import { calculateDecayedValue, getMillis, toMilli, fromMilli } from '../logic/worldPhysics';
 import { WishCardList } from './WishCardList';
 import { WishInputForm } from './WishInputForm';
@@ -20,15 +22,25 @@ export const WishesView: React.FC<WishesViewProps> = ({ currentUserId, onOpenPro
     const { t: MESSAGES } = useLanguage();
     
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [selectedPrefecture, setSelectedPrefecture] = useState("");
+    const [selectedCity, setSelectedCity] = useState("");
+    const { cities } = useLocationData(selectedPrefecture);
+
+    // Reset city when prefecture changes
+    React.useEffect(() => {
+        setSelectedCity("");
+    }, [selectedPrefecture]);
 
     // Explore (Active Global Feed)
     const exploreWishes = wishes.filter(w => {
         if (w.status !== 'open') return false;
+        if (selectedPrefecture && w.requester_prefecture !== selectedPrefecture) return false;
+        if (selectedCity && w.requester_city !== selectedCity) return false;
         if (w.applicants && w.applicants.some(a => a.id === currentUserId)) return false;
         const startMs = getMillis(w.created_at);
         const elapsedSec = ((Date.now() - startMs) / 1000) | 0;
         const currentValue = fromMilli(calculateDecayedValue(toMilli(w.cost || 0), elapsedSec));
-        if (currentValue <= 0) return false;
+        if ((w.cost || 0) > 0 && currentValue <= 0) return false;
         return true;
     });
 
@@ -82,6 +94,38 @@ export const WishesView: React.FC<WishesViewProps> = ({ currentUserId, onOpenPro
                     {/* Inline Input Form */}
                     <div className="bg-[#F9F8F4] -mx-6 px-6 -mt-6 pt-6 pb-4 border-b border-white/20 sticky top-0 z-20 shadow-sm shadow-slate-200/20">
                         <WishInputForm />
+                    </div>
+
+                    <div className="pt-2 px-1 flex items-center justify-end gap-4">
+                        <div className="relative">
+                            <select
+                                value={selectedPrefecture}
+                                onChange={(e) => setSelectedPrefecture(e.target.value)}
+                                className="appearance-none bg-transparent border-b border-slate-300/60 text-slate-700/80 text-xs font-serif tracking-widest pl-2 pr-5 py-1 focus:outline-none focus:border-amber-500/50 transition-colors cursor-pointer w-auto"
+                            >
+                                <option value="">すべての空の下</option>
+                                {PREFECTURES.map(pref => (
+                                    <option key={pref} value={pref}>{pref}</option>
+                                ))}
+                            </select>
+                            <svg className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                        </div>
+
+                        {selectedPrefecture && (
+                            <div className="relative animate-in fade-in slide-in-from-right-4 duration-300">
+                                <select
+                                    value={selectedCity}
+                                    onChange={(e) => setSelectedCity(e.target.value)}
+                                    className="appearance-none bg-transparent border-b border-slate-300/60 text-slate-700/80 text-xs font-serif tracking-widest pl-2 pr-5 py-1 focus:outline-none focus:border-amber-500/50 transition-colors cursor-pointer w-auto"
+                                >
+                                    <option value="">（市区町村エリア）</option>
+                                    {cities.map(city => (
+                                        <option key={city} value={city}>{city}</option>
+                                    ))}
+                                </select>
+                                <svg className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                            </div>
+                        )}
                     </div>
 
                     <div className="pt-2">

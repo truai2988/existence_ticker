@@ -115,6 +115,7 @@ export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats }) => {
           subtitle={t.ADMIN.MONITOR.LIGHT_WISH_DESC}
         />
       </div>
+
     </div>
   );
 });

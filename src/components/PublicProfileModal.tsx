@@ -104,11 +104,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
                                 {MESSAGES.DATA.RANKS[rank.id]}
                             </span>
                             
-                            {!isMasked && (
-                                <span className="text-xs text-slate-700 font-mono px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-300/50">
-                                    ID: {profile.id.slice(0,6)}
-                                </span>
-                            )}
+
 
                             {age_group && (
                                 <span className="text-xs text-slate-700 font-bold px-2 py-0.5 bg-slate-50/50 rounded-lg border border-slate-300/50 whitespace-nowrap">

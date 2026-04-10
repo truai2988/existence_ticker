@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Wish, CreateWishInput } from "../../types";
 import { useAuth } from "../useAuthHook";
+import { useProfile } from "../useProfile";
 import { useWishesContext } from "../../contexts/WishesContext";
 import { db } from "../../lib/firebase";
 import { doc, runTransaction, serverTimestamp } from "firebase/firestore";
@@ -8,6 +9,7 @@ import { MESSAGES } from "../../constants/messages";
 
 export const useCreateWish = () => {
   const { user } = useAuth();
+  const { profile } = useProfile();
   const { addOptimisticWish, updateOptimisticWish, removeOptimisticWish } = useWishesContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,6 +41,8 @@ export const useCreateWish = () => {
       cost: bounty,
       created_at: Date.now(),
       isAnonymous: input.isAnonymous || false,
+      requester_prefecture: profile?.location?.prefecture || "",
+      requester_city: profile?.location?.city || "",
       isOptimistic: true
     };
 
@@ -67,6 +71,8 @@ export const useCreateWish = () => {
         const { isOptimistic: _isOptimistic, ...newWishData } = {
           ...optimisticWish,
           requester_name: userData.name || "名称未設定",
+          requester_prefecture: userData.location?.prefecture || "",
+          requester_city: userData.location?.city || "",
           created_at: serverTimestamp(),
         };
 

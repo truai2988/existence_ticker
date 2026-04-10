@@ -52,6 +52,8 @@ export interface Wish {
   id: string;
   requester_id: string;
   requester_name?: string;
+  requester_prefecture?: string;
+  requester_city?: string;
   requester_trust_score?: number;
   requester_completed_requests?: number;
   content: string;

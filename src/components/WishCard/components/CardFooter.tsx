@@ -26,7 +26,6 @@ export const CardFooter: React.FC<{
     hasApplied,
     displayValue,
     currentUserId,
-    isMasked,
   } = state;
 
   const {
@@ -67,11 +66,7 @@ export const CardFooter: React.FC<{
               <Clock className="w-3.5 h-3.5" />
               <span>{formatDate(wish.created_at)}</span>
             </span>
-            {wish.isAnonymous && (
-              <span className={`text-sm font-bold px-2 py-0.5 rounded-full border uppercase tracking-tight ${isMasked ? "text-red-600 bg-red-50 border-red-100" : "text-blue-600 bg-blue-50 border-blue-100"}`}>
-                {isMasked ? MESSAGES.WISH_CARD.FTR_ANON : "開示"}
-              </span>
-            )}
+
           </div>
         )}
       </div>
@@ -81,7 +76,7 @@ export const CardFooter: React.FC<{
           <>
             {wish.status === "open" && !isExpired && (
               <div>
-                {applicants.length > 0 && (
+                {applicants.length > 0 ? (
                   <div className="relative">
                     <button
                       onClick={() => setShowApplicants(!showApplicants)}
@@ -92,6 +87,11 @@ export const CardFooter: React.FC<{
                       {MESSAGES.WISH_CARD.FTR_APPLICANTS}
                     </button>
                   </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 text-sm font-bold text-slate-800 whitespace-nowrap">
+                    <Clock size={16} />
+                    <span>{MESSAGES.WISH_CARD.TXT_WAITING_CANDIDATE}</span>
+                  </div>
                 )}
               </div>
             )}
@@ -101,9 +101,10 @@ export const CardFooter: React.FC<{
               (wish.status === "review_pending" ||
                 wish.status === "in_progress") && (
                 <div className="flex flex-col items-end gap-2">
-                  <p className="text-sm font-bold text-slate-900 text-right">
-                    {MESSAGES.WISH_CARD.FTR_THANK_CONFIRM}
-                  </p>
+                  <div className="flex items-center justify-end gap-1.5 text-sm font-bold text-slate-800 text-right">
+                    <Clock size={16} className="shrink-0" />
+                    <span>{MESSAGES.WISH_CARD.FTR_THANK_CONFIRM}</span>
+                  </div>
                   <button
                     onClick={() => {
                       if (window.confirm(MESSAGES.WISH_CARD.FTR_THANK_ALERT)) {

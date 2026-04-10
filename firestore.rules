@@ -45,8 +45,9 @@ service cloud.firestore {
 
       // --- Notices サブコレクション ---
       match /notices/{noticeId} {
-        // 自分の通知のみ閲覧・削除・更新が可能
-        allow read, update, delete: if isSignedIn() && isOwner(userId);
+        // [閲覧・更新] 基本的に自分の通知のみ。送り主も自分が送った通知に限って閲覧可能
+        allow update: if isSignedIn() && (isOwner(userId) || isAdmin());
+        allow read, delete: if isSignedIn() && (isOwner(userId) || isAdmin() || resource.data.fromId == request.auth.uid);
 
         // 作成: 認証済みで、送信元が自分自身、かつ宛先は自分以外
         allow create: if isSignedIn()
