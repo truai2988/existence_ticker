@@ -61,21 +61,28 @@ export const CardFooter: React.FC<{
   return (
     <div className="relative pt-4 border-t border-slate-300 min-h-[50px] flex items-center justify-between gap-4 flex-wrap">
       <div className="flex flex-col gap-1 items-start">
-        <div className="">
+        <div className="flex flex-col gap-1 items-start">
           {wish.status === "in_progress" && (
-            <span className="text-sm font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 whitespace-nowrap shrink-0">
+            <span className="flex items-center gap-1.5 text-sm font-bold text-blue-600 whitespace-nowrap shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
               {MESSAGES.WISH_CARD.FTR_IN_PROGRESS}
             </span>
           )}
           {wish.status === "cancelled" && (
             <span
-              className={`text-sm font-bold px-3 py-1 rounded-full border whitespace-nowrap shrink-0 ${
+              className={`flex items-center gap-1.5 text-sm font-bold whitespace-nowrap shrink-0 ${
                 wish.cancel_reason === "helper_cancellation" ||
                 wish.cancel_reason === "compensatory_cancellation"
-                  ? "text-red-600 bg-red-50 border-red-100"
-                  : "text-slate-800 bg-slate-100 border-slate-300"
+                  ? "text-red-600"
+                  : "text-slate-800"
               }`}
             >
+              <span className={`w-1.5 h-1.5 rounded-full ${
+                wish.cancel_reason === "helper_cancellation" ||
+                wish.cancel_reason === "compensatory_cancellation"
+                  ? "bg-red-600"
+                  : "bg-slate-800"
+              }`}></span>
               {wish.cancel_reason === "helper_cancellation" ||
               wish.cancel_reason === "compensatory_cancellation"
                 ? wish.requester_id === currentUserId
@@ -85,28 +92,32 @@ export const CardFooter: React.FC<{
             </span>
           )}
           {wish.status === "review_pending" && (
-            <span className="text-sm font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full border border-purple-100 animate-pulse whitespace-nowrap shrink-0">
+            <span className="flex items-center gap-1.5 text-sm font-bold text-purple-600 animate-pulse whitespace-nowrap shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
               {MESSAGES.WISH_CARD.FTR_WAIT_CONFIRM}
             </span>
           )}
           {(wish.status === "fulfilled" || wish.status === "completed") && (
-            <span className="text-sm font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-100 whitespace-nowrap shrink-0">
+            <span className="flex items-center gap-1.5 text-sm font-bold text-green-600 whitespace-nowrap shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-600"></span>
               {MESSAGES.WISH_CARD.FTR_THANKED}
             </span>
           )}
           {wish.status === "expired" && (
-            <span className="text-sm font-bold text-slate-800 bg-slate-100 px-3 py-1 rounded-full border border-slate-300 whitespace-nowrap shrink-0">
+            <span className="flex items-center gap-1.5 text-sm font-bold text-slate-800 whitespace-nowrap shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-800"></span>
               {MESSAGES.WISH_CARD.FTR_EXPIRED_SETTLED}
             </span>
           )}
           {wish.status === "open" &&
             (isExpired ? (
-              <span className="flex items-center gap-1 text-sm font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full border border-red-100 whitespace-nowrap shrink-0">
-                <AlertTriangle size={12} />
+              <span className="flex items-center gap-1.5 text-sm font-bold text-red-600 whitespace-nowrap shrink-0">
+                <AlertTriangle size={14} />
                 {MESSAGES.WISH_CARD.FTR_EXPIRED}
               </span>
             ) : (
-              <span className="text-sm font-bold text-slate-800 bg-slate-50 px-3 py-1 rounded-full border border-slate-300 whitespace-nowrap shrink-0">
+              <span className="flex items-center gap-1.5 text-sm font-bold text-slate-800 whitespace-nowrap shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-800"></span>
                 {MESSAGES.WISH_CARD.FTR_RECRUITING}
               </span>
             ))}
@@ -179,9 +190,9 @@ export const CardFooter: React.FC<{
             {wish.status === "open" && (
               <div>
                 {hasApplied ? (
-                  <div className="flex flex-wrap items-center justify-end gap-2">
-                    <span className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-800 rounded-full text-sm font-bold border border-slate-300 whitespace-nowrap shrink-0">
-                      <Clock size={14} />
+                  <div className="flex flex-wrap items-center justify-end gap-3">
+                    <span className="flex items-center gap-1.5 text-sm font-bold text-slate-800 whitespace-nowrap shrink-0">
+                      <Clock size={16} />
                       {MESSAGES.WISH_CARD.TXT_WAITING_REPLY}
                     </span>
                     <button
