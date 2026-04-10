@@ -18,7 +18,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
     // If loading or null, show skeleton or something
     if (loading && !profile) {
         return (
-            <div className="fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in">
+            <div className="fixed inset-0 z-[10000] bg-black/50 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in">
                 <div className="bg-white p-6 rounded-2xl w-full max-w-sm flex justify-center">
                     <div className="animate-spin w-8 h-8 border-4 border-slate-300 border-t-slate-500 rounded-full"></div>
                 </div>
@@ -49,7 +49,7 @@ export const PublicProfileModal: React.FC<PublicProfileModalProps> = ({ userId, 
     const age_group = profile.age_group;
 
     return (
-        <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in">
+        <div className="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in">
             {/* Backdrop Click to Close */}
             <div className="absolute inset-0" onClick={onClose} />
 

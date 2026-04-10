@@ -14,7 +14,7 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
   const { t: MESSAGES } = useLanguage();
   const {
     wish, isLoading, showApplicants, confirmAction, approvalTarget, contactNote, showCompleteModal,
-    isMasked, helperProfile, currentUserId, initialCost
+    helperProfile, currentUserId, initialCost
   } = state;
 
   const {
@@ -59,7 +59,7 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
                     onApprove={handleApprove}
                     onOpenProfile={openUserProfile}
                     isActionLoading={isLoading}
-                    isMasked={isMasked}
+                    isMasked={false} // 願いの匿名設定に引きずられず、立候補者の実態を表示する
                   />
                 ))
               )}
