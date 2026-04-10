@@ -292,7 +292,7 @@ export const MESSAGES = {
   // 4b. 願い・ギフト関連 (WishCard subcomponents)
   WISH_CARD: {
     // CardModals
-    MODAL_HELPER_LIST: "手を差し伸べてくれた方々", // 「担当者候補リスト」を排除
+    MODAL_HELPER_LIST: "立候補者", 
     MODAL_NO_APPLICANTS: "まだ誰もいません",
     MODAL_SELECT_ONE: "託す方を1名選んでください",
     MODAL_CANCEL_WISH_Q: "この願いを取り下げますか？",
@@ -345,7 +345,7 @@ export const MESSAGES = {
     FTR_EXPIRED: "期限切れ",
     FTR_RECRUITING: "公開中", // 「募集中」という労働感を排除
     FTR_ANON: "匿名",
-    FTR_APPLICANTS: "人が手を差し伸べています", // 「件の応募」を排除
+    FTR_APPLICANTS: "名の立候補", 
     FTR_THANK_CONFIRM_1: "願いが叶ったことを確認し、Lmと",
     FTR_THANK_CONFIRM_2: "感謝の言葉を届けます。", // 「決済を実行」を排除
     FTR_THANK_ALERT: "感謝を届けますか？ Lmが手元から離れます。",

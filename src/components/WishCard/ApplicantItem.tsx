@@ -1,5 +1,5 @@
 import React from "react";
-import { User, CheckCircle, Loader2 } from "lucide-react";
+import { User, CheckCircle, Loader2, ChevronRight } from "lucide-react";
 import { useLanguage } from "../../contexts/LanguageContext";
 import { getTrustRank } from "../../logic/worldPhysics";
 import { useOtherProfile } from "../../hooks/useOtherProfile";
@@ -37,10 +37,18 @@ export const ApplicantItem: React.FC<{
 
   return (
     <div className="flex flex-col gap-3 p-4 bg-white border border-slate-300 rounded-2xl shadow-sm hover:shadow-md transition-all group">
-      <div className="flex items-center gap-3">
+      <button
+        onClick={() => !isMasked && onOpenProfile && onOpenProfile(applicant.id, isMasked)}
+        disabled={isMasked}
+        className={`w-full flex items-center gap-3 text-left transition-colors ${
+          isMasked ? "cursor-default" : "group/btn hover:opacity-80"
+        }`}
+      >
         {/* Avatar with fallback */}
         <div
-          className={`w-10 h-10 rounded-full flex items-center justify-center border shrink-0 overflow-hidden ${isMasked ? "bg-slate-200 border-slate-300" : "bg-slate-100 border-slate-300"}`}
+          className={`w-10 h-10 rounded-full flex items-center justify-center border shrink-0 overflow-hidden ${
+            isMasked ? "bg-slate-200 border-slate-300" : "bg-slate-100 border-slate-300 bg-white shadow-sm"
+          }`}
         >
           {avatarUrl ? (
             <img
@@ -62,10 +70,10 @@ export const ApplicantItem: React.FC<{
         </div>
 
         <div className="min-w-0 flex-1">
-          <button
-            onClick={() => !isMasked && onOpenProfile && onOpenProfile(applicant.id, isMasked)}
-            disabled={isMasked}
-            className={`text-base font-bold text-left truncate w-full block transition-colors font-sans ${isMasked ? "text-slate-700 cursor-default" : "text-slate-900 hover:text-blue-600 hover:underline"}`}
+          <div
+            className={`text-base font-bold truncate w-full block transition-colors font-sans ${
+              isMasked ? "text-slate-700" : "text-slate-900 group-hover/btn:text-blue-600"
+            }`}
           >
             {displayName}
             {metadata && (
@@ -73,7 +81,7 @@ export const ApplicantItem: React.FC<{
                 {metadata}
               </span>
             )}
-          </button>
+          </div>
           <div className="text-xs text-slate-700 flex items-center gap-2 mt-0.5">
             {/* Trust/Helped Count Badge */}
             <div
@@ -91,7 +99,11 @@ export const ApplicantItem: React.FC<{
             </>
           </div>
         </div>
-      </div>
+
+        {!isMasked && (
+          <ChevronRight className="w-5 h-5 text-slate-400 shrink-0 transition-transform group-hover/btn:translate-x-0.5" />
+        )}
+      </button>
 
       <button
         onClick={() => onApprove(applicant.id, displayName)}

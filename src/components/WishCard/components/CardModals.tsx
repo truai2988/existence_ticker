@@ -35,18 +35,21 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] transition-opacity" onClick={() => setShowApplicants(false)} />
           <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col max-h-[70vh] animate-in fade-in zoom-in-95 duration-200">
-            <div className="p-4 border-b border-slate-300 flex justify-between items-center bg-slate-50/50">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 bg-yellow-100 rounded-full">
-                  <Handshake className="w-4 h-4 text-yellow-600" />
+            <div className="p-4 border-b border-slate-300 bg-slate-50/50 flex flex-col gap-1">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-yellow-100 rounded-full">
+                    <Handshake className="w-4 h-4 text-yellow-600" />
+                  </div>
+                  <h4 className="text-base font-bold text-slate-900">
+                    {MESSAGES.WISH_CARD.MODAL_HELPER_LIST} <span className="text-slate-700 font-normal ml-1">({applicants.length})</span>
+                  </h4>
                 </div>
-                <h4 className="text-base font-bold text-slate-900">
-                  {MESSAGES.WISH_CARD.MODAL_HELPER_LIST} <span className="text-slate-700 font-normal ml-1">({applicants.length})</span>
-                </h4>
+                <button onClick={() => setShowApplicants(false)} className="p-2.5 -mr-2 text-slate-700 hover:text-slate-800 hover:bg-slate-100 rounded-full transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <button onClick={() => setShowApplicants(false)} className="p-2.5 text-slate-700 hover:text-slate-800 hover:bg-slate-100 rounded-full transition-colors">
-                <X className="w-5 h-5" />
-              </button>
+              <p className="text-sm text-slate-800 font-medium pl-10">{MESSAGES.WISH_CARD.MODAL_SELECT_ONE}</p>
             </div>
             <div className="overflow-y-auto p-4 space-y-3 custom-scrollbar">
               {applicants.length === 0 ? (
@@ -63,9 +66,6 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
                   />
                 ))
               )}
-            </div>
-            <div className="p-3 bg-slate-50 border-t border-slate-300 text-center">
-              <p className="text-sm text-slate-800">{MESSAGES.WISH_CARD.MODAL_SELECT_ONE}</p>
             </div>
           </div>
         </div>

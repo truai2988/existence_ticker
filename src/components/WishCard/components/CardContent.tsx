@@ -140,7 +140,7 @@ export const CardContent: React.FC<{ state: WishCardState; handlers: WishCardHan
             </div>
           </div>
         ) : (
-          <div className="flex justify-between items-center bg-slate-50/60 p-3.5 rounded-xl border border-slate-300/40">
+          <div className="flex justify-between items-center gap-4 bg-slate-50/60 p-3.5 rounded-xl border border-slate-300/40">
             <div>
               <div className="flex items-center gap-2 mb-1.5 opacity-90">
                 <Hourglass size={14} className={isMyWish ? "text-amber-500" : "text-orange-400"} />
