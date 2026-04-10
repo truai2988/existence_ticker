@@ -10,8 +10,8 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { getMillis } from "../logic/worldPhysics";
 
 interface HomeViewProps {
-  onOpenFlow: () => void;
-  onOpenRequest: () => void;
+  onOpenConnections: () => void;
+  onOpenWishes: () => void;
   ritualState: "idle" | "breathing" | "blooming" | "syncing";
   setRitualState: (
     state: "idle" | "breathing" | "blooming" | "syncing",
@@ -21,8 +21,8 @@ interface HomeViewProps {
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({
-  onOpenFlow,
-  onOpenRequest,
+  onOpenConnections,
+  onOpenWishes,
   ritualState,
   setRitualState,
   setTargetBalance,
@@ -55,14 +55,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const handleWishClick = async () => {
     setIsWishAnimating(true);
     await new Promise((r) => setTimeout(r, 800)); // アニメーションが完了するまで待つ
-    onOpenRequest();
+    onOpenWishes();
     setIsWishAnimating(false);
   };
 
   const handleHelpClick = async () => {
     setIsHelpAnimating(true);
     await new Promise((r) => setTimeout(r, 800));
-    onOpenFlow();
+    onOpenConnections();
     setIsHelpAnimating(false);
   };
 

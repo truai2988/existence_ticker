@@ -33,10 +33,8 @@ service cloud.firestore {
                     && request.resource.data.last_updated is timestamp;
 
       allow update: if isSignedIn() && (
-        (isOwner(userId) && request.resource.data.balance >= 0 && 
-         (request.resource.data.role == resource.data.role || !('role' in request.resource.data))
-        ) ||
-        isAdmin()
+        request.resource.data.balance >= 0 && 
+        (request.resource.data.role == resource.data.role || !('role' in request.resource.data))
       ); 
       
       allow delete: if isAdmin();

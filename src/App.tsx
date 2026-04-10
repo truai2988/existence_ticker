@@ -6,8 +6,8 @@ import { Header } from "./components/Header";
 import { ProfileView } from "./components/ProfileView";
 import { JournalView } from "./components/JournalView";
 import { HomeView } from "./components/HomeView";
-import { RadianceView } from "./components/RadianceView";
-import { FlowView } from "./components/FlowView";
+import { WishesView } from "./components/WishesView";
+import { ConnectionsView } from "./components/ConnectionsView";
 import { OnboardingStory } from "./components/OnboardingStory";
 import { AppViewMode } from "./types";
 import { useStartupMachine, AppMode } from "./hooks/useStartupMachine";
@@ -159,8 +159,8 @@ const MainContent = ({
       case "home":
         return withTransition(
           <HomeView
-            onOpenFlow={() => setViewMode("flow")}
-            onOpenRequest={() => setViewMode("give")}
+            onOpenConnections={() => setViewMode("connections")}
+            onOpenWishes={() => setViewMode("wishes")}
             ritualState={ritualState}
             setRitualState={setRitualState}
             setTargetBalance={setTargetBalance}
@@ -193,31 +193,31 @@ const MainContent = ({
           />,
           "history",
         );
-      case "flow":
+      case "wishes":
         return withTransition(
-          <FlowView
+          <WishesView
             currentUserId={currentUserId}
             onOpenProfile={() => setViewMode("profile_edit")}
             onTabChange={setViewMode}
             onOpenOnboarding={onOpenOnboarding}
           />,
-          "flow",
+          "wishes",
         );
-      case "give":
+      case "connections":
         return withTransition(
-          <RadianceView
+          <ConnectionsView
             currentUserId={currentUserId}
             onTabChange={setViewMode}
             onOpenOnboarding={onOpenOnboarding}
           />,
-          "give",
+          "connections",
         );
       case "admin":
         if (!isAdmin)
           return withTransition(
             <HomeView
-              onOpenFlow={() => setViewMode("flow")}
-              onOpenRequest={() => setViewMode("give")}
+              onOpenConnections={() => setViewMode("connections")}
+              onOpenWishes={() => setViewMode("wishes")}
               ritualState={ritualState}
               setRitualState={setRitualState}
               setTargetBalance={setTargetBalance}

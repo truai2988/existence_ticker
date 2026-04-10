@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { WishCard } from './WishCard';
-import { Wish } from '../types';
+import { Wish, AppViewMode } from '../types';
 import { useEffect, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -18,7 +18,7 @@ interface WishCardListProps {
     onOpenProfile?: () => void;
     onActionComplete?: (action: 'applied' | 'withdrawn' | 'approved' | 'cancelled' | 'resigned' | 'completed' | 'cleanup') => void;
     viewType?: 'radiance' | 'flow';
-    onTabChange?: (tab: 'give' | 'flow' | 'history') => void;
+    onTabChange?: (tab: AppViewMode) => void;
 }
 
 export const WishCardList: React.FC<WishCardListProps> = ({ 

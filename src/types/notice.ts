@@ -3,6 +3,7 @@ export interface Notice {
   id: string;
   userId: string;
   fromId: string; // 送信元（聖域の防衛用）
+  wishId?: string; // 対象となる「願い」のID（通知クリック時のモーダル表示用）
   message: string;
   /** Language-agnostic key pointing to MESSAGES.WISH_ACTIONS.NOTICE_* */
   messageKey?: string;

@@ -9,11 +9,11 @@ import { useToast } from '../hooks/useToast';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useMicroInteractions } from '../hooks/useMicroInteractions';
 
-interface CreateWishModalProps {
-  onClose: () => void;
+interface WishInputFormProps {
+  onSuccess?: () => void;
 }
 
-export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => {
+export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
   const { availableLm } = useWallet();
   const { castWish, isSubmitting } = useWishActions();
   const { showToast } = useToast();
@@ -42,7 +42,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
   ] as const, [MESSAGES]);
 
   const [newWishContent, setNewWishContent] = useState('');
-  const [selectedTier, setSelectedTier] = useState<GratitudeTier>('heavy');
+  const [selectedTier, setSelectedTier] = useState<GratitudeTier | null>(null);
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [creationError, setCreationError] = useState<string | null>(null);
   const [draftKeyword, setDraftKeyword] = useState('');
@@ -55,8 +55,8 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const selectedTierCost = TIERS.find(t => t.id === selectedTier)?.cost || 0;
-  const exceedsAvailable = selectedTierCost > availableLm;
+  const selectedTierCost = selectedTier ? TIERS.find(t => t.id === selectedTier)?.cost || 0 : 0;
+  const exceedsAvailable = selectedTier !== null && selectedTierCost > availableLm;
 
   const handleTierChange = (tier: GratitudeTier) => {
     setSelectedTier(tier);
@@ -89,7 +89,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
 
   // 願いの公開
   const handlePostWish = async () => {
-    if (!newWishContent.trim() || exceedsAvailable) return;
+    if (!newWishContent.trim() || !selectedTier || exceedsAvailable) return;
     setCreationError(null);
 
     const result = await castWish({
@@ -103,7 +103,11 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
       import('../utils/pwaEvent').then(({ globalTriggerPWAInstall }) => {
         globalTriggerPWAInstall();
       });
-      onClose();
+      if (onSuccess) onSuccess();
+      setNewWishContent('');
+      setDraftKeyword('');
+      setSelectedTier(null);
+      setIsAnonymous(false);
     } else {
       setCreationError(result.error || "通信エラーが発生しました。");
     }
@@ -328,7 +332,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
           {/* 公開ボタン */}
           <button
             onClick={getSendAction(handlePostWish)}
-            disabled={!newWishContent.trim() || isSubmitting || exceedsAvailable}
+            disabled={!newWishContent.trim() || isSubmitting || exceedsAvailable || selectedTier === null}
             className="w-full py-6 rounded-full bg-amber-900/90 backdrop-blur-md text-white font-bold text-base shadow-[0_15px_30px_-5px_rgba(69,26,3,0.3)] hover:bg-amber-900 hover:shadow-[0_20px_40px_-5px_rgba(69,26,3,0.4)] active:scale-[0.98] transition-all disabled:opacity-20 disabled:cursor-not-allowed relative overflow-hidden group"
           >
             <span className="relative z-10 flex items-center justify-center gap-4 transition-transform duration-300">

@@ -47,7 +47,7 @@ export const ApplicantItem: React.FC<{
         {/* Avatar with fallback */}
         <div
           className={`w-10 h-10 rounded-full flex items-center justify-center border shrink-0 overflow-hidden ${
-            isMasked ? "bg-slate-200 border-slate-300" : "bg-slate-100 border-slate-300 bg-white shadow-sm"
+            isMasked ? "bg-slate-200 border-slate-300" : "bg-white border-slate-300 shadow-sm"
           }`}
         >
           {avatarUrl ? (

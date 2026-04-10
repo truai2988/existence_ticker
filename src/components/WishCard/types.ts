@@ -1,5 +1,5 @@
 import { Wish } from "../../types";
-import { UserProfile } from "../../types";
+import { UserProfile, AppViewMode } from "../../types";
 import { TrustRank } from "../../logic/worldPhysics";
 
 export interface WishCardProps {
@@ -18,7 +18,7 @@ export interface WishCardProps {
       | "cleanup",
   ) => void;
   isReadOnly?: boolean;
-  onTabChange?: (tab: "give" | "flow" | "history") => void;
+  onTabChange?: (tab: AppViewMode) => void;
 }
 
 export interface WishCardState {
@@ -37,7 +37,7 @@ export interface WishCardState {
       | "completed"
       | "cleanup",
   ) => void;
-  onTabChange?: (tab: "give" | "flow" | "history") => void;
+  onTabChange?: (tab: AppViewMode) => void;
 
   isMyWish: boolean;
   isLoading: boolean;

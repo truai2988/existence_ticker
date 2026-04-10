@@ -144,8 +144,8 @@ export const MESSAGES = {
   // 3. メインビュー関連 (Home / Flow / Journal)
   HOME: {
     MONOTONE_MSG_1: "タップしてください",
-    BTN_RESPOND: "お返事",
-    BTN_REQUEST: "お願い",
+    BTN_RESPOND: "つながり",
+    BTN_REQUEST: "願い",
     BTN_UNDERSTOOD: "確認",
     DECAY_LABEL: "Lm",
     AVAILABLE_LM: "つかえる Lm",
@@ -166,13 +166,12 @@ export const MESSAGES = {
     FALLBACK_PLAYER: "魂の奏者",
     FALLBACK_APPLICANT: "奏者",
     PENDING_PROPAGATION: "伝搬中...",
-    NOTICE_APPROVED: "あなたの願いが、静かに聞き届けられました。",
-    NOTICE_FULFILLED: "感謝と共に、Lmが届けられました。",
-    NOTICE_COMPLETION_PENDING: "願いが叶い、感謝の言葉を待っています。",
-    NOTICE_HELPER_RESIGNED: "担当者が離れ、願いは再び世界へと還りました。",
-    NOTICE_REQUESTER_CANCEL: "依頼主様のご都合により願いが中断されました。しるしとしてLmが補償されています。",
-    NOTICE_HELPER_WAIT_RETURN: "助け手様が辞退されたため、願いが再び募集に戻りました。Lmは安全に守られています。",
-    NOTICE_APPLICATION: "%nameさんが寄り添おうとしています。",
+    NOTICE_APPROVED: "%nameさんが、あなたにお願いを託しました。",
+    NOTICE_FULFILLED: "%nameさんから、温かい「ありがとう」が届いています。",
+    NOTICE_HELPER_RESIGNED: "%nameさんの都合により、お願いが未定に戻りました。次の方を待ちましょう。",
+    NOTICE_REQUESTER_CANCEL: "依頼主の都合でお願いが中止になりました。これまで寄り添ってくれたことへの、感謝のしるしが届いています。",
+    NOTICE_HELPER_WAIT_RETURN: "%nameさんの都合により、お願いが未定に戻りました。次の方を待ちましょう。",
+    NOTICE_APPLICATION: "%nameさんが「私がやります」と手を挙げてくれました。",
     DESC_COMP_SENDER: "中断に伴い、誠実のしるしをお渡ししました",
     DESC_COMP_RECV: "依頼主の中断に伴い、誠実のしるしが届きました",
     DESC_CANCELLED: "願いを取り下げました",
@@ -291,6 +290,9 @@ export const MESSAGES = {
 
   // 4b. 願い・ギフト関連 (WishCard subcomponents)
   WISH_CARD: {
+    STATUS_OPEN: "オープン",
+    STATUS_PENDING: "承諾待ち",
+    STATUS_ACTIVE: "進行中",
     // CardModals
     MODAL_HELPER_LIST: "立候補者", 
     MODAL_NO_APPLICANTS: "まだ誰もいません",
@@ -732,6 +734,8 @@ export const MESSAGES = {
 
     TOOLTIP_DISMISS_ALL: "すべて既読にする",
     TOOLTIP_DISMISS: "閉じる",
+    LOADING_WISH: "確認中...",
+    WISH_NOT_FOUND: "この願いはすでに存在しません",
   },
 
   // 8. ナビゲーション・レイアウト (Header, Footer, SideDrawer)
@@ -742,7 +746,7 @@ export const MESSAGES = {
     RETURN_HOME: "ホームへ戻る",
     OPEN_MENU: "メニューを開く",
     SIDEDRAWER_ONBOARDING: "この場所について", // 「システム概要」を排除
-    SIDEDRAWER_INSTALL: "ホーム画面に置く",
+    SIDEDRAWER_INSTALL: "ホーム画面に追加",
     SIDEDRAWER_TRUST: "約束ごと",    // 「利用規約」を排除
     SIDEDRAWER_FOOTER_NOTE: "設定と管理",
     HEADER_BALANCE: "Lm：",        // 「残高」を排除

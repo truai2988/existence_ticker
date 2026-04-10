@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  AlertTriangle,
   Clock,
   Handshake,
   Loader2,
@@ -61,69 +60,7 @@ export const CardFooter: React.FC<{
 
   return (
     <div className="relative pt-4 border-t border-slate-300 min-h-[50px] flex items-center justify-between gap-4 flex-wrap">
-      <div className="flex flex-col gap-1 items-start">
-        <div className="flex flex-col gap-1 items-start">
-          {wish.status === "in_progress" && (
-            <span className="flex items-center gap-1.5 text-sm font-bold text-blue-600 whitespace-nowrap shrink-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-              {MESSAGES.WISH_CARD.FTR_IN_PROGRESS}
-            </span>
-          )}
-          {wish.status === "cancelled" && (
-            <span
-              className={`flex items-center gap-1.5 text-sm font-bold whitespace-nowrap shrink-0 ${
-                wish.cancel_reason === "helper_cancellation" ||
-                wish.cancel_reason === "compensatory_cancellation"
-                  ? "text-red-600"
-                  : "text-slate-800"
-              }`}
-            >
-              <span className={`w-1.5 h-1.5 rounded-full ${
-                wish.cancel_reason === "helper_cancellation" ||
-                wish.cancel_reason === "compensatory_cancellation"
-                  ? "bg-red-600"
-                  : "bg-slate-800"
-              }`}></span>
-              {wish.cancel_reason === "helper_cancellation" ||
-              wish.cancel_reason === "compensatory_cancellation"
-                ? wish.requester_id === currentUserId
-                  ? MESSAGES.WISH_CARD.FTR_COMP_RECV
-                  : MESSAGES.WISH_CARD.FTR_COMP_SENT
-                : MESSAGES.WISH_CARD.FTR_CANCELLED}
-            </span>
-          )}
-          {wish.status === "review_pending" && (
-            <span className="flex items-center gap-1.5 text-sm font-bold text-purple-600 animate-pulse whitespace-nowrap shrink-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-600"></span>
-              {MESSAGES.WISH_CARD.FTR_WAIT_CONFIRM}
-            </span>
-          )}
-          {(wish.status === "fulfilled" || wish.status === "completed") && (
-            <span className="flex items-center gap-1.5 text-sm font-bold text-green-600 whitespace-nowrap shrink-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-600"></span>
-              {MESSAGES.WISH_CARD.FTR_THANKED}
-            </span>
-          )}
-          {wish.status === "expired" && (
-            <span className="flex items-center gap-1.5 text-sm font-bold text-slate-800 whitespace-nowrap shrink-0">
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-800"></span>
-              {MESSAGES.WISH_CARD.FTR_EXPIRED_SETTLED}
-            </span>
-          )}
-          {wish.status === "open" &&
-            (isExpired ? (
-              <span className="flex items-center gap-1.5 text-sm font-bold text-red-600 whitespace-nowrap shrink-0">
-                <AlertTriangle size={14} />
-                {MESSAGES.WISH_CARD.FTR_EXPIRED}
-              </span>
-            ) : (
-              <span className="flex items-center gap-1.5 text-sm font-bold text-slate-800 whitespace-nowrap shrink-0">
-                <span className="w-1.5 h-1.5 rounded-full bg-slate-800"></span>
-                {MESSAGES.WISH_CARD.FTR_RECRUITING}
-              </span>
-            ))}
-        </div>
-
+      <div className="flex flex-col gap-1.5 flex-1 min-w-0">
         {isMyWish && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 ml-1">
             <span className="flex items-center gap-1 text-sm text-slate-800">

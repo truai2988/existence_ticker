@@ -22,7 +22,7 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
     executeCancel, executeApprove, handleApprove
   } = handlers;
 
-  const { fulfillWish, withdrawApplication } = useWishActions();
+  const { fulfillWish } = useWishActions();
   const { showToast } = useToast();
   const { openUserProfile } = useUserView();
   const { triggerAccept } = useMicroInteractions();
@@ -90,18 +90,7 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
             <div className="flex flex-col gap-2 w-full">
               <button
                 onClick={async () => {
-                   if (confirmAction === "resign" && !state.isMyWish) {
-                       handlers.setIsLoading(true);
-                       const success = await withdrawApplication(wish.id);
-                       handlers.setIsLoading(false);
-                       setConfirmAction(null);
-                       if (success) {
-                           showToast(MESSAGES.WISH_CARD.TOAST_CANCELLED, "success");
-                           if (state.onActionComplete) state.onActionComplete("withdrawn");
-                       }
-                   } else {
-                       executeCancel();
-                   }
+                   executeCancel();
                 }}
                 disabled={isLoading}
                 className={`w-full py-3 rounded-xl text-base font-bold text-white shadow-md transition-all active:scale-[0.98] ${confirmAction === "compensate" ? "bg-red-500 hover:bg-red-600 shadow-red-200" : "bg-slate-700 hover:bg-slate-800 shadow-slate-200"}`}

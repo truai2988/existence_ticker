@@ -15,42 +15,6 @@ export const useWishLifecycle = () => {
   const { sendNoticeSilently } = useWishNotice();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const reportCompletion = async (wishId: string): Promise<boolean> => {
-    if (!db || !user) return false;
-    setIsSubmitting(true);
-    try {
-      const wishRef = doc(db, "wishes", wishId);
-      await runTransaction(db, async (transaction: Transaction) => {
-          const wishDoc = await transaction.get(wishRef);
-          if (!wishDoc.exists()) throw "Wish not found";
-          
-          if (wishDoc.data().helper_id !== user.uid) throw "Not authorized to report completion";
-          
-          transaction.update(wishRef, {
-            status: "review_pending",
-            updated_at: serverTimestamp()
-          });
-      });
-
-      const wishSnap = await getDocs(query(collection(db, 'wishes'), where('__name__', '==', wishId)));
-      if (!wishSnap.empty) {
-        sendNoticeSilently({
-          userId: wishSnap.docs[0].data().requester_id,
-          message: MESSAGES.WISH_ACTIONS.NOTICE_COMPLETION_PENDING,
-          messageKey: "NOTICE_COMPLETION_PENDING",
-          type: "wish_fulfilled", 
-        });
-      }
-
-      return true;
-    } catch (e) {
-      console.error(e);
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   const fulfillWish = async (
     wishId: string,
     fulfillerId: string,
@@ -182,8 +146,10 @@ export const useWishLifecycle = () => {
 
       sendNoticeSilently({
         userId: fulfillerId,
-        message: MESSAGES.WISH_ACTIONS.NOTICE_FULFILLED,
+        wishId,
+        message: MESSAGES.WISH_ACTIONS.NOTICE_FULFILLED.replace('%name', user?.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER),
         messageKey: "NOTICE_FULFILLED",
+        params: { name: user?.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER },
         type: "wish_fulfilled",
       });
 
@@ -272,6 +238,7 @@ export const useWishLifecycle = () => {
 
             sendNoticeSilently({
               userId: wishData.helper_id,
+              wishId,
               message: notificationMsg,
               messageKey: "NOTICE_REQUESTER_CANCEL",
               type: "wish_cancelled",
@@ -301,8 +268,10 @@ export const useWishLifecycle = () => {
 
             sendNoticeSilently({
               userId: wishData.requester_id,
-              message: MESSAGES.WISH_ACTIONS.NOTICE_HELPER_RESIGNED,
+              wishId,
+              message: MESSAGES.WISH_ACTIONS.NOTICE_HELPER_RESIGNED.replace('%name', user?.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_HELPER),
               messageKey: "NOTICE_HELPER_RESIGNED",
+              params: { name: user?.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_HELPER },
               type: "helper_resigned",
             });
             
@@ -340,19 +309,19 @@ export const useWishLifecycle = () => {
   const resignWish = async (wishId: string): Promise<boolean> => {
     if (!db || !user) return false;
     setIsSubmitting(true);
+    let requesterId: string | null = null;
     try {
       const wishRef = doc(db, "wishes", wishId);
       const userRef = doc(db, "users", user.uid);
-
+      
       await runTransaction(db, async (transaction) => {
         const wishDoc = await transaction.get(wishRef);
-        if (!wishDoc.exists()) throw "Wish not found";
+        if (!wishDoc.exists()) throw new Error("Wish not found");
 
         const wishData = wishDoc.data();
-        const rRef = doc(db!, 'users', wishData.requester_id);
+        requesterId = wishData.requester_id;
         
         await transaction.get(userRef);
-        await transaction.get(rRef);
 
         const currentApplicants = wishData.applicants || [];
         const updatedApplicants = currentApplicants.filter(
@@ -369,27 +338,26 @@ export const useWishLifecycle = () => {
             last_updated: serverTimestamp()
         });
 
-        transaction.update(rRef, {
-            pending_interruption_notification: MESSAGES.WISH_ACTIONS.NOTICE_HELPER_WAIT_RETURN,
-            last_updated: serverTimestamp()
-        });
-
-        sendNoticeSilently({
-          userId: wishData.requester_id,
-          message: MESSAGES.WISH_ACTIONS.NOTICE_HELPER_RESIGNED,
-          messageKey: "NOTICE_HELPER_RESIGNED",
-          type: "helper_resigned",
-        });
-
         transaction.update(wishRef, {
             status: "open",
             applicants: updatedApplicants,
             applicant_ids: updatedApplicantIds,
             helper_id: deleteField(),
             accepted_at: deleteField(),
-            system_note: MESSAGES.WISH_ACTIONS.SYS_NOTE_REOPEN2
+            system_note: MESSAGES.WISH_ACTIONS.SYS_NOTE_REOPEN2 || "事情により、再度募集されています。"
         });
       });
+
+      // トランザクション完了後に通知を送信
+      if (requesterId) {
+        sendNoticeSilently({
+          userId: requesterId,
+          message: MESSAGES.WISH_ACTIONS.NOTICE_HELPER_RESIGNED.replace('%name', user?.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_HELPER),
+          messageKey: "NOTICE_HELPER_RESIGNED",
+          params: { name: user?.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_HELPER },
+          type: "helper_resigned",
+        });
+      }
 
       return true;
     } catch (e) {
@@ -463,5 +431,5 @@ export const useWishLifecycle = () => {
     }
   };
 
-  return { fulfillWish, cancelWish, resignWish, acceptWish, reportCompletion, expireWish, reactivateWish, isSubmitting };
+  return { fulfillWish, cancelWish, resignWish, acceptWish, expireWish, reactivateWish, isSubmitting };
 };

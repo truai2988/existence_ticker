@@ -1,14 +1,12 @@
 import React from "react";
-import { Copy, Mail, Check, User, ChevronRight } from "lucide-react";
+import { Copy, Mail, Check } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { WishCardState, WishCardHandlers } from "../types";
-import { useUserView } from "../../../contexts/UserViewContext";
 
 export const CardContact: React.FC<{ state: WishCardState; handlers: WishCardHandlers }> = ({ state, handlers }) => {
   const { t: MESSAGES } = useLanguage();
   const { wish, isReadOnly, isMyWish, currentUserId, contactEmail, isCopied, requesterProfile, helperProfile, isMasked, isHelperMasked } = state;
   const { handleCopyEmail } = handlers;
-  const { openUserProfile } = useUserView();
 
   if (wish.status !== "in_progress" || isReadOnly || (!isMyWish && wish.helper_id !== currentUserId)) {
     return null;
@@ -18,10 +16,7 @@ export const CardContact: React.FC<{ state: WishCardState; handlers: WishCardHan
   const partnerName = isMyWish 
       ? (partnerProfile?.name || wish.helper_name || wish.applicants?.find((a: any) => a.id === wish.helper_id)?.name || wish.helper_id?.slice(0, 8) || MESSAGES.WISH_CARD.HDR_DEFAULT_HELPER)
       : (partnerProfile?.name || "匿名ユーザー");
-  const partnerId = isMyWish ? wish.helper_id : wish.requester_id;
   const partnerMasked = isMyWish ? isHelperMasked : isMasked;
-
-
 
   return (
     <div className="mt-5 pt-5 pb-2 border-t border-slate-200">
@@ -32,28 +27,6 @@ export const CardContact: React.FC<{ state: WishCardState; handlers: WishCardHan
             {isMyWish ? MESSAGES.WISH_CARD.HDR_CONTACT_REQ : MESSAGES.WISH_CARD.HDR_CONTACT_HELP}
           </h4>
 
-          <button
-             onClick={(e) => {
-               e.stopPropagation();
-               if (partnerId && !partnerMasked) openUserProfile(partnerId, partnerMasked);
-             }}
-             disabled={partnerMasked}
-             className={`w-full flex items-center gap-3 p-2 -mx-2 rounded-xl transition-colors group/btn text-left ${partnerMasked ? "cursor-default" : "hover:bg-slate-50 active:bg-slate-100"}`}
-          >
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center border border-slate-200 shrink-0 overflow-hidden bg-slate-100 shadow-sm transition-transform ${!partnerMasked && "group-hover/btn:scale-105"}`}>
-              {!partnerMasked && partnerProfile?.avatarUrl ? (
-                <img src={partnerProfile.avatarUrl} alt={partnerName} className="w-full h-full object-cover" />
-              ) : (
-                <User className="w-4 h-4 text-slate-400" />
-              )}
-            </div>
-            <div className={`flex-1 font-bold font-sans transition-colors ${partnerMasked ? "text-slate-700" : "text-slate-900 group-hover/btn:text-blue-600"}`}>
-              {partnerMasked && !isMyWish ? MESSAGES.WISH_CARD.ANONYMOUS_HELPER : partnerName}
-            </div>
-            {!partnerMasked && (
-              <ChevronRight className="w-4 h-4 text-slate-400 shrink-0 transition-transform group-hover/btn:translate-x-0.5" />
-            )}
-          </button>
         </div>
 
         {/* Email and Action Area */}

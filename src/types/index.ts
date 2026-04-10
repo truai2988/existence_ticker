@@ -103,6 +103,6 @@ export type AppViewMode =
   | "history"
   | "profile"
   | "profile_edit"
-  | "flow"
-  | "give"
+  | "wishes"
+  | "connections"
   | "admin";

@@ -1,9 +1,15 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, X, BellOff } from "lucide-react";
+import { Bell, X, BellOff, Loader2 } from "lucide-react";
 import { useNoticeContext } from "../hooks/useNoticeContext";
 import { Notice } from "../types/notice";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useAuth } from "../hooks/useAuthHook";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "../lib/firebase";
+import { Wish } from "../types";
+import { WishCard } from "./WishCard";
+import { getMillis } from "../logic/worldPhysics";
 
 /** 通知の type に応じた色クラス */
 const typeColorMap: Record<Notice["type"], string> = {
@@ -21,10 +27,10 @@ const resolveMessage = (
   notice: Notice,
   wishActions: Record<string, string>,
 ): string => {
-  if (!notice.messageKey) return "";
+  if (!notice.messageKey) return notice.message || "";
   
   const template = wishActions[notice.messageKey];
-  if (!template) return "";
+  if (!template) return notice.message || "";
 
   let msg = template;
   if (notice.params) {
@@ -32,6 +38,10 @@ const resolveMessage = (
       msg = msg.replace(`%${k}`, v);
     }
   }
+  
+  // 過去の通知で params が記録されていなかった場合のフォールバック
+  msg = msg.replace(/%name/g, "誰か");
+  
   return msg;
 };
 
@@ -51,8 +61,92 @@ const formatTime = (
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 };
 
+/** 単一の願いをフェッチして表示するモーダル */
+const NoticeWishModal: React.FC<{
+  wishId: string;
+  onClose: () => void;
+}> = ({ wishId, onClose }) => {
+  const { user } = useAuth();
+  const { t } = useLanguage();
+  const [wish, setWish] = useState<Wish | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    const fetchWish = async () => {
+      if (!db) return;
+      const unsub = onSnapshot(
+        doc(db, "wishes", wishId),
+        (snap) => {
+          if (!active) return;
+          if (snap.exists()) {
+            const raw = snap.data();
+            setWish({
+              ...raw,
+              id: snap.id,
+              created_at: getMillis(raw.created_at),
+              accepted_at: raw.accepted_at ? getMillis(raw.accepted_at) : undefined,
+              fulfilled_at: raw.fulfilled_at ? getMillis(raw.fulfilled_at) : undefined,
+              cancelled_at: raw.cancelled_at ? getMillis(raw.cancelled_at) : undefined,
+            } as Wish);
+          } else {
+            setWish(null);
+          }
+          setLoading(false);
+        },
+        (err) => {
+          console.error("Failed to fetch wish for notice", err);
+          if (active) setLoading(false);
+        }
+      );
+      return unsub;
+    };
+    const unsubPromise = fetchWish();
+    return () => { 
+      active = false; 
+      unsubPromise.then(unsub => {
+        if (unsub && typeof unsub === "function") unsub();
+      });
+    };
+  }, [wishId]);
+
+  return (
+    <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={onClose}>
+      <div 
+        className="relative w-full max-w-lg max-h-screen overflow-y-auto no-scrollbar rounded-[2rem] bg-slate-50/50 p-2 sm:p-0 my-auto"
+        onClick={e => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute -top-3 -right-3 z-50 p-2.5 bg-slate-800 text-white hover:bg-slate-900 rounded-full shadow-lg border-2 border-white transition-transform active:scale-95"
+        >
+          <X size={20} strokeWidth={2.5}/>
+        </button>
+
+        {loading ? (
+          <div className="bg-white rounded-[2rem] shadow-xl p-12 flex flex-col items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-amber-500 mb-4" />
+            <p className="text-slate-500 font-bold">{t.NOTICE.LOADING_WISH || "確認中..."}</p>
+          </div>
+        ) : !wish ? (
+          <div className="bg-white rounded-[2rem] shadow-xl p-12 flex flex-col items-center justify-center text-center">
+            <BellOff className="w-12 h-12 text-slate-300 mb-4" />
+            <p className="text-slate-600 font-bold">{t.NOTICE.WISH_NOT_FOUND || "この願いはすでに存在しません"}</p>
+            <button onClick={onClose} className="mt-6 px-6 py-2 bg-slate-100 font-bold rounded-lg hover:bg-slate-200">閉じる</button>
+          </div>
+        ) : (
+          <div className="bg-transparent">
+             <WishCard wish={wish} currentUserId={user?.uid || ""} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export const NoticePanel: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedWishId, setSelectedWishId] = useState<string | null>(null);
   const { notices, unreadCount, dismissNotice, dismissAll } = useNoticeContext();
   const panelRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
@@ -153,32 +247,44 @@ export const NoticePanel: React.FC = () => {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
-                      className="flex items-start gap-4 px-6 py-5 hover:bg-slate-50/30 transition-colors group relative"
+                      className="group relative"
                     >
-                      {/* ドットインジケーター */}
-                      <span
-                        className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 opacity-90 ${typeColorMap[notice.type] || "bg-slate-300"}`}
-                      />
+                      <div 
+                        className={`flex items-start gap-4 px-6 py-5 transition-colors ${
+                          notice.wishId ? "hover:bg-amber-50 cursor-pointer" : "hover:bg-slate-50/30"
+                        }`}
+                        onClick={() => {
+                          if (notice.wishId) {
+                            setSelectedWishId(notice.wishId);
+                            setIsOpen(false);
+                          }
+                        }}
+                      >
+                        {/* ドットインジケーター */}
+                        <span
+                          className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 opacity-90 ${typeColorMap[notice.type] || "bg-slate-300"}`}
+                        />
 
-                      {/* メッセージ */}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-base text-slate-800 leading-relaxed tracking-wide">
-                          {resolveMessage(notice, wishActions)}
-                        </p>
-                        <span className="text-xs text-slate-700 mt-1.5 block font-sans tracking-tight">
-                          {formatTime(
-                            notice.createdAt,
-                            t.NOTICE.TIME_JUST_NOW,
-                            t.NOTICE.TIME_MINUTES_AGO,
-                            t.NOTICE.TIME_HOURS_AGO,
-                          )}
-                        </span>
+                        {/* メッセージ */}
+                        <div className="flex-1 min-w-0 pr-12">
+                          <p className="text-base sm:text-sm text-slate-800 leading-relaxed tracking-wide text-left">
+                            {resolveMessage(notice, wishActions)}
+                          </p>
+                          <span className="text-xs text-slate-700 mt-1.5 block font-sans tracking-tight text-left">
+                            {formatTime(
+                              notice.createdAt,
+                              t.NOTICE.TIME_JUST_NOW,
+                              t.NOTICE.TIME_MINUTES_AGO,
+                              t.NOTICE.TIME_HOURS_AGO,
+                            )}
+                          </span>
+                        </div>
                       </div>
 
                       {/* 削除ボタン */}
                       <button
-                        onClick={() => dismissNotice(notice.id)}
-                        className="p-2.5 text-slate-700 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors opacity-0 group-hover:opacity-100 shrink-0 mt-0.5"
+                        onClick={(e) => { e.stopPropagation(); dismissNotice(notice.id); }}
+                        className="absolute right-4 top-5 p-2.5 text-slate-700 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors opacity-0 group-hover:opacity-100 shrink-0"
                         title={t.NOTICE.TOOLTIP_DISMISS}
                       >
                         <X size={14} />
@@ -191,6 +297,13 @@ export const NoticePanel: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      {/* モーダル表示 */}
+      {selectedWishId && (
+        <NoticeWishModal 
+          wishId={selectedWishId} 
+          onClose={() => setSelectedWishId(null)} 
+        />
+      )}
     </div>
   );
 };

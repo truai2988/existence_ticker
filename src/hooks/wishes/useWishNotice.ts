@@ -12,11 +12,13 @@ export const useWishNotice = () => {
     params?: Record<string, string>;
     type: Notice["type"]; 
     fromId?: string;
+    wishId?: string;
   }) => {
     try {
       await addNotice({
         userId: noticeData.userId,
         fromId: noticeData.fromId || user?.uid || "system",
+        wishId: noticeData.wishId,
         message: noticeData.message,
         messageKey: noticeData.messageKey,
         params: noticeData.params,

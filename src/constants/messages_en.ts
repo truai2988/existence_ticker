@@ -365,8 +365,8 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
 
   HOME: {
     MONOTONE_MSG_1: "TAP TO ENTER",
-    BTN_RESPOND: "Respond",
-    BTN_REQUEST: "Request",
+    BTN_RESPOND: "Connections",
+    BTN_REQUEST: "Wishes",
     BTN_UNDERSTOOD: "Acknowledge",
     DECAY_LABEL: "Source(Lm)",
     AVAILABLE_LM: "Available Lm",
@@ -388,7 +388,6 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
     PENDING_PROPAGATION: "Propagating...",
     NOTICE_APPROVED: "Your wish has been quietly heard.",
     NOTICE_FULFILLED: "Source has been delivered with gratitude.",
-    NOTICE_COMPLETION_PENDING: "The wish is fulfilled, awaiting your words of gratitude.",
     NOTICE_HELPER_RESIGNED: "The helper has stepped away; the wish returns to the world.",
     NOTICE_REQUESTER_CANCEL: "The wish was interrupted by the requester. Source has been sent as a token of goodwill.",
     NOTICE_HELPER_WAIT_RETURN: "The helper has withdrawn; the wish is open for applications again. Your Source is safe.",
@@ -452,6 +451,9 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
     BTN_LOAD_MORE: "Trace Back",
   },
   WISH_CARD: {
+    STATUS_OPEN: "Open",
+    STATUS_PENDING: "Pending",
+    STATUS_ACTIVE: "In Progress",
     MODAL_HELPER_LIST: "Those reaching out",
     MODAL_NO_APPLICANTS: "No one yet",
     MODAL_SELECT_ONE: "Please entrust one person",

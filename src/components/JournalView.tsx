@@ -104,7 +104,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
 
   return (
     <div className="flex-1 flex flex-col w-full h-full relative">
-        <div className="pt-safe w-full">
+        <div className="pt-safe w-full sticky top-0 z-30 bg-[#F9F8F4]/80 backdrop-blur-md border-b border-slate-200/50 shadow-sm shadow-slate-100/50">
             <div className="w-full max-w-2xl mx-auto px-6 py-4 md:py-6 flex items-center justify-between">
                  <div className="flex items-center gap-3 min-w-0">
                     <button

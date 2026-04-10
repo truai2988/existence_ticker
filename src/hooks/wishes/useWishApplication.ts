@@ -49,6 +49,7 @@ export const useWishApplication = () => {
         const applicantName = user.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_APPLICANT;
         sendNoticeSilently({
           userId: wishData.requester_id,
+          wishId,
           message: MESSAGES.WISH_ACTIONS.NOTICE_APPLICATION.replace('%name', applicantName),
           messageKey: "NOTICE_APPLICATION",
           params: { name: applicantName },
@@ -100,8 +101,10 @@ export const useWishApplication = () => {
       // 通知: 助け手に「承諾されました」を送る
       sendNoticeSilently({
         userId: applicantId,
-        message: MESSAGES.WISH_ACTIONS.NOTICE_APPROVED,
+        wishId,
+        message: MESSAGES.WISH_ACTIONS.NOTICE_APPROVED.replace('%name', user.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER),
         messageKey: "NOTICE_APPROVED",
+        params: { name: user.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER },
         type: "wish_approved",
       });
 
