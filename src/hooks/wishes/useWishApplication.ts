@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../useAuthHook";
 import { db } from "../../lib/firebase";
-import { collection, doc, query, where, getDocs, getDoc, runTransaction, serverTimestamp, Transaction } from "firebase/firestore";
+import { doc, getDoc, runTransaction, serverTimestamp, Transaction } from "firebase/firestore";
 import { MESSAGES } from "../../constants/messages";
 import { useWishNotice } from "./useWishNotice";
 
