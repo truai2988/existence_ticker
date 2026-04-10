@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../useAuthHook";
 import { db } from "../../lib/firebase";
-import { collection, doc, query, where, getDocs, runTransaction, serverTimestamp, Transaction } from "firebase/firestore";
+import { collection, doc, query, where, getDocs, getDoc, runTransaction, serverTimestamp, Transaction } from "firebase/firestore";
 import { MESSAGES } from "../../constants/messages";
 import { useWishNotice } from "./useWishNotice";
 
@@ -43,9 +43,9 @@ export const useWishApplication = () => {
       });
 
       // 通知: 願い主に「応募がありました」を送る
-      const wishDocSnap = await getDocs(query(collection(db, 'wishes'), where('__name__', '==', wishId)));
-      if (!wishDocSnap.empty) {
-        const wishData = wishDocSnap.docs[0].data();
+      const wishDocSnap = await getDoc(doc(db, 'wishes', wishId));
+      if (wishDocSnap.exists()) {
+        const wishData = wishDocSnap.data();
         const applicantName = user.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_APPLICANT;
         sendNoticeSilently({
           userId: wishData.requester_id,

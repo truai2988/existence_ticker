@@ -3,14 +3,14 @@ import { collection, doc, setDoc } from "firebase/firestore";
 import { CreateNoticeInput } from "../types/notice";
 
 /**
- * Firestore の `notices` コレクションに通知を追加するユーティリティ。
+ * Firestore の `users/{userId}/notices` サブコレクションに通知を追加するユーティリティ。
  * サーバーサイドのトランザクション内でも、クライアント側の後処理でも使える。
  */
 export async function addNotice(input: CreateNoticeInput): Promise<void> {
   if (!db) return;
 
   try {
-    const noticesRef = collection(db, "notices");
+    const noticesRef = collection(db, "users", input.userId, "notices");
     const noticeId = `notice_${input.userId}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
     const noticeDoc = doc(noticesRef, noticeId);
 

@@ -3,7 +3,6 @@ import { db } from "../lib/firebase";
 import {
   collection,
   query,
-  where,
   orderBy,
   onSnapshot,
   doc,
@@ -33,12 +32,9 @@ export const NoticeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       retryTimeout = setTimeout(() => {
         if (!isMounted || !db || !user?.uid) return;
 
-        const noticesRef = collection(db, "notices");
-        const q = query(
-          noticesRef,
-          where("userId", "==", user.uid),
-          orderBy("createdAt", "desc")
-        );
+        // サブコレクション: users/{uid}/notices — where不要、orderByも安全に使用可
+        const noticesRef = collection(db, "users", user.uid, "notices");
+        const q = query(noticesRef, orderBy("createdAt", "desc"));
 
         unsubscribe = onSnapshot(
           q,
@@ -51,9 +47,9 @@ export const NoticeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             setIsLoading(false);
           },
           (error) => {
-            if (error.code === 'permission-denied') {
-              // Silent retry if it's a known race condition during auth transition
-              if (isMounted) setupListener(2000); 
+            if (error.code === "permission-denied") {
+              // 認証遷移中の競合状態によるリトライ
+              if (isMounted) setupListener(2000);
             } else {
               console.error("[NoticeProvider] Firestore listener error:", error);
               setIsLoading(false);
@@ -73,17 +69,19 @@ export const NoticeProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   }, [user?.uid]);
 
   const dismissNotice = async (noticeId: string) => {
-    if (!db) return;
+    if (!db || !user?.uid) return;
     try {
-      await deleteDoc(doc(db, "notices", noticeId));
+      await deleteDoc(doc(db, "users", user.uid, "notices", noticeId));
     } catch (e) {
       console.error("[NoticeProvider] Failed to dismiss notice:", e);
     }
   };
 
   const dismissAll = async () => {
-    if (!db) return;
-    const promises = notices.map((n) => deleteDoc(doc(db!, "notices", n.id)));
+    if (!db || !user?.uid) return;
+    const promises = notices.map((n) =>
+      deleteDoc(doc(db!, "users", user!.uid, "notices", n.id))
+    );
     try {
       await Promise.all(promises);
     } catch (e) {
