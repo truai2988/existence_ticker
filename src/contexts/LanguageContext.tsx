@@ -17,24 +17,27 @@ const LanguageContext = createContext<LanguageContextProps>({
   t: MESSAGES,
 });
 
+type UnknownRecord = Record<string, unknown>;
+
 // Recursive merge function to safeguard against missing definitions in English
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function deepMerge<T>(base: T, overlay: any): T {
+function deepMerge<T>(base: T, overlay: unknown): T {
   if (!overlay || typeof overlay !== 'object') return base;
-  if (!base || typeof base !== 'object') return overlay;
+  if (!base || typeof base !== 'object') return overlay as T;
   
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const result = { ...base } as any;
-  for (const key in overlay) {
-    if (overlay[key] !== undefined) {
-      if (typeof overlay[key] === 'object' && overlay[key] !== null && !Array.isArray(overlay[key])) {
-        result[key] = deepMerge(result[key], overlay[key]);
+  const result = { ...base } as UnknownRecord;
+  const overlayObj = overlay as UnknownRecord;
+  
+  for (const key in overlayObj) {
+    if (overlayObj[key] !== undefined) {
+      const val = overlayObj[key];
+      if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+        result[key] = deepMerge(result[key], val);
       } else {
-        result[key] = overlay[key];
+        result[key] = val;
       }
     }
   }
-  return result;
+  return result as T;
 }
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {

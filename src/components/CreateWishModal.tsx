@@ -124,9 +124,6 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                 </span>
               </label>
             </div>
-            <span className="self-start sm:self-center text-xs uppercase font-bold text-amber-700 bg-amber-100/30 backdrop-blur-md px-3 py-1 rounded-full tracking-[0.2em]">
-              {MESSAGES.CREATE_WISH.TAG_GIFT}
-            </span>
           </div>
 
           <p className="text-xs text-slate-700 mb-2">
@@ -168,13 +165,13 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                   </div>
                   <div className="flex flex-col items-start gap-0.5 min-w-0 text-left">
                     <span
-                      className={`text-sm sm:text-base font-bold whitespace-nowrap tracking-wider sm:tracking-[0.1em]
+                      className={`text-xs sm:text-sm font-bold whitespace-nowrap tracking-wider sm:tracking-[0.1em]
                         ${selectedTier === tier.id ? "text-amber-800" : "text-slate-800"}`}
                       style={{ fontFamily: "'Noto Serif JP', serif" }}
                     >
                       {tier.label}
                     </span>
-                    <span className="text-[10px] sm:text-xs text-slate-700/80 font-medium tracking-wide sm:tracking-[0.2em] leading-snug">
+                    <span className="text-xs text-slate-700/80 font-medium tracking-wide sm:tracking-[0.2em] leading-snug">
                       {tier.subLabel}
                     </span>
                   </div>
@@ -193,7 +190,7 @@ export const CreateWishModal: React.FC<CreateWishModalProps> = ({ onClose }) => 
                       ? <span className="text-3xl sm:text-4xl leading-[0.5] pt-2">∞</span>
                       : <span className="text-base sm:text-xl">{tier.cost.toLocaleString()}</span>
                     }
-                    <span className="text-[10px] sm:text-xs font-sans font-medium opacity-80 uppercase tracking-widest">
+                    <span className="text-xs font-sans font-medium opacity-80 uppercase tracking-widest">
                       {tier.cost === 0 ? MESSAGES.CREATE_WISH.TIER_0 : UNIT_LABEL}
                     </span>
                   </span>

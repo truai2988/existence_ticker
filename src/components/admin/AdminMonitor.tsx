@@ -1,6 +1,7 @@
 import React from "react";
 import { Users, Activity, Droplets, Gift, Heart, Send, PlusCircle, Star, Sparkles, Wind } from "lucide-react";
 import { DashboardStats } from "../../hooks/useStats";
+import { useLanguage } from "../../contexts/LanguageContext";
 
 interface AdminMonitorProps {
   stats: DashboardStats;
@@ -15,6 +16,7 @@ interface MetricCardProps {
 
 export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats }) => {
   const { metabolism, distribution, cycle, wishesActive } = stats;
+  const { t } = useLanguage();
 
   const totalPop = distribution.full + distribution.quarter + distribution.new;
   const activeWishes = wishesActive || { light: 0, medium: 0, heavy: 0 };
@@ -44,73 +46,73 @@ export const AdminMonitor = React.memo<AdminMonitorProps>(({ stats }) => {
     <div className="animate-in fade-in duration-300 space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
-          title="総住民数"
+          title={t.ADMIN.MONITOR.TOTAL_USERS}
           value={totalPop.toLocaleString()}
           icon={Users}
-          subtitle="現在生存しているアカウント数"
+          subtitle={t.ADMIN.MONITOR.TOTAL_USERS_DESC}
         />
         <MetricCard
-          title="総流通量 (Total Supply)"
+          title={t.ADMIN.MONITOR.TOTAL_SUPPLY}
           value={`${Math.floor(metabolism.totalSupply).toLocaleString()} Lm`}
           icon={Droplets}
-          subtitle={`平均残高: ${Math.floor(metabolism.avgBalance || 0).toLocaleString()} Lm`}
+          subtitle={t.ADMIN.MONITOR.AVG_BALANCE.replace('%s', Math.floor(metabolism.avgBalance || 0).toLocaleString())}
         />
         <MetricCard
-          title="10日間 取引量 (Volume)"
+          title={t.ADMIN.MONITOR.VOLUME_10D}
           value={`${Math.floor(metabolism.volume10d).toLocaleString()} Lm`}
           icon={Activity}
-          subtitle="過去10日間に動いたLmの総量"
+          subtitle={t.ADMIN.MONITOR.VOLUME_10D_DESC}
         />
         <MetricCard
-          title="10日間 溢出量 (Overflow)"
+          title={t.ADMIN.MONITOR.OVERFLOW_10D}
           value={`${Math.floor(metabolism.overflowLoss || 0).toLocaleString()} Lm`}
           icon={Send}
-          subtitle="上限を超えて大気に還った量"
+          subtitle={t.ADMIN.MONITOR.OVERFLOW_10D_DESC}
         />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
-          title="10日間 想いの譲渡"
+          title={t.ADMIN.MONITOR.GIFT_10D}
           value={`${Math.floor(metabolism.giftVolume).toLocaleString()} Lm`}
           icon={Gift}
-          subtitle="相手を指定して贈られた量"
+          subtitle={t.ADMIN.MONITOR.GIFT_10D_DESC}
         />
         <MetricCard
-          title="10日間 願いへの共鳴"
+          title={t.ADMIN.MONITOR.WISH_10D}
           value={`${Math.floor(metabolism.wishVolume).toLocaleString()} Lm`}
           icon={Heart}
-          subtitle="願いに対して添えられた量"
+          subtitle={t.ADMIN.MONITOR.WISH_10D_DESC}
         />
         <MetricCard
-          title="10日間 再生 (Rebirth)"
-          value={`${cycle.rebornToday.toLocaleString()} 回`}
+          title={t.ADMIN.MONITOR.REBIRTH_10D}
+          value={`${cycle.rebornToday.toLocaleString()}${t.ADMIN.MONITOR.UNIT_TIMES}`}
           icon={PlusCircle}
-          subtitle="過去10日でリセットを迎えた回数"
+          subtitle={t.ADMIN.MONITOR.REBIRTH_10D_DESC}
         />
       </div>
 
       <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-500 mt-8 mb-4 border-b border-slate-800 pb-2">
-        進行中の願い (Active Wishes)
+        {t.ADMIN.MONITOR.ACTIVE_WISHES}
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <MetricCard
-          title="大いなる願い (1000Lm)"
-          value={`${activeWishes.heavy.toLocaleString()} 件`}
+          title={t.ADMIN.MONITOR.HEAVY_WISH}
+          value={`${activeWishes.heavy.toLocaleString()}${t.ADMIN.MONITOR.UNIT_COUNT}`}
           icon={Star}
-          subtitle="時間を要する大きな手助け等"
+          subtitle={t.ADMIN.MONITOR.HEAVY_WISH_DESC}
         />
         <MetricCard
-          title="日常の願い (500Lm)"
-          value={`${activeWishes.medium.toLocaleString()} 件`}
+          title={t.ADMIN.MONITOR.MEDIUM_WISH}
+          value={`${activeWishes.medium.toLocaleString()}${t.ADMIN.MONITOR.UNIT_COUNT}`}
           icon={Sparkles}
-          subtitle="日常のちょっとした手助け"
+          subtitle={t.ADMIN.MONITOR.MEDIUM_WISH_DESC}
         />
         <MetricCard
-          title="無償の願い (0Lm)"
-          value={`${activeWishes.light.toLocaleString()} 件`}
+          title={t.ADMIN.MONITOR.LIGHT_WISH}
+          value={`${activeWishes.light.toLocaleString()}${t.ADMIN.MONITOR.UNIT_COUNT}`}
           icon={Wind}
-          subtitle="数字で測れない想いの交換"
+          subtitle={t.ADMIN.MONITOR.LIGHT_WISH_DESC}
         />
       </div>
     </div>

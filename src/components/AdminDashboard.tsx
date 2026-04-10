@@ -11,6 +11,7 @@ import { useStats } from "../hooks/useStats";
 import { db } from "../lib/firebase";
 import { UserProfile } from "../types";
 import { getMillis } from "../logic/worldPhysics";
+import { useLanguage } from "../contexts/LanguageContext";
 
 import { AdminMonitor } from "./admin/AdminMonitor";
 import { AdminCitizens } from "./admin/AdminCitizens";
@@ -22,6 +23,7 @@ interface AdminDashboardProps {
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
   const { stats, error } = useStats();
   const [showManual, setShowManual] = useState(false);
+  const { t } = useLanguage();
 
   const [activeTab, setActiveTab] = useState<"monitor" | "citizens">("monitor");
   const [userList, setUserList] = useState<UserProfile[]>([]);
@@ -88,24 +90,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         (user) => user.id !== u.id && user.role === "admin"
       ).length;
       if (otherAdmins === 0) {
-        alert("システムには管理画面にアクセスできるユーザーが最低1人は必要です。");
+        alert(t.ADMIN.ALERT.NEED_AT_LEAST_ONE_ADMIN);
         return;
       }
     }
-    if (!window.confirm(`⚠️ ${u.name || "ユーザー"} の権限を変更しますか？`)) return;
+    if (!window.confirm(t.ADMIN.ALERT.CONFIRM_ROLE_CHANGE.replace('%s', u.name || t.ADMIN.TABLE.USER))) return;
     try {
       if (!db) return;
       const { doc, updateDoc } = await import("firebase/firestore");
       const newRole = u.role === "admin" ? "user" : "admin";
       await updateDoc(doc(db, "users", u.id), { role: newRole });
-      const roleNameMap: Record<string, string> = { admin: "管理者", user: "一般ユーザー" };
-      alert(`権限を ${roleNameMap[newRole] || newRole} に変更しました。`);
+      const roleNameMap: Record<string, string> = { admin: t.ADMIN.ROLES.ADMIN, user: t.ADMIN.ROLES.USER };
+      alert(t.ADMIN.ALERT.ROLE_CHANGED.replace('%s', roleNameMap[newRole] || newRole));
       fetchUsers();
     } catch (e) {
       console.error(e);
-      alert("変更に失敗しました");
+      alert(t.ADMIN.ALERT.CHANGE_FAILED);
     }
-  }, [userList, fetchUsers]);
+  }, [userList, fetchUsers, t]);
 
   // ダッシュボード表示中はbodyスクロールを無効化
   React.useEffect(() => {
@@ -122,7 +124,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
         <div className="text-center">
           <Activity className="w-10 h-10 text-yellow-500 animate-pulse mx-auto mb-4" />
           <div className="text-white font-mono tracking-widest text-sm">
-            経済を読み込み中...
+            {t.ADMIN.LOADING}
           </div>
         </div>
         <button
@@ -155,7 +157,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 className="text-xl font-serif font-medium text-slate-200 truncate leading-tight"
                 style={{ fontFamily: "'Noto Serif JP', serif" }}
               >
-                管理コンソール
+                {t.ADMIN.TITLE}
               </h2>
             </div>
           </div>
@@ -165,7 +167,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
               type="button"
               onClick={() => setShowManual(true)}
               className="p-2 hover:bg-slate-800 rounded-full transition-colors text-slate-700 hover:text-white"
-              title="プロトコル構想書"
+              title={t.PROTOCOL.HEADER_TITLE}
             >
               <Book size={24} />
             </button>
@@ -199,7 +201,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
             }`}
           >
             <Activity size={16} />
-            利用状況
+            {t.ADMIN.TAB_MONITOR}
           </button>
           <button
             type="button"
@@ -210,7 +212,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose }) => {
                 : "text-slate-700 hover:text-slate-700"
             }`}
           >
-            <Users size={16} /> 住民
+            <Users size={16} /> {t.ADMIN.TAB_USERS}
           </button>
         </div>
 

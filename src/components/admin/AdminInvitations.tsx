@@ -1,15 +1,15 @@
 import React from "react";
 import { Plus, Key, Copy, Check } from "lucide-react";
 
+import { Timestamp } from "firebase/firestore";
+
 interface InviteCode {
   id: string;
   is_used: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  created_at?: any;
+  created_at?: Timestamp | number;
   created_by?: string;
   used_by?: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  used_at?: any;
+  used_at?: Timestamp | number;
   memo?: string;
 }
 
@@ -21,6 +21,8 @@ interface AdminInvitationsProps {
   copiedCodeId: string | null;
 }
 
+import { useLanguage } from "../../contexts/LanguageContext";
+
 export const AdminInvitations = React.memo<AdminInvitationsProps>(({
   inviteCodes,
   onGenerateCode,
@@ -28,18 +30,20 @@ export const AdminInvitations = React.memo<AdminInvitationsProps>(({
   onUpdateMemo,
   copiedCodeId
 }) => {
+  const { t } = useLanguage();
+
   return (
     <div className="animate-in fade-in duration-300 space-y-4">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-bold text-slate-200">
-          招待コード管理
+          {t.ADMIN.INVITES.TITLE}
         </h3>
         <button
           type="button"
           onClick={onGenerateCode}
           className="bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-yellow-500/20"
         >
-          <Plus size={18} /> コードを生成
+          <Plus size={18} /> {t.ADMIN.INVITES.BTN_GENERATE}
         </button>
       </div>
 
@@ -48,19 +52,19 @@ export const AdminInvitations = React.memo<AdminInvitationsProps>(({
           {inviteCodes.length === 0 ? (
             <div className="p-12 text-center text-slate-700 flex flex-col items-center gap-2">
               <Key size={24} className="opacity-20" />
-              <p>まだ招待コードは発行されていません</p>
+              <p>{t.ADMIN.INVITES.NO_CODES}</p>
             </div>
           ) : (
             <div className="divide-y divide-slate-800">
               {inviteCodes
                 .slice()
                 .sort((a, b) => {
-                  const aTime = a.created_at?.toMillis
-                    ? a.created_at.toMillis()
-                    : a.created_at || 0;
-                  const bTime = b.created_at?.toMillis
-                    ? b.created_at.toMillis()
-                    : b.created_at || 0;
+                  const aTime = (a.created_at as Timestamp)?.toMillis
+                    ? (a.created_at as Timestamp).toMillis()
+                    : (a.created_at as number) || 0;
+                  const bTime = (b.created_at as Timestamp)?.toMillis
+                    ? (b.created_at as Timestamp).toMillis()
+                    : (b.created_at as number) || 0;
                   return bTime - aTime;
                 })
                 .map((code) => (
@@ -77,12 +81,9 @@ export const AdminInvitations = React.memo<AdminInvitationsProps>(({
                           {code.id}
                         </div>
                         <div className="text-xs text-slate-700">
-                          生成日時:{" "}
-                          {code.created_at?.toDate
-                            ? code.created_at.toDate().toLocaleString()
-                            : new Date(
-                                code.created_at,
-                              ).toLocaleString()}
+                          {t.ADMIN.INVITES.CREATED_AT.replace('%s', (code.created_at as Timestamp)?.toDate
+                            ? (code.created_at as Timestamp).toDate().toLocaleString()
+                            : new Date(code.created_at as number).toLocaleString())}
                         </div>
                       </div>
                     </div>
@@ -90,13 +91,13 @@ export const AdminInvitations = React.memo<AdminInvitationsProps>(({
                       {code.is_used ? (
                         <div className="flex flex-col items-end">
                           <span className="bg-slate-800 text-slate-700 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-slate-700">
-                            使用済み
+                            {t.ADMIN.INVITES.USED}
                           </span>
                           {code.used_by && (
                             <div
                               className="text-xs text-slate-700 mt-1"
                             >
-                              使用されました
+                              {t.ADMIN.INVITES.USED_BY.replace('%s', code.used_by.substring(0, 5))}
                             </div>
                           )}
                         </div>
@@ -105,7 +106,7 @@ export const AdminInvitations = React.memo<AdminInvitationsProps>(({
                           <div className="relative">
                             <input
                               type="text"
-                              placeholder="メモ (誰に渡したか...)"
+                              placeholder={t.ADMIN.INVITES.PLACEHOLDER}
                               defaultValue={code.memo || ""}
                               onBlur={(e) => {
                                 if (e.target.value !== code.memo) {
@@ -116,7 +117,7 @@ export const AdminInvitations = React.memo<AdminInvitationsProps>(({
                             />
                           </div>
                           <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold ring-1 ring-emerald-500/20 shadow-[0_0_10px_rgba(52,211,153,0.1)]">
-                            有効
+                            {t.ADMIN.INVITES.AVAILABLE}
                           </span>
                           <button
                             type="button"
@@ -130,12 +131,12 @@ export const AdminInvitations = React.memo<AdminInvitationsProps>(({
                             {copiedCodeId === code.id ? (
                               <>
                                 <Check size={12} />
-                                <span>招待状をコピーしました</span>
+                                <span>{t.ADMIN.INVITES.COPIED}</span>
                               </>
                             ) : (
                               <>
                                 <Copy size={12} />
-                                <span>招待状をコピー</span>
+                                <span>{t.ADMIN.INVITES.COPY}</span>
                               </>
                             )}
                           </button>
@@ -149,9 +150,7 @@ export const AdminInvitations = React.memo<AdminInvitationsProps>(({
         </div>
       </div>
       <p className="text-xs text-slate-700 italic px-2">
-        ※
-        招待コードは「ALPHA-XXXX」の形式で自動生成されます。Firestoreの
-        `invitation_codes` コレクションに保存されます。
+        {t.ADMIN.INVITES.VERSION}
       </p>
     </div>
   );
