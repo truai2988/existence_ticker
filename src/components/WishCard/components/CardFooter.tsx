@@ -179,7 +179,7 @@ export const CardFooter: React.FC<{
             {wish.status === "open" && (
               <div>
                 {hasApplied ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center justify-end gap-2">
                     <span className="flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-800 rounded-full text-sm font-bold border border-slate-300 whitespace-nowrap shrink-0">
                       <Clock size={14} />
                       {MESSAGES.WISH_CARD.TXT_WAITING_REPLY}
@@ -198,7 +198,7 @@ export const CardFooter: React.FC<{
                         }
                       }}
                       disabled={isLoading}
-                      className="px-3 py-2 text-base font-bold text-slate-700 border border-slate-300 rounded-full hover:bg-slate-50 hover:text-slate-800 hover:border-slate-300 transition-all"
+                      className="px-4 py-2 text-sm font-bold text-slate-700 border border-slate-300 rounded-full hover:bg-slate-50 hover:text-slate-800 hover:border-slate-300 transition-all whitespace-nowrap shrink-0"
                     >
                       {MESSAGES.WISH_CARD.BTN_CANCEL_APPLY}
                     </button>
