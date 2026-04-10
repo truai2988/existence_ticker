@@ -7,8 +7,8 @@ import { useUserView } from "../../../contexts/UserViewContext";
 export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHandlers }> = ({ state, handlers }) => {
   const { t: MESSAGES } = useLanguage();
   const {
-    wish, viewType, isMyWish, isReadOnly, isLoading, isExpired, isMasked, isHelperMasked,
-    helperProfile, requesterProfile, trust, displayRequesterName, isEditing
+    wish, viewType, isMyWish, isReadOnly, isLoading, isExpired, isMasked,
+    requesterProfile, trust, displayRequesterName, isEditing
   } = state;
 
   const { setIsEditing, handleCancel, formatDate } = handlers;
@@ -41,56 +41,19 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
             </div>
           )}
 
-          {(!isMyWish || wish.helper_id || ["cancelled", "expired"].includes(wish.status)) && (
+          {(!isMyWish || ["cancelled", "expired"].includes(wish.status)) && (
             <div className="flex items-center gap-3 w-full">
               {isMyWish ? (
-                wish.helper_id ? (
-                  <>
-                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center border border-blue-100 shrink-0 overflow-hidden">
-                      {helperProfile?.avatarUrl ? (
-                        <img src={helperProfile.avatarUrl} alt={helperProfile.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <User className="w-5 h-5 text-blue-300" />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (wish.helper_id && !isHelperMasked) openUserProfile(wish.helper_id, isMasked);
-                          }}
-                          className={`text-base font-bold tracking-wide text-left transition-colors whitespace-nowrap font-sans ${isHelperMasked ? "text-slate-700 cursor-default" : "text-slate-900 hover:text-blue-600 hover:underline"}`}
-                        >
-                          {helperProfile?.name || wish.helper_name || wish.applicants?.find((a: { id: string }) => a.id === wish.helper_id)?.name || wish.helper_id?.slice(0, 8) || MESSAGES.WISH_CARD.HDR_DEFAULT_HELPER}
-                        </button>
-                        {wish.status !== "open" && wish.status !== "expired" && (
-                          <div className="flex flex-wrap items-center gap-1 text-slate-700 font-sans">
-                            <span className="font-bold text-slate-900">
-                              {helperProfile?.name || wish.helper_name || wish.applicants?.find((a: { id: string }) => a.id === wish.helper_id)?.name || wish.helper_id?.slice(0, 8) || MESSAGES.WISH_CARD.HDR_DEFAULT_HELPER}
-                            </span>
-                            <span>
-                              {wish.status === "fulfilled" || wish.status === "completed"
-                                ? MESSAGES.WISH_CARD.HDR_SENDER_DONE
-                                : wish.status === "interrupted" ? MESSAGES.WISH_CARD.HDR_INTERRUPTED : wish.status === "cancelled" ? MESSAGES.WISH_CARD.HDR_CANCELLED : MESSAGES.WISH_CARD.HDR_IN_PROGRESS}
-                            </span>
-                          </div>
-                        )}
+                <div className="min-w-0 flex-1 py-1">
+                  {["cancelled", "expired"].includes(wish.status) && (
+                    <div className="flex items-center gap-2 opacity-80 mb-1">
+                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-300 shrink-0">
+                        <User className="w-5 h-5 text-slate-700" />
                       </div>
+                      <div className="text-sm text-slate-800 font-bold font-sans">{MESSAGES.WISH_CARD.HDR_UNFULFILLED}</div>
                     </div>
-                  </>
-                ) : (
-                  <div className="min-w-0 flex-1 py-1">
-                    {["cancelled", "expired"].includes(wish.status) && (
-                      <div className="flex items-center gap-2 opacity-80 mb-1">
-                        <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-300 shrink-0">
-                          <User className="w-5 h-5 text-slate-700" />
-                        </div>
-                        <div className="text-sm text-slate-800 font-bold font-sans">{MESSAGES.WISH_CARD.HDR_UNFULFILLED}</div>
-                      </div>
-                    )}
-                  </div>
-                )
+                  )}
+                </div>
               ) : (
                 <>
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center border shrink-0 overflow-hidden ${isMasked ? "bg-slate-200 border-slate-300" : "bg-slate-100 border-slate-300"}`}>

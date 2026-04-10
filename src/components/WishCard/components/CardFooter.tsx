@@ -27,6 +27,7 @@ export const CardFooter: React.FC<{
     hasApplied,
     displayValue,
     currentUserId,
+    isMasked,
   } = state;
 
   const {
@@ -130,8 +131,8 @@ export const CardFooter: React.FC<{
               <span>{formatDate(wish.created_at)}</span>
             </span>
             {wish.isAnonymous && (
-              <span className="text-sm font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded-full border border-red-100 uppercase tracking-tight">
-                {MESSAGES.WISH_CARD.FTR_ANON}
+              <span className={`text-sm font-bold px-2 py-0.5 rounded-full border uppercase tracking-tight ${isMasked ? "text-red-600 bg-red-50 border-red-100" : "text-blue-600 bg-blue-50 border-blue-100"}`}>
+                {isMasked ? MESSAGES.WISH_CARD.FTR_ANON : "開示"}
               </span>
             )}
           </div>
@@ -163,10 +164,8 @@ export const CardFooter: React.FC<{
               (wish.status === "review_pending" ||
                 wish.status === "in_progress") && (
                 <div className="flex flex-col items-end gap-2">
-                  <p className="text-sm font-bold text-slate-900">
-                    {MESSAGES.WISH_CARD.FTR_THANK_CONFIRM_1}
-                    <br />
-                    {MESSAGES.WISH_CARD.FTR_THANK_CONFIRM_2}
+                  <p className="text-sm font-bold text-slate-900 text-right">
+                    {MESSAGES.WISH_CARD.FTR_THANK_CONFIRM}
                   </p>
                   <button
                     onClick={() => {

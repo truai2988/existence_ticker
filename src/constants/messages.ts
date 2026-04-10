@@ -324,7 +324,7 @@ export const MESSAGES = {
     HDR_SENDER_DONE: "感謝を届けました",
     HDR_INTERRUPTED: "願いが取り下げられました", // 「中断」を排除
     HDR_CANCELLED: "繋がりが解かれました",
-    HDR_IN_PROGRESS: "誰かが寄り添っています", // 「ユーザーがタスクを担当中」を排除
+    HDR_IN_PROGRESS: "さんが寄り添っています", // 「ユーザーがタスクを担当中」を排除
     HDR_UNFULFILLED: "まだ誰もいません",
     HDR_TITLE_MY: "綴った願い",
     HDR_TITLE_HELP: " 願いに寄り添う",
@@ -346,8 +346,7 @@ export const MESSAGES = {
     FTR_RECRUITING: "公開中", // 「募集中」という労働感を排除
     FTR_ANON: "匿名",
     FTR_APPLICANTS: "名の立候補", 
-    FTR_THANK_CONFIRM_1: "願いが叶ったことを確認し、Lmと",
-    FTR_THANK_CONFIRM_2: "感謝の言葉を届けます。", // 「決済を実行」を排除
+    FTR_THANK_CONFIRM: "願いが叶ったら、完了ボタンを押して下さい", // 「決済を実行」を排除
     FTR_THANK_ALERT: "感謝を届けますか？ Lmが手元から離れます。",
 
     // OptimisticWishPhantom
@@ -362,7 +361,7 @@ export const MESSAGES = {
     LBL_MYSELF: "自分",
 
     // CardFooter
-    BTN_GIVE_THANKS_DONE: "お礼をする (完了)",
+    BTN_GIVE_THANKS_DONE: "完了しました",
     TXT_WAITING_REPLY: "返事を待っています",
     MSG_CONFIRM_CANCEL: "本当に寄り添うのを取りやめますか？", // 「立候補を取り消す」を排除
     MSG_CANCEL_SUCCESS: "取りやめました",
@@ -397,7 +396,7 @@ export const MESSAGES = {
     BTN_COPY: "アドレスをコピー",
     BTN_MAIL: "手紙を書く", // 「メールを作成する」から少し情緒的に
     TXT_NO_CONTACT: "連絡先は設定されていません",
-    HDR_MEMO_REQ: "さんのメモ",
+    HDR_MEMO_REQ: "さんへのメモ",
     HDR_MEMO_HELP: "依頼者さんより",
     // ApplicantItem
     LBL_MALE: "男性",

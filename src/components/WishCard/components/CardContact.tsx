@@ -1,62 +1,100 @@
 import React from "react";
-import { Copy, Mail, Check } from "lucide-react";
+import { Copy, Mail, Check, User, ChevronRight } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { WishCardState, WishCardHandlers } from "../types";
+import { useUserView } from "../../../contexts/UserViewContext";
 
 export const CardContact: React.FC<{ state: WishCardState; handlers: WishCardHandlers }> = ({ state, handlers }) => {
   const { t: MESSAGES } = useLanguage();
-  const { wish, isReadOnly, isMyWish, currentUserId, contactEmail, isCopied, requesterProfile } = state;
+  const { wish, isReadOnly, isMyWish, currentUserId, contactEmail, isCopied, requesterProfile, helperProfile, isMasked, isHelperMasked } = state;
   const { handleCopyEmail } = handlers;
+  const { openUserProfile } = useUserView();
 
   if (wish.status !== "in_progress" || isReadOnly || (!isMyWish && wish.helper_id !== currentUserId)) {
     return null;
   }
 
-  return (
-    <div className="relative mb-4 p-4 border border-slate-300 rounded-xl bg-slate-50/30">
-      <div className="space-y-3 mt-1">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 mb-3">
-            <h4 className="text-sm font-bold text-slate-900">
-              {isMyWish ? MESSAGES.WISH_CARD.HDR_CONTACT_REQ : MESSAGES.WISH_CARD.HDR_CONTACT_HELP}
-            </h4>
-          </div>
-          {contactEmail ? (
-            <div className="bg-white border border-slate-300 rounded-lg p-3">
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="text-sm font-mono font-bold text-slate-900 break-all select-all">
-                  {contactEmail}
-                </span>
-                <button
-                  onClick={handleCopyEmail}
-                  className="p-2 text-slate-700 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100"
-                  title={MESSAGES.WISH_CARD.BTN_COPY}
-                >
-                  {isCopied ? <Check size={16} className="text-green-500" /> : <Copy size={16} />}
-                </button>
-              </div>
+  const partnerProfile = isMyWish ? helperProfile : requesterProfile;
+  const partnerName = isMyWish 
+      ? (partnerProfile?.name || wish.helper_name || wish.applicants?.find((a: any) => a.id === wish.helper_id)?.name || wish.helper_id?.slice(0, 8) || MESSAGES.WISH_CARD.HDR_DEFAULT_HELPER)
+      : (partnerProfile?.name || "匿名ユーザー");
+  const partnerId = isMyWish ? wish.helper_id : wish.requester_id;
+  const partnerMasked = isMyWish ? isHelperMasked : isMasked;
 
-              <a
-                href={`mailto:${contactEmail}`}
-                className="mt-3 w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-800 hover:text-slate-900 text-sm font-bold rounded-lg border border-slate-300 transition-colors flex items-center justify-center gap-2"
-              >
-                <Mail className="w-4 h-4" />
-                {MESSAGES.WISH_CARD.BTN_MAIL}
-              </a>
+
+
+  return (
+    <div className="mt-5 pt-5 pb-2 border-t border-slate-200">
+      <div className="space-y-4">
+        {/* Header and Avatar */}
+        <div className="flex flex-col gap-3 px-1">
+          <h4 className="text-sm font-bold text-slate-800 tracking-wide">
+            {isMyWish ? MESSAGES.WISH_CARD.HDR_CONTACT_REQ : MESSAGES.WISH_CARD.HDR_CONTACT_HELP}
+          </h4>
+
+          <button
+             onClick={(e) => {
+               e.stopPropagation();
+               if (partnerId && !partnerMasked) openUserProfile(partnerId, partnerMasked);
+             }}
+             disabled={partnerMasked}
+             className={`w-full flex items-center gap-3 p-2 -mx-2 rounded-xl transition-colors group/btn text-left ${partnerMasked ? "cursor-default" : "hover:bg-slate-50 active:bg-slate-100"}`}
+          >
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center border border-slate-200 shrink-0 overflow-hidden bg-slate-100 shadow-sm transition-transform ${!partnerMasked && "group-hover/btn:scale-105"}`}>
+              {!partnerMasked && partnerProfile?.avatarUrl ? (
+                <img src={partnerProfile.avatarUrl} alt={partnerName} className="w-full h-full object-cover" />
+              ) : (
+                <User className="w-4 h-4 text-slate-400" />
+              )}
             </div>
-          ) : (
-            <span className="text-xs text-slate-700 italic">{MESSAGES.WISH_CARD.TXT_NO_CONTACT}</span>
-          )}
+            <div className={`flex-1 font-bold font-sans transition-colors ${partnerMasked ? "text-slate-700" : "text-slate-900 group-hover/btn:text-blue-600"}`}>
+              {partnerMasked && !isMyWish ? MESSAGES.WISH_CARD.ANONYMOUS_HELPER : partnerName}
+            </div>
+            {!partnerMasked && (
+              <ChevronRight className="w-4 h-4 text-slate-400 shrink-0 transition-transform group-hover/btn:translate-x-0.5" />
+            )}
+          </button>
         </div>
 
-        {wish.contact_note && (
+        {/* Email and Action Area */}
+        {contactEmail ? (
           <div className="flex flex-col gap-2">
-            <h4 className="text-xs font-bold text-slate-700 uppercase tracking-widest">
-              {isMyWish ? `${requesterProfile?.name || MESSAGES.WISH_CARD.LBL_MYSELF}${MESSAGES.WISH_CARD.HDR_MEMO_REQ}` : MESSAGES.WISH_CARD.HDR_MEMO_HELP}
+            <div className="flex items-center justify-between gap-2 bg-slate-50 px-4 py-3 rounded-xl border border-slate-100">
+              <span className="text-sm font-mono font-medium text-slate-700 tracking-tight break-all select-all">
+                {contactEmail}
+              </span>
+              <button
+                onClick={handleCopyEmail}
+                className="p-1.5 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                title={MESSAGES.WISH_CARD.BTN_COPY}
+              >
+                {isCopied ? <Check size={18} className="text-green-500" /> : <Copy size={18} />}
+              </button>
+            </div>
+
+            <a
+              href={`mailto:${contactEmail}`}
+              className="w-full py-2.5 bg-white border border-slate-300 hover:bg-slate-50 hover:border-slate-400 text-slate-800 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm active:scale-[0.98]"
+            >
+              <Mail className="w-4 h-4 text-slate-500" />
+              {MESSAGES.WISH_CARD.BTN_MAIL}
+            </a>
+          </div>
+        ) : (
+          <span className="text-xs text-slate-500 italic px-1">{MESSAGES.WISH_CARD.TXT_NO_CONTACT}</span>
+        )}
+
+        {/* Memo Area */}
+        {wish.contact_note && (
+          <div className="flex flex-col gap-2 border-t border-slate-100 pt-4 mt-2">
+            <h4 className="text-[11px] font-bold text-slate-500 tracking-widest px-1">
+              {isMyWish 
+                ? `${partnerMasked ? MESSAGES.WISH_CARD.ANONYMOUS_HELPER : partnerName}${MESSAGES.WISH_CARD.HDR_MEMO_REQ}` 
+                : MESSAGES.WISH_CARD.HDR_MEMO_HELP}
             </h4>
-            <p className="text-sm text-slate-800 bg-slate-50 p-4 rounded-xl border border-slate-300 whitespace-pre-wrap leading-relaxed shadow-inner font-sans">
+            <div className="text-sm text-slate-800 bg-slate-50/80 p-4 rounded-xl whitespace-pre-wrap leading-relaxed font-sans">
               {wish.contact_note}
-            </p>
+            </div>
           </div>
         )}
       </div>
