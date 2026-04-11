@@ -45,11 +45,6 @@ export const CardFooter: React.FC<{
       setTimeout(() => {
         showToast(MESSAGES.WISH_CARD.TOAST_THANKED, "success");
       }, 500);
-      import("../../../utils/pwaEvent").then(
-        ({ globalTriggerPWAInstall }) => {
-          globalTriggerPWAInstall();
-        },
-      );
     }
     setIsLoading(false);
   };

@@ -80,9 +80,6 @@ export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
 
     if (result.success) {
       showToast(MESSAGES.CREATE_WISH.TOAST_SUCCESS, "success");
-      import('../utils/pwaEvent').then(({ globalTriggerPWAInstall }) => {
-        globalTriggerPWAInstall();
-      });
       if (onSuccess) onSuccess();
       setNewWishContent('');
       setDraftKeyword('');
@@ -91,8 +88,10 @@ export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
       if (result.id) {
         setTimeout(() => {
           const target = document.getElementById(`wish-${result.id}`);
+          
           if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // テキストエリアの縮小アニメーション(transition)が落ち着くのを待ってからスクロール
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
             
             target.style.transition = 'box-shadow 0.3s ease-out';
             target.style.boxShadow = '0 0 0 4px rgba(217, 119, 6, 0.4)';
@@ -100,7 +99,7 @@ export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
               target.style.boxShadow = '';
             }, 2000);
           }
-        }, 100);
+        }, 400); // フォームが縮小する時間を待機
       }
     } else {
       setCreationError(result.error || "通信エラーが発生しました。");

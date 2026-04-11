@@ -124,9 +124,6 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
         showToast(MESSAGES.WISH_CARD.TOAST_APPLY_SUCCESS, "success");
       }, onActionComplete ? 500 : 0);
       window.dispatchEvent(new Event("goyen-celebration"));
-      import('../../../utils/pwaEvent').then(({ globalTriggerPWAInstall }) => {
-        globalTriggerPWAInstall();
-      });
       if (onActionComplete) onActionComplete("applied");
     } else {
       showToast(MESSAGES.WISH_CARD.TOAST_APPLY_ERROR, "error");
@@ -150,9 +147,6 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
       setTimeout(() => {
         showToast(MESSAGES.WISH_CARD.TOAST_APPROVE_SUCCESS, "success");
       }, onActionComplete ? 500 : 0);
-      import('../../../utils/pwaEvent').then(({ globalTriggerPWAInstall }) => {
-        globalTriggerPWAInstall();
-      });
       setShowApplicants(false);
       setApprovalTarget(null);
       if (onActionComplete) onActionComplete("approved");

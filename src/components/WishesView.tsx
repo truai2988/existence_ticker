@@ -91,8 +91,8 @@ export const WishesView: React.FC<WishesViewProps> = ({ currentUserId, onOpenPro
             <div className="flex-1 overflow-y-auto no-scrollbar w-full transition-colors duration-500" data-scroll-container>
                 <div className="max-w-2xl mx-auto w-full px-6 py-6 pb-safe-offset-24 relative space-y-6">
                     
-                    {/* Inline Input Form - top-0 はスクロールコンテナ内でのみ意味を持つ*/}
-                    <div className="bg-[#F9F8F4] -mx-6 px-6 -mt-6 pt-6 pb-4 border-b border-white/20 sticky top-0 z-20 shadow-sm shadow-slate-200/20">
+                    {/* Inline Input Form */}
+                    <div className="bg-[#F9F8F4] -mx-6 px-6 -mt-6 pt-6 pb-4 border-b border-slate-200/50 relative z-10 mb-2">
                         <WishInputForm />
                     </div>
 
