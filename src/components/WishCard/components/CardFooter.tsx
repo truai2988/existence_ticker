@@ -3,7 +3,6 @@ import {
   Clock,
   Handshake,
   Loader2,
-  Archive,
 } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { WishCardState, WishCardHandlers } from "../types";
@@ -31,8 +30,6 @@ export const CardFooter: React.FC<{
     setShowApplicants,
     handleApply,
     handleCancel,
-    handleCleanup,
-    formatDate,
     setIsLoading,
   } = handlers;
 
@@ -45,49 +42,105 @@ export const CardFooter: React.FC<{
     setIsLoading(true);
     const success = await fulfillWish(wish.id, wish.helper_id!, message);
     if (success) {
-      showToast(MESSAGES.WISH_CARD.TOAST_THANKED, "success");
+      setTimeout(() => {
+        showToast(MESSAGES.WISH_CARD.TOAST_THANKED, "success");
+      }, 500);
       import("../../../utils/pwaEvent").then(
         ({ globalTriggerPWAInstall }) => {
           globalTriggerPWAInstall();
         },
       );
-      if (state.onTabChange) state.onTabChange("history");
     }
     setIsLoading(false);
   };
 
-  return (
-    <div className="relative pt-4 border-t border-slate-300 min-h-[50px] flex items-center justify-between gap-4 flex-wrap">
-      <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-        {isMyWish && (
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 ml-1">
-            <span className="flex items-center gap-1 text-sm text-slate-800">
-              <Clock className="w-3.5 h-3.5" />
-              <span>{formatDate(wish.created_at)}</span>
-            </span>
+  if (isExpired && isMyWish) {
+    return null; // isExpired for MyWish only has cleanup, which is now in CardHeader
+  }
 
-          </div>
+  return (
+    <div className="relative pt-4 mt-2 border-t border-slate-200 min-h-[44px] flex items-center flex-wrap justify-between gap-3">
+      {/* 2. 消極的な動作（左側） */}
+      <div className="flex items-center gap-2 flex-1 justify-start">
+        {isMyWish && !isReadOnly && !isExpired && (
+          <>
+            {wish.status === "open" && (
+              <button
+                onClick={handleCancel}
+                disabled={isLoading}
+                className="flex items-center justify-center px-4 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-700 bg-transparent border border-slate-300 hover:border-slate-400 hover:bg-slate-50 rounded-full transition-colors whitespace-nowrap"
+                title={MESSAGES.WISH_CARD.BTN_WITHDRAW}
+              >
+                <span>{MESSAGES.WISH_CARD.BTN_WITHDRAW}</span>
+              </button>
+            )}
+            {wish.status === "in_progress" && (
+              <button
+                onClick={handleCancel}
+                disabled={isLoading}
+                className="flex items-center justify-center px-4 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-700 bg-transparent border border-slate-300 hover:border-slate-400 hover:bg-slate-50 rounded-full transition-colors whitespace-nowrap"
+                title={MESSAGES.WISH_CARD.BTN_INTERRUPT}
+              >
+                <span>{MESSAGES.WISH_CARD.BTN_INTERRUPT}</span>
+              </button>
+            )}
+          </>
+        )}
+
+        {!isMyWish && !isExpired && !isReadOnly && (
+          <>
+            {wish.status === "open" && hasApplied && (
+              <button
+                onClick={async () => {
+                  if (confirm(MESSAGES.WISH_CARD.MSG_CONFIRM_CANCEL)) {
+                    setIsLoading(true);
+                    const success = await withdrawApplication(wish.id);
+                    setIsLoading(false);
+                    if (success) {
+                      setTimeout(() => {
+                        showToast(MESSAGES.WISH_CARD.MSG_CANCEL_SUCCESS, "success");
+                      }, state.onActionComplete ? 500 : 0);
+                      if (state.onActionComplete)
+                        state.onActionComplete("withdrawn");
+                    }
+                  }
+                }}
+                disabled={isLoading}
+                className="flex items-center justify-center px-4 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-700 bg-transparent border border-slate-300 hover:border-slate-400 hover:bg-slate-50 rounded-full transition-colors whitespace-nowrap"
+              >
+                <span>{MESSAGES.WISH_CARD.BTN_CANCEL_APPLY}</span>
+              </button>
+            )}
+            {(wish.status === "in_progress" || wish.status === "review_pending") &&
+              wish.helper_id === currentUserId && (
+                <button
+                  onClick={handleCancel}
+                  disabled={isLoading}
+                  className="flex items-center justify-center px-4 py-1.5 text-xs font-bold text-slate-500 hover:text-slate-700 bg-transparent border border-slate-300 hover:border-slate-400 hover:bg-slate-50 rounded-full transition-colors whitespace-nowrap"
+                >
+                  <span>{MESSAGES.WISH_CARD.BTN_DECLINE}</span>
+                </button>
+              )}
+          </>
         )}
       </div>
 
-      <div className="flex justify-end">
+      {/* 3. 積極的な動作（右側） */}
+      <div className="flex items-center gap-2 flex-shrink-0 justify-end">
         {isMyWish && (
           <>
             {wish.status === "open" && !isExpired && (
               <div>
-                {applicants.length > 0 ? (
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowApplicants(!showApplicants)}
-                      className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-400 to-orange-400 text-white rounded-full text-sm font-bold shadow-md shadow-orange-200 hover:scale-105 transition-all active:scale-95"
-                    >
-                      <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
-                      {applicants.length}
-                      {MESSAGES.WISH_CARD.FTR_APPLICANTS}
-                    </button>
-                  </div>
+                {applicants.length > 0 && state.viewType !== "flow" ? (
+                  <button
+                    onClick={() => setShowApplicants(!showApplicants)}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-amber-400 to-orange-400 text-white rounded-full text-sm font-bold shadow-md shadow-orange-200/50 hover:scale-105 transition-all active:scale-[0.98] whitespace-nowrap"
+                  >
+                    <span className="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                    {MESSAGES.WISH_CARD.BTN_RESPONDENTS}
+                  </button>
                 ) : (
-                  <div className="flex items-center gap-1.5 text-sm font-bold text-slate-800 whitespace-nowrap">
+                  <div className="flex items-center gap-1.5 text-sm font-bold text-slate-500 whitespace-nowrap px-2">
                     <Clock size={16} />
                     <span>{MESSAGES.WISH_CARD.TXT_WAITING_CANDIDATE}</span>
                   </div>
@@ -95,110 +148,49 @@ export const CardFooter: React.FC<{
               </div>
             )}
 
-            {!isExpired &&
-              !isReadOnly &&
-              (wish.status === "review_pending" ||
-                wish.status === "in_progress") && (
-                <div className="flex flex-col items-end gap-2">
-                  <div className="flex items-center justify-end gap-1.5 text-sm font-bold text-slate-800 text-right">
-                    <Clock size={16} className="shrink-0" />
-                    <span>{MESSAGES.WISH_CARD.FTR_THANK_CONFIRM}</span>
-                  </div>
-                  <button
-                    onClick={() => {
-                      const confirmPrompt = MESSAGES.WISH_CARD.FTR_THANK_ALERT + "\n\n（感謝のメッセージがあればここに入力してください）：";
-                      const msg = window.prompt(confirmPrompt);
-                      if (msg !== null) {
-                        handleFulfill(msg.trim() || undefined);
-                      }
-                    }}
-                    disabled={isLoading}
-                    className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold shadow-lg shadow-pink-200 hover:scale-105 active:scale-95 transition-all"
-                  >
-                    <Handshake className="w-4 h-4 text-white" />
-                    <span>{MESSAGES.WISH_CARD.BTN_GIVE_THANKS_DONE}</span>
-                  </button>
-                </div>
-              )}
+            {!isExpired && !isReadOnly && (wish.status === "review_pending" || wish.status === "in_progress") && (
+              <button
+                onClick={() => {
+                  const confirmPrompt = MESSAGES.WISH_CARD.FTR_THANK_ALERT + "\n\n（感謝のメッセージがあればここに入力してください）：";
+                  const msg = window.prompt(confirmPrompt);
+                  if (msg !== null) {
+                    handleFulfill(msg.trim() || undefined);
+                  }
+                }}
+                disabled={isLoading}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-600 text-white font-bold shadow-md shadow-emerald-200/50 hover:bg-emerald-700 active:scale-95 transition-all whitespace-nowrap"
+              >
+                <Handshake className="w-4 h-4 text-white" />
+                <span>{MESSAGES.WISH_CARD.BTN_GIVE_THANKS_DONE}</span>
+              </button>
+            )}
           </>
         )}
 
         {!isMyWish && !isExpired && !isReadOnly && (
           <>
-            {wish.status === "open" && (
-              <div>
-                {hasApplied ? (
-                  <div className="flex flex-wrap items-center justify-end gap-3">
-                    <span className="flex items-center gap-1.5 text-sm font-bold text-slate-800 whitespace-nowrap shrink-0">
-                      <Clock size={16} />
-                      {MESSAGES.WISH_CARD.TXT_WAITING_REPLY}
-                    </span>
-                    <button
-                      onClick={async () => {
-                        if (confirm(MESSAGES.WISH_CARD.MSG_CONFIRM_CANCEL)) {
-                          setIsLoading(true);
-                          const success = await withdrawApplication(wish.id);
-                          setIsLoading(false);
-                          if (success) {
-                            showToast(MESSAGES.WISH_CARD.MSG_CANCEL_SUCCESS, "success");
-                            if (state.onActionComplete)
-                              state.onActionComplete("withdrawn");
-                          }
-                        }
-                      }}
-                      disabled={isLoading}
-                      className="px-4 py-2 text-sm font-bold text-slate-700 border border-slate-300 rounded-full hover:bg-slate-50 hover:text-slate-800 hover:border-slate-300 transition-all whitespace-nowrap shrink-0"
-                    >
-                      {MESSAGES.WISH_CARD.BTN_CANCEL_APPLY}
-                    </button>
-                  </div>
+            {wish.status === "open" && !hasApplied && (
+              <button
+                onClick={getCandidateAction(handleApply)}
+                disabled={isLoading}
+                className="relative overflow-hidden z-10 flex items-center gap-2 px-6 py-2.5 rounded-full bg-amber-500 text-white hover:bg-amber-600 text-sm font-bold transition-all shadow-md shadow-amber-200/50 hover:scale-[1.03] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <button
-                    onClick={getCandidateAction(handleApply)}
-                    disabled={isLoading}
-                    className="relative overflow-hidden z-10 flex items-center gap-2 px-6 py-2.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200 hover:bg-amber-500 hover:text-white hover:border-amber-500 text-base font-bold transition-all shadow-sm hover:shadow-md active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Handshake className="w-4 h-4" />
-                    )}
-                    <span>{MESSAGES.WISH_CARD.BTN_RESPOND}</span>
-                  </button>
+                  <Handshake className="w-4 h-4" />
                 )}
-              </div>
+                <span>{MESSAGES.WISH_CARD.BTN_RESPOND}</span>
+              </button>
             )}
-
-            {(wish.status === "in_progress" ||
-              wish.status === "review_pending") &&
-              !isReadOnly &&
-              wish.helper_id === currentUserId && (
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={handleCancel}
-                    disabled={isLoading}
-                    className="text-slate-800 hover:text-red-500 text-base font-bold transition-all underline decoration-slate-300 hover:decoration-red-200 underline-offset-4"
-                  >
-                    {MESSAGES.WISH_CARD.BTN_DECLINE}
-                  </button>
-                </div>
-              )}
+            
+            {wish.status === "open" && hasApplied && (
+               <span className="flex items-center gap-1.5 text-sm font-bold text-emerald-600 whitespace-nowrap px-2">
+                 <Clock size={16} />
+                 {MESSAGES.WISH_CARD.TXT_WAITING_REPLY}
+               </span>
+            )}
           </>
-        )}
-
-        {isMyWish && isExpired && !isReadOnly && (
-          <button
-            onClick={handleCleanup}
-            disabled={isLoading}
-            className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-xl text-base font-bold hover:bg-slate-800 transition-all active:scale-[0.98] shadow-md shadow-slate-200 disabled:opacity-50"
-          >
-            {isLoading ? (
-              <Loader2 className="w-3 h-3 animate-spin" />
-            ) : (
-              <Archive size={14} />
-            )}
-            <span>{MESSAGES.WISH_CARD.BTN_CLEANUP_RECORD}</span>
-          </button>
         )}
       </div>
     </div>

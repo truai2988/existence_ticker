@@ -263,6 +263,39 @@ export const useWishLifecycle = () => {
             wishData,
             ownerId: user.uid
           });
+
+          // 応募者がいる状態で依頼主が取り消した場合、全員へ神隠し防止のお知らせ（軽量スナップショット付き）を送る
+          if (wishData.requester_id === user.uid && wishData.applicants && wishData.applicants.length > 0) {
+            const isAnon = wishData.isAnonymous === true;
+            const trueName = wishData.requester_name || user.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_REQUESTER;
+            const reqName = isAnon ? "匿名" : trueName;
+            
+            // 通知に埋め込む必要最小限のデータのみ抽出
+            const minimalSnapshot = {
+              content: wishData.content,
+              requester_name: reqName, // 匿名の場合は「匿名」が入る（ネットワーク経由の漏洩を完全防御）
+              requester_id: wishData.requester_id,
+              cost: wishData.cost || 1000,
+              created_at: typeof wishData.created_at === 'number' ? wishData.created_at : Date.now(),
+              isAnonymous: isAnon,
+              status: "cancelled", // スナップショットは取り消し後の状態を示す
+            };
+            const snapshotStr = JSON.stringify(minimalSnapshot);
+
+            wishData.applicants.forEach((applicant: { id: string }) => {
+              sendNoticeSilently({
+                userId: applicant.id,
+                wishId,
+                message: MESSAGES.WISH_ACTIONS.NOTICE_WISH_CANCELLED_WITH_APPLICANTS.replace('%name', reqName),
+                messageKey: "NOTICE_WISH_CANCELLED_WITH_APPLICANTS",
+                params: {
+                  name: reqName,
+                  wishSnapshot: snapshotStr
+                },
+                type: "wish_cancelled"
+              });
+            });
+          }
         }
       });
 

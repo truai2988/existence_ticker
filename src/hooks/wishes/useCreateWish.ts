@@ -14,7 +14,7 @@ export const useCreateWish = () => {
   const { addOptimisticWish, updateOptimisticWish, removeOptimisticWish } = useWishesContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const castWish = async (input: CreateWishInput): Promise<{success: boolean, error?: string}> => {
+  const castWish = async (input: CreateWishInput): Promise<{success: boolean, error?: string, id?: string}> => {
     if (!db) {
       return { success: false, error: MESSAGES.WISH_ACTIONS.ALERT_DB_ERROR };
     }
@@ -70,7 +70,7 @@ export const useCreateWish = () => {
         });
       });
       removeOptimisticWish(wishId);
-      return { success: true };
+      return { success: true, id: wishId };
     } catch (e) {
       console.error("Failed to cast wish:", e);
       removeOptimisticWish(wishId);

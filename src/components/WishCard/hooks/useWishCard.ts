@@ -76,6 +76,28 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
 
   const isHelperMasked = isHelperInterrupted;
 
+  const focusCard = () => {
+    setTimeout(() => {
+      const target = document.getElementById(`wish-${wish.id}`);
+      if (target) {
+        // 標準の scrollIntoView だとブラウザ全体の window までスクロールしてしまい
+        // スティッキーヘッダーが画面外に押し出される現象（Safari等）を防ぐため、
+        // 直近のスクロールコンテナだけを計算してスクロールさせます。
+        const container = target.closest('.overflow-y-auto');
+        if (container) {
+          const targetRect = target.getBoundingClientRect();
+          const containerRect = container.getBoundingClientRect();
+          // ヘッダー被りを防ぐためのオフセット（約120px = top-32相当）
+          const offset = targetRect.top - containerRect.top + container.scrollTop - 120;
+          container.scrollTo({ top: offset, behavior: 'smooth' });
+        } else {
+          // フォールバック
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    }, 100);
+  };
+
   const handleApply = async () => {
     if (!isProfileComplete(myProfile)) {
       if (confirm("プロフィールの器を構成すると、信頼の輪が広がりやすくなります（想いがかなう機会が増えます）。\n\nプロフィールを編集しますか？")) {
@@ -84,14 +106,17 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
       }
     }
 
-    if (!confirm(wish.isAnonymous ? "これは「匿名の願い」です。決定されるまで、あなたも匿名として扱われます。\n\n立候補しますか？" : "この依頼に立候補しますか？")) return;
+    if (!confirm(wish.isAnonymous ? "これは「匿名の願い」です。相手が誰かは約定するまでわかりませんが、あなたの名前は相手に伝わります。\n\n立候補しますか？" : "この依頼に立候補しますか？")) return;
     
     setIsLoading(true);
     const success = await applyForWish(wish.id);
     setIsLoading(false);
     
     if (success) {
-      showToast("応える意思を伝えました", "success");
+      focusCard();
+      setTimeout(() => {
+        showToast("手を挙げました。『つながり』画面で確認できます。", "success");
+      }, onActionComplete ? 500 : 0);
       window.dispatchEvent(new Event("goyen-celebration"));
       import('../../../utils/pwaEvent').then(({ globalTriggerPWAInstall }) => {
         globalTriggerPWAInstall();
@@ -115,7 +140,10 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
     setIsLoading(false);
     
     if (success) {
-      showToast("願いを託しました", "success");
+      focusCard();
+      setTimeout(() => {
+        showToast("願いを託しました", "success");
+      }, onActionComplete ? 500 : 0);
       import('../../../utils/pwaEvent').then(({ globalTriggerPWAInstall }) => {
         globalTriggerPWAInstall();
       });
@@ -132,6 +160,7 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
     setIsLoading(true);
     const success = await updateWish(wish.id, { content: editContent });
     if (success) {
+      focusCard();
       setIsEditing(false);
       showToast("更新しました", "success");
     } else {
@@ -167,12 +196,14 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
     }
 
     if (success) {
-      showToast(
-        confirmAction === "resign"
-          ? "辞退しました"
-          : confirmAction === "compensate" ? "誠実のしるしを渡して取り下げました" : "取り下げました",
-        "success"
-      );
+      setTimeout(() => {
+        showToast(
+          confirmAction === "resign"
+            ? "そっと離れました。"
+            : confirmAction === "compensate" ? "お礼を渡して、お願いをそっと取り下げました。" : "お願いをそっと取り下げました。",
+          "success"
+        );
+      }, onActionComplete ? 500 : 0);
       if (onActionComplete) onActionComplete(actionType);
     } else {
       showToast("不具合により取り下げに失敗しました。時間をおいて再度お試しください。", "error");
@@ -189,7 +220,9 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
     const success = await expireWish(wish.id);
     setIsLoading(false);
     if (success) {
-      showToast("記録を整理しました", "success");
+      setTimeout(() => {
+        showToast("記録を静かに整理しました。", "success");
+      }, onActionComplete ? 500 : 0);
       if (onActionComplete) onActionComplete("cleanup");
     } else {
       showToast("整理に失敗しました", "error");

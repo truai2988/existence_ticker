@@ -86,6 +86,11 @@ export const useWishApplication = () => {
           const wishDoc = await transaction.get(wishRef);
           if (!wishDoc.exists()) throw "Wish not found";
           
+          const userData = (await transaction.get(userRef)).data();
+          if (userData?.name) {
+              verifiedRequesterName = userData.name;
+          }
+
           const data = wishDoc.data();
           const applicants = data.applicants || [];
           const selectedApplicant = applicants.find((a: { id: string }) => a.id === applicantId);
@@ -101,11 +106,6 @@ export const useWishApplication = () => {
             requester_contact_email: user.email || "",
             helper_contact_email: selectedApplicant.contact_email || "",
           });
-          
-          const userData = (await transaction.get(userRef)).data();
-          if (userData?.name) {
-              verifiedRequesterName = userData.name;
-          }
       });
 
       // 通知: 助け手に「承諾されました」を送る

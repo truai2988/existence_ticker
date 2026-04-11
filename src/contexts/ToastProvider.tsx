@@ -21,10 +21,10 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     
     setToasts(prev => [...prev, { id, message, type }]);
 
-    // 3秒後に自動削除
+    // 5秒後に自動削除
     setTimeout(() => {
       setToasts(prev => prev.filter(toast => toast.id !== id));
-    }, 3000);
+    }, 5000);
   }, [nextId]);
 
   return (

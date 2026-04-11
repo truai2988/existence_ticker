@@ -1,5 +1,5 @@
-import React from "react";
-import { User, ShieldCheck, Megaphone, Clock, Pencil, Trash2, AlertTriangle } from "lucide-react";
+import React, { useState } from "react";
+import { User, ShieldCheck, Megaphone, Clock, Pencil, Trash2, MoreHorizontal } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { WishCardState, WishCardHandlers } from "../types";
 import { useUserView } from "../../../contexts/UserViewContext";
@@ -12,8 +12,15 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
     requesterProfile, trust, displayRequesterName, isEditing
   } = state;
 
-  const { setIsEditing, handleCancel, formatDate } = handlers;
+  const { setIsEditing, formatDate, handleCleanup } = handlers;
   const { openUserProfile } = useUserView();
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const closeMenu = () => setIsMenuOpen(false);
+
+  const canEdit = !isExpired && wish.status === "open";
+  const canCleanup = isExpired;
+  const hasMenuOptions = isMyWish && !isReadOnly && (canEdit || canCleanup);
 
   const getStatusBadge = () => {
     if (['completed', 'fulfilled', 'cancelled', 'expired'].includes(wish.status)) return null;
@@ -57,9 +64,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
     <>
       <div className="relative flex justify-between items-start mb-2 gap-4">
         <div className="flex flex-col gap-3 flex-1 min-w-0">
-          {/* 投稿者プロフィール行 — 常に表示 */}
           <div className="flex items-center gap-3 w-full">
-            {/* アバター */}
             <div className={`w-10 h-10 rounded-full flex items-center justify-center border shrink-0 overflow-hidden ${isMasked ? "bg-slate-200 border-slate-300" : "bg-slate-100 border-slate-300"}`}>
               {!isMasked && requesterProfile?.avatarUrl ? (
                 <img src={requesterProfile.avatarUrl} alt={requesterProfile.name} className="w-full h-full object-cover" />
@@ -70,10 +75,8 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
               )}
             </div>
 
-            {/* 名前・バッジ・日時 */}
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
-                {/* 名前ボタン（プロフィールモーダルへ） */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -83,13 +86,13 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                   className={`text-base font-bold tracking-wide text-left font-sans transition-colors ${isMasked ? "text-slate-600 cursor-default" : "text-slate-900 hover:underline"}`}
                 >
                   {isMasked ? (
-                    <div className="flex items-center gap-2">
-                      <span>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="whitespace-nowrap">
                         {MESSAGES.WISH_CARD.LBL_ANONYMOUS}
                         {isMyWish && <span className="opacity-80 ml-0.5">{MESSAGES.WISH_CARD.LBL_YOU_ANONYMOUS}</span>}
                       </span>
                       {requesterProfile?.age_group && (
-                        <span className="text-[13px] font-normal text-slate-500 font-mono tracking-normal shrink-0 translate-y-[1px]">
+                        <span className="text-[13px] font-normal text-slate-500 font-mono tracking-normal shrink-0 translate-y-[1px] whitespace-nowrap">
                           {mapAgeGroup(requesterProfile.age_group, MESSAGES)}
                           {requesterProfile.gender && requesterProfile.gender !== 'other' 
                             ? ` / ${requesterProfile.gender === 'male' ? MESSAGES.WISH_CARD.LBL_MALE : MESSAGES.WISH_CARD.LBL_FEMALE}` 
@@ -100,29 +103,25 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
                   ) : displayRequesterName}
                 </button>
 
-                {/* トラスト・実績（自分以外） */}
-                {!isMyWish && !isMasked && (
+                {!isMasked && (
                   <>
                     {trust.isVerified && <ShieldCheck size={14} className="text-blue-400 fill-blue-50 shrink-0" strokeWidth={2.5} />}
-                    <div className="flex items-center gap-2 text-sm shrink-0">
+                    <div className="flex items-center gap-2 text-sm shrink-0 whitespace-nowrap">
                       <div title={`${MESSAGES.WISH_CARD.TTL_THANKS_DELIVERED} ${wish.requester_trust_score || 0}`} className={`flex items-center gap-0.5 ${trust.color}`}>
-                        {trust.icon} <span className="text-sm font-bold leading-none translate-y-px">{trust.label}</span>
+                        {trust.icon} <span className="text-sm font-bold leading-none translate-y-px whitespace-nowrap">{trust.label}</span>
                       </div>
                       {(wish.requester_completed_requests || 0) > 0 && (
-                        <span title={MESSAGES.WISH_CARD.HDR_REQ_COUNT + (wish.requester_completed_requests || 0)} className="text-slate-800 font-bold flex items-center gap-1">
+                        <span title={MESSAGES.WISH_CARD.HDR_REQ_COUNT + (wish.requester_completed_requests || 0)} className="text-slate-800 font-bold flex items-center gap-1 whitespace-nowrap">
                           <Megaphone className="w-3 h-3" /> <span className="text-sm font-bold">{MESSAGES.WISH_CARD.HDR_REQ_COUNT}{wish.requester_completed_requests || 0}</span>
                         </span>
                       )}
                     </div>
                   </>
                 )}
-
               </div>
 
-
-
-              <div className="flex items-center gap-2 mt-0.5">
-                <span className="flex items-center gap-1 text-sm text-slate-800 font-sans">
+              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                <span className="flex items-center gap-1 text-sm text-slate-800 font-sans whitespace-nowrap">
                   <Clock className="w-3.5 h-3.5" />
                   <span>{formatDate(wish.created_at)}</span>
                 </span>
@@ -130,40 +129,47 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
               </div>
             </div>
           </div>
-
         </div>
 
-        {isMyWish && !isReadOnly && (
-          <div className="flex items-center gap-1 shrink-0 -mt-2 -mr-2">
-            {!isExpired && wish.status === "open" && (
+        {hasMenuOptions && (
+          <div className="relative shrink-0 -mt-2 -mr-2">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              disabled={isLoading}
+              className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-50 rounded-full transition-colors"
+            >
+              <MoreHorizontal size={20} />
+            </button>
+            {isMenuOpen && (
               <>
-                <button
-                  onClick={() => setIsEditing(!isEditing)}
-                  disabled={isLoading}
-                  className="p-2 text-slate-400 hover:text-amber-600 hover:bg-amber-50/50 rounded-full transition-colors"
-                  title={MESSAGES.WISH_CARD.BTN_EDIT}
-                >
-                  <Pencil size={15} />
-                </button>
-                <button
-                  onClick={handleCancel}
-                  disabled={isLoading}
-                  className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50/50 rounded-full transition-colors"
-                  title={MESSAGES.WISH_CARD.BTN_WITHDRAW}
-                >
-                  <Trash2 size={15} />
-                </button>
+                <div className="fixed inset-0 z-40" onClick={closeMenu} />
+                <div className="absolute right-0 mt-1 w-40 bg-white rounded-xl shadow-lg border border-slate-200 z-50 overflow-hidden py-1 animate-in fade-in zoom-in-95 origin-top-right">
+                  {canEdit && (
+                    <button
+                      onClick={() => {
+                        setIsEditing(!isEditing);
+                        closeMenu();
+                      }}
+                      className="w-full px-4 py-2.5 text-left text-sm font-bold text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                    >
+                      <Pencil size={16} className="text-slate-500" />
+                      <span>{MESSAGES.WISH_CARD.BTN_EDIT}</span>
+                    </button>
+                  )}
+                  {canCleanup && (
+                    <button
+                      onClick={() => {
+                        handleCleanup();
+                        closeMenu();
+                      }}
+                      className="w-full px-4 py-2.5 text-left text-sm font-bold text-red-600 hover:bg-red-50 flex items-center gap-2"
+                    >
+                      <Trash2 size={16} className="text-red-500" />
+                      <span>{MESSAGES.WISH_CARD.BTN_CLEANUP_RECORD}</span>
+                    </button>
+                  )}
+                </div>
               </>
-            )}
-            {!isExpired && wish.status === "in_progress" && (
-              <button
-                onClick={handleCancel}
-                disabled={isLoading}
-                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50/50 rounded-full transition-colors"
-                title={MESSAGES.WISH_CARD.BTN_INTERRUPT}
-              >
-                <AlertTriangle size={15} />
-              </button>
             )}
           </div>
         )}

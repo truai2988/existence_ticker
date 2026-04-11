@@ -40,7 +40,7 @@ const resolveMessage = (
   }
   
   // 過去の通知で params が記録されていなかった場合のフォールバック
-  msg = msg.replace(/%name/g, "誰か");
+  msg = msg.replace(/%name/g, "匿名");
   
   return msg;
 };
@@ -63,9 +63,10 @@ const formatTime = (
 
 /** 単一の願いをフェッチして表示するモーダル */
 const NoticeWishModal: React.FC<{
-  wishId: string;
+  notice: Notice;
   onClose: () => void;
-}> = ({ wishId, onClose }) => {
+}> = ({ notice, onClose }) => {
+  const wishId = notice.wishId!;
   const { user } = useAuth();
   const { t } = useLanguage();
   const [wish, setWish] = useState<Wish | null>(null);
@@ -90,7 +91,21 @@ const NoticeWishModal: React.FC<{
               cancelled_at: raw.cancelled_at ? getMillis(raw.cancelled_at) : undefined,
             } as Wish);
           } else {
-            setWish(null);
+            if (notice.params?.wishSnapshot) {
+              try {
+                const raw = JSON.parse(notice.params.wishSnapshot);
+                setWish({
+                  ...raw,
+                  id: wishId,
+                  isSnapshot: true,
+                } as Wish);
+              } catch (e) {
+                console.error("Failed to parse wishSnapshot", e);
+                setWish(null);
+              }
+            } else {
+              setWish(null);
+            }
           }
           setLoading(false);
         },
@@ -108,7 +123,7 @@ const NoticeWishModal: React.FC<{
         if (unsub && typeof unsub === "function") unsub();
       });
     };
-  }, [wishId]);
+  }, [wishId, notice.params?.wishSnapshot]);
 
   return (
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200" onClick={onClose}>
@@ -147,7 +162,7 @@ const NoticeWishModal: React.FC<{
 
 export const NoticePanel: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedWishId, setSelectedWishId] = useState<string | null>(null);
+  const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
   const { notices, unreadCount, dismissNotice, dismissAll } = useNoticeContext();
   const panelRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
@@ -256,7 +271,7 @@ export const NoticePanel: React.FC = () => {
                         }`}
                         onClick={() => {
                           if (notice.wishId) {
-                            setSelectedWishId(notice.wishId);
+                            setSelectedNotice(notice);
                             setIsOpen(false);
                           }
                         }}
@@ -311,10 +326,10 @@ export const NoticePanel: React.FC = () => {
         )}
       </AnimatePresence>
       {/* モーダル表示 */}
-      {selectedWishId && (
+      {selectedNotice && selectedNotice.wishId && (
         <NoticeWishModal 
-          wishId={selectedWishId} 
-          onClose={() => setSelectedWishId(null)} 
+          notice={selectedNotice} 
+          onClose={() => setSelectedNotice(null)} 
         />
       )}
     </div>

@@ -92,6 +92,7 @@ export interface Wish {
   system_note?: string; // System-generated explanatory messages (e.g., helper departure)
   isOptimistic?: boolean;
   error?: string;
+  isSnapshot?: boolean;
 }
 
 export interface CreateWishInput {

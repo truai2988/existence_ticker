@@ -170,6 +170,7 @@ export const MESSAGES = {
     NOTICE_FULFILLED: "%nameさんから、温かい「ありがとう」が届いています。",
     NOTICE_HELPER_RESIGNED: "%nameさんの都合により、お願いが未定に戻りました。次の方を待ちましょう。",
     NOTICE_REQUESTER_CANCEL: "依頼主の都合でお願いが中止になりました。これまで寄り添ってくれたことへの、感謝のしるしが届いています。",
+    NOTICE_WISH_CANCELLED_WITH_APPLICANTS: "%nameさんの都合でお願いが中止になりました。これまで寄り添ってくれたことへの、感謝のメッセージが届いています。",
     NOTICE_HELPER_WAIT_RETURN: "%nameさんの都合により、お願いが未定に戻りました。次の方を待ちましょう。",
     NOTICE_APPLICATION: "%nameさんが「私がやります」と手を挙げてくれました。",
     DESC_COMP_SENDER: "中断に伴い、誠実のしるしをお渡ししました",
@@ -298,15 +299,15 @@ export const MESSAGES = {
     MODAL_NO_APPLICANTS: "まだ誰もいません",
     MODAL_SELECT_ONE: "託す方を1名選んでください",
     MODAL_CANCEL_WISH_Q: "この願いを取り下げますか？",
-    MODAL_RESIGN_Q: "この願いから離れますか？", // 「辞退」という業務用語を排除
+    MODAL_RESIGN_Q: "この願いとの約定を白紙に戻しますか？", // 「辞退」という業務用語を排除
     MODAL_CANCEL_REQ_Q: "この願いを取り下げますか？",
     MODAL_COMPENSATE_WARN_1: "ここで願いを取り下げる場合、添えられていたLmは",
     MODAL_COMPENSATE_WARN_2: "これまで寄り添ってくれた「お礼」として、相手に贈られます。", // 「ペナルティ」という罰則の概念を排除
     MODAL_RESIGN_WARN: "これまでの繋がりは、静かに解かれます。", // 「ステータスはリセット」を排除
     MODAL_CANCEL_SAFE: "添えられていたLmは、あなたの手元に戻ります。",
-    TOAST_CANCELLED: "取り下げました",
+    TOAST_CANCELLED: "取り下げました。記録は『足あと』画面から確認できます",
     BTN_COMPENSATE: "Lmを贈って、取り下げる", // 「ペナルティを支払う」を排除
-    BTN_RESIGN: "離れる",
+    BTN_RESIGN: "白紙に戻す",
     BTN_CANCEL_REQ: "取り下げる",
     BTN_BACK: "戻る",
     MODAL_APPROVE_Q: "さんに願いを託しますか？", // 「承認する」を排除
@@ -315,7 +316,7 @@ export const MESSAGES = {
     BTN_APPROVE: "この人に願いを託す",
     BTN_CANCEL: "キャンセル",
     ANONYMOUS_HELPER: "匿名ユーザー",
-    TOAST_THANKED: "感謝を届けました", // 「決済処理完了」を排除
+    TOAST_THANKED: "感謝を届けました。『足あと』画面から記憶を振り返れます", // 次の導線案内を追加
     TOAST_ERROR: "上手く届けられませんでした",
 
     // CardHeader
@@ -332,9 +333,9 @@ export const MESSAGES = {
     HDR_TITLE_HELP: " 願いに寄り添う",
     HDR_TITLE_OTHER: " さんの願い",
     HDR_REQ_COUNT: "届けた感謝: ", // 「完了数」を排除
-    BTN_EDIT: "編集",
+    BTN_EDIT: "手直し",
     BTN_WITHDRAW: "取り下げる",
-    BTN_INTERRUPT: "取りやめる (お礼を贈る)", // 「中断(ペナルティ支払い)」を排除
+    BTN_INTERRUPT: "中止する (お礼を贈る)", // 「中断(ペナルティ支払い)」を排除
 
     // CardFooter
     FTR_IN_PROGRESS: "進行中", // 実用性を考慮し維持
@@ -347,9 +348,10 @@ export const MESSAGES = {
     FTR_EXPIRED: "期限切れ",
     FTR_RECRUITING: "公開中", // 「募集中」という労働感を排除
     FTR_ANON: "匿名",
-    FTR_APPLICANTS: "名の立候補", 
+    FTR_APPLICANTS: "名の立候補",
+    BTN_RESPONDENTS: "応えてくれた方", // プレッシャーを排除した表現
     FTR_THANK_CONFIRM: "願いが叶ったら、完了ボタンを押して下さい", // 「決済を実行」を排除
-    FTR_THANK_ALERT: "感謝を届けますか？ Lmが手元から離れます。",
+    FTR_THANK_ALERT: "Lmを添えて感謝を送ります",
     FTR_THANK_ALERT_LIGHT: "完了して感謝を伝えますか？（無償のためLmは消費されません）",
 
     // OptimisticWishPhantom
@@ -365,14 +367,14 @@ export const MESSAGES = {
 
     // CardFooter
     BTN_GIVE_THANKS_DONE: "完了しました",
-    TXT_WAITING_REPLY: "返事を待っています",
-    TXT_WAITING_CANDIDATE: "立候補を待っています",
-    MSG_CONFIRM_CANCEL: "本当に寄り添うのを取りやめますか？", // 「立候補を取り消す」を排除
-    MSG_CANCEL_SUCCESS: "取りやめました",
+    TXT_WAITING_REPLY: "お返事待ち",
+    TXT_WAITING_CANDIDATE: "お声待ち",
+    MSG_CONFIRM_CANCEL: "本当に寄り添うのを取りやめますか？",
+    MSG_CANCEL_SUCCESS: "そっと手を引きました。『足あと』画面から記録を確認できます",
     BTN_CANCEL_APPLY: "取り消す",
     BTN_RESPOND: "応える",
-    BTN_DECLINE: "見送る", // 「辞退」を排除
-    BTN_CLEANUP_RECORD: "この記録を整理する",
+    BTN_DECLINE: "白紙に戻す", // 寄り添いからの離脱を表現
+    BTN_CLEANUP_RECORD: "しまう",
 
     // CardContent
     BTN_UPDATE: "更新",

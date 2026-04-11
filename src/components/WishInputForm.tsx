@@ -78,6 +78,21 @@ export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
       setNewWishContent('');
       setDraftKeyword('');
       setIsAnonymous(false);
+      
+      if (result.id) {
+        setTimeout(() => {
+          const target = document.getElementById(`wish-${result.id}`);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            target.style.transition = 'box-shadow 0.3s ease-out';
+            target.style.boxShadow = '0 0 0 4px rgba(217, 119, 6, 0.4)';
+            setTimeout(() => {
+              target.style.boxShadow = '';
+            }, 2000);
+          }
+        }, 100);
+      }
     } else {
       setCreationError(result.error || "通信エラーが発生しました。");
     }
@@ -89,9 +104,9 @@ export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
 
         {/* 固定コスト注釈 */}
         <p className="text-xs text-slate-500 px-1">
-          ※ お願いの感謝は一律{' '}
+          ※ 感謝は一律{' '}
           <span className="font-mono font-medium text-amber-600">1,000 {UNIT_LABEL}</span>{' '}
-          固定です。
+          です。
         </p>
 
         {/* 願いの内容入力 */}
