@@ -143,7 +143,7 @@ export const JournalView: React.FC<JournalViewProps> = ({ onTabChange, onOpenOnb
         />
 
         <div className="w-full flex-grow overflow-y-auto no-scrollbar relative flex flex-col items-center">
-             <div className="w-full max-w-2xl flex-grow p-6 pt-4 pb-24 relative">
+             <div className="w-full max-w-2xl flex-grow p-6 pt-4 pb-safe-offset-24 relative">
                 <div className="space-y-3 py-4">
                     {isLoading ? (
                          <div className="text-center py-10 text-slate-800 text-sm animate-pulse">{MESSAGES.JOURNAL.LOADING}</div>

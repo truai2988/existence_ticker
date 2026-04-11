@@ -143,7 +143,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
 
   return (
-    <div className="flex flex-col items-center justify-start w-full relative min-h-full pb-6">
+    <div className="flex flex-col items-center justify-start w-full relative min-h-full" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
       {/* 1. Backdrop Glow (Dynamic but Subtle) */}
       <div className="absolute inset-0 bg-gradient-radial from-amber-50/10 via-transparent to-transparent pointer-events-none" />
 

@@ -51,5 +51,28 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // Safe Area Inset support for iOS PWA (Tailwind v3 compatible)
+    function ({ addBase, addUtilities }) {
+      addBase({
+        ':root': {
+          '--sat': 'env(safe-area-inset-top)',
+          '--sar': 'env(safe-area-inset-right)',
+          '--sab': 'env(safe-area-inset-bottom)',
+          '--sal': 'env(safe-area-inset-left)',
+        },
+      });
+      addUtilities({
+        '.pt-safe': { paddingTop: 'env(safe-area-inset-top)' },
+        '.pr-safe': { paddingRight: 'env(safe-area-inset-right)' },
+        '.pb-safe': { paddingBottom: 'env(safe-area-inset-bottom)' },
+        '.pl-safe': { paddingLeft: 'env(safe-area-inset-left)' },
+        '.mt-safe': { marginTop: 'env(safe-area-inset-top)' },
+        '.mb-safe': { marginBottom: 'env(safe-area-inset-bottom)' },
+        '.pb-safe-offset-24': { paddingBottom: 'calc(6rem + env(safe-area-inset-bottom))' },
+        '.pb-safe-offset-6': { paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom))' },
+        '.h-safe-screen': { height: '100dvh' },
+      });
+    },
+  ],
 };

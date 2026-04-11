@@ -229,7 +229,7 @@ export const ProfileEditScreen: React.FC<ProfileEditScreenProps> = ({ onBack }) 
             </div>
 
             <div className="flex-1 overflow-y-auto no-scrollbar w-full">
-                <div className="max-w-2xl mx-auto p-6 space-y-8 pb-24">
+                <div className="max-w-2xl mx-auto p-6 space-y-8 pb-safe-offset-24">
                     
                     {/* Avatar Selection */}
                     <div className="flex flex-col items-center">
