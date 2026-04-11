@@ -376,6 +376,32 @@ export const MESSAGES = {
     BTN_DECLINE: "白紙に戻す", // 寄り添いからの離脱を表現
     BTN_CLEANUP_RECORD: "しまう",
 
+    // Apply confirm modal（confirm()の代替カスタムUI）
+    MODAL_APPLY_Q: "この依頼に立候補しますか？",
+    MODAL_APPLY_ANON_Q: "これは「匿名の願い」です",
+    MODAL_APPLY_ANON_DESC: "相手が誰かは約定するまでわかりませんが、あなたのお名前は相手に伝わります。",
+    BTN_APPLY_CONFIRM: "手を挙げる",
+
+    // Cleanup confirm modal（confirm()の代替カスタムUI）
+    MODAL_CLEANUP_Q: "この記録を「足あと」へ移しますか？",
+    MODAL_CLEANUP_DESC: "記録は静かに整理され、「足あと」画面からいつでも振り返ることができます。",
+    BTN_CLEANUP_CONFIRM: "静かにしまう",
+
+    // 統一トーストメッセージ（useWishCard.ts直書きを messages.ts へ移設）
+    TOAST_APPLY_SUCCESS: "手を挙げました。『つながり』画面で確認できます",
+    TOAST_APPLY_ERROR: "上手く届きませんでした。少し時間をおいてもう一度お試しください",
+    TOAST_APPROVE_SUCCESS: "願いを託しました",
+    TOAST_APPROVE_ERROR: "承認に失敗しました。通信状態を確認してください",
+    TOAST_UPDATE_SUCCESS: "更新しました",
+    TOAST_UPDATE_ERROR: "更新に失敗しました",
+    TOAST_CANCEL_SUCCESS_RESIGN: "そっと手を引きました。『足あと』画面から記録を確認できます",
+    TOAST_CANCEL_SUCCESS_COMPENSATE: "お礼を渡して、願いをそっと取り下げました。記録は『足あと』画面から確認できます",
+    TOAST_CANCEL_SUCCESS_DELETE: "願いをそっと取り下げました。記録は『足あと』画面から確認できます",
+    TOAST_CANCEL_ERROR: "不具合により取り下げに失敗しました。時間をおいて再度お試しください",
+    TOAST_CLEANUP_SUCCESS: "記録を静かに整理しました",
+    TOAST_CLEANUP_ERROR: "整理に失敗しました",
+    TOAST_EMAIL_COPIED: "メールアドレスをコピーしました",
+
     // CardContent
     BTN_UPDATE: "更新",
     LBL_RESONANCE: "無償の願い", // 「無償取引(Echo)」を排除

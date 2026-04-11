@@ -75,7 +75,7 @@ export const ConnectionsView: React.FC<ConnectionsViewProps> = ({ currentUserId,
               onOpenOnboarding={onOpenOnboarding || (() => {})}
             />
 
-            <div className="flex-1 overflow-y-auto no-scrollbar w-full transition-colors duration-500">
+            <div className="flex-1 overflow-y-auto no-scrollbar w-full transition-colors duration-500" data-scroll-container>
                 <div className="max-w-2xl mx-auto w-full px-6 py-6 pb-24 relative space-y-4">
                      <div className="flex flex-col gap-4">
                          <WishCardList 

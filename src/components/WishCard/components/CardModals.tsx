@@ -13,12 +13,14 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
   const { t: MESSAGES } = useLanguage();
   const {
     wish, isLoading, showApplicants, confirmAction, approvalTarget, contactNote, showCompleteModal,
-    helperProfile, currentUserId, initialCost
+    helperProfile, currentUserId, initialCost,
+    showApplyConfirm, applyConfirmIsAnonymous, showCleanupConfirm,
   } = state;
 
   const {
     setShowApplicants, setConfirmAction, setApprovalTarget, setContactNote, setShowCompleteModal,
-    executeCancel, executeApprove, handleApprove
+    executeCancel, executeApprove, handleApprove,
+    setShowApplyConfirm, setShowCleanupConfirm, executeApply, executeCleanup,
   } = handlers;
 
   const { fulfillWish } = useWishActions();
@@ -166,6 +168,74 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
           }}
           onCancel={() => setShowCompleteModal(false)}
         />
+      )}
+
+      {/* 5. Apply Confirm Modal（confirm()の代替カスタムUI） */}
+      {showApplyConfirm && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-amber-100 text-amber-600 p-3 rounded-full mb-4">
+              <Handshake size={24} />
+            </div>
+            <h4 className="text-base font-bold text-slate-900 mb-2 text-center">
+              {applyConfirmIsAnonymous ? MESSAGES.WISH_CARD.MODAL_APPLY_ANON_Q : MESSAGES.WISH_CARD.MODAL_APPLY_Q}
+            </h4>
+            {applyConfirmIsAnonymous && (
+              <p className="text-sm text-slate-700 mb-4 text-center leading-relaxed">
+                {MESSAGES.WISH_CARD.MODAL_APPLY_ANON_DESC}
+              </p>
+            )}
+            <div className="flex flex-col gap-2 w-full mt-2">
+              <button
+                onClick={executeApply}
+                disabled={isLoading}
+                className="w-full py-3 rounded-xl text-base font-bold text-white bg-amber-500 hover:bg-amber-600 shadow-md shadow-amber-200 transition-all active:scale-[0.98]"
+              >
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : MESSAGES.WISH_CARD.BTN_APPLY_CONFIRM}
+              </button>
+              <button
+                onClick={() => setShowApplyConfirm(false)}
+                disabled={isLoading}
+                className="w-full py-3 rounded-xl text-base font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                {MESSAGES.WISH_CARD.BTN_BACK}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 6. Cleanup Confirm Modal（confirm()の代替カスタムUI） */}
+      {showCleanupConfirm && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl flex flex-col items-center justify-center" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-slate-100 text-slate-600 p-3 rounded-full mb-4">
+              <X size={24} />
+            </div>
+            <h4 className="text-base font-bold text-slate-900 mb-2 text-center">
+              {MESSAGES.WISH_CARD.MODAL_CLEANUP_Q}
+            </h4>
+            <p className="text-sm text-slate-700 mb-4 text-center leading-relaxed">
+              {MESSAGES.WISH_CARD.MODAL_CLEANUP_DESC}
+            </p>
+            <div className="flex flex-col gap-2 w-full mt-2">
+              <button
+                onClick={executeCleanup}
+                disabled={isLoading}
+                className="w-full py-3 rounded-xl text-base font-bold text-white bg-slate-700 hover:bg-slate-800 shadow-md transition-all active:scale-[0.98]"
+              >
+                {isLoading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : MESSAGES.WISH_CARD.BTN_CLEANUP_CONFIRM}
+              </button>
+              <button
+                onClick={() => setShowCleanupConfirm(false)}
+                disabled={isLoading}
+                className="w-full py-3 rounded-xl text-base font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+              >
+                {MESSAGES.WISH_CARD.BTN_BACK}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

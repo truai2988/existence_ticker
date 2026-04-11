@@ -88,7 +88,7 @@ export const WishesView: React.FC<WishesViewProps> = ({ currentUserId, onOpenPro
             />
             
             {/* Content Container */}
-            <div className="flex-1 overflow-y-auto no-scrollbar w-full transition-colors duration-500">
+            <div className="flex-1 overflow-y-auto no-scrollbar w-full transition-colors duration-500" data-scroll-container>
                 <div className="max-w-2xl mx-auto w-full px-6 py-6 pb-24 relative space-y-6">
                     
                     {/* Inline Input Form - top-0 はスクロールコンテナ内でのみ意味を持つ*/}

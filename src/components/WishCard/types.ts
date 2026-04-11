@@ -49,6 +49,9 @@ export interface WishCardState {
   contactNote: string;
   isCopied: boolean;
   showCompleteModal: boolean;
+  showApplyConfirm: boolean;
+  applyConfirmIsAnonymous: boolean;
+  showCleanupConfirm: boolean;
 
   initialCost: number;
   displayValue: number;
@@ -80,6 +83,9 @@ export interface WishCardHandlers {
   setContactNote: (val: string) => void;
   setIsCopied: (val: boolean) => void;
   setShowCompleteModal: (val: boolean) => void;
+  setShowApplyConfirm: (val: boolean) => void;
+  setShowCleanupConfirm: (val: boolean) => void;
+  executeApply: () => Promise<void>;
 
   handleApply: () => Promise<void>;
   handleApprove: (id: string, name: string) => void;
@@ -88,6 +94,7 @@ export interface WishCardHandlers {
   handleCancel: () => Promise<void>;
   executeCancel: () => Promise<void>;
   handleCleanup: () => Promise<void>;
+  executeCleanup: () => Promise<void>;
   handleCopyEmail: () => void;
   formatDate: (val: number | undefined) => string;
 }

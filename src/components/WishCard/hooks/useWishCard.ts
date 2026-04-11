@@ -8,6 +8,7 @@ import { isProfileComplete } from "../../../utils/profileCompleteness";
 import { useToast } from "../../../hooks/useToast";
 import { WishCardProps, WishCardState, WishCardHandlers } from "../types";
 import { FIXED_WISH_COST } from "../../../constants";
+import { MESSAGES } from "../../../constants/messages";
 
 export function useWishCard(props: WishCardProps): { state: WishCardState; handlers: WishCardHandlers } {
   const {
@@ -29,8 +30,6 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
     expireWish,
   } = useWishActions();
 
-  // openUserProfile is not needed here
-
   const { profile: requesterProfile } = useOtherProfile(wish.requester_id);
   const { profile: helperProfile } = useOtherProfile(wish.helper_id || null);
   const { profile: myProfile } = useProfile();
@@ -48,8 +47,11 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
   const [contactNote, setContactNote] = useState("");
   const [isCopied, setIsCopied] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
+  // 【課題3対応】confirm() 代替カスタムモーダル用状態
+  const [showApplyConfirm, setShowApplyConfirm] = useState(false);
+  const [applyConfirmIsAnonymous, setApplyConfirmIsAnonymous] = useState(false);
+  const [showCleanupConfirm, setShowCleanupConfirm] = useState(false);
 
-  // すべての願いは1000 Lm固定。DBに cost フィールドが存在する場合はそれを尊重する（メイン：wish.costが常に書き込まれる）。
   const initialCost = wish.cost ?? FIXED_WISH_COST;
 
   const displayValue = useMemo(() => {
@@ -76,46 +78,49 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
 
   const isHelperMasked = isHelperInterrupted;
 
+  // 【課題2対応】Tailwindクラス名ではなく data-wish-id 属性で要素を特定し、
+  // 最近傍の [data-scroll-container] を上にたどってスクロールさせる（堅牢な実装）
   const focusCard = () => {
     setTimeout(() => {
-      const target = document.getElementById(`wish-${wish.id}`);
+      const target = document.querySelector(`[data-wish-id="${wish.id}"]`);
       if (target) {
-        // 標準の scrollIntoView だとブラウザ全体の window までスクロールしてしまい
-        // スティッキーヘッダーが画面外に押し出される現象（Safari等）を防ぐため、
-        // 直近のスクロールコンテナだけを計算してスクロールさせます。
-        const container = target.closest('.overflow-y-auto');
+        const container = target.closest('[data-scroll-container]');
         if (container) {
           const targetRect = target.getBoundingClientRect();
           const containerRect = container.getBoundingClientRect();
-          // ヘッダー被りを防ぐためのオフセット（約120px = top-32相当）
           const offset = targetRect.top - containerRect.top + container.scrollTop - 120;
           container.scrollTo({ top: offset, behavior: 'smooth' });
         } else {
-          // フォールバック
           target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }
     }, 100);
   };
 
+  // 【課題3対応】立候補ボタン押下 → プロフィール未完の場合はプロフィール画面へ誘導、
+  // その後カスタムモーダルを開く（confirm()を完全排除）
   const handleApply = async () => {
     if (!isProfileComplete(myProfile)) {
-      if (confirm("プロフィールの器を構成すると、信頼の輪が広がりやすくなります（想いがかなう機会が増えます）。\n\nプロフィールを編集しますか？")) {
-        if (onOpenProfile) onOpenProfile();
+      if (onOpenProfile) {
+        onOpenProfile();
         return;
       }
     }
+    setApplyConfirmIsAnonymous(!!wish.isAnonymous);
+    setShowApplyConfirm(true);
+  };
 
-    if (!confirm(wish.isAnonymous ? "これは「匿名の願い」です。相手が誰かは約定するまでわかりませんが、あなたの名前は相手に伝わります。\n\n立候補しますか？" : "この依頼に立候補しますか？")) return;
-    
+  // カスタムモーダルで「手を挙げる」ボタンが押されたときに実際に立候補処理を行う
+  const executeApply = async () => {
+    setShowApplyConfirm(false);
     setIsLoading(true);
     const success = await applyForWish(wish.id);
     setIsLoading(false);
-    
+
     if (success) {
       focusCard();
       setTimeout(() => {
-        showToast("手を挙げました。『つながり』画面で確認できます。", "success");
+        showToast(MESSAGES.WISH_CARD.TOAST_APPLY_SUCCESS, "success");
       }, onActionComplete ? 500 : 0);
       window.dispatchEvent(new Event("goyen-celebration"));
       import('../../../utils/pwaEvent').then(({ globalTriggerPWAInstall }) => {
@@ -123,7 +128,7 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
       });
       if (onActionComplete) onActionComplete("applied");
     } else {
-      showToast("立候補に失敗しました。時間をおいて再度お試しください。", "error");
+      showToast(MESSAGES.WISH_CARD.TOAST_APPLY_ERROR, "error");
     }
   };
 
@@ -138,11 +143,11 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
     setIsLoading(true);
     const success = await approveWish(wish.id, approvalTarget.id, contactNote);
     setIsLoading(false);
-    
+
     if (success) {
       focusCard();
       setTimeout(() => {
-        showToast("願いを託しました", "success");
+        showToast(MESSAGES.WISH_CARD.TOAST_APPROVE_SUCCESS, "success");
       }, onActionComplete ? 500 : 0);
       import('../../../utils/pwaEvent').then(({ globalTriggerPWAInstall }) => {
         globalTriggerPWAInstall();
@@ -151,7 +156,7 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
       setApprovalTarget(null);
       if (onActionComplete) onActionComplete("approved");
     } else {
-      showToast("承認に失敗しました。通信状態を確認してください。", "error");
+      showToast(MESSAGES.WISH_CARD.TOAST_APPROVE_ERROR, "error");
     }
   };
 
@@ -162,9 +167,9 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
     if (success) {
       focusCard();
       setIsEditing(false);
-      showToast("更新しました", "success");
+      showToast(MESSAGES.WISH_CARD.TOAST_UPDATE_SUCCESS, "success");
     } else {
-      showToast("更新に失敗しました", "error");
+      showToast(MESSAGES.WISH_CARD.TOAST_UPDATE_ERROR, "error");
     }
     setIsLoading(false);
   };
@@ -196,36 +201,39 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
     }
 
     if (success) {
+      const toastKey =
+        confirmAction === "resign" ? "TOAST_CANCEL_SUCCESS_RESIGN" :
+        confirmAction === "compensate" ? "TOAST_CANCEL_SUCCESS_COMPENSATE" :
+        "TOAST_CANCEL_SUCCESS_DELETE";
       setTimeout(() => {
-        showToast(
-          confirmAction === "resign"
-            ? "そっと離れました。"
-            : confirmAction === "compensate" ? "お礼を渡して、お願いをそっと取り下げました。" : "お願いをそっと取り下げました。",
-          "success"
-        );
+        showToast(MESSAGES.WISH_CARD[toastKey], "success");
       }, onActionComplete ? 500 : 0);
       if (onActionComplete) onActionComplete(actionType);
     } else {
-      showToast("不具合により取り下げに失敗しました。時間をおいて再度お試しください。", "error");
+      showToast(MESSAGES.WISH_CARD.TOAST_CANCEL_ERROR, "error");
     }
-    
-    // コンポーネントがアンマウントされない場合（非物理削除時等）に備え、状態をリセットする
+
     setIsLoading(false);
     setConfirmAction(null);
   };
 
+  // 【課題3対応】整理ボタン → confirm()ではなくカスタムモーダルで確認
   const handleCleanup = async () => {
-    if (!confirm("この記録を整理して「過去の記録」へ移動しますか？")) return;
+    setShowCleanupConfirm(true);
+  };
+
+  const executeCleanup = async () => {
+    setShowCleanupConfirm(false);
     setIsLoading(true);
     const success = await expireWish(wish.id);
     setIsLoading(false);
     if (success) {
       setTimeout(() => {
-        showToast("記録を静かに整理しました。", "success");
+        showToast(MESSAGES.WISH_CARD.TOAST_CLEANUP_SUCCESS, "success");
       }, onActionComplete ? 500 : 0);
       if (onActionComplete) onActionComplete("cleanup");
     } else {
-      showToast("整理に失敗しました", "error");
+      showToast(MESSAGES.WISH_CARD.TOAST_CLEANUP_ERROR, "error");
     }
   };
 
@@ -248,7 +256,7 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
     if (contactEmail) {
       navigator.clipboard.writeText(contactEmail);
       setIsCopied(true);
-      showToast("メールアドレスをコピーしました", "success");
+      showToast(MESSAGES.WISH_CARD.TOAST_EMAIL_COPIED, "success");
       setTimeout(() => setIsCopied(false), 2000);
     }
   };
@@ -278,6 +286,9 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
       contactNote,
       isCopied,
       showCompleteModal,
+      showApplyConfirm,
+      applyConfirmIsAnonymous,
+      showCleanupConfirm,
       initialCost,
       displayValue,
       isExpired,
@@ -305,6 +316,9 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
       setContactNote,
       setIsCopied,
       setShowCompleteModal,
+      setShowApplyConfirm,
+      setShowCleanupConfirm,
+      executeApply,
       handleApply,
       handleApprove,
       executeApprove,
@@ -312,6 +326,7 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
       handleCancel,
       executeCancel,
       handleCleanup,
+      executeCleanup,
       handleCopyEmail,
       formatDate,
     }

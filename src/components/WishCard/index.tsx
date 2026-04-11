@@ -20,7 +20,7 @@ export const WishCard: React.FC<WishCardProps> = (props) => {
   }
 
   return (
-    <div id={`wish-${state.wish.id}`} className={`scroll-mt-32 relative bg-white shadow border border-slate-200 rounded-[2rem] p-6 transition-all group overflow-hidden ${state.wish.isSnapshot ? 'grayscale-[0.5]' : ''}`}>
+    <div id={`wish-${state.wish.id}`} data-wish-id={state.wish.id} className={`scroll-mt-32 relative bg-white shadow border border-slate-200 rounded-[2rem] p-6 transition-all group overflow-hidden ${state.wish.isSnapshot ? 'grayscale-[0.5]' : ''}`}>
       <CardHeader state={state} handlers={handlers} />
       <CardContent state={state} handlers={handlers} />
       
