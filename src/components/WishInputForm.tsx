@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Loader2, Send, PenTool } from 'lucide-react';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useWishActions } from '../hooks/useWishActions';
@@ -24,6 +24,11 @@ export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
   const [creationError, setCreationError] = useState<string | null>(null);
   const [draftKeyword, setDraftKeyword] = useState('');
   const [isDrafting, setIsDrafting] = useState(false);
+  // 【スパム防止】成功後5秒間の再呼び出しをブロック（クールダウン）
+  const lastDraftAt = useRef<number>(0);
+  const DRAFT_COOLDOWN_MS = 5000;
+  // 【コスト最適化】getFunctions()のインスタンスをコンポーネントライフサイクルで1度だけ生成
+  const functionsRef = useRef(getFunctions());
 
   // セッションごとにランダムな9件のサジェストを選択
   const randomSuggestions = React.useMemo(() => {
@@ -35,19 +40,23 @@ export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
   // 残高が1000Lm未満の場合は送信不可
   const insufficientBalance = availableLm < FIXED_WISH_COST;
 
-  // AIによる下書き生成
+  // AIによる下書き生成（スパム防止: isDraftingフラグ + 5秒クールダウン）
   const handleDraftWish = async () => {
+    const now = Date.now();
     if (!draftKeyword.trim() || isDrafting) return;
+    // クールダウン期間中はAPIを呼ばない
+    if (now - lastDraftAt.current < DRAFT_COOLDOWN_MS) return;
+
     setIsDrafting(true);
     setCreationError(null);
     try {
-      const functions = getFunctions();
-      const generateWishDraft = httpsCallable(functions, 'generateWishDraft');
+      const generateWishDraft = httpsCallable(functionsRef.current, 'generateWishDraft');
       const result = await generateWishDraft({ keyword: draftKeyword });
       const data = result.data as { draft?: string };
       if (data.draft) {
         setNewWishContent(data.draft);
         setDraftKeyword('');
+        lastDraftAt.current = Date.now(); // クールダウン開始
       } else {
         setCreationError(MESSAGES.CREATE_WISH.AI_DRAFT_ERROR);
       }
@@ -128,6 +137,10 @@ export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
                 onChange={(e) => {
                   setDraftKeyword(e.target.value);
                   setCreationError(null);
+                }}
+                onKeyDown={(e) => {
+                  // Enterキー連打でのAPI重複コールを防止
+                  if (e.key === 'Enter') { e.preventDefault(); handleDraftWish(); }
                 }}
                 placeholder={MESSAGES.CREATE_WISH.AI_DRAFT_PLACEHOLDER}
                 className="flex-1 w-full bg-white text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 px-4 py-3.5 sm:py-3 rounded-xl border border-amber-200/50 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all font-sans"

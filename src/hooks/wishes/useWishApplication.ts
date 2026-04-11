@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../useAuthHook";
 import { db } from "../../lib/firebase";
-import { doc, getDoc, runTransaction, serverTimestamp, Transaction, collection, query, where, getDocs, deleteDoc } from "firebase/firestore";
+import { doc, runTransaction, serverTimestamp, Transaction, collection, query, where, getDocs, deleteDoc } from "firebase/firestore";
 import { MESSAGES } from "../../constants/messages";
 import { useWishNotice } from "./useWishNotice";
 
@@ -19,22 +19,28 @@ export const useWishApplication = () => {
       const userRef = doc(db, "users", user.uid);
 
       let verifiedApplicantName = user.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_APPLICANT;
+      let requesterId = "";
 
+      // Transaction内でwishDocから直接requester_idを取得し、
+      // apply後のgetDoc再取得を排除（N+1リード解消）
       await runTransaction(db, async (transaction: Transaction) => {
         const wishDoc = await transaction.get(wishRef);
         if (!wishDoc.exists()) throw "Wish not found";
+
+        const wishData = wishDoc.data();
+        requesterId = wishData.requester_id as string;
 
         const userData = (await transaction.get(userRef)).data();
         verifiedApplicantName = userData?.name || user.displayName || MESSAGES.WISH_ACTIONS.FALLBACK_APPLICANT;
         const applicantInfo = {
           id: user.uid,
-          name: verifiedApplicantName, 
+          name: verifiedApplicantName,
           trust_score: userData?.completed_contracts || 0,
           contact_email: user.email || undefined,
         };
 
-        const currentApplicants = wishDoc.data().applicants || [];
-        const currentApplicantIds = wishDoc.data().applicant_ids || [];
+        const currentApplicants = wishData.applicants || [];
+        const currentApplicantIds = wishData.applicant_ids || [];
         if (currentApplicants.some((a: { id: string }) => a.id === user.uid)) {
           throw "Already applied";
         }
@@ -45,12 +51,10 @@ export const useWishApplication = () => {
         });
       });
 
-      // 通知: 願い主に「応募がありました」を送る
-      const wishDocSnap = await getDoc(doc(db, 'wishes', wishId));
-      if (wishDocSnap.exists()) {
-        const wishData = wishDocSnap.data();
+      // Transaction完了後にrequester_idは取得済みのため追加リード不要
+      if (requesterId) {
         sendNoticeSilently({
-          userId: wishData.requester_id,
+          userId: requesterId,
           wishId,
           message: MESSAGES.WISH_ACTIONS.NOTICE_APPLICATION.replace('%name', verifiedApplicantName),
           messageKey: "NOTICE_APPLICATION",
@@ -62,8 +66,7 @@ export const useWishApplication = () => {
       return true;
     } catch (e) {
       console.error(e);
-      alert(MESSAGES.WISH_ACTIONS.ALERT_APPLY_FAILED);
-      return false;
+      return false; // エラーはuseWishCard.tsのTOAST_APPLY_ERRORで通知
     } finally {
       setIsSubmitting(false);
     }
@@ -175,8 +178,7 @@ export const useWishApplication = () => {
       return true;
     } catch (e) {
       console.error("Failed to withdraw application:", e);
-      alert("取り消しに失敗しました");
-      return false;
+      return false; // エラーはuseWishCard.tsのトーストで通知
     } finally {
       setIsSubmitting(false);
     }

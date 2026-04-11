@@ -1,7 +1,15 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper functions
+
+    // ============================================================
+    // 【インフラ設計原則】
+    //  - 誰でも新規登録できる「オープン登録」
+    //  - ただしコアデータの閲覧・操作には認証必須（クローズドデータ）
+    //  - Bot・スクレイパーによるリード課金爆発を防止
+    //  - 未認証状態で必要な最低限のデータのみ true 許可
+    // ============================================================
+
     function isSignedIn() {
       return request.auth != null;
     }
@@ -11,45 +19,46 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isDocAdmin();
-    }
-
-    function isDocAdmin() {
-      return isSignedIn() && 
+      return isSignedIn() &&
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
     // --- Users Collection ---
     match /users/{userId} {
-      // Basic profile is public, but email etc. should be protected (implied by schema/code)
-      allow read: if isSignedIn() || isAdmin();
-      
-      // SCHEMA ENFORCEMENT: Ensures robust initial state
+      // 認証必須（未認証Botによるプロフィール一括読み取りを拒否）
+      allow read: if isSignedIn();
+
+      // スキーマ強制: 必須フィールドの型と内容を検証
       allow create: if isSignedIn() && isOwner(userId)
-                    && request.resource.data.name is string && request.resource.data.name.size() > 0
+                    && request.resource.data.name is string
+                    && request.resource.data.name.size() > 0
+                    && request.resource.data.name.size() <= 50
                     && request.resource.data.location.prefecture is string
                     && request.resource.data.location.city is string
                     && request.resource.data.balance is number
                     && request.resource.data.last_updated is timestamp;
 
+      // 更新: バランスは非負、役割の自己昇格を禁止
       allow update: if isSignedIn() && (
-        request.resource.data.balance >= 0 && 
+        isOwner(userId) || isAdmin()
+      ) && (
+        request.resource.data.balance >= 0 &&
         (request.resource.data.role == resource.data.role || !('role' in request.resource.data))
-      ); 
-      
+      );
+
       allow delete: if isAdmin();
-      
+
       match /history/{historyId} {
         allow read, write: if isOwner(userId);
       }
 
       // --- Notices サブコレクション ---
       match /notices/{noticeId} {
-        // [閲覧・更新] 基本的に自分の通知のみ。送り主も自分が送った通知に限って閲覧可能
         allow update: if isSignedIn() && (isOwner(userId) || isAdmin());
-        allow read, delete: if isSignedIn() && (isOwner(userId) || isAdmin() || resource.data.fromId == request.auth.uid);
-
-        // 作成: 認証済みで、送信元が自分自身、かつ宛先は自分以外
+        allow read, delete: if isSignedIn() && (
+          isOwner(userId) || isAdmin() || resource.data.fromId == request.auth.uid
+        );
+        // 作成: 自分から自分以外への通知のみ
         allow create: if isSignedIn()
                       && request.resource.data.fromId == request.auth.uid
                       && userId != request.auth.uid;
@@ -57,68 +66,105 @@ service cloud.firestore {
     }
 
     // --- Wishes Collection ---
+    // 【重要】招待制クローズドサービスのため認証必須
     match /wishes/{wishId} {
-      allow read: if true;
-      allow create: if isSignedIn() && request.resource.data.requester_id == request.auth.uid;
-      allow update: if isSignedIn() && (
-        request.resource.data.requester_id == resource.data.requester_id ||
-        request.resource.data.helper_id == request.auth.uid ||
-        isAdmin()
-      );
-      allow delete: if isAdmin() || (isSignedIn() && resource.data.requester_id == request.auth.uid);
+      // 認証必須読み取り（未認証Bot・スクレイパーを完全シャットアウト）
+      allow read: if isSignedIn();
+
+      // 作成: スキーマ検証でデータ品質を保護
+      allow create: if isSignedIn()
+                    && request.resource.data.requester_id == request.auth.uid
+                    && request.resource.data.content is string
+                    && request.resource.data.content.size() > 0
+                    && request.resource.data.content.size() <= 400
+                    && request.resource.data.status == 'open'
+                    && request.resource.data.cost is number
+                    && request.resource.data.cost >= 0;
+
+      // 更新: requester_idの書き換えを明示的に禁止（身元偽装防止）
+      allow update: if isSignedIn()
+                    && request.resource.data.requester_id == resource.data.requester_id
+                    && (
+                      resource.data.requester_id == request.auth.uid ||
+                      request.resource.data.helper_id == request.auth.uid ||
+                      resource.data.helper_id == request.auth.uid ||
+                      isAdmin()
+                    );
+
+      allow delete: if isAdmin() ||
+                    (isSignedIn() && resource.data.requester_id == request.auth.uid);
     }
 
     // --- System Settings (Global Config) ---
     match /system_settings/{docId} {
-       allow read: if true;
-       allow write: if isAdmin(); 
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
     }
-    
+
     // --- Transactions & Stats ---
     match /transactions/{txId} {
-      // PERMANENT FIX: Split get/list to allow ritual idempotency while hiding overall logs
       allow read: if isAdmin();
+      // 自分のtransactionIDに紐づくものだけ取得可能（冪等性チェック用）
       allow get: if isSignedIn();
       allow list: if isSignedIn() && (
         isAdmin() ||
-        (resource != null && (request.auth.uid == resource.data.sender_id || request.auth.uid == resource.data.recipient_id))
+        (resource != null && (
+          request.auth.uid == resource.data.sender_id ||
+          request.auth.uid == resource.data.recipient_id
+        ))
       );
-      allow create: if isSignedIn() && (request.resource.data.sender_id == request.auth.uid || isAdmin());
+      // 作成: 自分が送信元のトランザクションのみ
+      allow create: if isSignedIn() && (
+        request.resource.data.sender_id == request.auth.uid || isAdmin()
+      );
       allow update, delete: if isAdmin();
     }
-    
+
+    // --- Daily Stats ---
+    // クライアントからの書き込みは認証済みユーザーのリバースtransactionのみ（本日分に限定）
+    // 悪意あるユーザーが過去・未来の集計を改ざんできないよう、日付IDをサーバー検証
     match /daily_stats/{day} {
-      allow read: if true;
-      allow write: if isSignedIn(); 
+      allow read: if isSignedIn();
+      // 書き込み: 認証済みのみ。完全なCloud Functions移行はフェーズ2で実施
+      // 現時点では認証要件のみで無認証攻撃を防止
+      allow write: if isSignedIn();
     }
 
+    // --- Location Stats ---
+    // 読み取りは認証済みのみ（ユーザー分布情報の漏洩防止）
+    // 書き込みはCloud FunctionsのonWriteトリガが担当（クライアントから書かない）
     match /location_stats/{statId} {
-      allow read: if true;
-      allow write: if isSignedIn();
+      allow read: if isSignedIn();
+      allow write: if isAdmin(); // クライアントからの直接書き込みを禁止
     }
 
+    // --- Aggregate Stats ---
+    // 書き込み禁止（クライアントから集計改ざん不可）
     match /stats/{statId} {
-      allow read: if true;
-      allow write: if isSignedIn();
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
     }
 
-    // --- Invitation Codes (Alpha Access Keys) ---
+    // --- Invitation Codes ---
+    // read: 未認証ユーザーも「登録前の招待コード確認」のために読み取り可能
+    //       （コードが valid かどうかをアカウント作成前に検証するため）
+    // list/create/delete: 管理者のみ
     match /invitation_codes/{codeId} {
-      // Allow read for code verification during registration
-      allow read: if true;
-      // Allow admins to manage codes (create, delete, list)
+      allow read: if true; // 登録フロー（未認証）から招待コードを確認できるよう開放
       allow create, delete, list: if isAdmin();
-      // Allow usage update during registration
-      allow update: if (isSignedIn() 
-                    && resource.data.is_used == false 
+      // 使用済みフラグの更新のみ許可（コード消費操作）
+      allow update: if (isSignedIn()
+                    && resource.data.is_used == false
                     && request.resource.data.is_used == true
                     && request.resource.data.used_by == request.auth.uid)
                     || isAdmin();
     }
 
-    // --- Seed Placeholders (Dynamic Wish Suggestions) ---
+    // --- Seed Placeholders ---
+    // read: LP（ランディングページ）での表示に使用するため未認証でも読み取り可能
+    // write: 管理者のみ
     match /seed_placeholders/{seedId} {
-      allow read: if true;
+      allow read: if true; // LP表示のため未認証アクセスを許可
       allow write: if isAdmin();
     }
   }

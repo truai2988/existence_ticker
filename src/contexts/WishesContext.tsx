@@ -24,6 +24,19 @@ interface WishesContextType {
 
 const WishesContext = createContext<WishesContextType | undefined>(undefined);
 
+// Firestore ドキュメントを Wish 型へ変換するヘルパー（重複コードを排除）
+const mapWish = (docSnap: { id: string; data: () => Record<string, unknown> }): Wish => {
+    const raw = docSnap.data();
+    return {
+        ...raw,
+        id: docSnap.id,
+        created_at: getMillis(raw.created_at as Parameters<typeof getMillis>[0]),
+        accepted_at: raw.accepted_at ? getMillis(raw.accepted_at as Parameters<typeof getMillis>[0]) : undefined,
+        fulfilled_at: raw.fulfilled_at ? getMillis(raw.fulfilled_at as Parameters<typeof getMillis>[0]) : undefined,
+        cancelled_at: raw.cancelled_at ? getMillis(raw.cancelled_at as Parameters<typeof getMillis>[0]) : undefined,
+    } as Wish;
+};
+
 export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const { user } = useAuth();
     // Real-time Active Data
@@ -75,41 +88,26 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     useEffect(() => {
         if (!db) return;
 
-        // 1. Global Feed (Open Only)
+        // Global Feed: limitを30に削減（課金オペレーション最小化）
         const qFeed = query(
             collection(db, 'wishes'),
             where('status', '==', 'open'),
             orderBy('created_at', 'desc'),
-            limit(100)
+            limit(30)
         );
 
         const unsubFeed = onSnapshot(qFeed, (snap) => {
-            const data = snap.docs.map(doc => {
-                const raw = doc.data();
-                return { 
-                    ...raw,
-                    id: doc.id,
-                    created_at: getMillis(raw.created_at),
-                    accepted_at: raw.accepted_at ? getMillis(raw.accepted_at) : undefined,
-                    fulfilled_at: raw.fulfilled_at ? getMillis(raw.fulfilled_at) : undefined,
-                    cancelled_at: raw.cancelled_at ? getMillis(raw.cancelled_at) : undefined,
-                } as Wish;
-            });
-            // Filter out expired wishes based on absolute universal physics (decay to 0).
+            const data = snap.docs.map(mapWish);
             const valid = data.filter(w => {
                 const effectiveCost = w.cost !== undefined ? w.cost : 0;
-                if (effectiveCost === 0) return true; // 0 Lm stays forever
-                
+                if (effectiveCost === 0) return true;
                 const elapsedSec = ((Date.now() - w.created_at) / 1000) | 0;
                 const currentMilli = calculateDecayedValue(toMilli(effectiveCost), elapsedSec);
-                
-                // Keep the wish visible only if there is still some Lm value remaining
                 return currentMilli > 0;
             });
             setWishes(valid);
             setIsLoading(false);
         }, (err) => {
-            // console.warn("Feed subscription error:", err);
             setError(err as Error);
             setIsLoading(false);
         });
@@ -133,18 +131,7 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         );
         
         const unsubUser = onSnapshot(qUserActive, (snap) => {
-             const data = snap.docs.map(doc => {
-                const raw = doc.data();
-                return { 
-                    ...raw,
-                    id: doc.id,
-                    created_at: getMillis(raw.created_at),
-                    accepted_at: raw.accepted_at ? getMillis(raw.accepted_at) : undefined,
-                    fulfilled_at: raw.fulfilled_at ? getMillis(raw.fulfilled_at) : undefined,
-                    cancelled_at: raw.cancelled_at ? getMillis(raw.cancelled_at) : undefined,
-                } as Wish;
-             });
-             // Sort client-side
+             const data = snap.docs.map(mapWish);
              setUserActiveWishes(data.sort((a,b) => b.created_at - a.created_at));
         }, () => {});
 
@@ -185,30 +172,10 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         };
 
         const unsubHelper = onSnapshot(qHelperActive, (snap) => {
-             updateInvolvedState(snap.docs.map(d => {
-                const raw = d.data();
-                return {
-                    ...raw,
-                    id: d.id,
-                    created_at: getMillis(raw.created_at),
-                    accepted_at: raw.accepted_at ? getMillis(raw.accepted_at) : undefined,
-                    fulfilled_at: raw.fulfilled_at ? getMillis(raw.fulfilled_at) : undefined,
-                    cancelled_at: raw.cancelled_at ? getMillis(raw.cancelled_at) : undefined,
-                } as Wish;
-             }), 'helper');
+             updateInvolvedState(snap.docs.map(mapWish), 'helper');
         }, () => {});
         const unsubApplied = onSnapshot(qApplied, (snap) => {
-             updateInvolvedState(snap.docs.map(d => {
-                const raw = d.data();
-                return {
-                    ...raw,
-                    id: d.id,
-                    created_at: getMillis(raw.created_at),
-                    accepted_at: raw.accepted_at ? getMillis(raw.accepted_at) : undefined,
-                    fulfilled_at: raw.fulfilled_at ? getMillis(raw.fulfilled_at) : undefined,
-                    cancelled_at: raw.cancelled_at ? getMillis(raw.cancelled_at) : undefined,
-                } as Wish;
-             }), 'applicant');
+             updateInvolvedState(snap.docs.map(mapWish), 'applicant');
         }, () => {});
 
         return () => {
