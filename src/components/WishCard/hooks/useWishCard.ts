@@ -101,6 +101,7 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
   // その後カスタムモーダルを開く（confirm()を完全排除）
   const handleApply = async () => {
     if (!isProfileComplete(myProfile)) {
+      showToast(MESSAGES.WISH_CARD.TOAST_INCOMPLETE_PROFILE, "error");
       if (onOpenProfile) {
         onOpenProfile();
         return;

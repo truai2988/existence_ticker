@@ -401,6 +401,7 @@ export const MESSAGES = {
     TOAST_CLEANUP_SUCCESS: "記録を静かに整理しました",
     TOAST_CLEANUP_ERROR: "整理に失敗しました",
     TOAST_EMAIL_COPIED: "メールアドレスをコピーしました",
+    TOAST_INCOMPLETE_PROFILE: "立候補には、プロフィールの登録（画像・30文字以上の自己紹介）または、ホームページやSNSのURLの登録が必要です",
 
     // CardContent
     BTN_UPDATE: "更新",
