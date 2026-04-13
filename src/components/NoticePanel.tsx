@@ -150,8 +150,13 @@ const NoticeWishModal: React.FC<{
               <p className="text-slate-600 font-bold">{t.NOTICE.WISH_NOT_FOUND || "この願いは、静かに役目を終えました"}</p>
             </div>
           ) : (
-            <div className="bg-transparent pb-0">
-               <WishCard wish={wish} currentUserId={user?.uid || ""} />
+            <div className="bg-white rounded-[2rem] shadow-xl p-6 sm:p-8">
+               <WishCard 
+                 wish={wish} 
+                 currentUserId={user?.uid || ""} 
+                 variant="notice" 
+                 noticeMessage={resolveMessage(notice, t.WISH_ACTIONS as unknown as Record<string, string>)}
+               />
             </div>
           )}
         </div>

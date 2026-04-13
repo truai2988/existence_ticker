@@ -6,6 +6,8 @@ export interface WishCardProps {
   wish: Wish;
   currentUserId: string;
   viewType?: "radiance" | "flow";
+  variant?: "default" | "notice";
+  noticeMessage?: React.ReactNode;
   onOpenProfile?: () => void;
   onActionComplete?: (
     action:
