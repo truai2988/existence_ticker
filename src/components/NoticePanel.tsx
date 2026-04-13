@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bell, X, BellOff, Loader2, ChevronRight } from "lucide-react";
 import { useNoticeContext } from "../hooks/useNoticeContext";
@@ -204,171 +205,178 @@ export const NoticePanel: React.FC = () => {
   const panelRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
 
-  // 外側クリックで閉じる
+  // 外側クリックで閉じる（モーダルが開いているときは無効化）
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     };
-    if (isOpen) {
+    if (isOpen && !selectedNotice) {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen]);
+  }, [isOpen, selectedNotice]);
 
   // Cast WISH_ACTIONS to a simple string map for resolveMessage
   const wishActions = t.WISH_ACTIONS as unknown as Record<string, string>;
 
   return (
-    <div ref={panelRef} className="relative z-50 flex items-center">
-      {/* ベルアイコン + バッジ */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className={`relative p-3 rounded-full transition-all active:scale-95 ${
-          unreadCount > 0
-            ? "text-amber-500 bg-amber-50/50"
-            : "text-slate-700 hover:text-slate-900 hover:bg-slate-100"
-        }`}
-        aria-label={t.NOTICE.TITLE}
-      >
-        <Bell size={24} strokeWidth={1.5} className={unreadCount > 0 ? "animate-pulse" : ""} />
-        {unreadCount > 0 && (
-          <motion.span
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="absolute top-2 right-2 w-2.5 h-2.5 bg-amber-400 rounded-full ring-2 ring-white shadow-[0_0_8px_rgba(251,191,36,0.5)]"
-          />
-        )}
-      </button>
+    <>
+      <div ref={panelRef} className="relative z-50 flex items-center">
+        {/* ベルアイコン + バッジ */}
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className={`relative p-3 rounded-full transition-all active:scale-95 ${
+            unreadCount > 0
+              ? "text-amber-500 bg-amber-50/50"
+              : "text-slate-700 hover:text-slate-900 hover:bg-slate-100"
+          }`}
+          aria-label={t.NOTICE.TITLE}
+        >
+          <Bell size={24} strokeWidth={1.5} className={unreadCount > 0 ? "animate-pulse" : ""} />
+          {unreadCount > 0 && (
+            <motion.span
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              className="absolute top-2 right-2 w-2.5 h-2.5 bg-amber-400 rounded-full ring-2 ring-white shadow-[0_0_8px_rgba(251,191,36,0.5)]"
+            />
+          )}
+        </button>
 
-      {/* パネル */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -8, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -8, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="fixed left-4 right-4 top-[70px] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 max-h-[70vh] bg-white rounded-2xl shadow-2xl border border-slate-300 overflow-hidden flex flex-col z-50"
-          >
-            {/* ヘッダー */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-slate-50 bg-white">
-              <h3 className="text-base font-serif font-medium text-slate-900 tracking-widest">
-                {t.NOTICE.TITLE}
-              </h3>
-              <div className="flex items-center gap-3">
-                {notices.length > 0 && (
-                  <button
-                    onClick={dismissAll}
-                    className="text-xs text-slate-700 hover:text-amber-600 transition-colors tracking-tighter"
-                  >
-                    {t.NOTICE.TOOLTIP_DISMISS_ALL}
-                  </button>
-                )}
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="p-1 text-slate-700 hover:text-slate-700 transition-colors"
-                >
-                  <X size={18} strokeWidth={1.5} />
-                </button>
-              </div>
-            </div>
-
-            {/* リスト */}
-            <div className="overflow-y-auto flex-1 custom-scrollbar">
-              {notices.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                  <BellOff
-                    size={28}
-                    className="text-slate-700 mb-3"
-                    strokeWidth={1.5}
-                  />
-                  <p className="text-sm text-slate-700 font-medium">
-                    {t.NOTICE.EMPTY_TITLE}
-                  </p>
-                  <p className="text-xs text-slate-700 mt-1">
-                    {t.NOTICE.EMPTY_DESC}
-                  </p>
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-50">
-                  {notices.map((notice) => (
-                    <motion.div
-                      key={notice.id}
-                      layout
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      className="group relative"
+        {/* パネル */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -8, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="fixed left-4 right-4 top-[70px] sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-80 max-h-[70vh] bg-white rounded-2xl shadow-2xl border border-slate-300 overflow-hidden flex flex-col z-50"
+            >
+              {/* ヘッダー */}
+              <div className="flex items-center justify-between px-6 py-5 border-b border-slate-50 bg-white">
+                <h3 className="text-base font-serif font-medium text-slate-900 tracking-widest">
+                  {t.NOTICE.TITLE}
+                </h3>
+                <div className="flex items-center gap-3">
+                  {notices.length > 0 && (
+                    <button
+                      onClick={dismissAll}
+                      className="text-xs text-slate-700 hover:text-amber-600 transition-colors tracking-tighter"
                     >
-                      <div 
-                        className={`flex items-start gap-4 px-6 py-5 transition-colors ${
-                          notice.wishId ? "hover:bg-amber-50 cursor-pointer" : "hover:bg-slate-50/30"
-                        }`}
-                        onClick={() => {
-                          if (notice.wishId) {
-                            setSelectedNotice(notice);
-                            setIsOpen(false);
-                          }
-                        }}
-                      >
-                        {/* ドットインジケーター */}
-                        <span
-                          className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 opacity-90 ${typeColorMap[notice.type] || "bg-slate-300"}`}
-                        />
-
-                        {/* メッセージ */}
-                        <div className="flex-1 min-w-0 pr-2">
-                          <p className="text-base sm:text-sm text-slate-800 leading-relaxed tracking-wide text-left">
-                            {resolveMessage(notice, wishActions)}
-                          </p>
-                          {notice.params?.note && (
-                            <div className="mt-2.5 p-3 bg-white rounded-xl border border-slate-200 text-slate-600 text-sm italic shadow-sm">
-                              {notice.params.note}
-                            </div>
-                          )}
-                          <span className="text-xs text-slate-700 mt-1.5 block font-sans tracking-tight text-left">
-                            {formatTime(
-                              notice.createdAt,
-                              t.NOTICE.TIME_JUST_NOW,
-                              t.NOTICE.TIME_MINUTES_AGO,
-                              t.NOTICE.TIME_HOURS_AGO,
-                            )}
-                          </span>
-                        </div>
-
-                        {/* アクション群（開く・削除） */}
-                        <div className="flex items-center gap-1 shrink-0 -mr-2 mt-1">
-                          {notice.wishId && (
-                            <div className="text-slate-300 group-hover:text-amber-400 group-active:text-amber-500 transition-colors hidden sm:block">
-                              <ChevronRight size={18} />
-                            </div>
-                          )}
-                          <button
-                            onClick={(e) => { e.stopPropagation(); dismissNotice(notice.id); }}
-                            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-md transition-all sm:opacity-0 group-hover:opacity-100"
-                            title={t.NOTICE.TOOLTIP_DISMISS}
-                          >
-                            <X size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
+                      {t.NOTICE.TOOLTIP_DISMISS_ALL}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="p-1 text-slate-700 hover:text-slate-700 transition-colors"
+                  >
+                    <X size={18} strokeWidth={1.5} />
+                  </button>
                 </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      {/* モーダル表示 */}
-      {selectedNotice && selectedNotice.wishId && (
-        <NoticeWishModal 
-          notice={selectedNotice} 
-          onClose={() => setSelectedNotice(null)} 
-        />
-      )}
-    </div>
+              </div>
+
+              {/* リスト */}
+              <div className="overflow-y-auto flex-1 custom-scrollbar">
+                {notices.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
+                    <BellOff
+                      size={28}
+                      className="text-slate-700 mb-3"
+                      strokeWidth={1.5}
+                    />
+                    <p className="text-sm text-slate-700 font-medium">
+                      {t.NOTICE.EMPTY_TITLE}
+                    </p>
+                    <p className="text-xs text-slate-700 mt-1">
+                      {t.NOTICE.EMPTY_DESC}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-slate-50">
+                    {notices.map((notice) => (
+                      <motion.div
+                        key={notice.id}
+                        layout
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className="group relative"
+                      >
+                        <div
+                          className={`flex items-start gap-4 px-6 py-5 transition-colors ${
+                            notice.wishId ? "hover:bg-amber-50 cursor-pointer" : "hover:bg-slate-50/30"
+                          }`}
+                          onClick={() => {
+                            if (notice.wishId) {
+                              setSelectedNotice(notice);
+                              setIsOpen(false);
+                            }
+                          }}
+                        >
+                          {/* ドットインジケーター */}
+                          <span
+                            className={`mt-2 w-1.5 h-1.5 rounded-full shrink-0 opacity-90 ${typeColorMap[notice.type] || "bg-slate-300"}`}
+                          />
+
+                          {/* メッセージ */}
+                          <div className="flex-1 min-w-0 pr-2">
+                            <p className="text-base sm:text-sm text-slate-800 leading-relaxed tracking-wide text-left">
+                              {resolveMessage(notice, wishActions)}
+                            </p>
+                            {notice.params?.note && (
+                              <div className="mt-2.5 p-3 bg-white rounded-xl border border-slate-200 text-slate-600 text-sm italic shadow-sm">
+                                {notice.params.note}
+                              </div>
+                            )}
+                            <span className="text-xs text-slate-700 mt-1.5 block font-sans tracking-tight text-left">
+                              {formatTime(
+                                notice.createdAt,
+                                t.NOTICE.TIME_JUST_NOW,
+                                t.NOTICE.TIME_MINUTES_AGO,
+                                t.NOTICE.TIME_HOURS_AGO,
+                              )}
+                            </span>
+                          </div>
+
+                          {/* アクション群（開く・削除） */}
+                          <div className="flex items-center gap-1 shrink-0 -mr-2 mt-1">
+                            {notice.wishId && (
+                              <div className="text-slate-300 group-hover:text-amber-400 group-active:text-amber-500 transition-colors hidden sm:block">
+                                <ChevronRight size={18} />
+                              </div>
+                            )}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); dismissNotice(notice.id); }}
+                              className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-md transition-all sm:opacity-0 group-hover:opacity-100"
+                              title={t.NOTICE.TOOLTIP_DISMISS}
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* モーダル：document.body にポータルとして描画（イベント競合を完全回避） */}
+      {selectedNotice && selectedNotice.wishId &&
+        ReactDOM.createPortal(
+          <NoticeWishModal
+            notice={selectedNotice}
+            onClose={() => setSelectedNotice(null)}
+          />,
+          document.body
+        )
+      }
+    </>
   );
 };
+

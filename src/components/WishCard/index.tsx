@@ -43,9 +43,9 @@ export const WishCard: React.FC<WishCardProps> = (props) => {
           <div className="opacity-80 pointer-events-none select-none">
              <CardHeader state={state} handlers={handlers} />
              <CardContent state={state} handlers={handlers} />
-             <div className={state.wish.isSnapshot ? 'opacity-20 blur-[2px]' : ''}>
-               <CardContact state={state} handlers={handlers} />
-             </div>
+          </div>
+          <div className={state.wish.isSnapshot ? 'opacity-20 blur-[2px] pointer-events-none' : ''}>
+            <CardContact state={state} handlers={handlers} />
           </div>
           
           {/* CardModalsは必要（CardFooterから呼び出されるモーダル用） */}

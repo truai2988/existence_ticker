@@ -33,21 +33,12 @@ export const CardFooter: React.FC<{
     setIsLoading,
   } = handlers;
 
-  const { withdrawApplication, fulfillWish } = useWishActions();
+  const { withdrawApplication } = useWishActions();
   const { showToast } = useToast();
   const { getCandidateAction } = useMicroInteractions();
   const applicants = wish.applicants || [];
 
-  const handleFulfill = async (message?: string) => {
-    setIsLoading(true);
-    const success = await fulfillWish(wish.id, wish.helper_id!, message);
-    if (success) {
-      setTimeout(() => {
-        showToast(MESSAGES.WISH_CARD.TOAST_THANKED, "success");
-      }, 500);
-    }
-    setIsLoading(false);
-  };
+
 
   if (isExpired && isMyWish) {
     return null; // isExpired for MyWish only has cleanup, which is now in CardHeader
@@ -145,13 +136,7 @@ export const CardFooter: React.FC<{
 
             {!isExpired && !isReadOnly && wish.status === "in_progress" && (
               <button
-                onClick={() => {
-                  const confirmPrompt = MESSAGES.WISH_CARD.FTR_THANK_ALERT + "\n\n（感謝のメッセージがあればここに入力してください）：";
-                  const msg = window.prompt(confirmPrompt);
-                  if (msg !== null) {
-                    handleFulfill(msg.trim() || undefined);
-                  }
-                }}
+                onClick={() => handlers.setShowCompleteModal(true)}
                 disabled={isLoading}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-600 text-white font-bold shadow-md shadow-emerald-200/50 hover:bg-emerald-700 active:scale-95 transition-all whitespace-nowrap"
               >

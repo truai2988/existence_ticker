@@ -13,7 +13,7 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
   const { t: MESSAGES } = useLanguage();
   const {
     wish, isLoading, showApplicants, confirmAction, approvalTarget, contactNote, showCompleteModal,
-    helperProfile, currentUserId, initialCost,
+    helperProfile, initialCost,
     showApplyConfirm, applyConfirmIsAnonymous, showCleanupConfirm,
   } = state;
 
@@ -153,10 +153,10 @@ export const CardModals: React.FC<{ state: WishCardState; handlers: WishCardHand
           helperName={helperProfile?.name || wish.helper_name || MESSAGES.WISH_CARD.ANONYMOUS_HELPER}
           preset={wish.gratitude_preset}
           cost={initialCost}
-          onConfirm={async () => {
+          onConfirm={async (message?: string) => {
             setShowCompleteModal(false);
             handlers.setIsLoading(true);
-            const success = await fulfillWish(wish.id, currentUserId);
+            const success = await fulfillWish(wish.id, wish.helper_id!, message);
             handlers.setIsLoading(false);
             if (success) {
               showToast(MESSAGES.WISH_CARD.TOAST_THANKED, "success");

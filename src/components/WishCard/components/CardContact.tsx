@@ -2,10 +2,12 @@ import React from "react";
 import { Copy, Mail, Check } from "lucide-react";
 import { useLanguage } from "../../../contexts/LanguageContext";
 import { WishCardState, WishCardHandlers } from "../types";
+import { useToast } from "../../../hooks/useToast";
 
 export const CardContact: React.FC<{ state: WishCardState; handlers: WishCardHandlers }> = ({ state, handlers }) => {
   const { t: MESSAGES } = useLanguage();
-  const { wish, isReadOnly, isMyWish, currentUserId, contactEmail, isCopied, requesterProfile, helperProfile, isMasked, isHelperMasked } = state;
+  const { showToast } = useToast();
+  const { wish, isReadOnly, isMyWish, currentUserId, contactEmail, mailtoLink, isCopied, requesterProfile, helperProfile, isMasked, isHelperMasked } = state;
   const { handleCopyEmail } = handlers;
 
   if (wish.status !== "in_progress" || isReadOnly || (!isMyWish && wish.helper_id !== currentUserId)) {
@@ -14,7 +16,7 @@ export const CardContact: React.FC<{ state: WishCardState; handlers: WishCardHan
 
   const partnerProfile = isMyWish ? helperProfile : requesterProfile;
   const partnerName = isMyWish 
-      ? (partnerProfile?.name || wish.helper_name || wish.applicants?.find((a: any) => a.id === wish.helper_id)?.name || wish.helper_id?.slice(0, 8) || MESSAGES.WISH_CARD.HDR_DEFAULT_HELPER)
+      ? (partnerProfile?.name || wish.helper_name || wish.applicants?.find((a: { id: string }) => a.id === wish.helper_id)?.name || wish.helper_id?.slice(0, 8) || MESSAGES.WISH_CARD.HDR_DEFAULT_HELPER)
       : (partnerProfile?.name || "匿名ユーザー");
   const partnerMasked = isMyWish ? isHelperMasked : isMasked;
 
@@ -46,7 +48,14 @@ export const CardContact: React.FC<{ state: WishCardState; handlers: WishCardHan
             </div>
 
             <a
-              href={`mailto:${contactEmail}`}
+              href={mailtoLink}
+              onClick={(e) => { 
+                if (!contactEmail) {
+                  e.preventDefault(); 
+                  return;
+                }
+                showToast("メールアプリを起動しています...", "info");
+              }}
               className="w-full py-2.5 bg-white border border-slate-300 hover:bg-slate-50 hover:border-slate-400 text-slate-800 text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-sm active:scale-[0.98]"
             >
               <Mail className="w-4 h-4 text-slate-500" />
