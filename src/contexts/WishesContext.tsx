@@ -127,7 +127,7 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         const qUserActive = query(
             collection(db, 'wishes'),
             where('requester_id', '==', user.uid),
-            where('status', 'in', ['open', 'in_progress', 'review_pending'])
+            where('status', 'in', ['open', 'in_progress'])
         );
         
         const unsubUser = onSnapshot(qUserActive, (snap) => {
@@ -140,13 +140,13 @@ export const WishesProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         // Simplified: Helper Only for now to avoid complexity, or use separate listeners.
         // "Active" from FlowView definition: 
         //   - Pending (Applied): status='open' AND applicants contains me
-        //   - Active (Helper): helper_id=me AND (in_progress OR review_pending)
+        //   - Active (Helper): helper_id=me AND in_progress
         
         // A. Helper Active
         const qHelperActive = query(
             collection(db, 'wishes'),
             where('helper_id', '==', user.uid),
-            where('status', 'in', ['in_progress', 'review_pending'])
+            where('status', 'in', ['in_progress'])
         );
 
         // B. Applied (Pending)

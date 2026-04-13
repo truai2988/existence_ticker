@@ -67,7 +67,6 @@ export interface Wish {
   status:
     | "open"
     | "in_progress"
-    | "review_pending"
     | "fulfilled"
     | "completed"
     | "cancelled"

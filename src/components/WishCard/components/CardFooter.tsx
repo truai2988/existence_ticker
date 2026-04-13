@@ -106,7 +106,7 @@ export const CardFooter: React.FC<{
                 <span>{MESSAGES.WISH_CARD.BTN_CANCEL_APPLY}</span>
               </button>
             )}
-            {(wish.status === "in_progress" || wish.status === "review_pending") &&
+            {wish.status === "in_progress" &&
               wish.helper_id === currentUserId && (
                 <button
                   onClick={handleCancel}
@@ -143,7 +143,7 @@ export const CardFooter: React.FC<{
               </div>
             )}
 
-            {!isExpired && !isReadOnly && (wish.status === "review_pending" || wish.status === "in_progress") && (
+            {!isExpired && !isReadOnly && wish.status === "in_progress" && (
               <button
                 onClick={() => {
                   const confirmPrompt = MESSAGES.WISH_CARD.FTR_THANK_ALERT + "\n\n（感謝のメッセージがあればここに入力してください）：";

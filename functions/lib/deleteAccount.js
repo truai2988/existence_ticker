@@ -15,23 +15,13 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 }) : function(o, v) {
     o["default"] = v;
 });
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteAccount = void 0;
 const functions = __importStar(require("firebase-functions"));
@@ -39,6 +29,7 @@ const admin = __importStar(require("firebase-admin"));
 const firestore_1 = require("firebase-admin/firestore");
 const worldPhysics_1 = require("./worldPhysics");
 exports.deleteAccount = functions.https.onCall(async (data, context) => {
+    var _a, _b;
     console.log(`[deleteAccount] Execution Started`);
     const isEmulator = !!process.env.FUNCTIONS_EMULATOR || !!process.env.FIRESTORE_EMULATOR_HOST;
     let app;
@@ -100,7 +91,7 @@ exports.deleteAccount = functions.https.onCall(async (data, context) => {
             const helperMap = new Map();
             for (const wishDoc of snapRequester.docs) {
                 const wData = wishDoc.data();
-                if ((wData.status === 'in_progress' || wData.status === 'review_pending') && wData.helper_id) {
+                if (wData.status === 'in_progress' && wData.helper_id) {
                     if (!helperMap.has(wData.helper_id)) {
                         const hRef = db.collection('users').doc(wData.helper_id);
                         const hSnap = await transaction.get(hRef);
@@ -134,7 +125,7 @@ exports.deleteAccount = functions.https.onCall(async (data, context) => {
                 const wishDecayedMilli = (0, worldPhysics_1.calculateDecayedValue)((0, worldPhysics_1.toMilli)(wishInitialCost), wishElapsedSec);
                 // Track wish decay for global stats
                 totalDecayMilli += ((0, worldPhysics_1.toMilli)(wishInitialCost) - wishDecayedMilli);
-                if ((wishData.status === 'in_progress' || wishData.status === 'review_pending') && wishData.helper_id) {
+                if (wishData.status === 'in_progress' && wishData.helper_id) {
                     const helperSnap = helperMap.get(wishData.helper_id);
                     if (helperSnap && helperSnap.exists) {
                         const hData = helperSnap.data();
@@ -153,22 +144,54 @@ exports.deleteAccount = functions.https.onCall(async (data, context) => {
                         const minHSpentMilli = hDecayedVesselMilli - (0, worldPhysics_1.toMilli)(worldPhysics_1.WORLD_CONSTANTS.REBIRTH_AMOUNT);
                         const currentHSpentMilli = (0, worldPhysics_1.toMilli)(hData.spent_lm || 0);
                         const newHSpentMilli = Math.max(minHSpentMilli, currentHSpentMilli - actualPaymentMilli);
+                        // 温かな「おわりの手紙」として通知フィールドを更新（重機的な言葉は使わない）
+                        const helperName = hData.name || "助け手";
+                        const requesterDisplayName = uData.name || "依頼主";
+                        const warmNoticeMsg = `${requesterDisplayName}さんの都合でお願いが中止になりました。これまで寄り添ってくれたことへの、感謝のメッセージが届いています。`;
                         transaction.update(helperSnap.ref, {
                             spent_lm: (0, worldPhysics_1.fromMilli)(newHSpentMilli),
-                            pending_interruption_notification: "依頼主様がアプリを離れられたため（退会）、感謝のLmが補償として送り届けられました。",
+                            pending_interruption_notification: warmNoticeMsg,
                         });
+                        // 通知ドキュメントとして即時書き込み（次回起動時に通知バッジで表示される）
+                        const noticeId = `notice_${wishData.helper_id}_${now}_del`;
+                        const noticeRef = db.collection('users').doc(wishData.helper_id).collection('notices').doc(noticeId);
+                        const isAnon = wishData.isAnonymous === true;
+                        const snapshotForNotice = {
+                            content: wishData.content,
+                            requester_name: isAnon ? "匿名" : requesterDisplayName,
+                            requester_id: wishData.requester_id,
+                            cost: wishData.cost || 1000,
+                            created_at: typeof wishData.created_at === 'number' ? wishData.created_at : now,
+                            isAnonymous: isAnon,
+                            status: "cancelled",
+                        };
+                        transaction.set(noticeRef, {
+                            userId: wishData.helper_id,
+                            fromId: "system",
+                            wishId: wishDoc.id,
+                            message: warmNoticeMsg,
+                            messageKey: "NOTICE_WISH_CANCELLED_WITH_APPLICANTS",
+                            params: {
+                                name: isAnon ? "匿名" : requesterDisplayName,
+                                wishSnapshot: JSON.stringify(snapshotForNotice),
+                            },
+                            type: "wish_cancelled",
+                            createdAt: now,
+                            read: false,
+                        });
+                        // 内部の補償トランザクション記録（UIには表出させない）
                         const txPropRef = db.collection('transactions').doc();
                         transaction.set(txPropRef, {
                             type: 'COMPENSATION',
                             amount: actualPaymentAmount,
                             sender_id: uid,
-                            sender_name: uData.name || "奏者",
+                            sender_name: requesterDisplayName,
                             recipient_id: wishData.helper_id,
-                            recipient_name: hData.name || "助け手",
+                            recipient_name: helperName,
                             wish_title: wishData.content,
                             wish_id: wishDoc.id,
                             created_at: firestore_1.FieldValue.serverTimestamp(),
-                            description: "依頼主が退会されたため、これまでの感謝としてLmが届けられました。"
+                            description: "（内部記録）事情のあるお別れに伴い、届けられました"
                         });
                     }
                 }
@@ -201,6 +224,7 @@ exports.deleteAccount = functions.https.onCall(async (data, context) => {
                         pending_interruption_notification: "助け手様がアプリを離れられたため（退会）、願いが再び募集に戻りました。Lmは安全です。",
                     });
                 }
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 transaction.update(helpDoc.ref, updates);
             }
             for (const historyDoc of historySnap.docs) {
@@ -220,6 +244,49 @@ exports.deleteAccount = functions.https.onCall(async (data, context) => {
             }
             transaction.delete(userRef);
         });
+        // Step 2.6: 立候補中（open）の願いの依頼主が退会した場合、
+        // 立候補者へ「おわりの手紙」として静かに通知を届ける（退会の事実は伝えない）
+        const applicantNoticePromises = [];
+        const uDisplayName = ((_b = (_a = (await db.collection('users').doc(uid).get().catch(() => null))) === null || _a === void 0 ? void 0 : _a.data()) === null || _b === void 0 ? void 0 : _b.name) || "依頼主";
+        for (const wishDoc of snapRequester.docs) {
+            const wishData = wishDoc.data();
+            if (wishData.status === 'open' && wishData.applicants && wishData.applicants.length > 0) {
+                const isAnon = wishData.isAnonymous === true;
+                const reqName = isAnon ? "匿名" : uDisplayName;
+                const noticeMsg = `${reqName}さんの都合でお願いが中止になりました。これまで寄り添ってくれたことへの、感謝のメッセージが届いています。`;
+                const snapshotStr = JSON.stringify({
+                    content: wishData.content,
+                    requester_name: reqName,
+                    requester_id: wishData.requester_id,
+                    cost: wishData.cost || 1000,
+                    created_at: typeof wishData.created_at === 'number' ? wishData.created_at : Date.now(),
+                    isAnonymous: isAnon,
+                    status: "cancelled",
+                });
+                for (const applicant of wishData.applicants) {
+                    const noticeId = `notice_${applicant.id}_${Date.now()}_del_open`;
+                    const noticeRef = db.collection('users').doc(applicant.id).collection('notices').doc(noticeId);
+                    applicantNoticePromises.push(noticeRef.set({
+                        userId: applicant.id,
+                        fromId: "system",
+                        wishId: wishDoc.id,
+                        message: noticeMsg,
+                        messageKey: "NOTICE_WISH_CANCELLED_WITH_APPLICANTS",
+                        params: {
+                            name: reqName,
+                            wishSnapshot: snapshotStr,
+                        },
+                        type: "wish_cancelled",
+                        createdAt: Date.now(),
+                        read: false,
+                    }).then(() => undefined));
+                }
+            }
+        }
+        if (applicantNoticePromises.length > 0) {
+            await Promise.allSettled(applicantNoticePromises);
+            console.log(` [deleteAccount] Sent farewell notices to ${applicantNoticePromises.length} applicant(s).`);
+        }
         console.log(" [deleteAccount] Step 3: Deleting Auth User...");
         await auth.deleteUser(uid);
         console.log(" [deleteAccount] Auth User deleted.");

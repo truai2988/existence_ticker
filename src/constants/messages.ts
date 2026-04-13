@@ -768,6 +768,16 @@ export const MESSAGES = {
     TOOLTIP_DISMISS: "閉じる",
     LOADING_WISH: "確認中...",
     WISH_NOT_FOUND: "この願いは、静かに役目を終えました",
+
+    STATUS_GUIDE: {
+      OPEN_REQ: "手を挙げてくれた方がいます。どなたに願いを託しますか？",
+      OPEN_HELP: "現在、お返事を待っているところです。",
+      IN_PROGRESS_REQ: "願いを託しました。無事に終わったら、ここから『ありがとう』を伝えてください。",
+      IN_PROGRESS_HELP: "願いを託されました。無理のない範囲で、そっと寄り添ってあげてください。",
+      FULFILLED_REQ: "このお願いは完了しました。温かい『ありがとう』を贈りました。",
+      FULFILLED_HELP: "このお願いは完了しました。温かい『ありがとう』が届いています。",
+      CANCELLED: "このお願いは、そっと閉じられました。",
+    },
   },
 
   // 8. ナビゲーション・レイアウト (Header, Footer, SideDrawer)

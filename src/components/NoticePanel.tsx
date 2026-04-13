@@ -61,6 +61,38 @@ const formatTime = (
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 };
 
+/** 動的メッセージ解決: Wish の現在のステータスを優先し、該当しない場合は通常の Notice メッセージを表示 */
+const resolveDynamicMessage = (
+  notice: Notice,
+  wish: Wish,
+  currentUserId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: any
+): string => {
+  const isRequester = wish.requester_id === currentUserId;
+  const guide = t.NOTICE.STATUS_GUIDE;
+
+  if (guide) {
+    if (wish.status === "open") {
+      if (notice.type === "system") return resolveMessage(notice, t.WISH_ACTIONS as unknown as Record<string, string>);
+      return isRequester ? guide.OPEN_REQ : guide.OPEN_HELP;
+    }
+    if (wish.status === "in_progress") {
+      return isRequester ? guide.IN_PROGRESS_REQ : guide.IN_PROGRESS_HELP;
+    }
+
+    if (wish.status === "fulfilled" || wish.status === "completed") {
+      return isRequester ? guide.FULFILLED_REQ : guide.FULFILLED_HELP;
+    }
+    if (wish.status === "cancelled" || wish.status === "interrupted" || wish.status === "expired") {
+      return guide.CANCELLED;
+    }
+  }
+
+  // Fallback
+  return resolveMessage(notice, t.WISH_ACTIONS as unknown as Record<string, string>);
+};
+
 /** 単一の願いをフェッチして表示するモーダル */
 const NoticeWishModal: React.FC<{
   notice: Notice;
@@ -155,7 +187,7 @@ const NoticeWishModal: React.FC<{
                  wish={wish} 
                  currentUserId={user?.uid || ""} 
                  variant="notice" 
-                 noticeMessage={resolveMessage(notice, t.WISH_ACTIONS as unknown as Record<string, string>)}
+                 noticeMessage={resolveDynamicMessage(notice, wish, user?.uid || "", t)}
                />
             </div>
           )}

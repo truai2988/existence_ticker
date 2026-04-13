@@ -63,7 +63,7 @@ export function useWishCard(props: WishCardProps): { state: WishCardState; handl
   const isExpired =
     initialCost > 0 &&
     displayValue <= 0 &&
-    (wish.status === "open" || wish.status === "in_progress" || wish.status === "review_pending");
+    (wish.status === "open" || wish.status === "in_progress");
 
   const applicants = wish.applicants || [];
   const hasApplied = applicants.some((a: { id: string }) => a.id === currentUserId);

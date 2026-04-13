@@ -32,7 +32,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
       if (wish.status === 'open') {
         label = MESSAGES.WISH_CARD.STATUS_OPEN;
         colorClass = 'bg-emerald-600 text-white shadow-sm shadow-emerald-200';
-      } else if (wish.status === 'in_progress' || wish.status === 'review_pending') {
+      } else if (wish.status === 'in_progress') {
         label = MESSAGES.WISH_CARD.STATUS_ACTIVE;
         colorClass = 'bg-blue-600 text-white shadow-sm shadow-blue-200';
       }
@@ -45,7 +45,7 @@ export const CardHeader: React.FC<{ state: WishCardState; handlers: WishCardHand
           label = MESSAGES.WISH_CARD.STATUS_OPEN;
           colorClass = 'bg-emerald-600 text-white shadow-sm shadow-emerald-200';
         }
-      } else if (wish.status === 'review_pending' || wish.status === 'in_progress') {
+      } else if (wish.status === 'in_progress') {
         label = MESSAGES.WISH_CARD.STATUS_ACTIVE;
         colorClass = 'bg-blue-600 text-white shadow-sm shadow-blue-200';
       }

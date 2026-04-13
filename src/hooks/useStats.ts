@@ -158,7 +158,7 @@ export const useStats = () => {
                     let heavyWishes = 0;
                     try {
                         const wishColl = collection(db, 'wishes');
-                        const wishQ = query(wishColl, where('status', 'in', ['open', 'in_progress', 'review_pending']));
+                        const wishQ = query(wishColl, where('status', 'in', ['open', 'in_progress']));
                         const wishSnap = await getDocs(wishQ);
                         wishSnap.forEach(doc => {
                             const data = doc.data();
