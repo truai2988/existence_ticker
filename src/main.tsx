@@ -19,6 +19,7 @@ import { WalletProvider } from "./contexts/WalletContext.tsx";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { UpdatePrompt } from "./components/UpdatePrompt";
 
 const isStandalone = 
   window.matchMedia('(display-mode: standalone)').matches || 
@@ -59,6 +60,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                     {/* 救済：迷い込んだユーザーをLPへ */}
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
+                  {/* PWA更新バナー（全ルートで共通表示） */}
+                  <UpdatePrompt />
                 </BrowserRouter>
               </WalletProvider>
             </WishesProvider>
