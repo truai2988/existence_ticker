@@ -5,10 +5,10 @@ exports.getTrustRank = exports.calculateAvailableLm = exports.calculateHistorica
 // World Physics Constants (世界の理・定数)
 // =========================================================================================
 exports.WORLD_CONSTANTS = {
-    REBIRTH_AMOUNT: 2400,
-    MAX_VESSEL_CAPACITY_MILLI: 2400000,
-    DECAY_RATE_MLLM_PER_HOUR: 10000,
-    MAX_STREAK_FOR_REPAIR: 2,
+    REBIRTH_AMOUNT: 2400, // 器（Vessel）の最大容量
+    MAX_VESSEL_CAPACITY_MILLI: 2400000, // 2,400 Lm = 絶対的な壁
+    DECAY_RATE_MLLM_PER_HOUR: 10000, // 宇宙定数: 10 Lm/h (絶対不変)
+    MAX_STREAK_FOR_REPAIR: 2, // 穢れ（Crack）を修復するために必要な連続誠実回数
     GLOBAL_METABOLISM_PATH: 'stats/global_metabolism',
 };
 const getMillis = (timestamp, fallback = Date.now()) => {

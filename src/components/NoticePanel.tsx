@@ -179,7 +179,7 @@ const NoticeWishModal: React.FC<{
           ) : !wish ? (
             <div className="bg-white rounded-[2rem] shadow-xl p-12 flex flex-col items-center justify-center text-center h-full min-h-[300px]">
               <BellOff className="w-12 h-12 text-slate-300 mb-4" />
-              <p className="text-slate-600 font-bold">{t.NOTICE.WISH_NOT_FOUND || "この願いは、静かに役目を終えました"}</p>
+              <p className="text-slate-600 font-bold">{t.NOTICE.WISH_NOT_FOUND || "この願いは、役目を終えました。"}</p>
             </div>
           ) : (
             <div className="bg-white rounded-[2rem] shadow-xl p-6 sm:p-8">

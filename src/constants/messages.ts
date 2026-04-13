@@ -9,7 +9,7 @@ export const MESSAGES = {
     ERROR_GENERIC: "予期せぬエラーが発生しました。再接続しています...",
     STATS_FETCH_FAILED: "統計データの取得に失敗しました。",
     NOTICE_WISH_APPLIED: "あなたの願いに、誰かが寄り添おうとしています。", // 応募（承認前）
-    NOTICE_WISH_APPROVED: "あなたの願いが、静かに聞き届けられました。", // 承認された（助け手側）
+    NOTICE_WISH_APPROVED: "あなたの願いが聞き届けられました。", // 承認された（助け手側）
     NOTICE_REVIEW_PENDING: "願いが叶い、感謝の言葉を待っています。", // 完了報告（依頼主側）
     NOTICE_WISH_FULFILLED: "感謝と共に、源気が届けられました。", // 決済完了（助け手側）
     NOTICE_WISH_CANCELLED: "願いは取り下げられ、源気（Lm）が手元に戻りました。",
@@ -303,7 +303,7 @@ export const MESSAGES = {
     MODAL_CANCEL_REQ_Q: "この願いを取り下げますか？",
     MODAL_COMPENSATE_WARN_1: "ここで願いを取り下げる場合、添えられていたLmは",
     MODAL_COMPENSATE_WARN_2: "これまで寄り添ってくれた「お礼」として、相手に贈られます。", // 「ペナルティ」という罰則の概念を排除
-    MODAL_RESIGN_WARN: "これまでの繋がりは、静かに解かれます。", // 「ステータスはリセット」を排除
+    MODAL_RESIGN_WARN: "これまでの繋がりは、解かれます。", // 「ステータスはリセット」を排除
     MODAL_CANCEL_SAFE: "添えられていたLmは、あなたの手元に戻ります。",
     TOAST_CANCELLED: "取り下げました。記録は『足あと』画面から確認できます",
     BTN_COMPENSATE: "Lmを贈って、取り下げる", // 「ペナルティを支払う」を排除
@@ -344,7 +344,7 @@ export const MESSAGES = {
     FTR_CANCELLED: "取り下げ済",
     FTR_WAIT_CONFIRM: "確認待ち", // 「承認待ち」を排除
     FTR_THANKED: "感謝を完了", // 「決済済」を排除
-    FTR_EXPIRED_SETTLED: "静かに終了（期限切れ）",
+    FTR_EXPIRED_SETTLED: "終了（期限切れ）",
     FTR_EXPIRED: "期限切れ",
     FTR_RECRUITING: "公開中", // 「募集中」という労働感を排除
     FTR_ANON: "匿名",
@@ -384,8 +384,8 @@ export const MESSAGES = {
 
     // Cleanup confirm modal（confirm()の代替カスタムUI）
     MODAL_CLEANUP_Q: "この記録を「足あと」へ移しますか？",
-    MODAL_CLEANUP_DESC: "記録は静かに整理され、「足あと」画面からいつでも振り返ることができます。",
-    BTN_CLEANUP_CONFIRM: "静かにしまう",
+    MODAL_CLEANUP_DESC: "記録は整理され、「足あと」画面からいつでも振り返ることができます。",
+    BTN_CLEANUP_CONFIRM: "記録をしまう",
 
     // 統一トーストメッセージ（useWishCard.ts直書きを messages.ts へ移設）
     TOAST_APPLY_SUCCESS: "手を挙げました。『つながり』画面で確認できます",
@@ -398,7 +398,7 @@ export const MESSAGES = {
     TOAST_CANCEL_SUCCESS_COMPENSATE: "お礼を渡して、願いをそっと取り下げました。記録は『足あと』画面から確認できます",
     TOAST_CANCEL_SUCCESS_DELETE: "願いをそっと取り下げました。記録は『足あと』画面から確認できます",
     TOAST_CANCEL_ERROR: "不具合により取り下げに失敗しました。時間をおいて再度お試しください",
-    TOAST_CLEANUP_SUCCESS: "記録を静かに整理しました",
+    TOAST_CLEANUP_SUCCESS: "記録を整理しました",
     TOAST_CLEANUP_ERROR: "整理に失敗しました",
     TOAST_EMAIL_COPIED: "メールアドレスをコピーしました",
     TOAST_INCOMPLETE_PROFILE: "立候補には、プロフィールの登録（画像・30文字以上の自己紹介）または、ホームページやSNSのURLの登録が必要です",
@@ -420,7 +420,7 @@ export const MESSAGES = {
     LBL_SENT_DONE: "贈与完了", // 「送金済」を排除
     LBL_GIVE_THANKS: "贈るLm", // 「支払額」を排除
     LBL_SHARE_THANKS: "添えられたLm", // 「設定報酬額」を排除
-    TXT_THANKS_DECAY_NOTE: "※時間経過と共に、静かに減少します",
+    TXT_THANKS_DECAY_NOTE: "※時間経過と共に減少します",
     LBL_ECHO: "無償の願い", // 「無償処理」を排除
 
     // CardContact
@@ -767,7 +767,7 @@ export const MESSAGES = {
     TOOLTIP_DISMISS_ALL: "すべてクリア",
     TOOLTIP_DISMISS: "閉じる",
     LOADING_WISH: "確認中...",
-    WISH_NOT_FOUND: "この願いは、静かに役目を終えました",
+    WISH_NOT_FOUND: "この願いは、役目を終えました。",
 
     STATUS_GUIDE: {
       OPEN_REQ: "手を挙げてくれた方がいます。どなたに願いを託しますか？",
