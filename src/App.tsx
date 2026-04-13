@@ -3,12 +3,13 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthScreen } from "./components/AuthScreen";
 import { Header } from "./components/Header";
-import { ProfileView } from "./components/ProfileView";
-import { JournalView } from "./components/JournalView";
 import { HomeView } from "./components/HomeView";
-import { WishesView } from "./components/WishesView";
-import { ConnectionsView } from "./components/ConnectionsView";
 import { OnboardingStory } from "./components/OnboardingStory";
+
+const ProfileView = lazy(() => import("./components/ProfileView").then((m) => ({ default: m.ProfileView })));
+const JournalView = lazy(() => import("./components/JournalView").then((m) => ({ default: m.JournalView })));
+const WishesView = lazy(() => import("./components/WishesView").then((m) => ({ default: m.WishesView })));
+const ConnectionsView = lazy(() => import("./components/ConnectionsView").then((m) => ({ default: m.ConnectionsView })));
 import { AppViewMode } from "./types";
 import { useStartupMachine, AppMode } from "./hooks/useStartupMachine";
 import { useWallet } from "./hooks/useWallet";
