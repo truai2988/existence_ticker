@@ -559,7 +559,7 @@ function App() {
                           initial={{ scale: 0.8, opacity: 0 }}
                           animate={{ scale: 1.5, opacity: 1 }}
                           transition={{ duration: 2, ease: "easeOut" }}
-                          className="absolute inset-0 bg-gradient-radial from-amber-100 via-orange-50 to-white"
+                          className="absolute inset-0 bg-gradient-radial from-amber-100 via-orange-50 to-white pointer-events-none"
                         />
 
                         {/* Washi Paper Texture */}
@@ -576,7 +576,7 @@ function App() {
                           initial={{ opacity: 0, scale: 0.95 }}
                           animate={{ opacity: 1, scale: 1 }}
                           transition={{ delay: 0.5, duration: 1.5 }}
-                          className="relative z-10 px-12 py-16 text-center"
+                          className="relative z-10 px-12 py-16 text-center pointer-events-none"
                         >
                           <h2 className="text-3xl md:text-5xl font-serif text-slate-900 tracking-[0.3em] font-bold leading-relaxed whitespace-pre-wrap">
                             {"あなたの存在を、\nこのインフラは歓迎します"}
@@ -601,7 +601,7 @@ function App() {
                         <motion.div
                           animate={{ opacity: [0.3, 0.6, 0.3] }}
                           transition={{ duration: 4, repeat: Infinity }}
-                          className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_white_100%)]"
+                          className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_white_100%)] pointer-events-none"
                         />
                       </motion.div>
                     )}
