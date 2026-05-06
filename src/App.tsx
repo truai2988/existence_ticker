@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy, useEffect } from "react";
+import React, { useState, useRef, Suspense, lazy, useEffect } from "react";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "./components/Header";
@@ -443,29 +443,30 @@ function App() {
   // use the same ritualState + RitualOverlay that authenticated users see.
   // NOTE: The local RitualOverlay only handles 'blooming' and 'syncing' states.
   //       'breathing' shows a white overlay with nothing inside, so we skip it.
-  const [guestRitualTriggered, setGuestRitualTriggered] = useState(false);
+  const guestRitualTriggeredRef = useRef(false);
 
   useEffect(() => {
     if (view !== 'APP') return;
-    if (guestRitualTriggered) return;
+    if (guestRitualTriggeredRef.current) return;
 
     // Authenticated user or returning guest → no ritual needed
     if (!data.guestMode || !data.isFirstVisit) return;
 
     // First-time guest → drive the existing ritual sequence
-    console.log('[GuestRitual] Starting first-visit ritual (using existing RitualOverlay)');
-    setGuestRitualTriggered(true);
+    // Mark as triggered immediately (ref doesn't cause re-render)
+    guestRitualTriggeredRef.current = true;
+    console.log('[GuestRitual] Starting first-visit ritual');
 
     // Phase 1: Blooming (show "2,400" + 灯火が還りました) — 2.5s
     setRitualState('blooming');
 
-    // Phase 2: Syncing (counting animation to 2400) — after 2.5s, for 2s
+    // Phase 2: Syncing (counting animation to 2400) — after 2.5s
     const t1 = setTimeout(() => {
       setTargetBalance(2400);
       setRitualState('syncing');
     }, 2500);
 
-    // Phase 3: Done — after total 5s, close overlay
+    // Phase 3: Done — after total 5s, close overlay → Guest Home revealed
     const t2 = setTimeout(() => {
       setRitualState('idle');
       localStorage.setItem('et_hasVisited', 'true');
@@ -476,7 +477,8 @@ function App() {
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, [view, data.guestMode, data.isFirstVisit, guestRitualTriggered, setRitualState, setTargetBalance]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, data.guestMode, data.isFirstVisit]);
 
   return (
     <MicroInteractionProvider>
