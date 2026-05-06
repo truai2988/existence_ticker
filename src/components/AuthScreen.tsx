@@ -30,20 +30,27 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess, isModal = fal
   const { t: MESSAGES } = useLanguage();
   const { signIn, signUp, resetPassword } = useAuth();
   const { showToast } = useToast();
-  const [mode, setMode] = useState<"login" | "signup" | "forgot">("login");
+  const [mode, setMode] = useState<"login" | "signup" | "forgot">(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      const feedbackNeeded = sessionStorage.getItem("ghost_pured_feedback_needed");
+      if (code || feedbackNeeded === "true") return "signup";
+    }
+    return "login";
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
 
-  // ゴースト是正後のフィードバック検知
+  // ゴースト是正後のフィードバック検知 (エラー表示のみ残す)
   useEffect(() => {
     const feedbackNeeded = sessionStorage.getItem(
       "ghost_pured_feedback_needed",
     );
     if (feedbackNeeded === "true") {
-      setMode("signup");
       setError(MESSAGES.AUTH.GHOST_PURGE_FEEDBACK);
       sessionStorage.removeItem("ghost_pured_feedback_needed");
     }
@@ -61,7 +68,6 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess, isModal = fal
     const code = params.get("code");
     if (code) {
       setInvitationCode(code);
-      setMode("signup");
     }
   }, []);
 
@@ -153,7 +159,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess, isModal = fal
     <div className={`flex flex-col items-center p-4 w-full max-w-2xl mx-auto relative z-10 ${isModal ? 'mt-2' : 'justify-center min-h-[100dvh]'}`}>
       <motion.div
         layout
-        initial={{ opacity: 0, y: 20 }}
+        initial={isModal ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="w-full bg-white border border-slate-200 rounded-2xl shadow-xl p-8 overflow-hidden"
       >
