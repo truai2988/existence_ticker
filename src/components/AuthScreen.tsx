@@ -23,9 +23,10 @@ import { useLocationData } from "../hooks/useLocationData";
 
 interface AuthScreenProps {
   onSuccess: () => void;
+  isModal?: boolean;
 }
 
-export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
+export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess, isModal = false }) => {
   const { t: MESSAGES } = useLanguage();
   const { signIn, signUp, resetPassword } = useAuth();
   const { showToast } = useToast();
@@ -149,7 +150,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[100dvh] p-4 w-full max-w-2xl mx-auto relative z-10">
+    <div className={`flex flex-col items-center p-4 w-full max-w-2xl mx-auto relative z-10 ${isModal ? 'mt-2' : 'justify-center min-h-[100dvh]'}`}>
       <motion.div
         layout
         initial={{ opacity: 0, y: 20 }}

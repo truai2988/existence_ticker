@@ -672,7 +672,7 @@ export const MESSAGES = {
   },
 
   AUTH_MODAL: {
-    HEADER_COPY: "そのLmを誰かに届けるために、\nあなたの存在（名前）を教えてください",
+    HEADER_COPY: "そのLmを誰かに届けるために",
     BTN_CLOSE: "戻る",
     BTN_LOGIN: "ログイン",
   },

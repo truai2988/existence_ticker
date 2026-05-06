@@ -61,7 +61,7 @@ export const AuthModal: React.FC = () => {
               transition={{ delay: 0.2, duration: 0.4 }}
               className="flex-1"
             >
-              <AuthScreen onSuccess={onAuthSuccess} />
+              <AuthScreen onSuccess={onAuthSuccess} isModal={true} />
             </motion.div>
           </div>
         </motion.div>
