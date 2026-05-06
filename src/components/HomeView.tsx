@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Inbox, Megaphone, AlertCircle } from "lucide-react";
 import { useWallet } from "../hooks/useWallet";
 import { useProfile } from "../hooks/useProfile";
+import { useAuth } from "../hooks/useAuthHook";
+import { useAuthModal } from "../contexts/AuthModalContext";
 import { AppMode } from "../hooks/useStartupMachine";
 import { LUNAR_CONSTANTS } from "../constants";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -30,40 +32,53 @@ export const HomeView: React.FC<HomeViewProps> = ({
 }) => {
   const { performRebirthReset, availableLm, committedLm, balance } = useWallet();
   const { profile, updateProfile } = useProfile();
+  const { user } = useAuth();
+  const { requireAuth } = useAuthModal();
   const { t: MESSAGES } = useLanguage();
   const [notification, setNotification] = React.useState<string | null>(null);
 
+  // Guest Mode Detection
+  const isGuestMode = !user;
+
+  // Guest mode: Show fixed 2400 Lm as preview
+  const displayBalance = isGuestMode ? LUNAR_CONSTANTS.REBIRTH_AMOUNT : balance;
+  const displayAvailable = isGuestMode ? LUNAR_CONSTANTS.REBIRTH_AMOUNT : availableLm;
+  const displayCommitted = isGuestMode ? 0 : committedLm;
+
   const cycleDays = 10;
-  const cycleStartedAt = getMillis(
-    profile?.cycle_started_at || profile?.created_at,
-  );
+  const cycleStartedAt = isGuestMode
+    ? Date.now()
+    : getMillis(profile?.cycle_started_at || profile?.created_at);
   const nextReset = cycleStartedAt + cycleDays * 24 * 60 * 60 * 1000;
-  const daysLeft = Math.max(
-    0,
-    Math.ceil((nextReset - Date.now()) / (1000 * 60 * 60 * 24)),
-  );
+  const daysLeft = isGuestMode
+    ? cycleDays
+    : Math.max(0, Math.ceil((nextReset - Date.now()) / (1000 * 60 * 60 * 24)));
 
   // Water Clock calculations
   const maxCapacity = LUNAR_CONSTANTS.REBIRTH_AMOUNT;
-  const committedHeight = Math.min(100, (committedLm / maxCapacity) * 100);
-  const availableHeight = Math.min(100, (availableLm / maxCapacity) * 100);
+  const committedHeight = Math.min(100, (displayCommitted / maxCapacity) * 100);
+  const availableHeight = Math.min(100, (displayAvailable / maxCapacity) * 100);
 
   const ritualMessage = MESSAGES.HOME.MONOTONE_MSG_1;
   const [isWishAnimating, setIsWishAnimating] = React.useState(false);
   const [isHelpAnimating, setIsHelpAnimating] = React.useState(false);
 
   const handleWishClick = async () => {
-    setIsWishAnimating(true);
-    await new Promise((r) => setTimeout(r, 800)); // アニメーションが完了するまで待つ
-    onOpenWishes();
-    setIsWishAnimating(false);
+    requireAuth(async () => {
+      setIsWishAnimating(true);
+      await new Promise((r) => setTimeout(r, 800));
+      onOpenWishes();
+      setIsWishAnimating(false);
+    });
   };
 
   const handleHelpClick = async () => {
-    setIsHelpAnimating(true);
-    await new Promise((r) => setTimeout(r, 800));
-    onOpenConnections();
-    setIsHelpAnimating(false);
+    requireAuth(async () => {
+      setIsHelpAnimating(true);
+      await new Promise((r) => setTimeout(r, 800));
+      onOpenConnections();
+      setIsHelpAnimating(false);
+    });
   };
 
   // Monitor for interruption notifications
@@ -84,8 +99,9 @@ export const HomeView: React.FC<HomeViewProps> = ({
   // NORMAL mode = Color World (Full Color)
   // CRITICAL: We also hide color (and balance) if a ritual animation is Playing (ritualState !== 'idle')
   // This prevents the "Double 2400" overlap during the First Birth or Rebirth animations.
-  const isRitualReady = appMode === "RITUAL";
-  const showColor = appMode === "NORMAL" && ritualState === "idle";
+  // Guest mode: Always show color (no ritual for guests)
+  const isRitualReady = !isGuestMode && appMode === "RITUAL";
+  const showColor = isGuestMode || (appMode === "NORMAL" && ritualState === "idle");
 
   // Metamorphosis Logic driven by State Machine
   // Sound Effect: 528Hz Crystal Tone
@@ -164,7 +180,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 {/* Moved from Header */}
                 <div className="flex items-center gap-2 text-slate-700 mb-2 mt-[-0.5rem] font-serif text-xs font-medium tracking-[0.15em]">
                   <span className="uppercase">
-                    {MESSAGES.LAYOUT.HEADER_BALANCE}{Math.floor(balance).toLocaleString()}
+                    {MESSAGES.LAYOUT.HEADER_BALANCE}{Math.floor(displayBalance).toLocaleString()}
                   </span>
                   <div className="w-[1px] h-2.5 bg-slate-400" />
                   <span>
@@ -174,7 +190,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-xs font-serif font-medium tracking-[0.15em] text-slate-700">余り</span>
                   <span className="text-4xl md:text-5xl font-serif font-extralight tracking-[-0.02em] tabular-nums leading-none text-slate-700 transition-all duration-1000">
-                    {Math.floor(availableLm).toLocaleString()}
+                    {Math.floor(displayAvailable).toLocaleString()}
                   </span>
                   <span className="text-xs font-serif font-medium tracking-[0.15em] text-slate-700">Lm</span>
                 </div>

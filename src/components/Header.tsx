@@ -1,23 +1,27 @@
-import { Menu } from "lucide-react";
+import { Menu, LogIn } from "lucide-react";
 import React, { useState } from "react";
 import { AppViewMode } from "../types";
 import { SideDrawer } from "./SideDrawer";
 import { NoticePanel } from "./NoticePanel";
 import { InviteModal } from "./InviteModal";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useAuthModal } from "../contexts/AuthModalContext";
 
 interface HeaderProps {
   viewMode?: AppViewMode;
   onTabChange: (tab: AppViewMode) => void;
   onOpenOnboarding: () => void;
+  isGuestMode?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   viewMode,
   onTabChange,
   onOpenOnboarding,
+  isGuestMode = false,
 }) => {
   const { t: MESSAGES } = useLanguage();
+  const { showAuthModal } = useAuthModal();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   return (
@@ -45,15 +49,26 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                 </div>
 
-                {/* Right Cluster: Invite + Bell + Hamburger */}
+                {/* Right Cluster: Conditional on guest/auth state */}
                 <div className="flex h-12 items-center gap-1 shrink-0">
-                  {/* 招待ボタン */}
-                  <InviteModal />
+                  {isGuestMode ? (
+                    /* Guest: Show Login button */
+                    <button
+                      onClick={showAuthModal}
+                      className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-800 bg-white/80 border border-slate-200 rounded-xl shadow-sm hover:bg-white hover:shadow-md transition-all active:scale-95"
+                    >
+                      <LogIn size={16} strokeWidth={2} />
+                      <span>{MESSAGES.AUTH_MODAL.BTN_LOGIN}</span>
+                    </button>
+                  ) : (
+                    /* Authenticated: Show Invite + Bell */
+                    <>
+                      <InviteModal />
+                      <NoticePanel />
+                    </>
+                  )}
 
-                  {/* Notice Bell */}
-                  <NoticePanel />
-
-                  {/* Hamburger Menu */}
+                  {/* Hamburger Menu (always visible) */}
                   <button
                     onClick={() => setIsDrawerOpen(true)}
                     className="p-3 -mr-3 text-slate-700 hover:text-slate-900 transition-colors active:scale-95"

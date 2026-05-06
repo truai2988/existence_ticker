@@ -647,6 +647,11 @@ export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown>
     HEADER_DAYS_LEFT_PREFIX: "(Fills in ",
     HEADER_DAYS_LEFT_SUFFIX: "d)",
   },
+  AUTH_MODAL: {
+    HEADER_COPY: "To deliver your Source (Lm) to someone,\nplease tell us who you are",
+    BTN_CLOSE: "Back",
+    BTN_LOGIN: "Login",
+  },
   ACCOUNT_MODAL: {
     TITLE: "Account Settings",
     BTN_LOGOUT: "Logout",

@@ -1,10 +1,11 @@
 import React, { useState, Suspense, lazy, useEffect } from "react";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { motion, AnimatePresence } from "framer-motion";
-import { AuthScreen } from "./components/AuthScreen";
 import { Header } from "./components/Header";
 import { HomeView } from "./components/HomeView";
 import { OnboardingStory } from "./components/OnboardingStory";
+import { AuthModalProvider } from "./contexts/AuthModalContext";
+import { AuthModal } from "./components/AuthModal";
 
 const ProfileView = lazy(() => import("./components/ProfileView").then((m) => ({ default: m.ProfileView })));
 const JournalView = lazy(() => import("./components/JournalView").then((m) => ({ default: m.JournalView })));
@@ -436,34 +437,72 @@ function App() {
 
   // --- THE DETERMINISTIC SWITCH ---
   // Wrap everything in a top-level ErrorBoundary for catastrophic failure catching
+
+  // Guest First-Visit Ritual State
+  const [guestRitualDone, setGuestRitualDone] = useState(!data.guestMode || !data.isFirstVisit);
+  const [guestRitualPhase, setGuestRitualPhase] = useState<'idle' | 'breathing' | 'done'>('idle');
+
+  // Trigger guest ritual for first-time visitors
+  useEffect(() => {
+    if (data.guestMode && data.isFirstVisit && view === 'APP' && guestRitualPhase === 'idle') {
+      setGuestRitualPhase('breathing');
+      const timer = setTimeout(() => {
+        setGuestRitualPhase('done');
+        setGuestRitualDone(true);
+        localStorage.setItem('et_hasVisited', 'true');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [data.guestMode, data.isFirstVisit, view, guestRitualPhase]);
+
   return (
     <MicroInteractionProvider>
+      <AuthModalProvider>
       <ErrorBoundary>
           {(() => {
           switch (view) {
           case "LOADING":
             return <ScreenLoader message={data.message} />;
 
-          case "GATE":
-            return (
-              <div className="bg-[#F9F8F4] min-h-[100dvh] font-sans selection:bg-orange-100/30 overflow-hidden flex flex-col relative text-[#2D2D2D]">
-                <GoyenShimmer />
-                <div
-                  className="absolute inset-0 pointer-events-none opacity-[0.03] mix-blend-multiply z-0"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-                  }}
-                />
-                <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
-                <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
-                <AuthScreen onSuccess={() => setViewMode("home")} />
-                <ReloadPrompt />
-              </div>
-            );
-
           case "APP": {
             const isRitual = appMode === "RITUAL";
             const currentUserId = data.user?.uid || "unknown";
+            const isGuestMode = data.guestMode;
+
+            // Guest first-visit ritual overlay
+            if (isGuestMode && !guestRitualDone) {
+              return (
+                <div className="bg-[#F9F8F4] min-h-[100dvh] font-sans overflow-hidden flex flex-col items-center justify-center relative text-[#2D2D2D]">
+                  <GoyenShimmer />
+                  <motion.div
+                    className="flex flex-col items-center justify-center z-10"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 1.2, ease: "easeOut" }}
+                  >
+                    {/* Pulsing circle — the heartbeat */}
+                    <motion.div
+                      className="w-24 h-24 rounded-full bg-white/30 border border-slate-200/50 backdrop-blur-xl flex items-center justify-center"
+                      animate={{
+                        scale: [1, 1.15, 1],
+                        opacity: [0.6, 1, 0.6],
+                      }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <div className="w-3 h-3 bg-slate-400 rounded-full" />
+                    </motion.div>
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 0.8, duration: 1 }}
+                      className="mt-8 text-xs font-serif text-slate-600 tracking-[0.3em] uppercase"
+                    >
+                      Existence Ticker
+                    </motion.p>
+                  </motion.div>
+                </div>
+              );
+            }
 
             return (
               <NoticeProvider>
@@ -493,6 +532,7 @@ function App() {
                             viewMode={viewMode}
                             onTabChange={handleTabChange}
                             onOpenOnboarding={handleOpenOnboarding}
+                            isGuestMode={isGuestMode}
                           />
                         </motion.div>
                       )}
@@ -536,6 +576,10 @@ function App() {
                       />
                     </Suspense>
                   )}
+
+                  {/* Auth Modal (Deferred Login) */}
+                  <AuthModal />
+
                   <PWAInstallBanner />
                   <ReloadPrompt />
                 </div>
@@ -547,6 +591,7 @@ function App() {
         }
         })()}
       </ErrorBoundary>
+      </AuthModalProvider>
     </MicroInteractionProvider>
   );
 }

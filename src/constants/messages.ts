@@ -666,6 +666,12 @@ export const MESSAGES = {
     BTN_CLOSE: "閉じる",
   },
 
+  AUTH_MODAL: {
+    HEADER_COPY: "そのLmを誰かに届けるために、\nあなたの存在（名前）を教えてください",
+    BTN_CLOSE: "戻る",
+    BTN_LOGIN: "ログイン",
+  },
+
   ACCOUNT_MODAL: {
     TITLE: "設定",
     BTN_LOGOUT: "ログアウト",

@@ -12,6 +12,8 @@ import { AppViewMode } from "../types";
 import { usePWAInstall } from "../hooks/usePWAInstall";
 import { globalTriggerPWAInstall } from "../utils/pwaEvent";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useAuth } from "../hooks/useAuthHook";
+import { useAuthModal } from "../contexts/AuthModalContext";
 
 interface SideDrawerProps {
   isOpen: boolean;
@@ -30,8 +32,21 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
 }) => {
   const { isStandalone } = usePWAInstall();
   const { t: MESSAGES, lang, setLang } = useLanguage();
+  const { user } = useAuth();
+  const { requireAuth } = useAuthModal();
+  const isGuestMode = !user;
 
   const handleNavigate = (tab: AppViewMode) => {
+    if (isGuestMode && tab !== "home") {
+      // Guest trying to navigate away from home → require auth
+      onClose();
+      setTimeout(() => {
+        requireAuth(() => {
+          onTabChange(tab);
+        });
+      }, 300);
+      return;
+    }
     onTabChange(tab);
     onClose();
   };
@@ -151,10 +166,19 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
                     key={item.id}
                     onClick={() => {
                       if (isOnboarding) {
-                        onClose();
-                        setTimeout(() => {
-                          onOpenOnboarding?.();
-                        }, 300);
+                        if (isGuestMode) {
+                          onClose();
+                          setTimeout(() => {
+                            requireAuth(() => {
+                              onOpenOnboarding?.();
+                            });
+                          }, 300);
+                        } else {
+                          onClose();
+                          setTimeout(() => {
+                            onOpenOnboarding?.();
+                          }, 300);
+                        }
                       } else {
                         handleNavigate(item.id as AppViewMode);
                       }
