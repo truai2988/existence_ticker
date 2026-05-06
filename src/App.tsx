@@ -441,6 +441,8 @@ function App() {
   // Guest First-Visit Ritual: Drive the EXISTING RitualOverlay for first-time guests.
   // Instead of rendering a separate screen, we render Guest Home underneath and
   // use the same ritualState + RitualOverlay that authenticated users see.
+  // NOTE: The local RitualOverlay only handles 'blooming' and 'syncing' states.
+  //       'breathing' shows a white overlay with nothing inside, so we skip it.
   const [guestRitualTriggered, setGuestRitualTriggered] = useState(false);
 
   useEffect(() => {
@@ -454,29 +456,25 @@ function App() {
     console.log('[GuestRitual] Starting first-visit ritual (using existing RitualOverlay)');
     setGuestRitualTriggered(true);
 
-    // Phase 1: Breathing (pulsing dot) — 1.5s
-    setRitualState('breathing');
-    const t1 = setTimeout(() => {
-      setRitualState('blooming');
-    }, 1500);
+    // Phase 1: Blooming (show "2,400" + 灯火が還りました) — 2.5s
+    setRitualState('blooming');
 
-    // Phase 2: Blooming (show "2,400") — another 2s
-    const t2 = setTimeout(() => {
+    // Phase 2: Syncing (counting animation to 2400) — after 2.5s, for 2s
+    const t1 = setTimeout(() => {
       setTargetBalance(2400);
       setRitualState('syncing');
-    }, 3500);
+    }, 2500);
 
-    // Phase 3: Syncing (counting animation) — another 2.5s, then done
-    const t3 = setTimeout(() => {
+    // Phase 3: Done — after total 5s, close overlay
+    const t2 = setTimeout(() => {
       setRitualState('idle');
       localStorage.setItem('et_hasVisited', 'true');
       console.log('[GuestRitual] Ritual complete, hasVisited set');
-    }, 6000);
+    }, 5000);
 
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
-      clearTimeout(t3);
     };
   }, [view, data.guestMode, data.isFirstVisit, guestRitualTriggered, setRitualState, setTargetBalance]);
 
