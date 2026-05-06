@@ -60,21 +60,18 @@ const CountingNumber: React.FC<{ value: number; duration: number }> = ({
 const RitualOverlay = ({
   state,
   targetBalance,
-  onClick,
 }: {
   state: string;
   targetBalance: number;
-  onClick?: () => void;
 }) => (
   <AnimatePresence>
     {state !== "idle" && (
       <motion.div
-        className={`fixed inset-0 z-[1000] flex items-center justify-center ${onClick ? 'cursor-pointer' : 'pointer-events-none'}`}
+        className="fixed inset-0 z-[1000] flex items-center justify-center pointer-events-none"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 1 }}
-        onClick={onClick}
       >
         {/* Backdrop Blur & Brightness */}
         <div
@@ -441,35 +438,14 @@ function App() {
   // --- THE DETERMINISTIC SWITCH ---
   // Wrap everything in a top-level ErrorBoundary for catastrophic failure catching
 
-  // Guest First-Visit: Show the existing Ritual ceremony (blooming "2,400") for first-time guests.
-  // Clicking triggers the full Ritual sequence with 528Hz sound, identical to the Rebirth ceremony.
-  const [guestRitualActive, setGuestRitualActive] = useState(false);
-
+  // Guest First-Visit: Set visited flag without showing any welcome overlay
+  // so they land directly on the Home preview screen.
   useEffect(() => {
     if (view !== 'APP') return;
-    if (!data.guestMode || !data.isFirstVisit) return;
-    // Show the Ritual overlay in "blooming" state (displays "2,400")
-    setGuestRitualActive(true);
-    setRitualState('blooming');
+    if (data.guestMode && data.isFirstVisit) {
+      localStorage.setItem('et_hasVisited', 'true');
+    }
   }, [view, data.guestMode, data.isFirstVisit]);
-
-  // When guest clicks the Ritual overlay → play the full ceremony
-  const handleGuestRitualClick = async () => {
-    if (!guestRitualActive) return;
-
-    // Play 528Hz crystal tone (same as Rebirth)
-    playCrystalSound();
-
-    // Syncing phase (counting animation)
-    setTargetBalance(2400);
-    setRitualState('syncing');
-    await new Promise((r) => setTimeout(r, 2000));
-
-    // Done → reveal Guest Home
-    setRitualState('idle');
-    setGuestRitualActive(false);
-    localStorage.setItem('et_hasVisited', 'true');
-  };
 
   return (
     <MicroInteractionProvider>
@@ -540,11 +516,7 @@ function App() {
                     </Suspense>
                   </main>
 
-                  <RitualOverlay
-                    state={ritualState}
-                    targetBalance={targetBalance}
-                    onClick={guestRitualActive ? handleGuestRitualClick : undefined}
-                  />
+                  <RitualOverlay state={ritualState} targetBalance={targetBalance} />
 
                   <OnboardingStory
                     isOpen={showStoryGuide}
