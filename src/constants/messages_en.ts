@@ -10,6 +10,9 @@ type DeepPartial<T> = {
 };
 
 export const MESSAGES_EN: DeepPartial<typeof MESSAGES> & Record<string, unknown> = {
+  COMMON: {
+    TAP_SCREEN: "Tap to begin",
+  },
   SYSTEM: {
     LOCATION_FORMAT_CHECKING: "Checking...",
     LOCATION_FORMAT_ERROR: "Error",

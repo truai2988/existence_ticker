@@ -1,4 +1,4 @@
-import React, { useState, useRef, Suspense, lazy, useEffect } from "react";
+import React, { useState, Suspense, lazy, useEffect } from "react";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "./components/Header";
@@ -438,47 +438,20 @@ function App() {
   // --- THE DETERMINISTIC SWITCH ---
   // Wrap everything in a top-level ErrorBoundary for catastrophic failure catching
 
-  // Guest First-Visit Ritual: Drive the EXISTING RitualOverlay for first-time guests.
-  // Instead of rendering a separate screen, we render Guest Home underneath and
-  // use the same ritualState + RitualOverlay that authenticated users see.
-  // NOTE: The local RitualOverlay only handles 'blooming' and 'syncing' states.
-  //       'breathing' shows a white overlay with nothing inside, so we skip it.
-  const guestRitualTriggeredRef = useRef(false);
+  // Guest First-Visit Welcome: Show existing "Welcome to ET" screen for first-time guests.
+  // Click anywhere to dismiss → reveals Guest Home underneath.
+  const [showGuestWelcome, setShowGuestWelcome] = useState(false);
 
   useEffect(() => {
     if (view !== 'APP') return;
-    if (guestRitualTriggeredRef.current) return;
-
-    // Authenticated user or returning guest → no ritual needed
     if (!data.guestMode || !data.isFirstVisit) return;
-
-    // First-time guest → drive the existing ritual sequence
-    // Mark as triggered immediately (ref doesn't cause re-render)
-    guestRitualTriggeredRef.current = true;
-    console.log('[GuestRitual] Starting first-visit ritual');
-
-    // Phase 1: Blooming (show "2,400" + 灯火が還りました) — 2.5s
-    setRitualState('blooming');
-
-    // Phase 2: Syncing (counting animation to 2400) — after 2.5s
-    const t1 = setTimeout(() => {
-      setTargetBalance(2400);
-      setRitualState('syncing');
-    }, 2500);
-
-    // Phase 3: Done — after total 5s, close overlay → Guest Home revealed
-    const t2 = setTimeout(() => {
-      setRitualState('idle');
-      localStorage.setItem('et_hasVisited', 'true');
-      console.log('[GuestRitual] Ritual complete, hasVisited set');
-    }, 5000);
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    setShowGuestWelcome(true);
   }, [view, data.guestMode, data.isFirstVisit]);
+
+  const handleDismissGuestWelcome = () => {
+    setShowGuestWelcome(false);
+    localStorage.setItem('et_hasVisited', 'true');
+  };
 
   return (
     <MicroInteractionProvider>
@@ -569,6 +542,70 @@ function App() {
 
                   {/* Auth Modal (Deferred Login) */}
                   <AuthModal />
+
+                  {/* Guest First-Visit Welcome Screen */}
+                  <AnimatePresence>
+                    {showGuestWelcome && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.8 }}
+                        onClick={handleDismissGuestWelcome}
+                        className="fixed inset-0 z-[800] flex items-center justify-center overflow-hidden cursor-pointer"
+                      >
+                        {/* Golden Dawn Flash Background */}
+                        <motion.div
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1.5, opacity: 1 }}
+                          transition={{ duration: 2, ease: "easeOut" }}
+                          className="absolute inset-0 bg-gradient-radial from-amber-100 via-orange-50 to-white"
+                        />
+
+                        {/* Washi Paper Texture */}
+                        <div
+                          className="absolute inset-0 opacity-40 mix-blend-multiply pointer-events-none"
+                          style={{
+                            backgroundImage:
+                              'url("https://www.transparenttextures.com/patterns/handmade-paper.png")',
+                          }}
+                        />
+
+                        {/* Welcome Message */}
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: 0.5, duration: 1.5 }}
+                          className="relative z-10 px-12 py-16 text-center"
+                        >
+                          <h2 className="text-3xl md:text-5xl font-serif text-slate-900 tracking-[0.3em] font-bold leading-relaxed whitespace-pre-wrap">
+                            {"あなたの存在を、\nこのインフラは歓迎します"}
+                          </h2>
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: "100%" }}
+                            transition={{ delay: 1.5, duration: 1.5 }}
+                            className="h-[1px] bg-slate-400 mt-12 mx-auto"
+                          />
+                          <motion.p
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 0.5 }}
+                            transition={{ delay: 2.5, duration: 1 }}
+                            className="mt-8 text-xs tracking-[0.2em] text-slate-500"
+                          >
+                            画面をタップして始める
+                          </motion.p>
+                        </motion.div>
+
+                        {/* Soft Radial Glow */}
+                        <motion.div
+                          animate={{ opacity: [0.3, 0.6, 0.3] }}
+                          transition={{ duration: 4, repeat: Infinity }}
+                          className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_0%,_white_100%)]"
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   <PWAInstallBanner />
                   <ReloadPrompt />

@@ -1,4 +1,9 @@
 export const MESSAGES = {
+  // 0. 共通（画面横断）
+  COMMON: {
+    TAP_SCREEN: "画面をタップして始める",
+  },
+
   // 1. 基盤・通知・エラー関連 (Hooks / Utils)
   SYSTEM: {
     PWA_INSTALL_PROMPT: "アプリをインストールしますか？",
