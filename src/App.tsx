@@ -438,22 +438,47 @@ function App() {
   // --- THE DETERMINISTIC SWITCH ---
   // Wrap everything in a top-level ErrorBoundary for catastrophic failure catching
 
-  // Guest First-Visit Ritual State
-  const [guestRitualDone, setGuestRitualDone] = useState(!data.guestMode || !data.isFirstVisit);
-  const [guestRitualPhase, setGuestRitualPhase] = useState<'idle' | 'breathing' | 'done'>('idle');
+  // Guest First-Visit Ritual: Drive the EXISTING RitualOverlay for first-time guests.
+  // Instead of rendering a separate screen, we render Guest Home underneath and
+  // use the same ritualState + RitualOverlay that authenticated users see.
+  const [guestRitualTriggered, setGuestRitualTriggered] = useState(false);
 
-  // Trigger guest ritual for first-time visitors
   useEffect(() => {
-    if (data.guestMode && data.isFirstVisit && view === 'APP' && guestRitualPhase === 'idle') {
-      setGuestRitualPhase('breathing');
-      const timer = setTimeout(() => {
-        setGuestRitualPhase('done');
-        setGuestRitualDone(true);
-        localStorage.setItem('et_hasVisited', 'true');
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [data.guestMode, data.isFirstVisit, view, guestRitualPhase]);
+    if (view !== 'APP') return;
+    if (guestRitualTriggered) return;
+
+    // Authenticated user or returning guest → no ritual needed
+    if (!data.guestMode || !data.isFirstVisit) return;
+
+    // First-time guest → drive the existing ritual sequence
+    console.log('[GuestRitual] Starting first-visit ritual (using existing RitualOverlay)');
+    setGuestRitualTriggered(true);
+
+    // Phase 1: Breathing (pulsing dot) — 1.5s
+    setRitualState('breathing');
+    const t1 = setTimeout(() => {
+      setRitualState('blooming');
+    }, 1500);
+
+    // Phase 2: Blooming (show "2,400") — another 2s
+    const t2 = setTimeout(() => {
+      setTargetBalance(2400);
+      setRitualState('syncing');
+    }, 3500);
+
+    // Phase 3: Syncing (counting animation) — another 2.5s, then done
+    const t3 = setTimeout(() => {
+      setRitualState('idle');
+      localStorage.setItem('et_hasVisited', 'true');
+      console.log('[GuestRitual] Ritual complete, hasVisited set');
+    }, 6000);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [view, data.guestMode, data.isFirstVisit, guestRitualTriggered, setRitualState, setTargetBalance]);
 
   return (
     <MicroInteractionProvider>
@@ -468,41 +493,6 @@ function App() {
             const isRitual = appMode === "RITUAL";
             const currentUserId = data.user?.uid || "unknown";
             const isGuestMode = data.guestMode;
-
-            // Guest first-visit ritual overlay
-            if (isGuestMode && !guestRitualDone) {
-              return (
-                <div className="bg-[#F9F8F4] min-h-[100dvh] font-sans overflow-hidden flex flex-col items-center justify-center relative text-[#2D2D2D]">
-                  <GoyenShimmer />
-                  <motion.div
-                    className="flex flex-col items-center justify-center z-10"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 1.2, ease: "easeOut" }}
-                  >
-                    {/* Pulsing circle — the heartbeat */}
-                    <motion.div
-                      className="w-24 h-24 rounded-full bg-white/30 border border-slate-200/50 backdrop-blur-xl flex items-center justify-center"
-                      animate={{
-                        scale: [1, 1.15, 1],
-                        opacity: [0.6, 1, 0.6],
-                      }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                    >
-                      <div className="w-3 h-3 bg-slate-400 rounded-full" />
-                    </motion.div>
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.8, duration: 1 }}
-                      className="mt-8 text-xs font-serif text-slate-600 tracking-[0.3em] uppercase"
-                    >
-                      Existence Ticker
-                    </motion.p>
-                  </motion.div>
-                </div>
-              );
-            }
 
             return (
               <NoticeProvider>
