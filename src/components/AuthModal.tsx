@@ -28,7 +28,7 @@ export const AuthModal: React.FC = () => {
           <div className="absolute inset-0 bg-[#F9F8F4]/95 backdrop-blur-md" />
 
           {/* Content Layer */}
-          <div className="relative z-10 flex flex-col w-full h-full overflow-y-auto">
+          <div className="relative z-10 flex flex-col w-full h-full overflow-y-auto no-scrollbar">
             {/* Top Bar: Close button */}
             <div className="w-full max-w-2xl mx-auto px-4 pt-4 flex justify-end shrink-0">
               <motion.button
