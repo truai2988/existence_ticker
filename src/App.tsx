@@ -271,8 +271,7 @@ const ScreenLoader = ({ message }: { message?: string }) => (
       }}
     />
     {/* Ambient Blooms */}
-    <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none" />
-    <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none" />
+
 
     <div className="relative flex flex-col items-center justify-center z-10">
       <div className="relative flex items-center justify-center mb-8">
@@ -471,8 +470,7 @@ function App() {
                       backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
                     }}
                   />
-                  <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
-                  <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/10 blur-[120px] rounded-full pointer-events-none z-0" />
+
 
                   <main className="flex-1 relative overflow-y-auto no-scrollbar scroll-smooth flex flex-col">
                     {/* Header */}
