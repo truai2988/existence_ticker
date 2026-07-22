@@ -84,16 +84,33 @@ export const useStartupMachine = () => {
 
         // PHASE 4: GHOST / PENDING PROFILE
         if (!profile) {
-            // If it's a known ghost or we're in the middle of registering
-            // stay in LOADING to avoid showing broken APP
+            // If we're actively registering, show the registration loading screen
+            if (isRegistering || (window as { __isRegistering?: boolean }).__isRegistering) {
+                return {
+                    view: 'LOADING' as StartupView,
+                    appMode: 'NORMAL' as AppMode,
+                    data: { 
+                        user, 
+                        profile: null, 
+                        isAdmin,
+                        message: "新しい存在を刻んでいます...",
+                        guestMode: false,
+                        isFirstVisit: false,
+                    },
+                    actions: { signOut, deleteAccount }
+                };
+            }
+
+            // Otherwise, if the app has already rendered (e.g. user logging in from Guest mode),
+            // retain APP view to keep modal & button loading state intact
             return {
-                view: 'LOADING' as StartupView,
+                view: hasRenderedApp.current ? 'APP' as StartupView : 'LOADING' as StartupView,
                 appMode: 'NORMAL' as AppMode,
                 data: { 
                     user, 
                     profile: null, 
                     isAdmin,
-                    message: (isRegistering || (window as { __isRegistering?: boolean }).__isRegistering) ? "新しい存在を刻んでいます..." : "接続を確認しています...",
+                    message: "接続を確認しています...",
                     guestMode: false,
                     isFirstVisit: false,
                 },

@@ -106,8 +106,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess, isModal = fal
         if (!password) throw new Error(MESSAGES.AUTH.PASSWORD_REQUIRED);
 
         await signIn(email, password);
-        setShowWelcome(true);
-        setTimeout(() => onSuccess(), 4000);
+        onSuccess();
       } else if (mode === "signup") {
         // バリデーション
         if (!name.trim()) throw new Error(MESSAGES.AUTH.NAME_REQUIRED);
