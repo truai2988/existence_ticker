@@ -77,6 +77,11 @@ export const generateCreativeContent = functions.https.onRequest(async (req, res
   }
 });
 
+// シンプルなインメモリのレートリミット（1分間にX回まで）
+const draftRateLimits = new Map<string, number[]>();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const MAX_REQUESTS_PER_WINDOW = 5;
+
 /**
  * Cloud Function: Generate Wish Draft
  * 
@@ -92,6 +97,22 @@ export const generateWishDraft = functions.https.onCall(async (data, context) =>
   if (!context.auth) {
     throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
   }
+
+  const uid = context.auth.uid;
+  const now = Date.now();
+  
+  // 2. Rate Limiting (スパム対策)
+  const userRequests = draftRateLimits.get(uid) || [];
+  // 1分以内のリクエストだけ残す
+  const recentRequests = userRequests.filter(timestamp => now - timestamp < RATE_LIMIT_WINDOW_MS);
+  
+  if (recentRequests.length >= MAX_REQUESTS_PER_WINDOW) {
+    console.warn(`Rate limit exceeded for user: ${uid}`);
+    throw new functions.https.HttpsError('resource-exhausted', 'Too many requests. Please try again later.');
+  }
+  
+  recentRequests.push(now);
+  draftRateLimits.set(uid, recentRequests);
 
   const { keyword } = data;
 

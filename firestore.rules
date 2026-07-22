@@ -150,7 +150,7 @@ service cloud.firestore {
     //       （コードが valid かどうかをアカウント作成前に検証するため）
     // list/create/delete: 管理者のみ
     match /invitation_codes/{codeId} {
-      allow read: if true; // 登録フロー（未認証）から招待コードを確認できるよう開放
+      allow get: if true; // 登録フロー（未認証）から単一の招待コードのみ確認できるよう開放（全件リスト取得は禁止）
       allow create, delete, list: if isAdmin();
       // 使用済みフラグの更新のみ許可（コード消費操作）
       allow update: if (isSignedIn()

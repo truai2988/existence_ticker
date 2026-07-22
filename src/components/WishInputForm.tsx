@@ -60,9 +60,10 @@ export const WishInputForm: React.FC<WishInputFormProps> = ({ onSuccess }) => {
       } else {
         setCreationError(MESSAGES.CREATE_WISH.AI_DRAFT_ERROR);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to generate draft", error);
-      setCreationError(MESSAGES.CREATE_WISH.AI_DRAFT_ERROR);
+      alert(`[Debug Log] Draft generation failed: ${error?.message || error}`);
+      setCreationError(`${MESSAGES.CREATE_WISH.AI_DRAFT_ERROR}: ${error?.message || ''}`);
     } finally {
       setIsDrafting(false);
     }
