@@ -47,8 +47,8 @@ export const useProfile = () => {
         }
         setIsLoading(false);
       },
-      () => {
-        // console.warn("[useProfile] Profile sync error (likely permission/init):", error);
+      (error) => {
+        console.error("[useProfile] Profile sync error:", error);
         setProfile(null);
         setIsLoading(false);
       },

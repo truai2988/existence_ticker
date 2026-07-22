@@ -106,6 +106,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess, isModal = fal
         if (!password) throw new Error(MESSAGES.AUTH.PASSWORD_REQUIRED);
 
         await signIn(email, password);
+        // 短い待機（400ms）を挟んでFirestoreのプロフィール同期を待ち、データが表示された状態でモーダルを閉じる
+        await new Promise((resolve) => setTimeout(resolve, 400));
         onSuccess();
       } else if (mode === "signup") {
         // バリデーション

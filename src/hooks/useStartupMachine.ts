@@ -101,16 +101,33 @@ export const useStartupMachine = () => {
                 };
             }
 
-            // Otherwise, if the app has already rendered (e.g. user logging in from Guest mode),
-            // retain APP view to keep modal & button loading state intact
+            // While profile is actively loading for the first time, stay in LOADING
+            if (profileLoading && !hasRenderedApp.current) {
+                return {
+                    view: 'LOADING' as StartupView,
+                    appMode: 'NORMAL' as AppMode,
+                    data: { 
+                        user, 
+                        profile: null, 
+                        isAdmin,
+                        message: "接続を確認しています...",
+                        guestMode: false,
+                        isFirstVisit: false,
+                    },
+                    actions: { signOut, deleteAccount }
+                };
+            }
+
+            // Once profileLoading finishes (or if APP was already rendered), proceed to APP
+            hasRenderedApp.current = true;
             return {
-                view: hasRenderedApp.current ? 'APP' as StartupView : 'LOADING' as StartupView,
+                view: 'APP' as StartupView,
                 appMode: 'NORMAL' as AppMode,
                 data: { 
                     user, 
                     profile: null, 
                     isAdmin,
-                    message: "接続を確認しています...",
+                    message: undefined,
                     guestMode: false,
                     isFirstVisit: false,
                 },
