@@ -7,6 +7,7 @@ import {
   User,
   Sprout,
   Download,
+  LogOut,
 } from "lucide-react";
 import { AppViewMode } from "../types";
 import { usePWAInstall } from "../hooks/usePWAInstall";
@@ -32,7 +33,7 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
 }) => {
   const { isStandalone } = usePWAInstall();
   const { t: MESSAGES, lang, setLang } = useLanguage();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { requireAuth } = useAuthModal();
   const isGuestMode = !user;
 
@@ -201,7 +202,23 @@ export const SideDrawer: React.FC<SideDrawerProps> = ({
             </nav>
 
             {/* Footer */}
-            <div className="px-7 pb-10 pt-6 border-t border-slate-300/50 flex flex-col items-center gap-6">
+            <div className="px-7 pb-10 pt-6 border-t border-slate-300/50 flex flex-col items-center gap-5">
+              {!isGuestMode && (
+                <button
+                  onClick={async () => {
+                    const confirmLogout = window.confirm("ログアウトしますか？");
+                    if (!confirmLogout) return;
+                    await signOut();
+                    onClose();
+                    onTabChange("home");
+                  }}
+                  className="w-full py-3 px-4 flex items-center justify-center gap-2 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 rounded-xl transition-colors border border-red-100 shadow-sm"
+                >
+                  <LogOut size={16} />
+                  <span>ログアウト</span>
+                </button>
+              )}
+
               {/* Language Switcher */}
               <div className="flex bg-slate-200/50 p-1 rounded-xl shrink-0 shadow-inner">
                 <button
