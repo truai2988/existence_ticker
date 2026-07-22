@@ -116,7 +116,10 @@ const MAX_REQUESTS_PER_WINDOW = 5;
  * }
  */
 exports.generateWishDraft = functions.https.onCall(async (data, context) => {
-    // 1. Security Check
+    // 1. Security Check (App Check & Auth)
+    if (!context.app) {
+        throw new functions.https.HttpsError('failed-precondition', 'The function must be called from an App Check verified app.');
+    }
     if (!context.auth) {
         throw new functions.https.HttpsError('unauthenticated', 'The function must be called while authenticated.');
     }
