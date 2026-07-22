@@ -45,13 +45,17 @@ if (apiKey) {
 
   const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
   if (recaptchaSiteKey) {
-    appCheck = initializeAppCheck(app, {
-      provider: new ReCaptchaV3Provider(recaptchaSiteKey),
-      // バックグラウンドでトークンを自動更新する（推奨）
-      isTokenAutoRefreshEnabled: true,
-    });
+    try {
+      appCheck = initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(recaptchaSiteKey),
+        isTokenAutoRefreshEnabled: true,
+      });
+      console.log('[App Check] Initialized successfully with key:', recaptchaSiteKey.substring(0, 6) + '...');
+    } catch (err) {
+      console.error('[App Check] Initialization error:', err);
+    }
   } else {
-    console.warn('[App Check] VITE_RECAPTCHA_SITE_KEY not found. App Check is disabled.');
+    console.warn('[App Check] VITE_RECAPTCHA_SITE_KEY not found in env. App Check is disabled.');
   }
 
 } else {
