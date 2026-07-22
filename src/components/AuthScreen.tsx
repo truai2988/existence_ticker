@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../hooks/useAuthHook';
+import { useProfile } from '../hooks/useProfile';
 import { useToast } from '../hooks/useToast';
 import { useLanguage } from '../contexts/LanguageContext';
 import {
@@ -29,6 +30,7 @@ interface AuthScreenProps {
 export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess, isModal = false }) => {
   const { t: MESSAGES } = useLanguage();
   const { signIn, signUp, resetPassword } = useAuth();
+  const { profile } = useProfile();
   const { showToast } = useToast();
   const [mode, setMode] = useState<"login" | "signup" | "forgot">(() => {
     if (typeof window !== "undefined") {
@@ -45,6 +47,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess, isModal = fal
   const [showPassword, setShowPassword] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [loginPending, setLoginPending] = useState(false);
+
+  useEffect(() => {
+    if (loginPending && profile) {
+      setLoginPending(false);
+      setIsLoading(false);
+      onSuccess();
+    }
+  }, [loginPending, profile, onSuccess]);
 
   useEffect(() => {
     setMounted(true);
@@ -93,6 +104,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess, isModal = fal
     setIsSuccess(false);
     setIsLoading(true);
 
+    let isWaitingForProfile = false;
+
     // 標準的なバリデーション (メール形式チェック)
     const validateEmail = (email: string) => {
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -105,10 +118,11 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess, isModal = fal
           throw new Error(MESSAGES.AUTH.EMAIL_INVALID);
         if (!password) throw new Error(MESSAGES.AUTH.PASSWORD_REQUIRED);
 
+        isWaitingForProfile = true;
+        setLoginPending(true);
         await signIn(email, password);
-        // 短い待機（400ms）を挟んでFirestoreのプロフィール同期を待ち、データが表示された状態でモーダルを閉じる
-        await new Promise((resolve) => setTimeout(resolve, 400));
-        onSuccess();
+        // signIn 完了後は useEffect 側で profile のロードを待ち、onSuccess を呼んでモーダルを閉じる
+        return;
       } else if (mode === "signup") {
         // バリデーション
         if (!name.trim()) throw new Error(MESSAGES.AUTH.NAME_REQUIRED);
@@ -149,6 +163,8 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess, isModal = fal
         return;
       }
     } catch (err: unknown) {
+      isWaitingForProfile = false;
+      setLoginPending(false);
       console.error(err);
       const error = err as { code?: string; message?: string };
       const message = error.code
@@ -157,7 +173,7 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ onSuccess, isModal = fal
       showToast(message, 'error');
       setError(message);
     } finally {
-      if (mode !== "forgot") setIsLoading(false);
+      if (mode !== "forgot" && !isWaitingForProfile) setIsLoading(false);
     }
   };
 
