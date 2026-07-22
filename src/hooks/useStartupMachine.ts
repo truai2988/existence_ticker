@@ -1,7 +1,7 @@
 import { useAuth } from "./useAuthHook";
 import { useProfile } from "./useProfile";
 import { useWallet } from "./useWallet";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { User } from 'firebase/auth';
 import { UserProfile } from '../types';
 
@@ -43,6 +43,7 @@ export const useStartupMachine = () => {
 
     // Check first-visit state from localStorage (stable across renders)
     const isFirstVisit = !localStorage.getItem(HAS_VISITED_KEY);
+    const hasRenderedApp = useRef(false);
 
     // 2. The Deterministic State Machine
     return useMemo((): StartupResult => {
@@ -59,6 +60,7 @@ export const useStartupMachine = () => {
         // PHASE 2: GUEST MODE (Unauthenticated → proceed to APP as guest)
         // Previously this was GATE; now we allow guests to browse Home
         if (!user) {
+            hasRenderedApp.current = true;
             return {
                 view: 'APP' as StartupView,
                 appMode: 'NORMAL' as AppMode,
@@ -69,8 +71,11 @@ export const useStartupMachine = () => {
 
         // PHASE 3: AUTHENTICATED but profile loading
         if (profileLoading) {
+            // If the user just logged in from Guest mode, we are already in APP.
+            // Returning LOADING here would destroy the APP DOM (including Auth animations).
+            // So we stay in APP if we've already rendered it once.
             return {
-                view: 'LOADING' as StartupView,
+                view: hasRenderedApp.current ? 'APP' : 'LOADING' as StartupView,
                 appMode: 'NORMAL' as AppMode,
                 data: { user, profile: null, isAdmin: false, guestMode: false, isFirstVisit: false },
                 actions: { signOut, deleteAccount }
@@ -99,6 +104,8 @@ export const useStartupMachine = () => {
         // PHASE 5: EXISTENCE (The App — fully authenticated)
         const appMode: AppMode = walletStatus === 'RITUAL_READY' ? 'RITUAL' : 'NORMAL';
 
+        hasRenderedApp.current = true;
+        
         return {
             view: 'APP' as StartupView,
             appMode,
